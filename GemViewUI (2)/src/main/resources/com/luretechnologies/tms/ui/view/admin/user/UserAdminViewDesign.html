@@ -1,0 +1,99 @@
+<!doctype html>
+<html>
+ <head>
+  <meta charset="UTF-8">
+  <meta name="design-properties" content="{&quot;RULERS_VISIBLE&quot;:true,&quot;GUIDELINES_VISIBLE&quot;:false,&quot;SNAP_TO_OBJECTS&quot;:true,&quot;SNAP_TO_GRID&quot;:true,&quot;SNAPPING_DISTANCE&quot;:10,&quot;GENERATE_GETTERS&quot;:false,&quot;JAVA_SOURCES_ROOT&quot;:&quot;src/main/java&quot;,&quot;THEME&quot;:&quot;apptheme&quot;}">
+  <meta name="vaadin-version" content="8.0.5">
+  <meta name="package-mapping" content="com_vaadin_template_orders_ui_view_admin:com.luretechnologies.tms.ui.view.admin">
+  <meta name="package-mapping" content="com_vaadin:com.vaadin">
+ </head>
+ <body>
+  <vaadin-panel caption="Users" size-full>
+   <vaadin-vertical-layout style-name="crud-template" spacing="false" responsive margin="false">
+    <vaadin-horizontal-layout style-name="top-bar" spacing="false" width-full height="50px">
+     <vaadin-horizontal-layout spacing="false" width-full :middle :expand>
+      <vaadin-text-field icon="fonticon://FontAwesome/f002" style-name="small inline-icon search" id="search" placeholder="Search" width-full _id="search"></vaadin-text-field>
+     </vaadin-horizontal-layout>
+     <vaadin-button icon="fonticon://FontAwesome/f067" style-name="borderless" id="add" plain-text _id="add" :middle :right>
+       Add new 
+     </vaadin-button>
+    </vaadin-horizontal-layout>
+    <vaadin-css-layout style-name="content" size-full :expand>
+     <vaadin-css-layout style-name="list" size-full>
+      <vaadin-horizontal-layout size-full _id="screen">
+       <vaadin-grid responsive id="list" size-full data-item-type="com.luretechnologies.tms.backend.data.entity.User" _id="list" :expand></vaadin-grid>
+      </vaadin-horizontal-layout>
+     </vaadin-css-layout>
+     <vaadin-vertical-layout enabled="false" style-name="inspect" spacing="false" id="form" size-full margin="false" _id="form">
+      <vaadin-css-layout style-name="edit" size-full :expand>
+       <vaadin-horizontal-layout style-name="section half" width-full>
+        <vaadin-text-field required-indicator-visible caption="User Name" style-name="small" id="name" width-full height="31px" _id="name"></vaadin-text-field>
+        <com_vaadin_template_orders_ui_view_admin-role-select caption="Roles" style-name="small" id="role" width-full _id="role"></com_vaadin_template_orders_ui_view_admin-role-select>
+       </vaadin-horizontal-layout>
+       <vaadin-css-layout style-name="section half" width-full>
+        <vaadin-text-field required-indicator-visible caption="First Name" style-name="small" id="firstname" width-full _id="firstname"></vaadin-text-field>
+       </vaadin-css-layout>
+       <vaadin-css-layout style-name="section half" width-full>
+        <vaadin-text-field required-indicator-visible caption="Last Name" style-name="small" id="lastname" width-full _id="lastname"></vaadin-text-field>
+       </vaadin-css-layout>
+       <vaadin-horizontal-layout style-name="section half" width-full>
+        <vaadin-text-field caption="Email" style-name="small" id="email" width-full height="31px" _id="email"></vaadin-text-field>
+        <vaadin-button style-name="small primary" id="anuthentication" width="98%" plain-text _id="anuthentication" :bottom>
+          Send Authentication 
+        </vaadin-button>
+       </vaadin-horizontal-layout>
+       <vaadin-vertical-layout width-auto height="138px">
+        <vaadin-horizontal-layout style-name="section half" responsive>
+         <vaadin-label caption="Active" responsive id="activelabel" plain-text _id="activelabel" :middle></vaadin-label>
+         <vaadin-check-box caption="Allow Access" id="active" _id="active1" :middle></vaadin-check-box>
+        </vaadin-horizontal-layout>
+        <vaadin-horizontal-layout style-name="section half" responsive>
+         <vaadin-label caption="Fixed IP" responsive id="fixediplabel" plain-text _id="fixediplabel" :bottom></vaadin-label>
+         <vaadin-check-box caption="Allow Access" id="fixedip" _id="fixedip" :middle></vaadin-check-box>
+         <vaadin-text-field caption="IP" height="26px"></vaadin-text-field>
+        </vaadin-horizontal-layout>
+       </vaadin-vertical-layout>
+       <vaadin-css-layout size-full>
+        <vaadin-horizontal-layout style-name="section half">
+         <vaadin-label caption="Password Period" responsive id="passfrequencyLabel" plain-text _id="passfrequencyLabel"></vaadin-label>
+         <vaadin-native-select style-name="small" id="passfrequency" size-full data-item-type="java.lang.String" _id="passfrequency">
+          <option item="Option1">20</option>
+          <option item="Option2">30</option>
+          <option item="Option3">40</option>
+         </vaadin-native-select>
+         <vaadin-button style-name="small primary" id="temppassowrd" width-full plain-text _id="temppassowrd">
+           Send Temp Password 
+         </vaadin-button>
+        </vaadin-horizontal-layout>
+       </vaadin-css-layout>
+       <vaadin-css-layout width="70%" height-full>
+        <vaadin-horizontal-layout style-name="section half">
+         <vaadin-label caption="Verification Frequency" responsive id="verificationfrequencylabel" plain-text _id="verificationfrequencylabel"></vaadin-label>
+         <vaadin-native-select style-name="small" id="verificationfrequency" width-full height="142.31%" data-item-type="java.lang.String" _id="verificationfrequency1" :middle>
+          <option item="Option1">New Computer</option>
+          <option item="Option2">Old Computer</option>
+          <option item="Option3">Verified</option>
+         </vaadin-native-select>
+        </vaadin-horizontal-layout>
+       </vaadin-css-layout>
+       <vaadin-css-layout style-name="section half" width-full>
+        <vaadin-text-field caption="Password" style-name="small" id="password" width-full _id="password"></vaadin-text-field>
+       </vaadin-css-layout>
+      </vaadin-css-layout>
+      <vaadin-horizontal-layout style-name="buttons border-top" width-full height="50px">
+       <vaadin-button style-name="small primary" id="update" plain-text _id="update" :middle>
+         Update 
+       </vaadin-button>
+       <vaadin-button style-name="small" id="cancel" plain-text _id="cancel" :middle :center>
+         Cancel 
+       </vaadin-button>
+       <vaadin-button style-name="small danger" id="delete" plain-text _id="delete" :middle :right :expand>
+         Delete 
+       </vaadin-button>
+      </vaadin-horizontal-layout>
+     </vaadin-vertical-layout>
+    </vaadin-css-layout>
+   </vaadin-vertical-layout>
+  </vaadin-panel>
+ </body>
+</html>

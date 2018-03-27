@@ -1,0 +1,157 @@
+// Global variable overrides. Must be declared before importing Valo.
+
+// Defines the plaintext font size, weight and family. Font size affects general component sizing.
+//$v-font-size: 16px;
+//$v-font-weight: 300;
+//$v-font-family: "Open Sans", sans-serif;
+
+// Defines the border used by all components.
+//$v-border: 1px solid (v-shade 0.7);
+//$v-border-radius: 4px;
+
+// Affects the color of some component elements, e.g Button, Panel title, etc
+//$v-background-color: hsl(210, 0%, 98%);
+// Affects the color of content areas, e.g  Panel and Window content, TextField input etc
+//$v-app-background-color: $v-background-color;
+
+// Affects the visual appearance of all components
+//$v-gradient: v-linear 8%;
+//$v-bevel-depth: 30%;
+//$v-shadow-opacity: 5%;
+
+// Defines colors for indicating status (focus, success, failure)
+//$v-focus-color: valo-focus-color(); // Calculates a suitable color automatically
+//$v-friendly-color: #2c9720;
+//$v-error-indicator-color: #ed473b;
+
+// For more information, see: https://vaadin.com/book/-/page/themes.valo.html
+// Example variants can be copy/pasted from https://vaadin.com/wiki/-/wiki/Main/Valo+Examples
+
+// The "App Shell" template colors are based off v-focus-color
+$v-focus-color: #145A32;
+
+// Background gradient and image used for the menu, false disables
+$app-background-gradient: unquote("linear-gradient(145deg, #145A32 30%, #145A32 100%)");
+$app-background-color: #145A32;
+
+.apptheme .app-shell[width-range~="601px-"] .navigation-bar {
+	background-color: #216C2A !important;
+	overflow-y:auto;
+	overflow-x:hidden;
+}
+
+.app-shell .navigation-bar {
+	background: #4b4b65 !important;
+	z-index: 10000 !important;
+}
+
+.app-shell[width-range~="601px-1000px"] .navigation-bar-container .navigation .v-button .v-button-caption {
+	font-size: 9.0px !important;
+	margin: 0;
+	width: 100%;
+	float: left;
+	margin-top: 3px;
+	text-align: center;
+}
+
+.app-shell .navigation-bar {
+	background: #216C2A !important;
+	z-index: 10000 !important;
+}
+
+.apptheme .app-shell .navigation-bar {
+	color: white !important;
+	background-size: cover !important;
+	background-position: top !important;
+}
+
+.app-shell .navigation {
+	border-top: 1px solid #5a5a79 !important;
+	border-bottom: 1px solid #5a5a79 !important;
+	background: #216C2A !important;
+}
+
+.apptheme .v-grid-row-selected > td {
+	background: #216C2A !important;
+}
+
+.app-shell .navigation .v-button {
+	text-align: left;
+	font-size: 14.4px;
+	text-overflow: ellipsis;
+	color: white !important;
+}
+
+.role-textbox{
+	border:0;
+	border-bottom: 1px solid black !important;
+}
+
+.role-name-layout{
+	margin-left:-95px !important;
+}
+
+.role-description-layout{
+	margin-left:15px !important;
+}
+
+.role-activeLable{
+	padding-right:10px !important;
+}
+
+.apptheme .v-panel-caption-custom {
+	box-sizing: border-box;
+	padding: 0 12px;
+	line-height: 36px;
+	border-bottom: 1px solid #d5d5d5;
+	background-color: #fafafa;
+	background-image: -webkit-linear-gradient(top, #fafafa 2%, #f6f6f6 98%);
+	background-image: linear-gradient(to bottom,#fafafa 2%, #f6f6f6 98%);
+	color: #464646;
+	font-weight: bold !important;
+	font-size: 36px !important;
+	font-color:#216C2A !important;
+	-webkit-box-shadow: inset 0 1px 0 white, inset 0 -1px 0 #eeeeee;
+	box-shadow: inset 0 1px 0 white, inset 0 -1px 0 #eeeeee;
+	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.05);
+	border-radius: 3px 3px 0 0;
+}
+
+
+@import '../valo/valo.scss';
+@import 'dashboardview';
+@import 'menu';
+
+@mixin apptheme {
+  @include valo;
+  @include dashboardview;
+  @include menu;
+
+  .v-errorindicator {
+    // Only show validation errors using field styles
+    display: none;
+  }
+  .Vaadin-Icons {
+    // Make Vaadin Icons behave exactly like FontAwesome
+    font-style: normal;
+    font-weight: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    display: inline-block;
+    text-align: center;
+  }
+  
+ .v-caption-inline-label{
+ 	padding: 4px 9px;
+  	display: inline-block;
+}
+
+.v-grid-tablewrapper {
+	border: 1px solid #d4d4d4;
+}
+.v-grid {
+        .v-grid-cell {
+            border: 0px;
+        }
+    }
+}
