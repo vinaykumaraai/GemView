@@ -5,10 +5,13 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.data.BeanValidationBinder;
+import com.vaadin.data.TreeData;
 import com.vaadin.data.ValidationResult;
 import com.vaadin.data.Validator;
 import com.vaadin.data.ValueContext;
+import com.vaadin.data.provider.TreeDataProvider;
 import com.vaadin.data.validator.BeanValidator;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.spring.annotation.SpringView;
 import com.luretechnologies.tms.backend.data.entity.User;
 import com.luretechnologies.tms.ui.view.admin.AbstractCrudView;
@@ -16,7 +19,11 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Component.Focusable;
 import com.vaadin.ui.Grid;
+import com.vaadin.ui.HorizontalSplitPanel;
+import com.vaadin.ui.IconGenerator;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.Tree;
+import com.vaadin.ui.VerticalLayout;
 
 @SpringView
 public class UserAdminView extends AbstractCrudView<User> {
@@ -58,7 +65,7 @@ public class UserAdminView extends AbstractCrudView<User> {
 	@PostConstruct
 	private void init() {
 		presenter.init(this);
-		getGrid().setColumns("email", "name", "role");
+		getGrid().setColumns("name", "lastname", "active","email","role");
 	}
 
 	@Override
@@ -132,7 +139,42 @@ public class UserAdminView extends AbstractCrudView<User> {
 
 	@Override
 	protected Focusable getFirstFormField() {
-		return getViewComponent().email;
+		return getViewComponent().name;
+	}
+	
+	@Override
+	protected Button getEdit() {
+		return getViewComponent().edit;
+	}
+	
+	@Override
+	protected HorizontalSplitPanel getSplitScreen() {
+		return getViewComponent().splitscreen;
+	}
+	
+	@Override
+	protected VerticalLayout userDataLayout() {
+		return getViewComponent().userdatalayout;
+	}
+	
+	@Override
+	protected Tree<String> getUserTree() {
+			Tree<String> tree = new Tree<>();
+			TreeData<String> treeData = new TreeData<>();
+			
+			treeData.addItem(null,"Enterprise Entity");
+			treeData.addItem("Enterprise Entity","Region West");
+			treeData.addItem("Enterprise Entity","Region East");
+			treeData.addItem("Enterprise Entity","Region North");
+			treeData.addItem("Enterprise Entity","Region South");
+			treeData.addItem("Region North","Merchant 1");
+			treeData.addItem("Region North","Merchant 2");
+			treeData.addItem("Region North","Merchant 3");
+			
+			TreeDataProvider<String> inMemoryDataProvider = new TreeDataProvider<>(treeData);
+			tree.setDataProvider(inMemoryDataProvider);
+			tree.setIcon(VaadinIcons.BUILDING_O);
+			return tree;
 	}
 
 }

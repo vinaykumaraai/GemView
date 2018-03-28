@@ -18,6 +18,7 @@ import com.vaadin.navigator.ViewBeforeLeaveEvent;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.luretechnologies.tms.app.HasLogger;
 import com.luretechnologies.tms.backend.data.entity.AbstractEntity;
+import com.luretechnologies.tms.backend.data.entity.User;
 import com.luretechnologies.tms.backend.service.CrudService;
 import com.luretechnologies.tms.backend.service.UserFriendlyDataException;
 import com.luretechnologies.tms.ui.components.ConfirmPopup;
@@ -263,6 +264,11 @@ public abstract class AbstractCrudPresenter<T extends AbstractEntity, S extends 
 			dataProvider.refreshItem(entity);
 			editRequest(entity);
 		}
+	}
+	
+	public void getLevelUsers(String clickedItem) {
+		//Grid<User> grid = new Grid<>(new User("carlos@gmail.com", "carlos", passwordEncoder.encode("carlos"), Role.HR, "carlos", "romero", true));
+		
 	}
 
 	public void cancelClicked() {

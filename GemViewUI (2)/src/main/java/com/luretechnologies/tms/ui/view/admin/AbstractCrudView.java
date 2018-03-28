@@ -5,6 +5,7 @@ import java.io.Serializable;
 import javax.annotation.PostConstruct;
 
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.vaadin.data.BeanValidationBinder;
 import com.vaadin.data.HasValue;
@@ -15,11 +16,16 @@ import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.luretechnologies.tms.app.HasLogger;
 import com.luretechnologies.tms.backend.data.Role;
 import com.luretechnologies.tms.backend.data.entity.AbstractEntity;
+import com.luretechnologies.tms.backend.data.entity.User;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Component.Focusable;
 import com.vaadin.ui.Grid;
+import com.vaadin.ui.HorizontalSplitPanel;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.Tree;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.components.grid.SingleSelectionModel;
 
 /**
@@ -60,6 +66,7 @@ public abstract class AbstractCrudView<T extends AbstractEntity> implements Seri
 	public static final String CAPTION_CANCEL = "Cancel";
 	public static final String CAPTION_UPDATE = "Update";
 	public static final String CAPTION_ADD = "Add";
+	public PasswordEncoder passwordEncoder;
 
 	@Override
 	public void enter(ViewChangeEvent event) {
@@ -72,6 +79,9 @@ public abstract class AbstractCrudView<T extends AbstractEntity> implements Seri
 	}
 
 	public void showInitialState() {
+		getSplitScreen().setFirstComponent(getUserTree());
+		getSplitScreen().setSplitPosition(20);
+		getSplitScreen().addComponent(userDataLayout());
 		getForm().setEnabled(false);
 		getGrid().deselectAll();
 		getUpdate().setCaption(CAPTION_UPDATE);
@@ -84,12 +94,12 @@ public abstract class AbstractCrudView<T extends AbstractEntity> implements Seri
 			getUpdate().setCaption(CAPTION_ADD);
 			getCancel().setCaption(CAPTION_CANCEL);
 			getFirstFormField().focus();
+			getForm().setEnabled(true);
 		} else {
 			getUpdate().setCaption(CAPTION_UPDATE);
 			getCancel().setCaption(CAPTION_DISCARD);
+			getForm().setEnabled(false);
 		}
-
-		getForm().setEnabled(true);
 		getDelete().setEnabled(!isNew);
 	}
 
@@ -102,9 +112,15 @@ public abstract class AbstractCrudView<T extends AbstractEntity> implements Seri
 
 			if (e.getFirstSelectedItem().isPresent()) {
 				getPresenter().editRequest(e.getFirstSelectedItem().get());
+				getEdit().addClickListener(event -> getForm().setEnabled(true));
 			} else {
 				throw new IllegalStateException("This should never happen as deselection is not allowed");
 			}
+		});
+		
+		getUserTree().addItemClickListener(e -> {
+			getPresenter().getLevelUsers(e.getItem());
+			//getGrid().setData(new User("carlos@gmail.com", "carlos", passwordEncoder.encode("carlos"), Role.HR, "carlos", "romero", true));
 		});
 
 		// Force user to choose save or cancel in form once enabled
@@ -162,4 +178,13 @@ public abstract class AbstractCrudView<T extends AbstractEntity> implements Seri
 	protected abstract Focusable getFirstFormField();
 
 	public abstract void bindFormFields(BeanValidationBinder<T> binder);
+
+	protected abstract Button getEdit();
+
+	protected abstract HorizontalSplitPanel getSplitScreen();
+	
+	protected abstract Tree<String> getUserTree();
+
+	protected abstract VerticalLayout userDataLayout();
+	
 }

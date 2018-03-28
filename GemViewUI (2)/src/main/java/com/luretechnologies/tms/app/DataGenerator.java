@@ -36,11 +36,11 @@ public class DataGenerator implements HasLogger {
 
 	
 	private void createUsers(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-		baker = userRepository.save(new User("carlos@gmail.com", "carlos", passwordEncoder.encode("carlos"), Role.HR));
-		User user = new User("serafin@gmail.com", "serafin", passwordEncoder.encode("serafin"), Role.IT);
+		baker = userRepository.save(new User("carlos@gmail.com", "carlos", passwordEncoder.encode("carlos"), Role.HR, "carlos", "romero", true));
+		User user = new User("serafin@gmail.com", "serafin", passwordEncoder.encode("serafin"), Role.IT, "Serafin", "Fuente", true);
 		user.setLocked(true);
 		barista = userRepository.save(user);
-		user = new User("vinay@gmail.com", "Vinay", passwordEncoder.encode("admin"), Role.ADMIN);
+		user = new User("vinay@gmail.com", "Vinay", passwordEncoder.encode("admin"), Role.ADMIN, "Vinay", "Raai", true);
 		user.setLocked(true);
 		userRepository.save(user);
 	}
