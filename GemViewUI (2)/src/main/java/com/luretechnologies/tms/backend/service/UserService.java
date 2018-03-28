@@ -1,5 +1,6 @@
 package com.luretechnologies.tms.backend.service;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,10 @@ public class UserService extends CrudService<User> {
 
 	public User findByEmail(String email) {
 		return getRepository().findByEmail(email);
+	}
+	
+	public List<User> userList() {
+		return getRepository().findAll();
 	}
 
 	@Override

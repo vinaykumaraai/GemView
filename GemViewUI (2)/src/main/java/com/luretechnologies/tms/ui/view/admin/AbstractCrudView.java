@@ -10,12 +10,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import com.vaadin.data.BeanValidationBinder;
 import com.vaadin.data.HasValue;
 import com.vaadin.data.provider.DataProvider;
+import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewBeforeLeaveEvent;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.luretechnologies.tms.app.HasLogger;
 import com.luretechnologies.tms.backend.data.Role;
 import com.luretechnologies.tms.backend.data.entity.AbstractEntity;
+import com.luretechnologies.tms.backend.data.entity.Node;
 import com.luretechnologies.tms.backend.data.entity.User;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
@@ -119,8 +121,17 @@ public abstract class AbstractCrudView<T extends AbstractEntity> implements Seri
 		});
 		
 		getUserTree().addItemClickListener(e -> {
-			getPresenter().getLevelUsers(e.getItem());
+			Notification.show("Begin"+ e).setDelayMsec(5000);;
+			System.out.println("Begining");
+			//getPresenter().getLevelUsers(e.getItem());
 			//getGrid().setData(new User("carlos@gmail.com", "carlos", passwordEncoder.encode("carlos"), Role.HR, "carlos", "romero", true));
+			e.getItem().getUserList();
+			Grid<T> grid = new Grid<>();
+			DataProvider data = new ListDataProvider(e.getItem().getUserList());
+			grid.setDataProvider(data);
+			setGrid(grid);
+			System.out.println("end");
+			Notification.show("Success"+ e).setDelayMsec(5000);;
 		});
 
 		// Force user to choose save or cancel in form once enabled
@@ -183,7 +194,7 @@ public abstract class AbstractCrudView<T extends AbstractEntity> implements Seri
 
 	protected abstract HorizontalSplitPanel getSplitScreen();
 	
-	protected abstract Tree<String> getUserTree();
+	protected abstract Tree<Node> getUserTree();
 
 	protected abstract VerticalLayout userDataLayout();
 	

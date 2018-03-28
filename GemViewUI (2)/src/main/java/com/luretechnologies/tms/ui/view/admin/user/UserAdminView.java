@@ -1,5 +1,7 @@
 package com.luretechnologies.tms.ui.view.admin.user;
 
+import java.util.List;
+
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,11 +11,15 @@ import com.vaadin.data.TreeData;
 import com.vaadin.data.ValidationResult;
 import com.vaadin.data.Validator;
 import com.vaadin.data.ValueContext;
+import com.vaadin.data.provider.DataProvider;
+import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.data.provider.TreeDataProvider;
 import com.vaadin.data.validator.BeanValidator;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.spring.annotation.SpringView;
+import com.luretechnologies.tms.backend.data.entity.Node;
 import com.luretechnologies.tms.backend.data.entity.User;
+import com.luretechnologies.tms.backend.service.UserService;
 import com.luretechnologies.tms.ui.view.admin.AbstractCrudView;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
@@ -21,6 +27,7 @@ import com.vaadin.ui.Component.Focusable;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.IconGenerator;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
@@ -31,7 +38,7 @@ public class UserAdminView extends AbstractCrudView<User> {
 	private final UserAdminPresenter presenter;
 
 	private final UserAdminViewDesign userAdminViewDesign;
-
+	
 	private boolean passwordRequired;
 
 	/**
@@ -56,6 +63,9 @@ public class UserAdminView extends AbstractCrudView<User> {
 		}
 	};
 
+	@Autowired
+	public UserService userService;
+	
 	@Autowired
 	public UserAdminView(UserAdminPresenter presenter) {
 		this.presenter = presenter;
@@ -158,22 +168,60 @@ public class UserAdminView extends AbstractCrudView<User> {
 	}
 	
 	@Override
-	protected Tree<String> getUserTree() {
-			Tree<String> tree = new Tree<>();
-			TreeData<String> treeData = new TreeData<>();
+	protected Tree<Node> getUserTree() {
+			Tree<Node> tree = new Tree<>();
+			TreeData<Node> treeData = new TreeData<>();
+			List<User> userList = userService.userList();
+			userList.remove(1);
 			
-			treeData.addItem(null,"Enterprise Entity");
-			treeData.addItem("Enterprise Entity","Region West");
+			Node node = new Node();
+			node.setLabel("Enterprise Entity");
+			node.setLevel("1");
+			node.setUserList(userList);
+			
+			Node node1 = new Node();
+			node1.setLabel("Region West");
+			node1.setLevel("2");
+			node1.setUserList(userList);
+
+			Node node2 = new Node();
+			node2.setLabel("Merchant 1");
+			node2.setLevel("3");
+			node2.setUserList(userList);
+			
+			
+			treeData.addItem(null,node);
+			treeData.addItem(node,node1);
+			treeData.addItem(node1,node2);
+			/*treeData.addItem("Enterprise Entity","Region West");
 			treeData.addItem("Enterprise Entity","Region East");
 			treeData.addItem("Enterprise Entity","Region North");
 			treeData.addItem("Enterprise Entity","Region South");
 			treeData.addItem("Region North","Merchant 1");
 			treeData.addItem("Region North","Merchant 2");
-			treeData.addItem("Region North","Merchant 3");
+			treeData.addItem("Region North","Merchant 3");*/
 			
-			TreeDataProvider<String> inMemoryDataProvider = new TreeDataProvider<>(treeData);
+			TreeDataProvider<Node> inMemoryDataProvider = new TreeDataProvider<>(treeData);
 			tree.setDataProvider(inMemoryDataProvider);
+			/*tree.setItemIconGenerator(e ->{
+				
+			});*/
 			tree.setIcon(VaadinIcons.BUILDING_O);
+			tree.addItemClickListener(e -> {
+				Notification.show("Begin"+ e, Notification.Type.ERROR_MESSAGE).setDelayMsec(5000);
+				System.out.println("Begining");
+				//getPresenter().getLevelUsers(e.getItem());
+				//getGrid().setData(new User("carlos@gmail.com", "carlos", passwordEncoder.encode("carlos"), Role.HR, "carlos", "romero", true));
+				e.getItem().getUserList();
+				Grid grid = new Grid<>();
+				DataProvider data = new ListDataProvider(e.getItem().getUserList());
+				grid.setDataProvider(data);
+				//setGrid(grid);
+				getGrid().setDataProvider(data);
+				System.out.println("end");
+				Notification.show("Success"+ e.getMouseEventDetails().getButtonName()).setDelayMsec(5000);;
+			});
+			
 			return tree;
 	}
 
