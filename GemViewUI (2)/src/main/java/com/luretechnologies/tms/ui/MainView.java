@@ -69,6 +69,13 @@ public class MainView extends MainViewDesign implements ViewDisplay {
 		attachNavigation(audit, AuditView.class);
 		attachNavigation(devices, DevicesView.class);
 		attachNavigation(system, SystemView.class);
+		menubar.setVisible(false);
+		administrationButton.addClickListener(e->{
+			if(menubar.isVisible()) 
+				menubar.setVisible(false);
+			else
+				menubar.setVisible(true);
+		});
 		logout.addClickListener(e -> logout());
 	}
 

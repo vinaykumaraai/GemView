@@ -208,8 +208,6 @@ public class UserAdminView extends AbstractCrudView<User> {
 			});*/
 			tree.setIcon(VaadinIcons.BUILDING_O);
 			tree.addItemClickListener(e -> {
-				Notification.show("Begin"+ e, Notification.Type.ERROR_MESSAGE).setDelayMsec(5000);
-				System.out.println("Begining");
 				//getPresenter().getLevelUsers(e.getItem());
 				//getGrid().setData(new User("carlos@gmail.com", "carlos", passwordEncoder.encode("carlos"), Role.HR, "carlos", "romero", true));
 				e.getItem().getUserList();
