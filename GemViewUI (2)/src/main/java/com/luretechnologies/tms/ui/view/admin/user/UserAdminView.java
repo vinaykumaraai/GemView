@@ -191,15 +191,15 @@ public class UserAdminView extends AbstractCrudView<User> {
 	
 	@Override
 	protected Tree<Node> getTree() {
+		if(null==this.tree) {
+			this.tree = new Tree<>();
+		}
 		return this.tree;
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Override
 	protected Tree<Node> getUserTree(TreeData<Node> treeData) {
-			//getViewComponent().lo
-			this.tree = new Tree<>();
-			
 			System.out.println("Click Started in tree");
 			List<Node> nodelist1 =treeData.getRootItems();
 			for(Node node : nodelist1) {
@@ -212,9 +212,9 @@ public class UserAdminView extends AbstractCrudView<User> {
 			TreeDataProvider<Node> dataProvider = new TreeDataProvider<>(treeData);
 			//TreeDataProvider<Node> dataProvider = new TreeDataProvider<>(treeDataService.getTreeData());
 			//tree.setDataProvider(dataProvider);
-			tree.setIcon(VaadinIcons.BUILDING_O);
 			//tree.getDataProvider().refreshAll();
-			tree.setTreeData(treeData);
+//			tree.setTreeData(treeData);
+			tree.setDataProvider(dataProvider);
 //			tree.addSelectionListener(e -> {
 //				System.out.println("Click on click");
 //				//getPresenter().getLevelUsers(e.getItem());

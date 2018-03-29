@@ -11,17 +11,17 @@ import java.util.List;
  */
 public class Node {
 
-	public String level;
+	public NodeLevel level;
 	
 	public String label;
 	
 	public List<User> userList;
 	
-	public String getLevel() {
+	public NodeLevel getLevel() {
 		return level;
 	}
 
-	public void setLevel(String level) {
+	public void setLevel(NodeLevel level) {
 		this.level = level;
 	}
 

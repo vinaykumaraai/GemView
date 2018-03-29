@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import com.luretechnologies.tms.backend.ITreeDataEntity;
 import com.luretechnologies.tms.backend.UserRepository;
 import com.luretechnologies.tms.backend.data.entity.Node;
+import com.luretechnologies.tms.backend.data.entity.NodeLevel;
 import com.luretechnologies.tms.backend.data.entity.User;
 import com.luretechnologies.tms.ui.view.admin.AbstractCrudView;
 import com.luretechnologies.tms.ui.view.admin.user.UserAdminView;
@@ -51,17 +52,17 @@ public class TreeDataService {
 		
 		Node node = new Node();
 		node.setLabel("Enterprise Entity");
-		node.setLevel("1");
+		node.setLevel(NodeLevel.ENTITY);
 		node.setUserList(userList);
 		
 		Node node1 = new Node();
 		node1.setLabel("Region West");
-		node1.setLevel("2");
+		node1.setLevel(NodeLevel.REGION);
 		node1.setUserList(userList);
 
 		Node node2 = new Node();
 		node2.setLabel("Merchant 1");
-		node2.setLevel("3");
+		node2.setLevel(NodeLevel.MERCHANT);
 		node2.setUserList(userList);
 		
 		

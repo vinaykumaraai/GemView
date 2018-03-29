@@ -15,6 +15,7 @@ import com.vaadin.data.TreeData;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.data.provider.TreeDataProvider;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewBeforeLeaveEvent;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
@@ -78,7 +79,7 @@ public abstract class AbstractCrudView<T extends AbstractEntity> implements Seri
 
 	@Autowired
 	public TreeDataService treeDataService;
-	
+
 	@Override
 	public void enter(ViewChangeEvent event) {
 		getPresenter().viewEntered(event);
@@ -97,6 +98,20 @@ public abstract class AbstractCrudView<T extends AbstractEntity> implements Seri
 		getGrid().deselectAll();
 		getUpdate().setCaption(CAPTION_UPDATE);
 		getCancel().setCaption(CAPTION_DISCARD);
+		getTree().setItemIconGenerator(item -> {
+			switch (item.getLevel()) {
+			case ENTITY:
+				return VaadinIcons.BUILDING_O;
+			case MERCHANT:
+				return VaadinIcons.SHOP;
+			case REGION:
+				return VaadinIcons.OFFICE;
+			case DEVICE:
+				return VaadinIcons.DESKTOP;
+			default:
+				return null;
+			}
+		});
 	}
 
 	public void editItem(boolean isNew) {
@@ -117,7 +132,7 @@ public abstract class AbstractCrudView<T extends AbstractEntity> implements Seri
 	@SuppressWarnings("unchecked")
 	@PostConstruct
 	private void initLogic() {
-		//getSplitScreen().setFirstComponent(getUserTree(treeDataService.getTreeData()));
+		getTree();
 		getGrid().addSelectionListener(e -> {
 			if (!e.isUserOriginated()) {
 				return;
@@ -130,47 +145,51 @@ public abstract class AbstractCrudView<T extends AbstractEntity> implements Seri
 				throw new IllegalStateException("This should never happen as deselection is not allowed");
 			}
 		});
-		
+
 		getTree().addSelectionListener(e -> {
 			Notification.show("click listner");
-			for(User user: e.getFirstSelectedItem().get().getUserList()) {
+			if(e.getFirstSelectedItem().isPresent()) {
+			for (User user : e.getFirstSelectedItem().get().getUserList()) {
 				System.out.println(user.getEmail());
 			}
 			DataProvider data = new ListDataProvider(e.getFirstSelectedItem().get().getUserList());
 			getGrid().setDataProvider(data);
-			
+			}
+
 		});
-		
+
 		// Force user to choose save or cancel in form once enabled
 		((SingleSelectionModel<T>) getGrid().getSelectionModel()).setDeselectAllowed(false);
 
 		// Button logic
 		getUpdate().addClickListener(event -> {
 			getPresenter().updateClicked();
-			//showInitialState();
-			//getUserTree().setDataProvider(new TreeDataProvider(treeDataService.getTreeData()));
-			
+			// showInitialState();
+			// getUserTree().setDataProvider(new
+			// TreeDataProvider(treeDataService.getTreeData()));
+
 			Notification.show("Click Happend");
 			List<Node> nodelist = treeDataService.getTreeData().getRootItems();
-			for(Node node : nodelist) {
+			for (Node node : nodelist) {
 				List<User> userList = node.getUserList();
-				for(User user: userList) {
+				for (User user : userList) {
 					System.out.println(user.getEmail());
 				}
 			}
-			Page.getCurrent().reload();
-//			System.out.println("Begining of tree data setup");
-//			DataProvider data = new TreeDataProvider(treeDataService.getTreeData());
-//			getTree().setDataProvider(data);
-//			//getTree().setTreeData(treeDataService.getTreeData());
-//			for(Node node : getTree().getTreeData().getRootItems()) {
-//				for(User user: node.getUserList()) {
-//					System.out.println(user.getEmail());
-//				}
-//			}
-//			//getUserTree(treeDataService.getTreeData());//.setTreeData(treeDataService.getTreeData());
-//			System.out.println("Ending of tree data");
-			});
+			//getTree().getDataProvider().refreshAll();
+			// Page.getCurrent().reload();
+			 System.out.println("Begining of tree data setup");
+			 DataProvider data = new TreeDataProvider(treeDataService.getTreeData());
+			 getTree().setDataProvider(data);
+			// //getTree().setTreeData(treeDataService.getTreeData());
+			// for(Node node : getTree().getTreeData().getRootItems()) {
+			// for(User user: node.getUserList()) {
+			// System.out.println(user.getEmail());
+			// }
+			// }
+			// //getUserTree(treeDataService.getTreeData());//.setTreeData(treeDataService.getTreeData());
+			System.out.println("Ending of tree data");
+		});
 		getCancel().addClickListener(event -> getPresenter().cancelClicked());
 		getDelete().addClickListener(event -> getPresenter().deleteClicked());
 		getAdd().addClickListener(event -> getPresenter().addNewClicked());
@@ -225,11 +244,11 @@ public abstract class AbstractCrudView<T extends AbstractEntity> implements Seri
 	protected abstract Button getEdit();
 
 	protected abstract HorizontalSplitPanel getSplitScreen();
-	
+
 	protected abstract Tree<Node> getUserTree(TreeData<Node> treeData);
 
 	protected abstract VerticalLayout userDataLayout();
 
 	protected abstract Tree<Node> getTree();
-	
+
 }
