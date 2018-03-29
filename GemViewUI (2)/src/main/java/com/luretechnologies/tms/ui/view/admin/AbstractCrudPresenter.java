@@ -76,7 +76,7 @@ public abstract class AbstractCrudPresenter<T extends AbstractEntity, S extends 
 		binder.addStatusChangeListener(this::onFormStatusChange);
 	}
 
-	protected BeanValidationBinder<T> getBinder() {
+	public BeanValidationBinder<T> getBinder() {
 		return binder;
 	}
 
