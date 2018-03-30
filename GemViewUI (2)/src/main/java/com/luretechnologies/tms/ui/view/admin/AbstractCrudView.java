@@ -8,6 +8,7 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.vaadin.dialogs.ConfirmDialog;
 
 import com.vaadin.data.BeanValidationBinder;
 import com.vaadin.data.HasValue;
@@ -20,6 +21,7 @@ import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewBeforeLeaveEvent;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.Page;
+import com.vaadin.server.Sizeable.Unit;
 import com.luretechnologies.tms.app.HasLogger;
 import com.luretechnologies.tms.backend.data.Role;
 import com.luretechnologies.tms.backend.data.entity.AbstractEntity;
@@ -76,10 +78,11 @@ public abstract class AbstractCrudView<T extends AbstractEntity> implements Seri
 	public static final String CAPTION_UPDATE = "Update";
 	public static final String CAPTION_ADD = "Add";
 	public PasswordEncoder passwordEncoder;
+	public static Node selectedTreeNode;
 
 	@Autowired
 	public TreeDataService treeDataService;
-
+	
 	@Override
 	public void enter(ViewChangeEvent event) {
 		getPresenter().viewEntered(event);
@@ -91,9 +94,9 @@ public abstract class AbstractCrudView<T extends AbstractEntity> implements Seri
 	}
 
 	public void showInitialState() {
-		getSplitScreen().setFirstComponent(getUserTree(treeDataService.getTreeData()));
-		getSplitScreen().setSplitPosition(20);
-		getSplitScreen().addComponent(userDataLayout());
+		//getSplitScreen().setFirstComponent(getUserTree(treeDataService.getTreeData()));
+		//getSplitScreen().setSplitPosition(20);
+		//getSplitScreen().addComponent(userDataLayout());
 		getForm().setEnabled(false);
 		getGrid().deselectAll();
 		getUpdate().setCaption(CAPTION_UPDATE);
@@ -106,8 +109,10 @@ public abstract class AbstractCrudView<T extends AbstractEntity> implements Seri
 				return VaadinIcons.SHOP;
 			case REGION:
 				return VaadinIcons.OFFICE;
+			case TERMINAL:
+				return VaadinIcons.LAPTOP;
 			case DEVICE:
-				return VaadinIcons.DESKTOP;
+				return VaadinIcons.MOBILE_BROWSER;
 			default:
 				return null;
 			}
@@ -132,7 +137,9 @@ public abstract class AbstractCrudView<T extends AbstractEntity> implements Seri
 	@SuppressWarnings("unchecked")
 	@PostConstruct
 	private void initLogic() {
-		getTree();
+		getSplitScreen().setFirstComponent(getUserTree(treeDataService.getTreeData()));
+		getSplitScreen().setSplitPosition(20);
+		getSplitScreen().addComponent(userDataLayout());
 		getGrid().addSelectionListener(e -> {
 			if (!e.isUserOriginated()) {
 				return;
@@ -145,51 +152,37 @@ public abstract class AbstractCrudView<T extends AbstractEntity> implements Seri
 				throw new IllegalStateException("This should never happen as deselection is not allowed");
 			}
 		});
-
-		getTree().addSelectionListener(e -> {
-			Notification.show("click listner");
-			if(e.getFirstSelectedItem().isPresent()) {
-			for (User user : e.getFirstSelectedItem().get().getUserList()) {
-				System.out.println(user.getEmail());
-			}
-			DataProvider data = new ListDataProvider(e.getFirstSelectedItem().get().getUserList());
-			getGrid().setDataProvider(data);
-			}
-
-		});
-
+		
 		// Force user to choose save or cancel in form once enabled
 		((SingleSelectionModel<T>) getGrid().getSelectionModel()).setDeselectAllowed(false);
 
 		// Button logic
 		getUpdate().addClickListener(event -> {
 			getPresenter().updateClicked();
-			// showInitialState();
-			// getUserTree().setDataProvider(new
-			// TreeDataProvider(treeDataService.getTreeData()));
-
-			Notification.show("Click Happend");
-			List<Node> nodelist = treeDataService.getTreeData().getRootItems();
-			for (Node node : nodelist) {
-				List<User> userList = node.getUserList();
-				for (User user : userList) {
-					System.out.println(user.getEmail());
-				}
-			}
-			//getTree().getDataProvider().refreshAll();
-			// Page.getCurrent().reload();
-			 System.out.println("Begining of tree data setup");
-			 DataProvider data = new TreeDataProvider(treeDataService.getTreeData());
-			 getTree().setDataProvider(data);
-			// //getTree().setTreeData(treeDataService.getTreeData());
-			// for(Node node : getTree().getTreeData().getRootItems()) {
-			// for(User user: node.getUserList()) {
-			// System.out.println(user.getEmail());
-			// }
-			// }
-			// //getUserTree(treeDataService.getTreeData());//.setTreeData(treeDataService.getTreeData());
-			System.out.println("Ending of tree data");
+			DataProvider data = new TreeDataProvider(treeDataService.getTreeData());
+			getTree().setDataProvider(data);
+			loadGridData();
+			
+			});
+		
+		getTree().addItemClickListener(e -> {
+			DataProvider data = new ListDataProvider(e.getItem().getUserList());
+			getGrid().setDataProvider(data);
+		selectedTreeNode=e.getItem();
 		});
+		
+		getTree().addContextClickListener(e -> {
+			
+//			VerticalLayout menuLayout = new VerticalLayout();
+//			Button addLayer = new Button("Add Node");
+//			Button deleteLayer = new Button("Delete Node");
+//			menuLayout.addComponents(addLayer, deleteLayer);
+//			menuLayout.setHeight("20px");
+//			menuLayout.setWidthUndefined();
+//			Notification.show("Right Click Allowed");
+			//this.getTree().addC
+		});
+		
 		getCancel().addClickListener(event -> getPresenter().cancelClicked());
 		getDelete().addClickListener(event -> getPresenter().deleteClicked());
 		getAdd().addClickListener(event -> getPresenter().addNewClicked());
@@ -198,7 +191,14 @@ public abstract class AbstractCrudView<T extends AbstractEntity> implements Seri
 		getSearch().addValueChangeListener(event -> getPresenter().filterGrid(event.getValue()));
 
 	}
-
+	
+	public void loadGridData() {
+		for(Node node : treeDataService.getTreeData().getRootItems()) {
+			DataProvider dataList = new ListDataProvider(node.getUserList());
+			getGrid().setDataProvider(dataList);
+		}
+	}
+	
 	public void setDataProvider(DataProvider<T, Object> dataProvider) {
 		getGrid().setDataProvider(dataProvider);
 	}
@@ -244,11 +244,11 @@ public abstract class AbstractCrudView<T extends AbstractEntity> implements Seri
 	protected abstract Button getEdit();
 
 	protected abstract HorizontalSplitPanel getSplitScreen();
-
+	
 	protected abstract Tree<Node> getUserTree(TreeData<Node> treeData);
 
 	protected abstract VerticalLayout userDataLayout();
 
 	protected abstract Tree<Node> getTree();
-
+	
 }

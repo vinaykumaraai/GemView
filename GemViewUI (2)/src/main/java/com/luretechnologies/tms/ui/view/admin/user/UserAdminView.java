@@ -28,6 +28,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Component.Focusable;
 import com.vaadin.ui.Grid;
+import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.IconGenerator;
 import com.vaadin.ui.Notification;
@@ -36,7 +37,6 @@ import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
 
 @SpringView
-//@SpringComponent
 public class UserAdminView extends AbstractCrudView<User> {
 
 	private final UserAdminPresenter presenter;
@@ -89,15 +89,6 @@ public class UserAdminView extends AbstractCrudView<User> {
 	private void init() {
 		presenter.init(this);
 		getGrid().setColumns("name", "lastname", "active","email","role");
-		/*getAdd().addClickListener(e -> {
-			
-			//TreeData<Node> treeData = getUserTree().getTreeData();
-			List<Node> nodeList = treeData.getRootItems();
-			List<User> userList = userService.userList();
-			getUserTree().setTreeData(treeDataService.getTreeData());
-		});*/
-		
-		//getUserTree(treeDataService.getTreeData()).ad
 	}
 
 	@Override
@@ -191,62 +182,20 @@ public class UserAdminView extends AbstractCrudView<User> {
 	
 	@Override
 	protected Tree<Node> getTree() {
-		if(null==this.tree) {
-			this.tree = new Tree<>();
-		}
 		return this.tree;
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Override
 	protected Tree<Node> getUserTree(TreeData<Node> treeData) {
-			System.out.println("Click Started in tree");
-			List<Node> nodelist1 =treeData.getRootItems();
-			for(Node node : nodelist1) {
-				List<User> userList = node.getUserList();
-				for(User user: userList) {
-					System.out.println(user.getEmail());
-				}
-			}
-			
+			this.tree = new Tree<>();
+			this.tree.setSelectionMode(SelectionMode.SINGLE);
 			TreeDataProvider<Node> dataProvider = new TreeDataProvider<>(treeData);
-			//TreeDataProvider<Node> dataProvider = new TreeDataProvider<>(treeDataService.getTreeData());
-			//tree.setDataProvider(dataProvider);
-			//tree.getDataProvider().refreshAll();
-//			tree.setTreeData(treeData);
-			tree.setDataProvider(dataProvider);
-//			tree.addSelectionListener(e -> {
-//				System.out.println("Click on click");
-//				//getPresenter().getLevelUsers(e.getItem());
-//				//getGrid().setData(new User("carlos@gmail.com", "carlos", passwordEncoder.encode("carlos"), Role.HR, "carlos", "romero", true));
-//				List<User> userList = e.getFirstSelectedItem().get().getUserList();
-//				//e.getItem().getUserList()
-//				//e.getItem().getUserList().d
-//				DataProvider data = new ListDataProvider(e.getFirstSelectedItem().get().getUserList());
-//				/*data.addDataProviderListener(event -> {
-//					List<Node> nodelist=treeDataService.getTreeData().getRootItems();
-//					for(Node node : nodelist) {
-//						List<User> userList1 = node.getUserList();
-//						
-//					}
-//				});*/
-//				List<Node> nodelist = treeDataService.getTreeData().getRootItems();
-//				for(Node node : nodelist) {
-//					List<User> userList1 = node.getUserList();
-//				}
-//				
-////				grid.setDataProvider(data);
-////				setGrid(grid);
-//				for(User user : userList) {
-//					System.out.println(user.getEmail());
-//				}
-//				getGrid().setDataProvider(data);
-//				getGrid().getDataProvider().refreshAll();
-//				System.out.println("end");
-//				//Notification.show("Success"+ e.getMouseEventDetails().getButtonName()).setDelayMsec(5000);
-//			});
+			//tree.setIcon(VaadinIcons.BUILDING_O);
+			tree.setTreeData(treeData);
 			
 			return tree;
+			
+			
 	}
-
 }

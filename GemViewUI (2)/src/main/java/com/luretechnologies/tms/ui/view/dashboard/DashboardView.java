@@ -91,18 +91,18 @@ public class DashboardView extends DashboardViewDesign implements View {
 			grid.addColumn(h -> h.get((entry.getKey()))).setCaption(entry.getKey());
 			}
 		
-//		Row row = board.addRow(new BoardBox(currentConnectionsLabel),new BoardBox(successfulDownloadsLabel),
-//				new BoardBox(requestPerSecondLabel), downloadFailuresBox);
-//		row.addStyleName("board-row-group");
-//		
-//		row = board.addRow(new BoardBox(incomingServiceCalls));
-//		row.addStyleName("board-row-panels");
-//		
-//		row = board.addRow(new BoardBox(incomingServiceCallsArea));
-//		row.addStyleName("board-row-panels");
-//		
-//		row = board.addRow(new BoardBox(incomingServiceCallsPie), new BoardBox(grid, "due-grid"));
-//		row.addStyleName("board-row-panels");
+		Row row = board.addRow(new BoardBox(currentConnectionsLabel),new BoardBox(successfulDownloadsLabel),
+				new BoardBox(requestPerSecondLabel), downloadFailuresBox);
+		row.addStyleName("board-row-group");
+		
+		row = board.addRow(new BoardBox(incomingServiceCalls));
+		row.addStyleName("board-row-panels");
+		
+		row = board.addRow(new BoardBox(incomingServiceCallsArea));
+		row.addStyleName("board-row-panels");
+		
+		row = board.addRow(new BoardBox(incomingServiceCallsPie), new BoardBox(grid, "due-grid"));
+		row.addStyleName("board-row-panels");
 
 
 		

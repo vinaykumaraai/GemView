@@ -357,46 +357,6 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 	}
 	
 	public void getAndLoadRolesGrid(VerticalLayout verticalLayout, VerticalLayout dynamicVerticalLayout) {
-		/*
-		Button cancel = new Button("Cancel");
-		cancel.addStyleName(ValoTheme.BUTTON_FRIENDLY);
-		cancel.addClickListener(new ClickListener() {
-			public void buttonClick(ClickEvent event) {	
-				dynamicVerticalLayout.removeAllComponents();
-				roleGrid.getDataProvider().refreshAll();
-				roleGrid.deselectAll();
-				selectedRole = new Roles();
-				getAndLoadPermissionGrid(dynamicVerticalLayout, false);	
-			}
-		});
-		
-		Button save = new Button("Save");
-		save.addStyleName(ValoTheme.BUTTON_FRIENDLY);
-		save.addClickListener(new ClickListener() {
-			*//**
-			 * 
-			 *//*
-			private static final long serialVersionUID = 1L;
-
-			public void buttonClick(ClickEvent event) {
-				String description = descriptions.getValue();
-				String rolename = roleName.getValue();
-				boolean activeValue = activeBox.getValue();
-				selectedRole.setDescription(description);
-				selectedRole.setRoleName(rolename);
-				selectedRole.setActive(activeValue);
-				if(description.isEmpty() || description== null|| rolename.isEmpty() || rolename== null) {
-					Notification.show("Fill all details", Notification.Type.WARNING_MESSAGE).setDelayMsec(3000);
-				} else {
-				rolesRepo.put(selectedRole.getRoleName(), selectedRole);
-				roleGrid.getDataProvider().refreshAll();
-				roleGrid.select(selectedRole);
-				dynamicVerticalLayout.removeAllComponents();
-				getAndLoadPermissionGrid(dynamicVerticalLayout, false);
-				}
-			}
-		});*/
-
 		Button addNewRole = new Button(VaadinIcons.FOLDER_ADD);
 		addNewRole.addStyleName(ValoTheme.BUTTON_FRIENDLY);
 		addNewRole.addClickListener(new ClickListener() {

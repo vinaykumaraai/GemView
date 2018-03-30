@@ -125,10 +125,4 @@ public class User extends AbstractEntity {
 	public void setActive(boolean active) {
 		this.active = active;
 	}
-
-	@Override
-	public String toString() {
-		return "User [email=" + email + "]";
-	}
-	
 }

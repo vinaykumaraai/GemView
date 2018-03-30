@@ -71,8 +71,11 @@ public class MainView extends MainViewDesign implements ViewDisplay {
 		attachNavigation(system, SystemView.class);
 		menubar.setVisible(false);
 		administrationButton.addClickListener(e->{
-			if(menubar.isVisible()) 
+			if(menubar.isVisible()) {
 				menubar.setVisible(false);
+//			administrationButton.removeStyleName("up");
+//			administrationButton.addStyleName("down");
+			}
 			else
 				menubar.setVisible(true);
 		});

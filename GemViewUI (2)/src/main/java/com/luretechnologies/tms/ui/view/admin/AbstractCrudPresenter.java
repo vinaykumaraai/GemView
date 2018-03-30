@@ -7,6 +7,7 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.vaadin.artur.spring.dataprovider.FilterablePageableDataProvider;
+import org.vaadin.dialogs.ConfirmDialog;
 
 import com.vaadin.data.BeanValidationBinder;
 import com.vaadin.data.BindingValidationStatus;
@@ -16,8 +17,10 @@ import com.vaadin.data.ValidationException;
 import com.vaadin.data.ValidationResult;
 import com.vaadin.navigator.ViewBeforeLeaveEvent;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.server.Page;
 import com.luretechnologies.tms.app.HasLogger;
 import com.luretechnologies.tms.backend.data.entity.AbstractEntity;
+import com.luretechnologies.tms.backend.data.entity.Roles;
 import com.luretechnologies.tms.backend.data.entity.User;
 import com.luretechnologies.tms.backend.service.CrudService;
 import com.luretechnologies.tms.backend.service.UserFriendlyDataException;
@@ -25,6 +28,7 @@ import com.luretechnologies.tms.ui.components.ConfirmPopup;
 import com.luretechnologies.tms.ui.navigation.NavigationManager;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Notification;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Notification.Type;
 
 public abstract class AbstractCrudPresenter<T extends AbstractEntity, S extends CrudService<T>, V extends AbstractCrudView<T>>
@@ -265,11 +269,6 @@ public abstract class AbstractCrudPresenter<T extends AbstractEntity, S extends 
 			editRequest(entity);
 		}
 	}
-	
-	public void getLevelUsers(String clickedItem) {
-		//Grid<User> grid = new Grid<>(new User("carlos@gmail.com", "carlos", passwordEncoder.encode("carlos"), Role.HR, "carlos", "romero", true));
-		
-	}
 
 	public void cancelClicked() {
 		if (editItem.isNew()) {
@@ -287,20 +286,37 @@ public abstract class AbstractCrudPresenter<T extends AbstractEntity, S extends 
 	}
 
 	public void deleteClicked() {
-		try {
-			deleteEntity(editItem);
-		} catch (UserFriendlyDataException e) {
-			Notification.show(e.getMessage(), Type.ERROR_MESSAGE);
-			getLogger().debug("Unable to delete entity of type " + editItem.getClass().getName(), e);
-			return;
-		} catch (DataIntegrityViolationException e) {
-			Notification.show("The given entity cannot be deleted as there are references to it in the database",
-					Type.ERROR_MESSAGE);
-			getLogger().error("Unable to delete entity of type " + editItem.getClass().getName(), e);
-			return;
-		}
+		confirmDialog(editItem);
 		dataProvider.refreshAll();
 		revertToInitialState();
+	}
+	
+	public void confirmDialog(T editItem) {
+		ConfirmDialog.show(this.getView().getViewComponent().getUI(), "Please Confirm:", "Are you sure you want to delete?",
+		        "Ok", "Cancel", null, new ConfirmDialog.Listener() {
+
+		            public void onClose(ConfirmDialog dialog) {
+		                if (dialog.isConfirmed()) { 
+		                	try {
+		            			deleteEntity(editItem);
+		            		} catch (UserFriendlyDataException e) {
+		            			Notification.show(e.getMessage(), Type.ERROR_MESSAGE);
+		            			getLogger().debug("Unable to delete entity of type " + editItem.getClass().getName(), e);
+		            			return;
+		            		} catch (DataIntegrityViolationException e) {
+		            			Notification.show("The given entity cannot be deleted as there are references to it in the database",
+		            					Type.ERROR_MESSAGE);
+		            			getLogger().error("Unable to delete entity of type " + editItem.getClass().getName(), e);
+		            			return;
+		            		}
+		                	Page.getCurrent().reload();
+		                	
+		                } else {
+		                    // User did not confirm
+		                    
+		                }
+		            }
+		        });
 	}
 
 	public void onFormStatusChange(StatusChangeEvent event) {

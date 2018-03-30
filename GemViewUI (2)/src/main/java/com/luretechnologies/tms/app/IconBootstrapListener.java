@@ -57,7 +57,7 @@ public class IconBootstrapListener implements BootstrapListener {
 			}
 		}
 
-		/*- Enable these to hide browser controls when app is started from homescreen:
+		//- Enable these to hide browser controls when app is started from homescreen:
 		Element element = document.createElement("meta");
 		element.attr("name", "mobile-web-app-capable");
 		element.attr("content", "yes");
@@ -67,7 +67,7 @@ public class IconBootstrapListener implements BootstrapListener {
 		element.attr("name", "apple-mobile-web-app-capable");
 		element.attr("content", "yes");
 		head.appendChild(element);
-		*/
+		
 	}
 
 }

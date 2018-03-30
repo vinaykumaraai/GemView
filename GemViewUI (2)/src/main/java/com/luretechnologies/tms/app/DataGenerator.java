@@ -1,5 +1,8 @@
 package com.luretechnologies.tms.app;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -42,6 +45,11 @@ public class DataGenerator implements HasLogger {
 		barista = userRepository.save(user);
 		user = new User("vinay@gmail.com", "Vinay", passwordEncoder.encode("admin"), Role.ADMIN, "Vinay", "Raai", true);
 		user.setLocked(true);
+		//TODO a static Global Hashmap
 		userRepository.save(user);
+		for(int j=1; j<=10;j++) {
+			user = new User("Mock"+j+"@gmail.com", "Mock"+j, passwordEncoder.encode("admin"), Role.HR, "Vinay", "Raai", true);
+			userRepository.save(user);
+		}
 	}
 }

@@ -15532,6 +15532,10 @@ div.v-layout.v-horizontal.v-widget {
 	background-color: #145A32;
 }
 
+.apptheme .submenubar {
+	margin-left: 15% !important;
+}
+
 .apptheme .v-errorindicator {
 	display: none;
 }
