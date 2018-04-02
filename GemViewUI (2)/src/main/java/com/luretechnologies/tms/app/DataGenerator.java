@@ -1,15 +1,12 @@
 package com.luretechnologies.tms.app;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.luretechnologies.tms.backend.UserRepository;
 import com.luretechnologies.tms.backend.data.Role;
 import com.luretechnologies.tms.backend.data.entity.User;
+import com.luretechnologies.tms.backend.UserRepository;
 import com.vaadin.spring.annotation.SpringComponent;
 
 @SpringComponent

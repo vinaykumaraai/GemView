@@ -178,21 +178,6 @@ public abstract class AbstractCrudView<T extends AbstractEntity> implements Seri
 					return;
 				}
 				
-
-				// switch (selectedNode.getLevel()) {
-				// case ENTITY:
-				// break;
-				// case MERCHANT:
-				// break;
-				// case REGION:
-				// break;
-				// case TERMINAL:
-				// break;
-				// case DEVICE:
-				// break;
-				// default:
-				// break;
-				// }
 				getTree().getTreeData().addItem(selectedNode, newNode);
 				getTree().getDataProvider().refreshAll();
 				
@@ -240,7 +225,7 @@ public abstract class AbstractCrudView<T extends AbstractEntity> implements Seri
 		});
 
 		getTree().addContextClickListener(e -> {
-
+			
 			// VerticalLayout menuLayout = new VerticalLayout();
 			// Button addLayer = new Button("Add Node");
 			// Button deleteLayer = new Button("Delete Node");
