@@ -1,10 +1,8 @@
 package com.luretechnologies.tms.backend.data.entity;
 
-import javax.persistence.Entity;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-@Entity
 public class Customer extends AbstractEntity {
 
 	@NotNull

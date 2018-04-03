@@ -2,6 +2,7 @@ package com.luretechnologies.tms.ui.view.admin;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Locale;
 
 import org.springframework.beans.factory.BeanFactory;
 import org.vaadin.dialogs.ConfirmDialog;
@@ -14,6 +15,7 @@ import com.vaadin.data.ValidationException;
 import com.vaadin.data.ValidationResult;
 import com.vaadin.data.provider.AbstractBackEndDataProvider;
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
+import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.navigator.ViewBeforeLeaveEvent;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.Page;
@@ -88,10 +90,15 @@ public abstract class AbstractCrudPresenter<T extends AbstractEntity, S extends 
 	}
 
 	@SuppressWarnings("rawtypes")
-	protected void filterGrid(String filter,Grid grid) {
-		ConfigurableFilterDataProvider filterDataProvider = dataProvider.withConfigurableFilter();
-		filterDataProvider.setFilter(filter);
-		grid.setDataProvider(filterDataProvider);
+	protected void filterGrid(String filter, Grid grid) {
+		ListDataProvider<User> listDataProvider = (ListDataProvider<User>) grid.getDataProvider();
+		listDataProvider.setFilter(user -> {
+			String userNameInLower = user.getName() == null? "" : user.getName().toLowerCase();
+			String lastNameInLower = user.getLastname() == null ? "" : user.getLastname().toLowerCase();
+			String emailInLower = user.getEmail() == null ? "" : user.getEmail().toLowerCase();
+			String roleInLower = user.getRole() == null ? "" : user.getRole().toLowerCase();
+			return userNameInLower.contains(filter.toLowerCase(Locale.ENGLISH)) || lastNameInLower.contains(filter.toLowerCase(Locale.ENGLISH)) || emailInLower.contains(filter.toLowerCase(Locale.ENGLISH)) || roleInLower.contains(filter.toLowerCase(Locale.ENGLISH));
+		});
 	}
 
 	protected T loadEntity(long id) {
@@ -116,7 +123,7 @@ public abstract class AbstractCrudPresenter<T extends AbstractEntity, S extends 
 			throw new IllegalArgumentException("Cannot delete an entity which is not in the database");
 		} else {
 			service.delete(entity.getId());
-			//view.loadGridData();
+			// view.loadGridData();
 		}
 	}
 
@@ -194,8 +201,8 @@ public abstract class AbstractCrudPresenter<T extends AbstractEntity, S extends 
 	}
 
 	/**
-	 * Runs the given command if the form contains no unsaved changes or if the
-	 * user clicks ok in the confirmation dialog telling about unsaved changes.
+	 * Runs the given command if the form contains no unsaved changes or if the user
+	 * clicks ok in the confirmation dialog telling about unsaved changes.
 	 *
 	 * @param onConfirmation
 	 *            the command to run if there are not changes or user pushes
@@ -244,14 +251,14 @@ public abstract class AbstractCrudPresenter<T extends AbstractEntity, S extends 
 		T entity;
 		try {
 			entity = service.save(editItem);
-		} /*catch (OptimisticLockingFailureException e) {
-			// Somebody else probably edited the data at the same time
-			Notification.show("Somebody else might have updated the data. Please refresh and try again.",
-					Type.ERROR_MESSAGE);
-			getLogger().debug("Optimistic locking error while saving entity of type " + editItem.getClass().getName(),
-					e);
-			return;
-		}*/ catch (UserFriendlyDataException e) {
+		} /*
+			 * catch (OptimisticLockingFailureException e) { // Somebody else probably
+			 * edited the data at the same time Notification.
+			 * show("Somebody else might have updated the data. Please refresh and try again."
+			 * , Type.ERROR_MESSAGE);
+			 * getLogger().debug("Optimistic locking error while saving entity of type " +
+			 * editItem.getClass().getName(), e); return; }
+			 */ catch (UserFriendlyDataException e) {
 			Notification.show(e.getMessage(), Type.ERROR_MESSAGE);
 			getLogger().debug("Unable to update entity of type " + editItem.getClass().getName(), e);
 			return;
@@ -293,34 +300,35 @@ public abstract class AbstractCrudPresenter<T extends AbstractEntity, S extends 
 		dataProvider.refreshAll();
 		revertToInitialState();
 	}
-	
-	public void confirmDialog(T editItem) {
-		ConfirmDialog.show(this.getView().getViewComponent().getUI(), "Please Confirm:", "Are you sure you want to delete?",
-		        "Ok", "Cancel", null, new ConfirmDialog.Listener() {
 
-		            public void onClose(ConfirmDialog dialog) {
-		                if (dialog.isConfirmed()) { 
-		                	try {
-		            			deleteEntity(editItem);
-		            		} catch (UserFriendlyDataException e) {
-		            			Notification.show(e.getMessage(), Type.ERROR_MESSAGE);
-		            			getLogger().debug("Unable to delete entity of type " + editItem.getClass().getName(), e);
-		            			return;
-		            		}/* catch (DataIntegrityViolationException e) {
-		            			Notification.show("The given entity cannot be deleted as there are references to it in the database",
-		            					Type.ERROR_MESSAGE);
-		            			getLogger().error("Unable to delete entity of type " + editItem.getClass().getName(), e);
-		            			return;
-		            		}*/
-		                	getView().loadGridData();
-		                	Page.getCurrent().reload();
-		                	
-		                } else {
-		                    // User did not confirm
-		                    
-		                }
-		            }
-		        });
+	public void confirmDialog(T editItem) {
+		ConfirmDialog.show(this.getView().getViewComponent().getUI(), "Please Confirm:",
+				"Are you sure you want to delete?", "Ok", "Cancel", null, new ConfirmDialog.Listener() {
+
+					public void onClose(ConfirmDialog dialog) {
+						if (dialog.isConfirmed()) {
+							try {
+								deleteEntity(editItem);
+							} catch (UserFriendlyDataException e) {
+								Notification.show(e.getMessage(), Type.ERROR_MESSAGE);
+								getLogger().debug("Unable to delete entity of type " + editItem.getClass().getName(),
+										e);
+								return;
+							} /*
+								 * catch (DataIntegrityViolationException e) { Notification.
+								 * show("The given entity cannot be deleted as there are references to it in the database"
+								 * , Type.ERROR_MESSAGE); getLogger().error("Unable to delete entity of type " +
+								 * editItem.getClass().getName(), e); return; }
+								 */
+							getView().loadGridData();
+							Page.getCurrent().reload();
+
+						} else {
+							// User did not confirm
+
+						}
+					}
+				});
 	}
 
 	public void onFormStatusChange(StatusChangeEvent event) {
