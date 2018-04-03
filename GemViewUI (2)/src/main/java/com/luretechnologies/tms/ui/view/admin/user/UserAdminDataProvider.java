@@ -2,46 +2,66 @@ package com.luretechnologies.tms.ui.view.admin.user;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.vaadin.artur.spring.dataprovider.FilterablePageableDataProvider;
 import org.vaadin.spring.annotation.PrototypeScope;
 
+import com.vaadin.data.provider.AbstractBackEndDataProvider;
 import com.vaadin.data.provider.Query;
-import com.vaadin.data.provider.QuerySortOrder;
-import com.vaadin.shared.data.sort.SortDirection;
 import com.vaadin.spring.annotation.SpringComponent;
 import com.luretechnologies.tms.backend.data.entity.User;
-import com.luretechnologies.tms.backend.service.UserService;
+import com.luretechnologies.tms.backend.service.MockUserService;
 
 @SpringComponent
 @PrototypeScope
-public class UserAdminDataProvider extends FilterablePageableDataProvider<User, Object> {
+public class UserAdminDataProvider extends AbstractBackEndDataProvider<User, Object> {
 
-	private final UserService userService;
+	private static final long serialVersionUID = -3459665913532137667L;
+	private  MockUserService mockUserService;
 
 	@Autowired
-	public UserAdminDataProvider(UserService userService) {
-		this.userService = userService;
+	public UserAdminDataProvider(MockUserService userService) {
+		this.mockUserService = userService;
+	}
+	
+	  @Override
+	  public Object getId(User item) {
+	    // TODO Auto-generated method stub
+	    return item.getId();
+	  }
+	@Override
+	public boolean isInMemory() {
+		// TODO Auto-generated method stub
+		return true;
+	}
+   
+	@Override
+	public  Stream<User> fetch(Query<User,Object> query) {
+		return getUsers(query).stream();
 	}
 
 	@Override
-	protected Page<User> fetchFromBackEnd(Query<User, Object> query, Pageable pageable) {
-		return userService.findAnyMatching(getOptionalFilter(), pageable);
+	protected Stream<User> fetchFromBackEnd(Query<User, Object> query) {
+		return getUsers(query).stream();
 	}
+
+
 
 	@Override
 	protected int sizeInBackEnd(Query<User, Object> query) {
-		return (int) userService.countAnyMatching(getOptionalFilter());
+		getUsers(query).size();
+		return 0;
 	}
-
-	@Override
-	protected List<QuerySortOrder> getDefaultSortOrders() {
-		List<QuerySortOrder> sortOrders = new ArrayList<>();
-		sortOrders.add(new QuerySortOrder("email", SortDirection.ASCENDING));
-		return sortOrders;
+	
+	private List<User> getUsers(Query<User, Object> query)
+	{
+		List<User> resultList =  mockUserService.getUsers();
+		
+		if(query.getFilter().isPresent())
+			resultList = mockUserService.getUsers().stream().filter(u -> u.getEmail().contains(query.getFilter().get().toString()) ).collect(Collectors.toList());
+		return resultList;
 	}
 
 }

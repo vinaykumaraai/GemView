@@ -28,7 +28,7 @@ public class RedirectAuthenticationSuccessHandler implements AuthenticationSucce
 	private ServletContext servletContext;
 
 	public RedirectAuthenticationSuccessHandler() {
-		location = Application.APP_URL /*+ Application.OTP_CODE_URL*/;
+		location = Application.APP_URL + Application.OTP_CODE_URL;
 	}
 
 	private String getAbsoluteUrl(String url) {

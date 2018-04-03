@@ -145,10 +145,10 @@
 		</dependency>
 
 		<!-- Spring -->
-		<dependency>
+		<!-- <dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
-		</dependency>
+		</dependency> -->
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-web</artifactId>
@@ -166,10 +166,7 @@
 			<artifactId>vaadin-spring-addon-eventbus</artifactId>
 			<version>${org.vaadin.spring.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>com.h2database</groupId>
-			<artifactId>h2</artifactId>
-		</dependency>
+		
 		<dependency>
 			<groupId>org.vaadin.artur</groupId>
 			<artifactId>spring-data-provider</artifactId>

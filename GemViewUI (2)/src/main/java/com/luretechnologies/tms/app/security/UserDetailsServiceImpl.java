@@ -10,21 +10,21 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.luretechnologies.tms.backend.data.entity.User;
-import com.luretechnologies.tms.backend.service.UserService;
+import com.luretechnologies.tms.backend.service.MockUserService;
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-	private final UserService userService;
+	private final MockUserService userService;
 
 	@Autowired
-	public UserDetailsServiceImpl(UserService userService) {
+	public UserDetailsServiceImpl(MockUserService userService) {
 		this.userService = userService;
 	}
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		User user = userService.findByEmail(username);
+		User user = userService.getUserByEmail(username);
 		if (null == user) {
 			throw new UsernameNotFoundException("No user present with username: " + username);
 		} else {

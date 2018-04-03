@@ -99,9 +99,6 @@ public abstract class AbstractCrudView<T extends AbstractEntity> implements Seri
 	}
 
 	public void showInitialState() {
-		// getSplitScreen().setFirstComponent(getUserTree(treeDataService.getTreeData()));
-		// getSplitScreen().setSplitPosition(20);
-		// getSplitScreen().addComponent(userDataLayout());
 		getForm().setEnabled(false);
 		getGrid().deselectAll();
 		getUpdate().setCaption(CAPTION_UPDATE);
@@ -178,6 +175,21 @@ public abstract class AbstractCrudView<T extends AbstractEntity> implements Seri
 					return;
 				}
 				
+
+				// switch (selectedNode.getLevel()) {
+				// case ENTITY:
+				// break;
+				// case MERCHANT:
+				// break;
+				// case REGION:
+				// break;
+				// case TERMINAL:
+				// break;
+				// case DEVICE:
+				// break;
+				// default:
+				// break;
+				// }
 				getTree().getTreeData().addItem(selectedNode, newNode);
 				getTree().getDataProvider().refreshAll();
 				
@@ -225,7 +237,7 @@ public abstract class AbstractCrudView<T extends AbstractEntity> implements Seri
 		});
 
 		getTree().addContextClickListener(e -> {
-			
+
 			// VerticalLayout menuLayout = new VerticalLayout();
 			// Button addLayer = new Button("Add Node");
 			// Button deleteLayer = new Button("Delete Node");
@@ -241,7 +253,7 @@ public abstract class AbstractCrudView<T extends AbstractEntity> implements Seri
 		getAdd().addClickListener(event -> getPresenter().addNewClicked());
 
 		// Search functionality
-		getSearch().addValueChangeListener(event -> getPresenter().filterGrid(event.getValue()));
+		getSearch().addValueChangeListener(event -> getPresenter().filterGrid(event.getValue(),getGrid()));
 
 	}
 

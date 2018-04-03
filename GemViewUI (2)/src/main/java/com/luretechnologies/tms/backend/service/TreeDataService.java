@@ -1,15 +1,14 @@
 package com.luretechnologies.tms.backend.service;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.luretechnologies.tms.app.DataGenerator;
-import com.luretechnologies.tms.backend.UserRepository;
-import com.luretechnologies.tms.backend.data.Role;
 import com.luretechnologies.tms.backend.data.entity.Node;
 import com.luretechnologies.tms.backend.data.entity.NodeLevel;
 import com.luretechnologies.tms.backend.data.entity.User;
@@ -22,24 +21,29 @@ public class TreeDataService {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private final UserRepository userRepository;
+	private final MockUserService mockUserService;
 	//private PasswordEncoder passwordEncoder;
-	DataGenerator db = new DataGenerator();
+	//DataGenerator db = new DataGenerator();
 	
 	@Autowired
-	public TreeDataService(UserRepository userRepository) {
-		this.userRepository = userRepository;
+	public TreeDataService(MockUserService userRepository) {
+		this.mockUserService = userRepository;
 	}
-	
+	private List<User> getSortedUserList(Collection<User> unsortedCollection){
+		List<User> sortedList = unsortedCollection.stream().sorted((o1,o2)->{
+			return o1.getName().compareTo(o2.getName());
+		}).collect(Collectors.toList());
+		return sortedList;
+	}
 	public TreeData<Node> getTreeData() {
 		
 		//Tree<Node> tree = new Tree<>();
 		TreeData<Node> treeData = new TreeData<>();
-		List<User> userList1 = userRepository.findAll();
-		List<User> userList2 = userRepository.findAll();
-		List<User> userList3 = userRepository.findAll();
-		List<User> userList4 = userRepository.findAll();
-		List<User> userList5 = userRepository.findAll();
+		List<User> userList1 = new ArrayList<User>(getSortedUserList(mockUserService.getRepository().values())) ; //getSortedUserList()
+		List<User> userList2 = new ArrayList<User>(mockUserService.getRepository().values()) ;
+		List<User> userList3 = new ArrayList<User>(mockUserService.getRepository().values()) ;
+		List<User> userList4 = new ArrayList<User>(mockUserService.getRepository().values()) ;
+		List<User> userList5 = new ArrayList<User>(mockUserService.getRepository().values()) ;
 		
 		for(int index =0 ; index<3; index++) {
 			userList1.remove(index);

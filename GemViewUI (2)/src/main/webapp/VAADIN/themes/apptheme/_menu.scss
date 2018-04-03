@@ -79,8 +79,29 @@
         background-color: $app-background-color;
       }
     }
-  }
-  .submenubar{
- 	margin-left:15% !important;
+   .submenubar{
+ 	margin-left:20% !important;
  	}
+ 	.submenuIconDown{
+ 		background-image:url(down2.jpg);
+ 		background-size: contain;
+		background-repeat: no-repeat;
+		background-position:140px;
+		background-position-y:3px;
+		
+ 	}
+ 
+ 	.submenuIconUp{
+ 		background-image:url(up.jpg);
+ 		background-size: contain;
+		background-repeat: no-repeat;
+		background-position:140px;
+		background-position-y:3px;
+		
+ 	}
+ 
+ .navigation .v-button.borderless-disabled:hover {
+	background: #0e3d22;
+}
+  }
 }

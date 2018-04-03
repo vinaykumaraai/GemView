@@ -1,12 +1,11 @@
 package com.luretechnologies.tms.backend.service;
 
-import org.springframework.dao.DataIntegrityViolationException;
 
 /**
  * A data integraty violation exception containing a message intended to be
  * shown to the end user.
  */
-public class UserFriendlyDataException extends DataIntegrityViolationException {
+public class UserFriendlyDataException extends RuntimeException {
 
 	public UserFriendlyDataException(String message) {
 		super(message);

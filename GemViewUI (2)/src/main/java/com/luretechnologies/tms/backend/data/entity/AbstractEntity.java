@@ -2,20 +2,23 @@ package com.luretechnologies.tms.backend.data.entity;
 
 import java.io.Serializable;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.MappedSuperclass;
-import javax.persistence.Version;
-
-@MappedSuperclass
 public class AbstractEntity implements Serializable {
 
-	@Id
-	@GeneratedValue
 	private Long id;
 
-	@Version
 	private int version;
+	
+	public void setId(Long id) {
+		this.id = id;
+	}
+	public AbstractEntity()
+	{
+		
+	}
+	public AbstractEntity(boolean isNew) {
+		if(!isNew)
+		id = System.currentTimeMillis();
+	}
 
 	public boolean isNew() {
 		return id == null;

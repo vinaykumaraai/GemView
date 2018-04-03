@@ -1822,10 +1822,6 @@ div.v-layout.v-horizontal.v-widget {
 	pointer-events: none;
 }
 
-.app-shell .navigation .v-button.borderless:hover {
-	background: #0e3d22;
-}
-
 .app-shell[width-range~="601px-1000px"] .navigation-bar-container {
 	width: 80px !important;
 }
@@ -15532,8 +15528,28 @@ div.v-layout.v-horizontal.v-widget {
 	background-color: #145A32;
 }
 
-.apptheme .submenubar {
-	margin-left: 15% !important;
+.apptheme .app-shell[width-range~="1001px-"] .submenubar {
+	margin-left: 20% !important;
+}
+
+.apptheme .app-shell[width-range~="1001px-"] .submenuIconDown {
+	background-image: url(down2.jpg);
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: 140px;
+	background-position-y: 3px;
+}
+
+.apptheme .app-shell[width-range~="1001px-"] .submenuIconUp {
+	background-image: url(up.jpg);
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: 140px;
+	background-position-y: 3px;
+}
+
+.apptheme .app-shell[width-range~="1001px-"] .navigation .v-button.borderless-disabled:hover {
+	background: #0e3d22;
 }
 
 .apptheme .v-errorindicator {

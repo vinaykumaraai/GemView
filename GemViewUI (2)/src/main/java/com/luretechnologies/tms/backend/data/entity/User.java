@@ -2,38 +2,19 @@ package com.luretechnologies.tms.backend.data.entity;
 
 import java.util.Objects;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-
 // "User" is a reserved word in some SQL implementations
-@Entity(name = "UserInfo")
 public class User extends AbstractEntity {
 
-	@NotNull
-	@Size(min = 1, max = 255)
-	@Column(unique = true)
 	private String email;
-
-	@NotNull
-	@Size(min = 4, max = 255)
+	
 	private String password;
 
-	@NotNull
-	@Size(min = 1, max = 255)
 	private String name;
 
-	@NotNull
-	@Size(min = 1, max = 255)
 	private String role;
 	
-	@NotNull
-	@Size(min = 1, max = 255)
 	private String firstname;
 
-	@NotNull
-	@Size(min = 1, max = 255)
 	private String lastname;
 	
 	private boolean active;
@@ -45,6 +26,7 @@ public class User extends AbstractEntity {
 	}
 
 	public User(String email, String name, String password, String role, String firstname, String lastname, boolean active) {
+		super(false);
 		Objects.requireNonNull(email);
 		Objects.requireNonNull(name);
 		Objects.requireNonNull(password);

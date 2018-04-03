@@ -15,7 +15,7 @@ import com.luretechnologies.tms.ui.view.AccessDeniedView;
 import com.vaadin.ui.UI;
 
 @Theme("apptheme")
-@SpringUI/*(path = AppUI.HOME_VIEW)*/
+@SpringUI(path = AppUI.HOME_VIEW)
 @Viewport("width=device-width,initial-scale=1.0,user-scalable=no")
 @Title("Gem View")
 public class AppUI extends UI implements HasLogger {
@@ -25,7 +25,7 @@ public class AppUI extends UI implements HasLogger {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	//public final static String HOME_VIEW = "home";
+	public final static String HOME_VIEW = "home";
 	
 	private final SpringViewProvider viewProvider;
 

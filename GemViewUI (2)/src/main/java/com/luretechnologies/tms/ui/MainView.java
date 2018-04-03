@@ -23,6 +23,7 @@ import com.luretechnologies.tms.ui.view.system.SystemView;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewDisplay;
 import com.vaadin.navigator.ViewLeaveAction;
+import com.vaadin.server.Page;
 import com.vaadin.spring.access.SecuredViewAccessControl;
 import com.vaadin.spring.annotation.SpringViewDisplay;
 import com.vaadin.spring.annotation.UIScope;
@@ -69,16 +70,23 @@ public class MainView extends MainViewDesign implements ViewDisplay {
 		attachNavigation(audit, AuditView.class);
 		attachNavigation(devices, DevicesView.class);
 		attachNavigation(system, SystemView.class);
-		menubar.setVisible(false);
+		
+		menubar.setVisible(true);
+		administrationButton.addStyleName("submenuIconUp");
+		//administrationButton.removeStyleName("hover");
 		administrationButton.addClickListener(e->{
-			if(menubar.isVisible()) {
+			if(menubar.isVisible() && Page.getCurrent().getBrowserWindowWidth() > 1000) {
 				menubar.setVisible(false);
-//			administrationButton.removeStyleName("up");
-//			administrationButton.addStyleName("down");
+			administrationButton.removeStyleName("submenuIconUp");
+			administrationButton.addStyleName("submenuIconDown");
 			}
-			else
+			else {
 				menubar.setVisible(true);
+			administrationButton.removeStyleName("submenuIconDown");
+			administrationButton.addStyleName("submenuIconUp");
+			}
 		});
+		
 		logout.addClickListener(e -> logout());
 	}
 

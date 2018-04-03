@@ -10,7 +10,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.luretechnologies.tms.backend.data.entity.User;
-import com.luretechnologies.tms.backend.service.UserService;
+/*import com.luretechnologies.tms.backend.service.UserService;*/
 
 /**
  * SecurityUtils takes care of all such static operations that have to do with
@@ -59,13 +59,13 @@ public class SecurityUtils {
 		return context.getAuthentication().getAuthorities().stream().map(GrantedAuthority::getAuthority)
 				.collect(Collectors.toSet());
 	}
-
-	/**
+/*
+	*//**
 	 * Gets the user object for the current user.
 	 *
 	 * @return the user object
-	 */
+	 *//*
 	public static User getCurrentUser(UserService userService) {
 		return userService.findByEmail(SecurityUtils.getUsername());
-	}
+	}*/
 }

@@ -4,9 +4,6 @@ import java.io.Serializable;
 import java.util.List;
 
 import org.springframework.beans.factory.BeanFactory;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.OptimisticLockingFailureException;
-import org.vaadin.artur.spring.dataprovider.FilterablePageableDataProvider;
 import org.vaadin.dialogs.ConfirmDialog;
 
 import com.vaadin.data.BeanValidationBinder;
@@ -15,6 +12,8 @@ import com.vaadin.data.HasValue;
 import com.vaadin.data.StatusChangeEvent;
 import com.vaadin.data.ValidationException;
 import com.vaadin.data.ValidationResult;
+import com.vaadin.data.provider.AbstractBackEndDataProvider;
+import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.navigator.ViewBeforeLeaveEvent;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.Page;
@@ -40,7 +39,7 @@ public abstract class AbstractCrudPresenter<T extends AbstractEntity, S extends 
 
 	private final S service;
 
-	private FilterablePageableDataProvider<T, Object> dataProvider;
+	private AbstractBackEndDataProvider<T, Object> dataProvider;
 
 	private BeanValidationBinder<T> binder;
 
@@ -54,7 +53,7 @@ public abstract class AbstractCrudPresenter<T extends AbstractEntity, S extends 
 	private final Class<T> entityType;
 
 	protected AbstractCrudPresenter(NavigationManager navigationManager, S service, Class<T> entityType,
-			FilterablePageableDataProvider<T, Object> dataProvider, BeanFactory beanFactory) {
+			AbstractBackEndDataProvider<T, Object> dataProvider, BeanFactory beanFactory) {
 		this.service = service;
 		this.navigationManager = navigationManager;
 		this.entityType = entityType;
@@ -88,8 +87,11 @@ public abstract class AbstractCrudPresenter<T extends AbstractEntity, S extends 
 		return service;
 	}
 
-	protected void filterGrid(String filter) {
-		dataProvider.setFilter(filter);
+	@SuppressWarnings("rawtypes")
+	protected void filterGrid(String filter,Grid grid) {
+		ConfigurableFilterDataProvider filterDataProvider = dataProvider.withConfigurableFilter();
+		filterDataProvider.setFilter(filter);
+		grid.setDataProvider(filterDataProvider);
 	}
 
 	protected T loadEntity(long id) {
@@ -114,6 +116,7 @@ public abstract class AbstractCrudPresenter<T extends AbstractEntity, S extends 
 			throw new IllegalArgumentException("Cannot delete an entity which is not in the database");
 		} else {
 			service.delete(entity.getId());
+			//view.loadGridData();
 		}
 	}
 
@@ -241,14 +244,14 @@ public abstract class AbstractCrudPresenter<T extends AbstractEntity, S extends 
 		T entity;
 		try {
 			entity = service.save(editItem);
-		} catch (OptimisticLockingFailureException e) {
+		} /*catch (OptimisticLockingFailureException e) {
 			// Somebody else probably edited the data at the same time
 			Notification.show("Somebody else might have updated the data. Please refresh and try again.",
 					Type.ERROR_MESSAGE);
 			getLogger().debug("Optimistic locking error while saving entity of type " + editItem.getClass().getName(),
 					e);
 			return;
-		} catch (UserFriendlyDataException e) {
+		}*/ catch (UserFriendlyDataException e) {
 			Notification.show(e.getMessage(), Type.ERROR_MESSAGE);
 			getLogger().debug("Unable to update entity of type " + editItem.getClass().getName(), e);
 			return;
@@ -303,12 +306,13 @@ public abstract class AbstractCrudPresenter<T extends AbstractEntity, S extends 
 		            			Notification.show(e.getMessage(), Type.ERROR_MESSAGE);
 		            			getLogger().debug("Unable to delete entity of type " + editItem.getClass().getName(), e);
 		            			return;
-		            		} catch (DataIntegrityViolationException e) {
+		            		}/* catch (DataIntegrityViolationException e) {
 		            			Notification.show("The given entity cannot be deleted as there are references to it in the database",
 		            					Type.ERROR_MESSAGE);
 		            			getLogger().error("Unable to delete entity of type " + editItem.getClass().getName(), e);
 		            			return;
-		            		}
+		            		}*/
+		                	getView().loadGridData();
 		                	Page.getCurrent().reload();
 		                	
 		                } else {
