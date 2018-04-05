@@ -1,37 +1,29 @@
 package com.luretechnologies.tms.ui.view.admin.user;
 
-import java.util.List;
-
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.vaadin.data.BeanValidationBinder;
-import com.vaadin.data.TreeData;
-import com.vaadin.data.ValidationResult;
-import com.vaadin.data.Validator;
-import com.vaadin.data.ValueContext;
-import com.vaadin.data.provider.DataProvider;
-import com.vaadin.data.provider.ListDataProvider;
-import com.vaadin.data.provider.TreeDataProvider;
-import com.vaadin.data.validator.BeanValidator;
-import com.vaadin.icons.VaadinIcons;
-import com.vaadin.spring.annotation.SpringComponent;
-import com.vaadin.spring.annotation.SpringView;
-import com.luretechnologies.tms.backend.ITreeDataEntity;
 import com.luretechnologies.tms.backend.data.entity.Node;
 import com.luretechnologies.tms.backend.data.entity.User;
 import com.luretechnologies.tms.backend.service.MockUserService;
 import com.luretechnologies.tms.backend.service.TreeDataService;
 import com.luretechnologies.tms.ui.view.admin.AbstractCrudView;
+import com.vaadin.data.BeanValidationBinder;
+import com.vaadin.data.TreeData;
+import com.vaadin.data.ValidationResult;
+import com.vaadin.data.Validator;
+import com.vaadin.data.ValueContext;
+import com.vaadin.data.provider.TreeDataProvider;
+import com.vaadin.data.validator.BeanValidator;
+import com.vaadin.icons.VaadinIcons;
+import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Component.Focusable;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.HorizontalSplitPanel;
-import com.vaadin.ui.IconGenerator;
-import com.vaadin.ui.Notification;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
@@ -90,7 +82,6 @@ public class UserAdminView extends AbstractCrudView<User> {
 		presenter.init(this);
 		getGrid().setColumns("name", "lastname", "active","email","role");
 		getGrid().getColumn("lastname").setCaption("Last Name");
-		
 	}
 
 	@Override
