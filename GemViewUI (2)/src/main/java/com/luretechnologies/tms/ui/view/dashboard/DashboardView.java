@@ -2,11 +2,14 @@ package com.luretechnologies.tms.ui.view.dashboard;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.time.MonthDay;
 import java.time.Year;
 import java.time.YearMonth;
 import java.time.format.TextStyle;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -33,6 +36,8 @@ import com.vaadin.addon.charts.model.PlotOptionsColumn;
 import com.vaadin.addon.charts.model.PlotOptionsLine;
 import com.vaadin.addon.charts.model.XAxis;
 import com.vaadin.addon.charts.model.YAxis;
+import com.vaadin.addon.charts.model.style.Color;
+import com.vaadin.addon.charts.model.style.SolidColor;
 import com.vaadin.board.Row;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
@@ -67,9 +72,9 @@ public class DashboardView extends DashboardViewDesign implements View {
 	private final Chart incomingServiceCallsPie = new Chart(ChartType.PIE);
 	private final Grid<HashMap<String, String>> grid = new Grid<>();
 	
-	private ListSeries serviceCalls;
+	private DataSeries serviceCalls;
 	private DataSeries incomingCallsSeries;
-	//private List<Number> list = new ArrayList(1);
+	private List<Number> list = new ArrayList<Number>();
 
 
 	@Autowired
@@ -175,11 +180,35 @@ public class DashboardView extends DashboardViewDesign implements View {
 	public void enter(ViewChangeEvent event) {
 		//DashboardData data = fetchData();
 		updateLabels(new ConnectionStats(2,3,4.1,5));
-		updateGraphs(new DashboardData(Arrays.asList(1,2,3,4,5,6,7,8,9,10,11,12,13,14)/*, new Number[3][3]*/));
+		updateGraphs(fetchData());
 	}
 	
+	private DashboardData fetchData() {
+		return getDashboardData(MonthDay.now().getMonthValue(), Year.now().getValue());
+	}
+	
+	public DashboardData getDashboardData(int month, int year) {
+		list.add(5);
+		list.add(0);
+		list.add(7);
+		list.add(0);
+		list.add(10);
+		list.add(0);
+		list.add(7);
+		list.add(0);
+		list.add(0);
+		list.add(0);
+		
+		
+		DashboardData data = new DashboardData();
+		data.setDeliveriesThisMonth(list);
+
+		return data;
+	}
+	
+	
 	private void updateGraphs(DashboardData data) {
-		incomingServiceCalls.setData(Arrays.asList(Arrays.asList(1,7), Arrays.asList(4,8),  Arrays.asList(2,9)));
+		serviceCalls.addData(new Number[][]{{0, 1}, {2, 2}, {10, 3}});
 		//incomingServiceCalls.drawChart();
 		
 		callsPerPeriod[0].setData(Arrays.asList(5,16, 7,19,9));
@@ -221,7 +250,7 @@ public class DashboardView extends DashboardViewDesign implements View {
 		monthConf.setTitle("INCOMING SERVICE CALLS");
 		monthConf.getChart().setMarginBottom(6);
 		monthConf.getLegend().setEnabled(false);
-		serviceCalls = new ListSeries(CALLS);
+		serviceCalls = new DataSeries(CALLS);
 		monthConf.addSeries(serviceCalls);
 		configureColumnSeries(serviceCalls);
 
@@ -233,10 +262,14 @@ public class DashboardView extends DashboardViewDesign implements View {
 		//monthConf.getxAxis().setTitle("Heartbeat");;
 	}
 
-	protected void configureColumnSeries(ListSeries series) {
+	protected void configureColumnSeries(DataSeries series) {
 		PlotOptionsColumn options = new PlotOptionsColumn();
+		options.setPointWidth(100);
+		Color color = SolidColor.GREEN;
 		options.setBorderWidth(1);
 		options.setGroupPadding(0);
+		options.setColor(color);
+		//options.setThreshold(threshold);
 		series.setPlotOptions(options);
 
 		YAxis yaxis = series.getConfiguration().getyAxis();

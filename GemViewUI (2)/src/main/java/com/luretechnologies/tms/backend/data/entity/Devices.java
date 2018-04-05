@@ -9,6 +9,27 @@ public class Devices {
 	private boolean active;
 	
 	private String manufacturer;
+	
+	private boolean rki;
+	
+	private boolean osUpdate;
+
+	
+	public boolean isRki() {
+		return rki;
+	}
+
+	public void setRki(boolean rki) {
+		this.rki = rki;
+	}
+
+	public boolean isOsUpdate() {
+		return osUpdate;
+	}
+
+	public void setOsUpdate(boolean osUpdate) {
+		this.osUpdate = osUpdate;
+	}
 
 	public String getManufacturer() {
 		return manufacturer;
@@ -34,7 +55,7 @@ public class Devices {
 		this.description = description;
 	}
 
-	public boolean getActive() {
+	public boolean isActive() {
 		return active;
 	}
 

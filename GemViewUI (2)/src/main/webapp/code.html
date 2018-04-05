@@ -53,8 +53,8 @@ html {
 @media ( min-width : 1000px) {
 	/* load on wide screens */
 	body {
-		background-color: transparent;
-		background-image: url(VAADIN/themes/apptheme/bg.jpg);
+		background-color: lightgrey;
+		/* background-image: url(VAADIN/themes/apptheme/bg.jpg); */
 		background-size: cover;
 	}
 }
@@ -70,9 +70,9 @@ button {
 #logo {
 	display: inline-block;
 	float: center;
-	width: 300px;
-	height: 100px;
-	background-image: url(VAADIN/themes/apptheme/gemstone-96.png);
+	width: 335px;
+	height: 217px;
+	background-image: url(VAADIN/themes/apptheme/logo1.PNG);
 	background-size: contain;
 	background-repeat: no-repeat;
 	background-color: #FFFFFF;
@@ -102,7 +102,7 @@ html, body {
 		}
 
 #form {
-	height: 100%;
+	/* height: 100%; */
 	display: flex;
 	background-color: #216C2A;
 	justify-content: center;
@@ -120,7 +120,7 @@ html, body {
 
 	#fixedbutton {
 	position: relative;
-	bottom: -15px !important;
+	bottom: -23px !important;
 	right: -180px !important;
 }
 	
@@ -139,14 +139,19 @@ html, body {
 		width: inherit;
 	}
 	#logo {
-		width: 250px;
+		/* width: 250px;
 		height: 80px;
 		position: relative;
 		bottom: -150px;
-		right: -2px;
+		right: -2px; */
+		width: 284px;
+		height: 117px;
+		position: relative;
+		bottom: -30px;
+		left:-60px;
 	}
 	#info, #form {
-		height: 415px;
+		height: 380px;
 		box-shadow: 0 2px 3px rgba(0, 0, 0, .2);
 	}
 	#info {
@@ -186,7 +191,7 @@ label {
 }
 
 input[type='text'], input[type='password'] {
-	width: 100%;
+	width: 61%;
 	-webkit-appearance: none;
 	-moz-appearance: none;
 	-ms-appearance: none;
@@ -197,11 +202,11 @@ input[type='text'], input[type='password'] {
 	color: white;
 	height: 30px;
 	border-radius: 2px;
-	padding: 4px 9px;
+	padding: 19px 9px;
 	border: 0;
   	outline: 0;
   	background: transparent;
-  	border-bottom: 1px solid black;
+  	border-bottom: 1.4px solid lightslategrey;
 }
 
 button {
@@ -210,17 +215,13 @@ button {
 	height: 37px;
 	border: 1px solid #666;
 	border-radius: 4px;
-	background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.2) 2%,
-		rgba(0, 0, 0, 0.1) 98%);
-	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0
-		rgba(0, 0, 0, 0.2), 0 2px 3px rgba(0, 0, 0, 0.05);
 	outline: none;
 	cursor: pointer;
 	color: #000;
 	text-align: center;
 	position: relative;
-	font: inherit;
-	font-weight: 600;
+	/* font: inherit;
+	font-weight: 600; */
 }
 
 #button-submit:focus:after {
@@ -236,7 +237,7 @@ button {
 
 #fixedbutton {
 	position: relative;
-	bottom: -35px;
+	bottom: -28px;
 	right: -200px;
 }
 
@@ -247,7 +248,7 @@ button {
 
 .error form:after {
 	content:
-		"The username and password you entered do not match our records. Please double-check and try again.";
+		"Verification Code is Wrong";
 	display: block;
 	border: 1px solid red;
 	border-radius: 4px;
@@ -262,18 +263,19 @@ button {
 
 <body onload="init()">
 	<div id="info" align="center">
-	<h1 style="font-weight:bold">Your Company Logo</h1>
+	<div id="logo"></div>
+	<!-- <h1 style="font-weight:bold">Your Company Logo</h1> -->
 	</div>
 	<div id="form">
 		<form method="post" action="home" id="tfauthform">
-			<h1 style="color:#ffff">Welcome</h1>
-			<h3 style="color:#ffff">Two factor authentication</h3>
-			<h4 style="color:#ffff"> A verification code has been sent to your email at j****@gmail.com</h4>
+			<h1 style="color:#ffff; border-bottom:1px solid">Welcome</h1>
+			<h3 style="color:#ffff;font-weight:100;">Two factor authentication</h3>
+			<h4 style="color:#ffff; font-weight:100;"> A verification code has been sent to your email at j****@gmail.com</h4>
 			<label id="label" style="color:#ffff">Verification code</label>
 			<input type="text" id="code" name="code" aria-labelledby="label" autofocus></input> 
 			<button id="button-auth" type="submit" style = "float: left">Authenticate</button>
 			<button id="button-email" type="submit" style = "float: right">Resend Email</button>
-			<a id="fixedbutton" href="forgotPassword.html" style="color:black; font-weight:bold" target="_blank">Forgot Password ?</a>
+			<a id="fixedbutton" href="forgotPassword.html" style="color:#666666" target="_blank">Forgot Password ?</a>
 		</form>
 	</div>
 </body>

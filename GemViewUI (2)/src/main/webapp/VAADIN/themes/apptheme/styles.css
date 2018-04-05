@@ -63,6 +63,14 @@
 	padding-right: 10px !important;
 }
 
+.form-layout {
+	margin-left: 50px !important;
+}
+
+.save-cancelButtonsAlignment {
+	padding-right: 10px !important;
+}
+
 .apptheme .v-panel-caption-custom {
 	box-sizing: border-box;
 	padding: 0 12px;

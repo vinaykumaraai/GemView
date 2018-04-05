@@ -5,11 +5,11 @@ import java.util.List;
 
 public class DashboardData {
 
-	public DashboardData(List<Number> incomingServiceCalls/*, Number[][] salesPerMonth*/) {
-		super();
-		this.incomingServiceCalls = incomingServiceCalls;
-		//this.salesPerMonth=salesPerMonth;
-	}
+//	public DashboardData(List<Number> incomingServiceCalls/*, Number[][] salesPerMonth*/) {
+//		super();
+//		this.incomingServiceCalls = incomingServiceCalls;
+//		//this.salesPerMonth=salesPerMonth;
+//	}
 
 	private ConnectionStats deliveryStats;
 	private List<Number> incomingServiceCalls;

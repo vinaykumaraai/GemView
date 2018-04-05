@@ -123,7 +123,6 @@ public abstract class AbstractCrudPresenter<T extends AbstractEntity, S extends 
 			throw new IllegalArgumentException("Cannot delete an entity which is not in the database");
 		} else {
 			service.delete(entity.getId());
-			// view.loadGridData();
 		}
 	}
 
@@ -321,8 +320,6 @@ public abstract class AbstractCrudPresenter<T extends AbstractEntity, S extends 
 								 * editItem.getClass().getName(), e); return; }
 								 */
 							getView().loadGridData();
-							Page.getCurrent().reload();
-
 						} else {
 							// User did not confirm
 

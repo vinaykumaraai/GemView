@@ -64,24 +64,32 @@ public class DevicesView extends VerticalLayout implements Serializable, View{
 		
 		Devices device = new Devices();
 		device.setActive(true);
+		device.setRki(true);
+		device.setOsUpdate(false);
 		device.setDescription("PINPAD1");
 		device.setDeviceName("QQ90001");
 		device.setManufacturer("IDTECH1");
 		
 		Devices device1 = new Devices();
 		device1.setActive(true);
+		device1.setRki(false);
+		device1.setOsUpdate(true);
 		device1.setDescription("PINPAD2");
 		device1.setDeviceName("QQ90002");
 		device1.setManufacturer("IDTECH2");
 		
 		Devices device2 = new Devices();
 		device2.setActive(true);
+		device2.setRki(true);
+		device2.setOsUpdate(false);
 		device2.setDescription("PINPAD3");
 		device2.setDeviceName("QQ90003");
 		device2.setManufacturer("IDTECH3");
 		
 		Devices device3 = new Devices();
-		device3.setActive(true);
+		device3.setActive(false);
+		device3.setRki(true);
+		device3.setOsUpdate(false);
 		device3.setDescription("PINPAD4");
 		device3.setDeviceName("QQ90004");
 		device3.setManufacturer("IDTECH4");
@@ -96,6 +104,7 @@ public class DevicesView extends VerticalLayout implements Serializable, View{
 	
 	@PostConstruct
 	private void inti() {
+		setHeight("100%");
 		setSpacing(false);
 		setMargin(false);
 		setResponsive(true);
@@ -104,8 +113,7 @@ public class DevicesView extends VerticalLayout implements Serializable, View{
 		panel.setContent(verticalLayout);
 		verticalLayout.setSpacing(false);
 		verticalLayout.setMargin(false);
-		verticalLayout.setHeight("100%");
-		Label availableDevices = new Label("<h2 style=font-weight:bold;>Available Devices</h2>", ContentMode.HTML);
+		Label availableDevices = new Label("<h2 style=font-weight:bold;padding-left:12px>Available Devices</h2>", ContentMode.HTML);
 		HorizontalLayout horizontalLayout = new HorizontalLayout();
 		horizontalLayout.setSizeFull();
 		
@@ -123,24 +131,64 @@ public class DevicesView extends VerticalLayout implements Serializable, View{
 		verticalLayout.addComponent(deviceInfoLayout);
 		deviceInfoLayout.setMargin(false);
 		deviceInfoLayout.setSpacing(true);
-		//deviceInfoLayout.setHeight("100%");
+		deviceInfoLayout.setStyleName("form-layout");
 		
 		getAndLoadDeviceForm(deviceInfoLayout, false);
 		
 		Button cancel = new Button("Cancel");
 		cancel.addStyleName(ValoTheme.BUTTON_FRIENDLY);
 		cancel.setResponsive(true);
+		cancel.addClickListener(new ClickListener() {
+			public void buttonClick(ClickEvent event) {	
+				deviceInfoLayout.removeAllComponents();
+				devicesGrid.getDataProvider().refreshAll();
+				devicesGrid.deselectAll();
+				selectedDevice = new Devices();
+				getAndLoadDeviceForm(deviceInfoLayout, false);	
+			}
+		});
 		layout2.addComponent(cancel);
 		
 		Button save = new Button("Save");
 		save.addStyleName(ValoTheme.BUTTON_FRIENDLY);
 		save.setResponsive(true);
+		save.addClickListener(new ClickListener() {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			public void buttonClick(ClickEvent event) {
+				String description = deviceDescription.getValue();
+				String devicename = deviceName.getValue();
+				String deviceManfactr = deviceManufacturer.getValue();
+				boolean activeValue = activeBox.getValue();
+				boolean rkiValue = rkiBox.getValue();
+				boolean osUpdateValue = osBox.getValue();
+				selectedDevice.setDescription(description);
+				selectedDevice.setDeviceName(devicename);
+				selectedDevice.setManufacturer(deviceManfactr);
+				selectedDevice.setActive(activeValue);
+				selectedDevice.setRki(rkiValue);
+				selectedDevice.setOsUpdate(osUpdateValue);
+				if(description.isEmpty() || description== null|| devicename.isEmpty() || devicename== null 
+						|| deviceManfactr.isEmpty() || deviceManfactr== null) {
+					Notification.show("Fill all details", Notification.Type.WARNING_MESSAGE).setDelayMsec(3000);
+				} else {
+				devicesRepo.put(selectedDevice.getDeviceName(), selectedDevice);
+				devicesGrid.getDataProvider().refreshAll();
+				devicesGrid.select(selectedDevice);
+				deviceInfoLayout.removeAllComponents();
+				getAndLoadDeviceForm(deviceInfoLayout, false);
+				}
+			}
+		});
 		
 		layout2.addComponent(save);
 		layout2.setComponentAlignment(cancel, Alignment.MIDDLE_RIGHT);
 		layout2.setComponentAlignment(save, Alignment.MIDDLE_RIGHT);
 		layout2.setResponsive(true);
-		layout2.setSizeUndefined();
+		layout2.setStyleName("save-cancelButtonsAlignment");
 		
 		horizontalLayout.addComponents(layout1, layout2);
 		horizontalLayout.setComponentAlignment(layout2, Alignment.MIDDLE_RIGHT);
@@ -150,6 +198,7 @@ public class DevicesView extends VerticalLayout implements Serializable, View{
 	
 	public Panel getAndLoadDevicePanel() {
 		Panel panel = new Panel();
+		panel.setHeight("100%");
 		panel.addStyleName(ValoTheme.PANEL_WELL);
 		panel.setCaptionAsHtml(true);
 		panel.setCaption("<h1 style=color:#216C2A;font-weight:bold;>Devices</h1>");
@@ -184,6 +233,7 @@ public class DevicesView extends VerticalLayout implements Serializable, View{
 	}
 	
 	private void getDescription(FormLayout formLayout, boolean isEditableOnly) {
+		//HorizontalLayout descriptionHL = new HorizontalLayout();
 		String description = selectedDevice.getDescription() != null ? selectedDevice.getDescription(): "";
 		deviceDescription = new TextField("Description", description);
 		selectedDevice.setDescription(deviceDescription.getValue());
@@ -192,10 +242,12 @@ public class DevicesView extends VerticalLayout implements Serializable, View{
 		deviceDescription.setStyleName("role-textbox");
 		deviceDescription.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
 		deviceDescription.setEnabled(isEditableOnly);
+		//descriptionHL.addComponent(deviceDescription);
 		formLayout.addComponent(deviceDescription);
 	}
 	
 	private void getManufacturer(FormLayout formLayout, boolean isEditableOnly) {
+		//HorizontalLayout manufacturerHL = new HorizontalLayout();
 		String manufacturer = selectedDevice.getManufacturer() != null ? selectedDevice.getManufacturer(): "";
 		deviceManufacturer = new TextField("Manufacturer", manufacturer);
 		selectedDevice.setManufacturer(deviceManufacturer.getValue());
@@ -204,6 +256,7 @@ public class DevicesView extends VerticalLayout implements Serializable, View{
 		deviceManufacturer.setStyleName("role-textbox");
 		deviceManufacturer.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
 		deviceManufacturer.setEnabled(isEditableOnly);
+		//manufacturerHL.addComponent(deviceManufacturer);
 		formLayout.addComponent(deviceManufacturer);
 	}
 	
@@ -217,8 +270,11 @@ public class DevicesView extends VerticalLayout implements Serializable, View{
 		deviceName.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
 		selectedDevice.setDeviceName(deviceName.getValue());
 		deviceName.setEnabled(isEditableOnly);
-		activeBox = new CheckBox("Allow Access");
+		
+		boolean activeBoxValue = selectedDevice.isActive();
+		activeBox = new CheckBox("Allow Access", activeBoxValue);
 		activeBox.setEnabled(isEditableOnly);
+		selectedDevice.setActive(activeBox.getValue());
 		activeLabel = new Label("Active");
 		activeLabel.setStyleName("role-activeLable");
 		
@@ -248,23 +304,30 @@ public class DevicesView extends VerticalLayout implements Serializable, View{
 	private void getRKICapable(FormLayout formLayout, CssLayout rkiLayout, boolean isEditableOnly) {
 		HorizontalLayout rkiCapableHL = new HorizontalLayout();
 		
-		rkiBox = new CheckBox("Device is RKICapable (Remote Key Injection)");
+		boolean rkiBoxValue = selectedDevice.isRki();
+		rkiBox = new CheckBox("Device is RKICapable (Remote Key Injection)", rkiBoxValue);
 		rkiBox.setEnabled(isEditableOnly);
+		selectedDevice.setRki(rkiBox.getValue());
 		rkiLabel = new Label("RKI Capable");
 		//rkiLabel.setStyleName("role-activeLable");
 		rkiCapableHL.addComponent(rkiLabel);
 		rkiCapableHL.addComponent(rkiBox);
 		rkiCapableHL.setSizeUndefined();
+		rkiCapableHL.setStyleName("role-activeLable");
 		rkiLayout.addComponent(rkiCapableHL);
 	}
 	
 	private void getOSUpdate(FormLayout formLayout, CssLayout osUpdateLayout, boolean isEditableOnly) {
 		HorizontalLayout osUpdateHL = new HorizontalLayout();
-		osBox = new CheckBox("Device can accept O/S Update");
+		
+		boolean osBoxValue = selectedDevice.isOsUpdate();
+		osBox = new CheckBox("Device can accept O/S Update",osBoxValue);
 		osBox.setEnabled(isEditableOnly);
+		selectedDevice.setOsUpdate(osBox.getValue());
 		osLabel = new Label("O/S Update");
 		osUpdateHL.addComponent(osLabel);
 		osUpdateHL.addComponent(osBox);
+		osUpdateHL.setStyleName("role-activeLable");
 		osUpdateHL.setSizeUndefined();
 		osUpdateLayout.addComponent(osUpdateHL);
 	}
@@ -304,7 +367,6 @@ public class DevicesView extends VerticalLayout implements Serializable, View{
 				if(deviceDescription.getValue()==null || deviceDescription.getValue().isEmpty() || 
 						deviceName.getValue()==null ||  deviceName.getValue().isEmpty() ||
 						deviceManufacturer.getValue()==null ||  deviceManufacturer.getValue().isEmpty()) {
-					//Notification.show("Select any Role to Delete", Notification.Type.HUMANIZED_MESSAGE);
 					Notification.show("Select role to delete", Notification.Type.ERROR_MESSAGE);
 				}else {
 				
@@ -320,11 +382,12 @@ public class DevicesView extends VerticalLayout implements Serializable, View{
 		buttonGroup.addComponent(deleteDevice);
 		
 		devicesGrid.setCaptionAsHtml(true);
+		devicesGrid.setHeightByRows(5);
 		devicesGrid.addColumn(Devices::getDeviceName).setCaption("Device Name");
 		devicesGrid.addColumn(Devices::getDescription).setCaption("Description");
-		devicesGrid.addColumn(Devices:: getActive).setCaption("Active");
+		devicesGrid.addColumn(Devices:: isActive).setCaption("Active");
 		
-		devicesGrid.setHeightByRows(5);
+		//devicesGrid.setHeightByRows(5);
 		devicesGrid.setItems(devicesRepo.values());
 		devicesGrid.setWidth("100%");
 		devicesGrid.setResponsive(true);
@@ -338,7 +401,6 @@ public class DevicesView extends VerticalLayout implements Serializable, View{
 				//Load and update the data in permission grid.
 				deviceInfoLayout.removeAllComponents();
 				Devices selectedDevice = e.getFirstSelectedItem().get();
-				Notification.show("Selected :  " + e.getFirstSelectedItem().get().toString(), Notification.Type.HUMANIZED_MESSAGE);
 				this.selectedDevice = selectedDevice;
 				getAndLoadDeviceForm(deviceInfoLayout, false);
 			} else {

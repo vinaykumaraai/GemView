@@ -40,10 +40,10 @@ public class TreeDataService {
 		//Tree<Node> tree = new Tree<>();
 		TreeData<Node> treeData = new TreeData<>();
 		List<User> userList1 = new ArrayList<User>(getSortedUserList(mockUserService.getRepository().values())) ; //getSortedUserList()
-		List<User> userList2 = new ArrayList<User>(mockUserService.getRepository().values()) ;
-		List<User> userList3 = new ArrayList<User>(mockUserService.getRepository().values()) ;
-		List<User> userList4 = new ArrayList<User>(mockUserService.getRepository().values()) ;
-		List<User> userList5 = new ArrayList<User>(mockUserService.getRepository().values()) ;
+		List<User> userList2 = new ArrayList<User>(getSortedUserList(mockUserService.getRepository().values())) ;
+		List<User> userList3 = new ArrayList<User>(getSortedUserList(mockUserService.getRepository().values())) ;
+		List<User> userList4 = new ArrayList<User>(getSortedUserList(mockUserService.getRepository().values())) ;
+		List<User> userList5 = new ArrayList<User>(getSortedUserList(mockUserService.getRepository().values())) ;
 		
 		for(int index =0 ; index<3; index++) {
 			userList1.remove(index);
