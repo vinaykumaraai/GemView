@@ -1,6 +1,7 @@
 package com.luretechnologies.tms.backend.data.entity;
 
 import java.util.Objects;
+import java.util.UUID;
 
 // "User" is a reserved word in some SQL implementations
 public class Debug extends AbstractEntity {
@@ -59,6 +60,4 @@ public class Debug extends AbstractEntity {
 			return false;
 		return true;
 	}
-	
-	
 }

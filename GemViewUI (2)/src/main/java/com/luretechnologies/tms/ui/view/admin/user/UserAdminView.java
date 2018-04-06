@@ -82,6 +82,7 @@ public class UserAdminView extends AbstractCrudView<User> {
 		presenter.init(this);
 		getGrid().setColumns("name", "lastname", "active","email","role");
 		getGrid().getColumn("lastname").setCaption("Last Name");
+		
 	}
 
 	@Override

@@ -23,15 +23,18 @@ public class MockDebugService extends CrudService<Debug>{
 	{
 		//TODO add the Date time
 		Debug debug = new Debug(DebugType.ERROR,"There is a error");
-		debugDirectory.put(debug.getId()+1, debug);
+		debug.setId(debug.getId()+2);
+		debugDirectory.put(debug.getId(), debug);
 		 debug = new Debug(DebugType.WARN,"WARNNNNN");
-		debugDirectory.put(debug.getId()+3, debug);
+		 debug.setId(debug.getId()+3);
+		debugDirectory.put(debug.getId(), debug);
 		 debug = new Debug(DebugType.INFO,"It is a Info");
-		debugDirectory.put(debug.getId()+5, debug);
+		 debug.setId(debug.getId()+4);
+		debugDirectory.put(debug.getId(), debug);
 		debug = new Debug(DebugType.ERROR,"Again is a error");
-		debugDirectory.put(debug.getId()+8, debug);
+		debug.setId(debug.getId()+5);
+		debugDirectory.put(debug.getId(), debug);
 		//Why its only addin last message not alls
-		System.out.println("Debug messages "+debugDirectory.size());
 	}
 	
 	public void addDebug(Debug debug)
@@ -48,8 +51,7 @@ public class MockDebugService extends CrudService<Debug>{
 	public void deleteDebug(Debug debug)
 	{
 		if(debugDirectory.containsValue(debug)) {
-			
-			debugDirectory.remove(debugDirectory.values().stream().filter(predicate -> {return predicate.equals(debug);}).findFirst().get().getId());
+			debugDirectory.remove(debug.getId());
 		}
 	}
 
