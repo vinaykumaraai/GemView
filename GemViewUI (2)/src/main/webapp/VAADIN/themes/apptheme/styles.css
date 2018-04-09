@@ -15603,3 +15603,13 @@ div.v-layout.v-horizontal.v-widget {
 .apptheme .v-grid .v-grid-cell {
 	border: 0px;
 }
+.apptheme .error{
+	font-weight : bolder;
+	color : red;
+}
+
+.apptheme .warn{
+	font-weight: bolder;
+	color : orange;
+	
+}

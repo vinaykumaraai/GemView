@@ -1,7 +1,10 @@
 package com.luretechnologies.tms.ui.view.audit;
 
 import java.io.Serializable;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 import javax.annotation.PostConstruct;
 
@@ -35,6 +38,7 @@ import com.vaadin.ui.VerticalLayout;
 public class AuditView extends VerticalLayout implements Serializable, View {
 
 	private static final String DATE_FORMAT = "dd/MM/yyyy";
+	private static final SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
 	/**
 	 * 
 	 */
@@ -74,7 +78,7 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		treePanelLayout.addComponentAsFirst(treeNodeSearch);
 		treePanelLayout.addComponent(treeButtonLayout);
 		nodeTree = new Tree<Node>();
-		nodeTree.setTreeData(treeDataService.getTreeData());
+		nodeTree.setTreeData(treeDataService.getTreeDataForUser());
 		nodeTree.setItemIconGenerator(item -> {
 			switch (item.getLevel()) {
 			case ENTITY:
@@ -227,6 +231,24 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		debugLayout.addComponent(optionsLayout);
 		debugLayout.setComponentAlignment(optionsLayout, Alignment.TOP_LEFT);
 		debugLayout.addComponent(debugGrid);
+		
+		
+		//end Date listner
+		debugEndDateField.addValueChangeListener(change ->{
+			if(change.getValue().compareTo(debugStartDateField.getValue()) > 0) {
+				ListDataProvider<Debug> debugDataProvider = (ListDataProvider<Debug>) debugGrid.getDataProvider();
+				debugDataProvider.setFilter(filter -> {
+					Date debugDate = filter.getDateOfDebug();
+					try {
+						return debugDate.after(dateFormatter.parse(debugStartDateField.getValue().minusDays(1).toString())) && debugDate.before(dateFormatter.parse(change.getValue().plusDays(1).toString()));
+					} catch (ParseException e) {
+						System.out.println(e.getMessage() + filter.toString());
+						
+						return false;
+					}
+				});
+			}
+		});
 		return debugLayout;
 	}
 }

@@ -1,13 +1,14 @@
 package com.luretechnologies.tms.backend.data.entity;
 
+import java.util.Date;
 import java.util.Objects;
-import java.util.UUID;
 
 // "User" is a reserved word in some SQL implementations
 public class Debug extends AbstractEntity {
 
 	private DebugType type;
 	private String description;
+	private Date dateOfDebug;
 	public DebugType getType() {
 		return type;
 	}
@@ -20,24 +21,33 @@ public class Debug extends AbstractEntity {
 	public void setDescription(String description) {
 		this.description = description;
 	}
+	public Date getDateOfDebug() {
+		return dateOfDebug;
+	}
+	public void setDateOfDebug(Date dateOfDebug) {
+		this.dateOfDebug = dateOfDebug;
+	}
 	public Debug() {
 		// TODO Auto-generated constructor stub
 	}
-	public Debug(DebugType type, String description) {
+	public Debug(DebugType type, String description,Date dateOfDebug) {
 		super(false);
 		Objects.requireNonNull(type);
 		Objects.requireNonNull(description);
+		Objects.requireNonNull(dateOfDebug);
 		this.type = type;
 		this.description = description;
+		this.dateOfDebug = dateOfDebug;
 	}
 	@Override
 	public String toString() {
-		return "Debug [type=" + type + ", description=" + description + "]";
+		return "Debug [type=" + type + ", description=" + description + ", dateOfDebug=" + dateOfDebug + "]";
 	}
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
+		result = prime * result + ((dateOfDebug == null) ? 0 : dateOfDebug.hashCode());
 		result = prime * result + ((description == null) ? 0 : description.hashCode());
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		return result;
@@ -51,6 +61,11 @@ public class Debug extends AbstractEntity {
 		if (getClass() != obj.getClass())
 			return false;
 		Debug other = (Debug) obj;
+		if (dateOfDebug == null) {
+			if (other.dateOfDebug != null)
+				return false;
+		} else if (!dateOfDebug.equals(other.dateOfDebug))
+			return false;
 		if (description == null) {
 			if (other.description != null)
 				return false;
@@ -60,4 +75,6 @@ public class Debug extends AbstractEntity {
 			return false;
 		return true;
 	}
+	
+	
 }

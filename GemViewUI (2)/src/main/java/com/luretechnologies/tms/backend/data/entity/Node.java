@@ -15,7 +15,7 @@ public class Node {
 	
 	public String label;
 	
-	public List<User> userList;
+	public List<? extends AbstractEntity> entityList;
 	
 	public NodeLevel getLevel() {
 		return level;
@@ -33,12 +33,12 @@ public class Node {
 		this.label = label;
 	}
 
-	public List<User> getUserList() {
-		return userList;
+	public List<? extends AbstractEntity> getEntityList() {
+		return entityList;
 	}
 
-	public void setUserList(List<User> userList) {
-		this.userList = userList;
+	public void setEntityList(List<? extends AbstractEntity> entityList) {
+		this.entityList = entityList;
 	}
 
 	@Override

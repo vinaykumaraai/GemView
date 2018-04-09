@@ -1,5 +1,8 @@
 package com.luretechnologies.tms.backend.service;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,24 +20,35 @@ import com.vaadin.spring.annotation.SpringComponent;
 @SpringComponent
 public class MockDebugService extends CrudService<Debug>{
 	private Map<Long,Debug> debugDirectory = new HashMap<Long, Debug>();
-	
+	private LocalDate currentLocalDate = LocalDate.now();
+	private SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
 	@PostConstruct
-	public void createInitialDebugs()
+	public void createInitialDebugs() throws ParseException
 	{
 		//TODO add the Date time
-		Debug debug = new Debug(DebugType.ERROR,"There is a error");
+		Debug debug = new Debug(DebugType.ERROR,"There is a error",dateFormatter.parse(currentLocalDate.toString()));
 		debug.setId(debug.getId()+2);
 		debugDirectory.put(debug.getId(), debug);
-		 debug = new Debug(DebugType.WARN,"WARNNNNN");
+		 debug = new Debug(DebugType.WARN,"WARNNNNN",dateFormatter.parse(currentLocalDate.plusDays(2).toString()));
 		 debug.setId(debug.getId()+3);
 		debugDirectory.put(debug.getId(), debug);
-		 debug = new Debug(DebugType.INFO,"It is a Info");
+		 debug = new Debug(DebugType.INFO,"It is a Info",dateFormatter.parse(currentLocalDate.plusDays(4).toString()));
 		 debug.setId(debug.getId()+4);
 		debugDirectory.put(debug.getId(), debug);
-		debug = new Debug(DebugType.ERROR,"Again is a error");
+		debug = new Debug(DebugType.ERROR,"Again is a error",dateFormatter.parse(currentLocalDate.plusDays(3).toString()));
 		debug.setId(debug.getId()+5);
 		debugDirectory.put(debug.getId(), debug);
-		//Why its only addin last message not alls
+		debug.setId(debug.getId()+6);
+		debugDirectory.put(debug.getId(), debug);
+		 debug = new Debug(DebugType.WARN,"WARNNNNN",dateFormatter.parse(currentLocalDate.minusDays(2).toString()));
+		 debug.setId(debug.getId()+7);
+		debugDirectory.put(debug.getId(), debug);
+		 debug = new Debug(DebugType.INFO,"It is a Info",dateFormatter.parse(currentLocalDate.minusDays(4).toString()));
+		 debug.setId(debug.getId()+8);
+		debugDirectory.put(debug.getId(), debug);
+		debug = new Debug(DebugType.ERROR,"Again is a error",dateFormatter.parse(currentLocalDate.minusDays(3).toString()));
+		debug.setId(debug.getId()+9);
+		debugDirectory.put(debug.getId(), debug);
 	}
 	
 	public void addDebug(Debug debug)

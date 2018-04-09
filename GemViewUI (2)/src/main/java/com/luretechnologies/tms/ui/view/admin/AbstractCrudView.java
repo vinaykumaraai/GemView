@@ -149,7 +149,7 @@ public abstract class AbstractCrudView<T extends AbstractEntity> implements Seri
 		//VerticalLayout treePanelLayout = new VerticalLayout();
 		//treePanelLayout.addComponentAsFirst(treeNodeInputLabel);
 		//treePanelLayout.addComponent(treeButtonLayout);
-		Tree<Node> treeComponent = getUserTree(treeDataService.getTreeData());
+		Tree<Node> treeComponent = getUserTree(treeDataService.getTreeDataForUser());
 		//treePanelLayout.addComponent(treeComponent);
 		//treePanelLayout.setMargin(true);
 		//treePanelLayout.setComponentAlignment(treeComponent, Alignment.BOTTOM_LEFT);
@@ -227,14 +227,14 @@ public abstract class AbstractCrudView<T extends AbstractEntity> implements Seri
 		// Button logic
 		getUpdate().addClickListener(event -> {
 			getPresenter().updateClicked();
-			DataProvider data = new TreeDataProvider(treeDataService.getTreeData());
+			DataProvider data = new TreeDataProvider(treeDataService.getTreeDataForUser());
 			getTree().setDataProvider(data);
 			loadGridData();
 
 		});
 
 		getTree().addItemClickListener(e -> {
-			DataProvider data = new ListDataProvider(e.getItem().getUserList());
+			DataProvider data = new ListDataProvider(e.getItem().getEntityList());
 			getGrid().setDataProvider(data);
 			getSearch().clear();
 			//treeNodeInputLabel.clear();
@@ -251,8 +251,8 @@ public abstract class AbstractCrudView<T extends AbstractEntity> implements Seri
 	}
 
 	public void loadGridData() {
-		for (Node node : treeDataService.getTreeData().getRootItems()) {
-			DataProvider dataList = new ListDataProvider(node.getUserList());
+		for (Node node : treeDataService.getTreeDataForUser().getRootItems()) {
+			DataProvider dataList = new ListDataProvider(node.getEntityList());
 			getGrid().setDataProvider(dataList);
 		}
 	}

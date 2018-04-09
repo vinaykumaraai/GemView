@@ -2,13 +2,13 @@ package com.luretechnologies.tms.backend.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.luretechnologies.tms.backend.data.entity.Debug;
 import com.luretechnologies.tms.backend.data.entity.Node;
 import com.luretechnologies.tms.backend.data.entity.NodeLevel;
 import com.luretechnologies.tms.backend.data.entity.User;
@@ -22,12 +22,15 @@ public class TreeDataService {
 	 */
 	private static final long serialVersionUID = 1L;
 	private final MockUserService mockUserService;
+	private final MockDebugService mockDebugService;
 	//private PasswordEncoder passwordEncoder;
+	
 	//DataGenerator db = new DataGenerator();
 	
 	@Autowired
-	public TreeDataService(MockUserService userRepository) {
+	public TreeDataService(MockUserService userRepository,MockDebugService mockDebugService) {
 		this.mockUserService = userRepository;
+		this.mockDebugService = mockDebugService;
 	}
 	private List<User> getSortedUserList(Collection<User> unsortedCollection){
 		List<User> sortedList = unsortedCollection.stream().sorted((o1,o2)->{
@@ -35,7 +38,13 @@ public class TreeDataService {
 		}).collect(Collectors.toList());
 		return sortedList;
 	}
-	public TreeData<Node> getTreeData() {
+	private List<Debug> getSortedDebugList(Collection<Debug> unsortedCollection){
+		List<Debug> sortedList = unsortedCollection.stream().sorted((o1,o2)->{
+			return o1.getDateOfDebug().compareTo(o2.getDateOfDebug());
+		}).collect(Collectors.toList());
+		return sortedList;
+	}
+	public TreeData<Node> getTreeDataForUser() {
 		
 		//Tree<Node> tree = new Tree<>();
 		TreeData<Node> treeData = new TreeData<>();
@@ -57,27 +66,27 @@ public class TreeDataService {
 		Node node = new Node();
 		node.setLabel("Enterprise Entity");
 		node.setLevel(NodeLevel.ENTITY);
-		node.setUserList(userList1);
+		node.setEntityList(userList1);
 		
 		Node node1 = new Node();
 		node1.setLabel("Region West");
 		node1.setLevel(NodeLevel.REGION);
-		node1.setUserList(userList2);
+		node1.setEntityList(userList2);
 
 		Node node2 = new Node();
 		node2.setLabel("Merchant 1");
 		node2.setLevel(NodeLevel.MERCHANT);
-		node2.setUserList(userList3);
+		node2.setEntityList(userList3);
 		
 		Node node3 = new Node();
 		node3.setLabel("Terminal Entity 1");
 		node3.setLevel(NodeLevel.TERMINAL);
-		node3.setUserList(userList4);
+		node3.setEntityList(userList4);
 		
 		Node node4 = new Node();
 		node4.setLabel("Device 1");
 		node4.setLevel(NodeLevel.DEVICE);
-		node4.setUserList(userList5);
+		node4.setEntityList(userList5);
 		
 		treeData.addItem(null,node);
 		treeData.addItem(node,node1);
@@ -87,7 +96,58 @@ public class TreeDataService {
 		
 		return treeData;
 	}
-	
+public TreeData<Node> getTreeDataForDebug() {
+		
+		//Tree<Node> tree = new Tree<>();
+		TreeData<Node> treeData = new TreeData<>();
+		List<Debug> debugList1 = new ArrayList<Debug>(getSortedDebugList(mockDebugService.getRepository().values())) ; 
+		List<Debug> debugList2 = new ArrayList<Debug>(getSortedDebugList(mockDebugService.getRepository().values())) ;
+		List<Debug> debugList3 = new ArrayList<Debug>(getSortedDebugList(mockDebugService.getRepository().values())) ;
+		List<Debug> debugList4 = new ArrayList<Debug>(getSortedDebugList(mockDebugService.getRepository().values())) ;
+		List<Debug> debugList5 = new ArrayList<Debug>(getSortedDebugList(mockDebugService.getRepository().values())) ;
+		
+		for(int index =0 ; index<3; index++) {
+			debugList1.remove(index);
+			debugList2.remove(index+1);
+			debugList3.remove(index+2);
+			debugList4.remove(index+3);
+			debugList5.remove(index+2);
+			
+		}
+		
+		Node node = new Node();
+		node.setLabel("Enterprise Entity");
+		node.setLevel(NodeLevel.ENTITY);
+		node.setEntityList(debugList1);
+		
+		Node node1 = new Node();
+		node1.setLabel("Region West");
+		node1.setLevel(NodeLevel.REGION);
+		node1.setEntityList(debugList2);
+
+		Node node2 = new Node();
+		node2.setLabel("Merchant 1");
+		node2.setLevel(NodeLevel.MERCHANT);
+		node2.setEntityList(debugList3);
+		
+		Node node3 = new Node();
+		node3.setLabel("Terminal Entity 1");
+		node3.setLevel(NodeLevel.TERMINAL);
+		node3.setEntityList(debugList4);
+		
+		Node node4 = new Node();
+		node4.setLabel("Device 1");
+		node4.setLevel(NodeLevel.DEVICE);
+		node4.setEntityList(debugList5);
+		
+		treeData.addItem(null,node);
+		treeData.addItem(node,node1);
+		treeData.addItem(node1,node2);
+		treeData.addItem(node2,node3);
+		treeData.addItem(node3,node4);
+		
+		return treeData;
+	}
 //	private List<User> mockUserData(int count) {
 //		User user;
 //		List<List<User>> userData = new ArrayList<>();
