@@ -1,14 +1,10 @@
 package com.luretechnologies.tms.ui.view.admin.user;
 
+
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.luretechnologies.tms.backend.data.entity.Node;
-import com.luretechnologies.tms.backend.data.entity.User;
-import com.luretechnologies.tms.backend.service.MockUserService;
-import com.luretechnologies.tms.backend.service.TreeDataService;
-import com.luretechnologies.tms.ui.view.admin.AbstractCrudView;
 import com.vaadin.data.BeanValidationBinder;
 import com.vaadin.data.TreeData;
 import com.vaadin.data.ValidationResult;
@@ -18,6 +14,11 @@ import com.vaadin.data.provider.TreeDataProvider;
 import com.vaadin.data.validator.BeanValidator;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.spring.annotation.SpringView;
+import com.luretechnologies.tms.backend.data.entity.Node;
+import com.luretechnologies.tms.backend.data.entity.User;
+import com.luretechnologies.tms.backend.service.MockUserService;
+import com.luretechnologies.tms.backend.service.TreeDataService;
+import com.luretechnologies.tms.ui.view.admin.AbstractCrudView;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Component.Focusable;
@@ -74,6 +75,7 @@ public class UserAdminView extends AbstractCrudView<User> {
 	public UserAdminView(UserAdminPresenter presenter) {
 		this.presenter = presenter;
 		userAdminViewDesign = new UserAdminViewDesign();
+		userAdminViewDesign.setCaption("<h1 style=color:#216C2A;font-weight:bold;>Users</h1>");
 	}
 
 	@SuppressWarnings("unchecked")
@@ -82,7 +84,6 @@ public class UserAdminView extends AbstractCrudView<User> {
 		presenter.init(this);
 		getGrid().setColumns("name", "lastname", "active","email","role");
 		getGrid().getColumn("lastname").setCaption("Last Name");
-		
 	}
 
 	@Override

@@ -149,15 +149,17 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 
 	@PostConstruct
 	private void init() {
-		setSpacing(false);
+		setSpacing(true);
 		setMargin(false);
 		setResponsive(true);
+		setHeight("100%");
 		Panel panel = getAndLoadRolesPanel();	
 		VerticalLayout verticalLayout = new VerticalLayout();
+		//verticalLayout.setHeight("100%");
 		panel.setContent(verticalLayout);
 		verticalLayout.setSpacing(false);
 		verticalLayout.setMargin(false);
-		Label roleInfo = new Label("<h2 style=font-weight:bold;>Role Information</h2>", ContentMode.HTML);
+		Label roleInfo = new Label("<h2 style=font-weight:bold;padding-left:12px>Role Information</h2>", ContentMode.HTML);
 		HorizontalLayout layout = new HorizontalLayout();
 		layout.setSizeFull();
 		HorizontalLayout layout1 = new HorizontalLayout();
@@ -223,6 +225,7 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 		layout2.setComponentAlignment(save, Alignment.MIDDLE_RIGHT);
 		layout2.setResponsive(true);
 		layout2.setSizeUndefined();
+		layout2.setStyleName("save-cancelButtonsAlignment");
 		
 		//fill data to grid
 		layout.addComponents(layout1, layout2);
@@ -409,6 +412,7 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 		roleGrid.setHeightByRows(4);
 		roleGrid.setItems(rolesRepo.values());
 		roleGrid.setWidth("100%");
+		roleGrid.setHeight("210px");
 		roleGrid.setResponsive(true);
 		
 		roleGrid.addSelectionListener(e -> {

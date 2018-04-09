@@ -96,7 +96,7 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		setMargin(false);
 		setResponsive(true);
 		Panel panel = getAndLoadSystemPanel();
-		VerticalLayout verticalLayout = new VerticalLayout();
+		/*VerticalLayout verticalLayout = new VerticalLayout();
 		panel.setContent(verticalLayout);
 		verticalLayout.setSpacing(false);
 		verticalLayout.setMargin(false);
@@ -140,9 +140,9 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		save.addStyleName(ValoTheme.BUTTON_FRIENDLY);
 		save.setResponsive(true);
 		save.addClickListener(new ClickListener() {
-			/**
+			*//**
 			 * 
-			 */
+			 *//*
 			private static final long serialVersionUID = 1L;
 
 			public void buttonClick(ClickEvent event) {
@@ -176,7 +176,7 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		horizontalLayout.addComponents(layout1, layout2);
 		horizontalLayout.setComponentAlignment(layout2, Alignment.MIDDLE_RIGHT);
 		
-		getSystemGrid(verticalLayout, systemInfoLayout);
+		getSystemGrid(verticalLayout, systemInfoLayout);*/
 	}
 	
 	public Panel getAndLoadSystemPanel() {
@@ -191,7 +191,7 @@ public class SystemView extends VerticalLayout implements Serializable, View{
        return panel;
 	}
 	
-	private void getAndLoadSystemForm(VerticalLayout verticalLayout , boolean isEditableOnly) {
+	/*private void getAndLoadSystemForm(VerticalLayout verticalLayout , boolean isEditableOnly) {
 		FormLayout formLayout = new FormLayout();
 		
 		getSystemParameterName(formLayout, isEditableOnly);
@@ -366,6 +366,6 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		            }
 		        });
 	}
-	
+	*/
 
 }

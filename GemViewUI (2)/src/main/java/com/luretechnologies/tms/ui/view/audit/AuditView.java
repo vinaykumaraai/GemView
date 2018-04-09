@@ -23,8 +23,10 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.DateTimeField;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Grid.SelectionMode;
+import com.vaadin.ui.themes.ValoTheme;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
+import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
@@ -62,9 +64,11 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		setSpacing(false);
 		setMargin(false);
 		setResponsive(true);
+		setHeight("100%");
 		treeNodeSearch = new TextField();
 		configureTreeNodeSearch();
-
+		
+		Panel panel = getAndLoadAuditPanel();
 		HorizontalLayout treeButtonLayout = new HorizontalLayout();
 		VerticalLayout treePanelLayout = new VerticalLayout();
 		treePanelLayout.addComponentAsFirst(treeNodeSearch);
@@ -92,9 +96,22 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		treePanelLayout.setComponentAlignment(nodeTree, Alignment.BOTTOM_LEFT);
 		splitScreen = new HorizontalSplitPanel();
 		splitScreen.setFirstComponent(treePanelLayout);
-		splitScreen.setSplitPosition(30);
+		splitScreen.setSplitPosition(20);
 		splitScreen.addComponent(getDebugLayout());
-		addComponent(splitScreen);
+		splitScreen.setHeight("100%");
+		panel.setContent(splitScreen);
+	}
+	
+	public Panel getAndLoadAuditPanel() {
+		Panel panel = new Panel();
+		panel.setHeight("100%");
+		panel.addStyleName(ValoTheme.PANEL_WELL);
+		panel.setCaptionAsHtml(true);
+		panel.setCaption("<h1 style=color:#216C2A;font-weight:bold;>Audit</h1>");
+		panel.setResponsive(true);
+		panel.setSizeFull();
+        addComponent(panel);
+       return panel;
 	}
 
 	private void configureTreeNodeSearch() {
@@ -111,9 +128,12 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 
 	private VerticalLayout getDebugLayout() {
 		VerticalLayout debugLayout = new VerticalLayout();
+		debugLayout.setWidth("100%");
 		debugLayout.setResponsive(true);
-		debugLayout.setSizeFull();
+		//debugLayout.setSizeUndefined();
 		debugGrid = new Grid<>(Debug.class);
+		debugGrid.setWidth("100%");
+		debugGrid.setResponsive(true);
 		debugGrid.setSelectionMode(SelectionMode.SINGLE);
 		debugGrid.setColumns("type", "description");
 		debugGrid.setDataProvider(debugService.getListDataProvider());
@@ -131,7 +151,11 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 
 		// debugGrid.setData();
 		debugSearch = new TextField();
-		debugSearch.setWidth(20,Unit.PERCENTAGE);
+		debugSearch.setWidth("100%");
+		debugSearch.setIcon(VaadinIcons.SEARCH);
+		debugSearch.setStyleName("small inline-icon search");
+		debugSearch.setPlaceholder("Search");
+		debugSearch.setResponsive(true);
 		debugSearch.addShortcutListener(new ShortcutListener("Clear",KeyCode.ESCAPE,null) {
 			
 			@Override
@@ -153,6 +177,8 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		});
 
 			deleteGridRow = new Button(VaadinIcons.TRASH);
+			deleteGridRow.addStyleName(ValoTheme.BUTTON_FRIENDLY);
+			deleteGridRow.setResponsive(true);
 			deleteGridRow.addClickListener(clicked -> {
 				debugService.removeDebug(debugGrid.getSelectedItems().iterator().next());
 				ListDataProvider<Debug> refreshDebugDataProvider = debugService.getListDataProvider();
@@ -161,21 +187,45 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 
 			});
 		
+		HorizontalLayout optionsLayout = new HorizontalLayout();
+		//optionsLayout.setComponentAlignment(childComponent, alignment);
+		optionsLayout.setWidth("100%");
+		optionsLayout.setHeight("50%");
+		//optionsLayout.setSizeUndefined();
+		optionsLayout.setResponsive(true);
+		
 		HorizontalLayout debugSearchLayout = new HorizontalLayout();
+		debugSearchLayout.setWidth("100%");
+		debugSearchLayout.addComponent(debugSearch);
+		debugSearchLayout.setComponentAlignment(debugSearch, Alignment.TOP_LEFT);
+		
+		HorizontalLayout dateDeleteLayout = new HorizontalLayout();
+		dateDeleteLayout.setSizeUndefined();
+		//dateDeleteLayout.setWidth("100%");
+		//dateDeleteLayout.setSizeFull();
 		
 		debugStartDateField = new DateTimeField();
+		debugStartDateField.setResponsive(true);
 		debugStartDateField.setDateFormat(DATE_FORMAT);
 		debugStartDateField.setValue(LocalDateTime.now());
 		debugStartDateField.setDescription("Start Date");
 		debugEndDateField = new DateTimeField();
+		debugEndDateField.setResponsive(true);
 		debugEndDateField.setDateFormat(DATE_FORMAT);
 		debugEndDateField.setValue(LocalDateTime.now());
 		debugEndDateField.setDescription("End Date");
-		debugSearchLayout.addComponent(debugSearch);
-		debugSearchLayout.addComponent(debugStartDateField);
-		debugSearchLayout.addComponent(debugEndDateField);
-		debugSearchLayout.addComponent(deleteGridRow);
-		debugLayout.addComponent(debugSearchLayout);
+		optionsLayout.addComponent(debugSearchLayout);
+		optionsLayout.setComponentAlignment(debugSearchLayout, Alignment.MIDDLE_LEFT);
+		dateDeleteLayout.addComponent(debugStartDateField);
+		dateDeleteLayout.setComponentAlignment(debugStartDateField, Alignment.MIDDLE_LEFT);
+		dateDeleteLayout.addComponent(debugEndDateField);
+		dateDeleteLayout.setComponentAlignment(debugEndDateField, Alignment.MIDDLE_RIGHT);
+		dateDeleteLayout.addComponent(deleteGridRow);
+		dateDeleteLayout.setComponentAlignment(deleteGridRow, Alignment.MIDDLE_RIGHT);
+		optionsLayout.addComponent(dateDeleteLayout);
+		optionsLayout.setComponentAlignment(dateDeleteLayout, Alignment.MIDDLE_RIGHT);
+		debugLayout.addComponent(optionsLayout);
+		debugLayout.setComponentAlignment(optionsLayout, Alignment.TOP_LEFT);
 		debugLayout.addComponent(debugGrid);
 		return debugLayout;
 	}

@@ -188,17 +188,6 @@ public class DashboardView extends DashboardViewDesign implements View {
 	}
 	
 	public DashboardData getDashboardData(int month, int year) {
-		list.add(5);
-		list.add(0);
-		list.add(7);
-		list.add(0);
-		list.add(10);
-		list.add(0);
-		list.add(7);
-		list.add(0);
-		list.add(0);
-		list.add(0);
-		
 		
 		DashboardData data = new DashboardData();
 		data.setDeliveriesThisMonth(list);
@@ -208,7 +197,7 @@ public class DashboardView extends DashboardViewDesign implements View {
 	
 	
 	private void updateGraphs(DashboardData data) {
-		serviceCalls.addData(new Number[][]{{0, 1}, {2, 2}, {10, 3}});
+		serviceCalls.addData(new Number[][]{{0, 1}, {2, 2}, {3,8},{5,6},{10, 3}});
 		//incomingServiceCalls.drawChart();
 		
 		callsPerPeriod[0].setData(Arrays.asList(5,16, 7,19,9));

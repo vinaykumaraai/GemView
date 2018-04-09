@@ -77,10 +77,10 @@ import com.vaadin.ui.components.grid.SingleSelectionModel;
 @Secured(Role.ADMIN)
 public abstract class AbstractCrudView<T extends AbstractEntity> implements Serializable, View, HasLogger {
 
-	public static final String CAPTION_DISCARD = "Discard";
+	public static final String CAPTION_DISCARD = "Cancel";
 	public static final String CAPTION_CANCEL = "Cancel";
-	public static final String CAPTION_UPDATE = "Update";
-	public static final String CAPTION_ADD = "Add";
+	public static final String CAPTION_UPDATE = "Save";
+	public static final String CAPTION_ADD = "Save";
 	public PasswordEncoder passwordEncoder;
 	public static Button addTreeNode, deleteTreeNode;
 	public static TextField treeNodeInputLabel;
@@ -101,6 +101,7 @@ public abstract class AbstractCrudView<T extends AbstractEntity> implements Seri
 	public void showInitialState() {
 		getForm().setEnabled(false);
 		getGrid().deselectAll();
+		getGrid().setHeightByRows(7);
 		getUpdate().setCaption(CAPTION_UPDATE);
 		getCancel().setCaption(CAPTION_DISCARD);
 		getTree().setItemIconGenerator(item -> {
@@ -139,71 +140,74 @@ public abstract class AbstractCrudView<T extends AbstractEntity> implements Seri
 	@SuppressWarnings("unchecked")
 	@PostConstruct
 	private void initLogic() {
-		treeNodeInputLabel = new TextField();
-		addTreeNode = new Button("Add");
-		deleteTreeNode = new Button("Delete");
-		HorizontalLayout treeButtonLayout = new HorizontalLayout();
-		treeButtonLayout.addComponent(addTreeNode);
-		treeButtonLayout.addComponent(deleteTreeNode);
-		VerticalLayout treePanelLayout = new VerticalLayout();
-		treePanelLayout.addComponentAsFirst(treeNodeInputLabel);
-		treePanelLayout.addComponent(treeButtonLayout);
+		//treeNodeInputLabel = new TextField();
+		//addTreeNode = new Button("Add");
+		//deleteTreeNode = new Button("Delete");
+		//HorizontalLayout treeButtonLayout = new HorizontalLayout();
+		//treeButtonLayout.addComponent(addTreeNode);
+		//treeButtonLayout.addComponent(deleteTreeNode);
+		//VerticalLayout treePanelLayout = new VerticalLayout();
+		//treePanelLayout.addComponentAsFirst(treeNodeInputLabel);
+		//treePanelLayout.addComponent(treeButtonLayout);
 		Tree<Node> treeComponent = getUserTree(treeDataService.getTreeData());
-		treePanelLayout.addComponent(treeComponent);
-		treePanelLayout.setMargin(true);
-		treePanelLayout.setComponentAlignment(treeComponent, Alignment.BOTTOM_LEFT);
-		getSplitScreen().setFirstComponent(treePanelLayout);
-		getSplitScreen().setSplitPosition(35);
+		//treePanelLayout.addComponent(treeComponent);
+		//treePanelLayout.setMargin(true);
+		//treePanelLayout.setComponentAlignment(treeComponent, Alignment.BOTTOM_LEFT);
+		getSplitScreen().setFirstComponent(treeComponent);
+		getSplitScreen().setSplitPosition(20);
 		getSplitScreen().addComponent(userDataLayout());
-		addTreeNode.addClickListener(click -> {
-			if (getTree().getSelectedItems().size() == 1) {
-				Node selectedNode = getTree().getSelectedItems().iterator().next();
-				Node newNode = new Node();
-				newNode.setLabel(treeNodeInputLabel.getValue().isEmpty()?"Child Node":treeNodeInputLabel.getValue());//Pick name from textfield
-				//FIXME set the userlist according the node level 
-				newNode.setUserList(selectedNode.getUserList());
-				if (selectedNode.getLevel() == NodeLevel.ENTITY)
-					newNode.setLevel(NodeLevel.REGION);
-				if (selectedNode.getLevel() == NodeLevel.REGION)
-					newNode.setLevel(NodeLevel.MERCHANT);
-				if (selectedNode.getLevel() == NodeLevel.MERCHANT)
-					newNode.setLevel(NodeLevel.TERMINAL);
-				if (selectedNode.getLevel() == NodeLevel.TERMINAL)
-					newNode.setLevel(NodeLevel.DEVICE);
-				if(selectedNode.getLevel() == NodeLevel.DEVICE) {
-					Notification.show("Not allowed to add node under Device", Type.ERROR_MESSAGE);
-					return;
-				}
-				
-
-				// switch (selectedNode.getLevel()) {
-				// case ENTITY:
-				// break;
-				// case MERCHANT:
-				// break;
-				// case REGION:
-				// break;
-				// case TERMINAL:
-				// break;
-				// case DEVICE:
-				// break;
-				// default:
-				// break;
-				// }
-				getTree().getTreeData().addItem(selectedNode, newNode);
-				getTree().getDataProvider().refreshAll();
-				
-			}
-		});
+//		addTreeNode.addClickListener(click -> {
+//			if (getTree().getSelectedItems().size() == 1) {
+//				Node selectedNode = getTree().getSelectedItems().iterator().next();
+//				Node newNode = new Node();
+//				newNode.setLabel(treeNodeInputLabel.getValue().isEmpty()?"Child Node":treeNodeInputLabel.getValue());//Pick name from textfield
+//				//FIXME set the userlist according the node level 
+//				newNode.setUserList(selectedNode.getUserList());
+//				if (selectedNode.getLevel() == NodeLevel.ENTITY)
+//					newNode.setLevel(NodeLevel.REGION);
+//				if (selectedNode.getLevel() == NodeLevel.REGION)
+//					newNode.setLevel(NodeLevel.MERCHANT);
+//				if (selectedNode.getLevel() == NodeLevel.MERCHANT)
+//					newNode.setLevel(NodeLevel.TERMINAL);
+//				if (selectedNode.getLevel() == NodeLevel.TERMINAL)
+//					newNode.setLevel(NodeLevel.DEVICE);
+//				if(selectedNode.getLevel() == NodeLevel.DEVICE) {
+//					Notification.show("Not allowed to add node under Device", Type.ERROR_MESSAGE);
+//					return;
+//				}
+//				
+//
+//				// switch (selectedNode.getLevel()) {
+//				// case ENTITY:
+//				// break;
+//				// case MERCHANT:
+//				// break;
+//				// case REGION:
+//				// break;
+//				// case TERMINAL:
+//				// break;
+//				// case DEVICE:
+//				// break;
+//				// default:
+//				// break;
+//				// }
+//				getTree().getTreeData().addItem(selectedNode, newNode);
+//				getTree().getDataProvider().refreshAll();
+//				
+//			}
+//		});
 		
-		deleteTreeNode.addClickListener(click->{
-			if (getTree().getSelectedItems().size() == 1) {
-				//TODO add yes/no confirmation for delete
-			getTree().getTreeData().removeItem(getTree().getSelectedItems().iterator().next());
-				Notification.show("To be Deleted "+getTree().getSelectedItems().iterator().next(),Type.WARNING_MESSAGE);
-				getTree().getDataProvider().refreshAll();
-			}
-		});
+//		deleteTreeNode.addClickListener(click->{
+//			if (getTree().getSelectedItems().size() == 1) {
+//				//TODO add yes/no confirmation for delete
+//			getTree().getTreeData().removeItem(getTree().getSelectedItems().iterator().next());
+//				Notification.show("To be Deleted "+getTree().getSelectedItems().iterator().next(),Type.WARNING_MESSAGE);
+//				getTree().getDataProvider().refreshAll();
+//			}
+//		});
+		
+		//getTree().getTreeData().addItem(selectedNode, newNode);
+		getTree().getDataProvider().refreshAll();
 		getGrid().addSelectionListener(e -> {
 			if (!e.isUserOriginated()) {
 				return;
@@ -232,20 +236,9 @@ public abstract class AbstractCrudView<T extends AbstractEntity> implements Seri
 		getTree().addItemClickListener(e -> {
 			DataProvider data = new ListDataProvider(e.getItem().getUserList());
 			getGrid().setDataProvider(data);
-			treeNodeInputLabel.clear();
+			getSearch().clear();
+			//treeNodeInputLabel.clear();
 			// selectedTreeNode=e.getItem();
-		});
-
-		getTree().addContextClickListener(e -> {
-
-			// VerticalLayout menuLayout = new VerticalLayout();
-			// Button addLayer = new Button("Add Node");
-			// Button deleteLayer = new Button("Delete Node");
-			// menuLayout.addComponents(addLayer, deleteLayer);
-			// menuLayout.setHeight("20px");
-			// menuLayout.setWidthUndefined();
-			// Notification.show("Right Click Allowed");
-			// this.getTree().addC
 		});
 
 		getCancel().addClickListener(event -> getPresenter().cancelClicked());
