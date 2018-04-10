@@ -5,6 +5,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 
 import javax.annotation.PostConstruct;
 
@@ -12,12 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.luretechnologies.tms.backend.data.entity.Debug;
 import com.luretechnologies.tms.backend.data.entity.Node;
-import com.luretechnologies.tms.backend.data.entity.User;
 import com.luretechnologies.tms.backend.service.DebugService;
 import com.luretechnologies.tms.backend.service.TreeDataService;
+import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
-import com.vaadin.event.ShortcutListener;
 import com.vaadin.event.ShortcutAction.KeyCode;
+import com.vaadin.event.ShortcutListener;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.spring.annotation.SpringView;
@@ -26,13 +27,13 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.DateTimeField;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Grid.SelectionMode;
-import com.vaadin.ui.themes.ValoTheme;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.ValoTheme;
 
 @SpringView(name = AuditView.VIEW_NAME)
 public class AuditView extends VerticalLayout implements Serializable, View {
@@ -70,6 +71,9 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		setResponsive(true);
 		setHeight("100%");
 		treeNodeSearch = new TextField();
+		treeNodeSearch.setIcon(VaadinIcons.SEARCH);
+		treeNodeSearch.setStyleName("small inline-icon search");
+		treeNodeSearch.setPlaceholder("Search");
 		configureTreeNodeSearch();
 		
 		Panel panel = getAndLoadAuditPanel();
@@ -78,7 +82,7 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		treePanelLayout.addComponentAsFirst(treeNodeSearch);
 		treePanelLayout.addComponent(treeButtonLayout);
 		nodeTree = new Tree<Node>();
-		nodeTree.setTreeData(treeDataService.getTreeDataForUser());
+		nodeTree.setTreeData(treeDataService.getTreeDataForDebug());
 		nodeTree.setItemIconGenerator(item -> {
 			switch (item.getLevel()) {
 			case ENTITY:
@@ -95,12 +99,13 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 				return null;
 			}
 		});
+		
 		treePanelLayout.addComponent(nodeTree);
 		treePanelLayout.setMargin(true);
 		treePanelLayout.setComponentAlignment(nodeTree, Alignment.BOTTOM_LEFT);
 		splitScreen = new HorizontalSplitPanel();
 		splitScreen.setFirstComponent(treePanelLayout);
-		splitScreen.setSplitPosition(20);
+		splitScreen.setSplitPosition(35);
 		splitScreen.addComponent(getDebugLayout());
 		splitScreen.setHeight("100%");
 		panel.setContent(splitScreen);
@@ -248,6 +253,11 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 					}
 				});
 			}
+		});
+		
+		nodeTree.addItemClickListener(selection ->{
+				DataProvider data = new ListDataProvider(selection.getItem().getEntityList());
+				debugGrid.setDataProvider(data);
 		});
 		return debugLayout;
 	}
