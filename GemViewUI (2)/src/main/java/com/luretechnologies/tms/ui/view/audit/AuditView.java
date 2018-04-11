@@ -191,8 +191,8 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 			deleteGridRow.addClickListener(clicked -> {
 				debugService.removeDebug(debugGrid.getSelectedItems().iterator().next());
 				ListDataProvider<Debug> refreshDebugDataProvider = debugService.getListDataProvider();
-				//FIXME delete not working
 				debugGrid.setDataProvider(refreshDebugDataProvider);
+				nodeTree.getDataProvider().refreshAll();
 
 			});
 		
