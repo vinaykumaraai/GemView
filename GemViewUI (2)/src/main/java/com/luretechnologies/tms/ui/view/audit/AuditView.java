@@ -199,7 +199,6 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 				debugStartDateField.setValue(localTimeNow);
 				debugEndDateField.setValue(localTimeNow);
 				debugSearch.clear();
-
 			});
 		
 		HorizontalLayout optionsLayout = new HorizontalLayout();
