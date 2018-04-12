@@ -107,10 +107,15 @@ public TreeData<Node> getTreeDataForDebug() {
 		List<Debug> debugList5 = new ArrayList<Debug>(getSortedDebugList(mockDebugService.getRepository().values())) ;
 		
 		for(int index =0 ; index<3; index++) {
+			if(debugList1.size()>index)
 			debugList1.remove(index);
+			if(debugList2.size()>index+1)
 			debugList2.remove(index+1);
+			if(debugList3.size()>index+2)
 			debugList3.remove(index+2);
+			if(debugList4.size()>index+3)
 			debugList4.remove(index+3);
+			if(debugList5.size()>index+2)
 			debugList5.remove(index+2);
 			
 		}

@@ -45,7 +45,7 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 	 */
 	private static final long serialVersionUID = -7983511214106963682L;
 	public static final String VIEW_NAME = "audit";
-
+	private static final LocalDateTime localTimeNow = LocalDateTime.now();
 	private static Grid<Debug> debugGrid;
 	private static Tree<Node> nodeTree;
 	private static Button deleteGridRow;
@@ -191,8 +191,14 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 			deleteGridRow.addClickListener(clicked -> {
 				debugService.removeDebug(debugGrid.getSelectedItems().iterator().next());
 				ListDataProvider<Debug> refreshDebugDataProvider = debugService.getListDataProvider();
-				//FIXME delete not working
 				debugGrid.setDataProvider(refreshDebugDataProvider);
+				//Refreshing
+				debugGrid.getDataProvider().refreshAll();
+				nodeTree.getSelectionModel().deselectAll();
+				nodeTree.getDataProvider().refreshAll();
+				debugStartDateField.setValue(localTimeNow);
+				debugEndDateField.setValue(localTimeNow);
+				debugSearch.clear();
 
 			});
 		
@@ -256,8 +262,13 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		});
 		
 		nodeTree.addItemClickListener(selection ->{
-				DataProvider data = new ListDataProvider(selection.getItem().getEntityList());
-				debugGrid.setDataProvider(data);
+				if(nodeTree.getSelectionModel().isSelected(selection.getItem())) {
+					debugGrid.setDataProvider(debugService.getListDataProvider());
+				}else {
+					DataProvider data = new ListDataProvider(selection.getItem().getEntityList());
+					debugGrid.setDataProvider(data);
+				}
+				
 		});
 		return debugLayout;
 	}
