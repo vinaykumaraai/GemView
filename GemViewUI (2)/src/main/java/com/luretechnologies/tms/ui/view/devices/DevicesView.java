@@ -415,7 +415,7 @@ public class DevicesView extends VerticalLayout implements Serializable, View{
 		
 	}
 	
-	public void confirmDialog(VerticalLayout deviceInfoLayout) {
+	private void confirmDialog(VerticalLayout deviceInfoLayout) {
 		ConfirmDialog.show(this.getUI(), "Please Confirm:", "Are you sure you want to delete?",
 		        "Ok", "Cancel", new ConfirmDialog.Listener() {
 

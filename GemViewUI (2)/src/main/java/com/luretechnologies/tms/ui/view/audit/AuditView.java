@@ -4,15 +4,19 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.vaadin.dialogs.ConfirmDialog;
 
 import com.luretechnologies.tms.backend.data.entity.Debug;
 import com.luretechnologies.tms.backend.data.entity.Node;
+import com.luretechnologies.tms.backend.data.entity.Systems;
 import com.luretechnologies.tms.backend.service.DebugService;
 import com.luretechnologies.tms.backend.service.TreeDataService;
 import com.vaadin.data.provider.DataProvider;
@@ -21,6 +25,7 @@ import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.event.ShortcutListener;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
+import com.vaadin.server.Page;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -29,6 +34,7 @@ import com.vaadin.ui.Grid;
 import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
@@ -52,6 +58,8 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 	private static TextField treeNodeSearch, debugSearch;
 	private static HorizontalSplitPanel splitScreen;
 	private static DateTimeField debugStartDateField, debugEndDateField;
+	private OffsetDateTime odt = OffsetDateTime.now ();
+	private ZoneOffset zoneOffset = odt.getOffset ();
 
 	@Autowired
 	public AuditView() {
@@ -77,10 +85,11 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		configureTreeNodeSearch();
 		
 		Panel panel = getAndLoadAuditPanel();
-		HorizontalLayout treeButtonLayout = new HorizontalLayout();
+		//HorizontalLayout treeButtonLayout = new HorizontalLayout();
 		VerticalLayout treePanelLayout = new VerticalLayout();
-		treePanelLayout.addComponentAsFirst(treeNodeSearch);
-		treePanelLayout.addComponent(treeButtonLayout);
+		//treePanelLayout.addComponentAsFirst(treeNodeSearch);
+		//treePanelLayout.addComponent(treeButtonLayout);
+		//treePanelLayout.addComponentAsFirst(treeButtonLayout);
 		nodeTree = new Tree<Node>();
 		nodeTree.setTreeData(treeDataService.getTreeDataForDebug());
 		nodeTree.setItemIconGenerator(item -> {
@@ -102,10 +111,13 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		
 		treePanelLayout.addComponent(nodeTree);
 		treePanelLayout.setMargin(true);
-		treePanelLayout.setComponentAlignment(nodeTree, Alignment.BOTTOM_LEFT);
+		treePanelLayout.setHeight("100%");
+		treePanelLayout.setStyleName("split-height");
+		//treePanelLayout.setComponentAlignment(nodeTree, Alignment.BOTTOM_LEFT);
 		splitScreen = new HorizontalSplitPanel();
 		splitScreen.setFirstComponent(treePanelLayout);
-		splitScreen.setSplitPosition(35);
+		//splitScreen.setFirstComponent(nodeTree);
+		splitScreen.setSplitPosition(20);
 		splitScreen.addComponent(getDebugLayout());
 		splitScreen.setHeight("100%");
 		panel.setContent(splitScreen);
@@ -135,6 +147,32 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		});
 	}
 
+	private void confirmDialog() {
+		ConfirmDialog.show(this.getUI(), "Please Confirm:", "Are you sure you want to delete?",
+		        "Ok", "Cancel", new ConfirmDialog.Listener() {
+
+		            public void onClose(ConfirmDialog dialog) {
+		                if (dialog.isConfirmed()) {
+		                    // Confirmed to continue
+		                	debugService.removeDebug(debugGrid.getSelectedItems().iterator().next());
+//		    				ListDataProvider<Debug> refreshDebugDataProvider = debugService.getListDataProvider();
+//		    				debugGrid.setDataProvider(refreshDebugDataProvider);
+		    				//Refreshing
+		    				//debugGrid.getDataProvider().refreshAll();
+		    				//nodeTree.getSelectionModel().deselectAll();
+		    				nodeTree.getDataProvider().refreshAll();
+		    				debugStartDateField.setValue(localTimeNow);
+		    				debugEndDateField.setValue(localTimeNow);
+		    				debugSearch.clear();
+		    				//Page.getCurrent().reload();
+		                } else {
+		                    // User did not confirm
+		                    
+		                }
+		            }
+		        });
+	}
+	
 	private VerticalLayout getDebugLayout() {
 		VerticalLayout debugLayout = new VerticalLayout();
 		debugLayout.setWidth("100%");
@@ -145,7 +183,7 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		debugGrid.setResponsive(true);
 		debugGrid.setSelectionMode(SelectionMode.SINGLE);
 		debugGrid.setColumns("type", "description");
-		debugGrid.setDataProvider(debugService.getListDataProvider());
+		//debugGrid.setDataProvider(debugService.getListDataProvider());
 		debugGrid.getColumn("type").setCaption("Debug Type").setStyleGenerator(style -> {
 			switch (style.getType()) {
 			case ERROR:
@@ -189,16 +227,11 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 			deleteGridRow.addStyleName(ValoTheme.BUTTON_FRIENDLY);
 			deleteGridRow.setResponsive(true);
 			deleteGridRow.addClickListener(clicked -> {
-				debugService.removeDebug(debugGrid.getSelectedItems().iterator().next());
-				ListDataProvider<Debug> refreshDebugDataProvider = debugService.getListDataProvider();
-				debugGrid.setDataProvider(refreshDebugDataProvider);
-				//Refreshing
-				debugGrid.getDataProvider().refreshAll();
-				nodeTree.getSelectionModel().deselectAll();
-				nodeTree.getDataProvider().refreshAll();
-				debugStartDateField.setValue(localTimeNow);
-				debugEndDateField.setValue(localTimeNow);
-				debugSearch.clear();
+				if(debugGrid.getSelectedItems().isEmpty()) {
+					Notification.show("Select any Debug type to delete", Notification.Type.WARNING_MESSAGE).setDelayMsec(3000);;
+				}else {
+					confirmDialog();
+				}
 			});
 		
 		HorizontalLayout optionsLayout = new HorizontalLayout();
@@ -221,12 +254,12 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		debugStartDateField = new DateTimeField();
 		debugStartDateField.setResponsive(true);
 		debugStartDateField.setDateFormat(DATE_FORMAT);
-		debugStartDateField.setValue(LocalDateTime.now());
+		//debugStartDateField.setValue(LocalDateTime.now());
 		debugStartDateField.setDescription("Start Date");
 		debugEndDateField = new DateTimeField();
 		debugEndDateField.setResponsive(true);
 		debugEndDateField.setDateFormat(DATE_FORMAT);
-		debugEndDateField.setValue(LocalDateTime.now());
+		//debugEndDateField.setValue(LocalDateTime.now());
 		debugEndDateField.setDescription("End Date");
 		optionsLayout.addComponent(debugSearchLayout);
 		optionsLayout.setComponentAlignment(debugSearchLayout, Alignment.MIDDLE_LEFT);
@@ -245,6 +278,11 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		
 		//end Date listner
 		debugEndDateField.addValueChangeListener(change ->{
+			if(change.getValue().toEpochSecond(zoneOffset) > LocalDateTime.now().toEpochSecond(zoneOffset)) {
+				Notification.show("Future Dates Cannot be selected", Notification.Type.ERROR_MESSAGE);
+			}else if(change.getValue().toEpochSecond(zoneOffset) < debugStartDateField.getValue().toEpochSecond(zoneOffset)){
+				Notification.show("End Data cannot be less than Start Date", Notification.Type.ERROR_MESSAGE);
+			}else {
 			if(change.getValue().compareTo(debugStartDateField.getValue()) > 0) {
 				ListDataProvider<Debug> debugDataProvider = (ListDataProvider<Debug>) debugGrid.getDataProvider();
 				debugDataProvider.setFilter(filter -> {
@@ -258,7 +296,16 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 					}
 				});
 			}
-		});
+		}
+	});
+		debugStartDateField.addValueChangeListener(change ->{
+			if(change.getValue().toEpochSecond(zoneOffset) > LocalDateTime.now().toEpochSecond(zoneOffset)) {
+				Notification.show("Future Dates Cannot be selected", Notification.Type.ERROR_MESSAGE);
+			}else if(change.getValue().toEpochSecond(zoneOffset) > debugEndDateField.getValue().toEpochSecond(zoneOffset)){
+				Notification.show("Start Data cannot be more than End Date", Notification.Type.ERROR_MESSAGE);
+			}
+			
+	});
 		
 		nodeTree.addItemClickListener(selection ->{
 				if(nodeTree.getSelectionModel().isSelected(selection.getItem())) {

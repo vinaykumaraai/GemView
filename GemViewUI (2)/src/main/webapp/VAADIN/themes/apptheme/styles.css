@@ -1,3 +1,13 @@
+@font-face {
+	font-family: "Vaadin-Icons";
+	src: url(../../../VAADIN/addons/vaadin-icons/fonts/Vaadin-Icons.eot);
+	src: url(../../../VAADIN/addons/vaadin-icons/fonts/Vaadin-Icons.eot?#iefix) format("embedded-opentype"), url(../../../VAADIN/addons/vaadin-icons/fonts/Vaadin-Icons.woff) format("woff"), url(../../../VAADIN/addons/vaadin-icons/fonts/Vaadin-Icons.ttf) format("truetype"), url(../../../VAADIN/addons/vaadin-icons/fonts/Vaadin-Icons.svg#icomoon) format("svg");
+}
+
+.Vaadin-Icons {
+	font-family: "Vaadin-Icons";
+}
+
 .apptheme .app-shell[width-range~="601px-"] .navigation-bar {
 	background-color: #216C2A !important;
 	overflow-y: auto;
@@ -105,6 +115,116 @@
 	box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.05), inset 0 2px 3px rgba(0, 0, 0, 0.05);
 	border-radius: 0px !important;
 	border: 1px solid #c5c5c5;
+}
+
+.heartbeat-bad-terminal {
+	background-image: url(terminalBad.png);
+	background-size: contain;
+	background-repeat: no-repeat;
+}
+
+.heartbeat-Good-terminal {
+	background-image: url(terminalGood.png);
+	background-size: contain;
+	background-repeat: no-repeat;
+}
+
+.split-height {
+	background-color: white;
+	overflow: auto !important;
+	padding: 0px 0px 0px 0px !important;
+}
+
+.split-height {
+	background-color: white;
+	overflow: auto !important;
+	padding: 37px 0px 37px 0px !important;
+}
+
+.heartbeat-verticalLayout {
+	padding: 0px 0px 0px 0px !important;
+}
+
+.heartbeat-horizontalLayout-DeviceLabel {
+	margin-bottom: -40px;
+}
+
+.heartbeat-verticalFormLayout {
+	padding: 0px 37px 0px 37px !important;
+}
+
+.app-shell[width-range~="1001px-"] .v-heartbeat-Button {
+	position: relative;
+	white-space: nowrap;
+	text-align: -webkit-center;
+	outline: none;
+	-webkit-tap-highlight-color: transparent;
+	-webkit-touch-callout: none;
+	cursor: pointer;
+	height: 52px;
+	padding: 0 16px;
+	color: #191919;
+	font-weight: 400;
+	border-radius: 4px;
+	border: 1px solid #c5c5c5;
+	border-top-color: #c5c5c5;
+	border-bottom-color: #bcbcbc;
+	background-color: #fafafa;
+	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.05);
+	width: 195px;
+	box-shadow: none;
+	background: transparent;
+	color: inherit;
+	padding-top: 3px;
+}
+
+.app-shell[width-range~="1001px-"] .v-heartbeat-Button:hover {
+	background-color: rgba(186, 186, 186, 0.1);
+}
+
+.app-shell[width-range~="1001px-"] .v-heartbeat-Button:focus {
+	border-color: #216C2A;
+	box-shadow: 0 0 0 2px rgba(20, 90, 50, 0.5);
+}
+
+.app-shell[width-range~="1001px-"] .v-heartBeat-GoodTerminal {
+	display: inline-block;
+	background: url(terminalGood1.png);
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-color: #FFFFFF;
+}
+
+.app-shell[width-range~="-1000px"] .v-heartbeat-Button {
+	cursor: pointer;
+	font-weight: 400;
+	margin-top: 3px;
+	outline: none;
+	width: 95px;
+	font-size: 11px;
+}
+
+.app-shell[width-range~="-1000px"] .v-heartbeat-Button:hover {
+	background-color: none;
+}
+
+.app-shell[width-range~="-1000px"] .v-heartbeat-Button:focus {
+	border-color: #216C2A;
+	box-shadow: 0 0 0 2px rgba(20, 90, 50, 0.5);
+}
+
+.app-shell[width-range~="-1000px"] .v-heartbeat-Button .v-icon {
+	padding-left: 25px;
+}
+
+.apptheme .error {
+	font-weight: bolder;
+	color: red;
+}
+
+.apptheme .warn {
+	font-weight: bolder;
+	color: orange;
 }
 
 /**
@@ -15602,14 +15722,4 @@ div.v-layout.v-horizontal.v-widget {
 
 .apptheme .v-grid .v-grid-cell {
 	border: 0px;
-}
-.apptheme .error{
-	font-weight : bolder;
-	color : red;
-}
-
-.apptheme .warn{
-	font-weight: bolder;
-	color : orange;
-	
 }

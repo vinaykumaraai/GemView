@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.dialogs.ConfirmDialog;
 
@@ -96,11 +97,11 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		setMargin(false);
 		setResponsive(true);
 		Panel panel = getAndLoadSystemPanel();
-		/*VerticalLayout verticalLayout = new VerticalLayout();
+		VerticalLayout verticalLayout = new VerticalLayout();
 		panel.setContent(verticalLayout);
 		verticalLayout.setSpacing(false);
 		verticalLayout.setMargin(false);
-		Label availableSystem = new Label("<h2 style=font-weight:bold;padding-left:12px>Server Parameters and System Settings</h2>", ContentMode.HTML);
+		Label availableSystem = new Label("<h2 style=font-weight:bold;padding-left:12px;word-wrap:break-word;>Parameters & Settings</h2>", ContentMode.HTML);
 		HorizontalLayout horizontalLayout = new HorizontalLayout();
 		horizontalLayout.setSizeFull();
 		
@@ -140,9 +141,9 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		save.addStyleName(ValoTheme.BUTTON_FRIENDLY);
 		save.setResponsive(true);
 		save.addClickListener(new ClickListener() {
-			*//**
+			/**
 			 * 
-			 *//*
+			 */
 			private static final long serialVersionUID = 1L;
 
 			public void buttonClick(ClickEvent event) {
@@ -176,7 +177,7 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		horizontalLayout.addComponents(layout1, layout2);
 		horizontalLayout.setComponentAlignment(layout2, Alignment.MIDDLE_RIGHT);
 		
-		getSystemGrid(verticalLayout, systemInfoLayout);*/
+		getSystemGrid(verticalLayout, systemInfoLayout);
 	}
 	
 	public Panel getAndLoadSystemPanel() {
@@ -191,7 +192,7 @@ public class SystemView extends VerticalLayout implements Serializable, View{
        return panel;
 	}
 	
-	/*private void getAndLoadSystemForm(VerticalLayout verticalLayout , boolean isEditableOnly) {
+	private void getAndLoadSystemForm(VerticalLayout verticalLayout , boolean isEditableOnly) {
 		FormLayout formLayout = new FormLayout();
 		
 		getSystemParameterName(formLayout, isEditableOnly);
@@ -347,7 +348,7 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		
 	}
 	
-	public void confirmDialog(VerticalLayout systemInfoLayout) {
+	private void confirmDialog(VerticalLayout systemInfoLayout) {
 		ConfirmDialog.show(this.getUI(), "Please Confirm:", "Are you sure you want to delete?",
 		        "Ok", "Cancel", new ConfirmDialog.Listener() {
 
@@ -366,6 +367,5 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		            }
 		        });
 	}
-	*/
-
+	
 }
