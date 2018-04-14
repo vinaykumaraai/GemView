@@ -29,6 +29,7 @@ import com.vaadin.server.Page;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.DateField;
 import com.vaadin.ui.DateTimeField;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Grid.SelectionMode;
@@ -57,7 +58,7 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 	private static Button deleteGridRow;
 	private static TextField treeNodeSearch, debugSearch;
 	private static HorizontalSplitPanel splitScreen;
-	private static DateTimeField debugStartDateField, debugEndDateField;
+	private static DateField debugStartDateField, debugEndDateField;
 	private OffsetDateTime odt = OffsetDateTime.now ();
 	private ZoneOffset zoneOffset = odt.getOffset ();
 
@@ -161,8 +162,8 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		    				//debugGrid.getDataProvider().refreshAll();
 		    				//nodeTree.getSelectionModel().deselectAll();
 		    				nodeTree.getDataProvider().refreshAll();
-		    				debugStartDateField.setValue(localTimeNow);
-		    				debugEndDateField.setValue(localTimeNow);
+		    				debugStartDateField.setValue(localTimeNow.toLocalDate());
+		    				debugEndDateField.setValue(localTimeNow.toLocalDate());
 		    				debugSearch.clear();
 		    				//Page.getCurrent().reload();
 		                } else {
@@ -251,14 +252,18 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		//dateDeleteLayout.setWidth("100%");
 		//dateDeleteLayout.setSizeFull();
 		
-		debugStartDateField = new DateTimeField();
+		debugStartDateField = new DateField();
 		debugStartDateField.setResponsive(true);
 		debugStartDateField.setDateFormat(DATE_FORMAT);
+		debugStartDateField.setDateOutOfRangeMessage("Future Dates Cannot be selected" );
+		debugStartDateField.setRangeEnd(localTimeNow.toLocalDate());
 		//debugStartDateField.setValue(LocalDateTime.now());
 		debugStartDateField.setDescription("Start Date");
-		debugEndDateField = new DateTimeField();
+		debugEndDateField = new DateField();
 		debugEndDateField.setResponsive(true);
 		debugEndDateField.setDateFormat(DATE_FORMAT);
+		debugEndDateField.setDateOutOfRangeMessage("Future Dates Cannot be selected" );
+		debugEndDateField.setRangeEnd(localTimeNow.toLocalDate());
 		//debugEndDateField.setValue(LocalDateTime.now());
 		debugEndDateField.setDescription("End Date");
 		optionsLayout.addComponent(debugSearchLayout);
@@ -278,11 +283,11 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		
 		//end Date listner
 		debugEndDateField.addValueChangeListener(change ->{
-			if(change.getValue().toEpochSecond(zoneOffset) > LocalDateTime.now().toEpochSecond(zoneOffset)) {
-				Notification.show("Future Dates Cannot be selected", Notification.Type.ERROR_MESSAGE);
-			}else if(change.getValue().toEpochSecond(zoneOffset) < debugStartDateField.getValue().toEpochSecond(zoneOffset)){
-				Notification.show("End Data cannot be less than Start Date", Notification.Type.ERROR_MESSAGE);
-			}else {
+//			if(change.getValue().toEpochSecond(zoneOffset) > LocalDateTime.now().toEpochSecond(zoneOffset)) {
+//				Notification.show("Future Dates Cannot be selected", Notification.Type.ERROR_MESSAGE);
+//			}else if(change.getValue().toEpochSecond(zoneOffset) < debugStartDateField.getValue().toEpochSecond(zoneOffset)){
+//				Notification.show("End Data cannot be less than Start Date", Notification.Type.ERROR_MESSAGE);
+//			}else {
 			if(change.getValue().compareTo(debugStartDateField.getValue()) > 0) {
 				ListDataProvider<Debug> debugDataProvider = (ListDataProvider<Debug>) debugGrid.getDataProvider();
 				debugDataProvider.setFilter(filter -> {
@@ -296,14 +301,14 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 					}
 				});
 			}
-		}
+//		}
 	});
 		debugStartDateField.addValueChangeListener(change ->{
-			if(change.getValue().toEpochSecond(zoneOffset) > LocalDateTime.now().toEpochSecond(zoneOffset)) {
-				Notification.show("Future Dates Cannot be selected", Notification.Type.ERROR_MESSAGE);
-			}else if(change.getValue().toEpochSecond(zoneOffset) > debugEndDateField.getValue().toEpochSecond(zoneOffset)){
-				Notification.show("Start Data cannot be more than End Date", Notification.Type.ERROR_MESSAGE);
-			}
+//			if(change.getValue().toEpochSecond(zoneOffset) > LocalDateTime.now().toEpochSecond(zoneOffset)) {
+//				Notification.show("Future Dates Cannot be selected", Notification.Type.ERROR_MESSAGE);
+//			}else if(change.getValue().toEpochSecond(zoneOffset) > debugEndDateField.getValue().toEpochSecond(zoneOffset)){
+//				Notification.show("Start Data cannot be more than End Date", Notification.Type.ERROR_MESSAGE);
+//			}
 			
 	});
 		

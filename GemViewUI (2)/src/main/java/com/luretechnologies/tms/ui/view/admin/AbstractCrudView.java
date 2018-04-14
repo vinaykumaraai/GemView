@@ -226,10 +226,15 @@ public abstract class AbstractCrudView<T extends AbstractEntity> implements Seri
 
 		// Button logic
 		getUpdate().addClickListener(event -> {
+			Node selectedNode = getTree().getSelectedItems().iterator().next();
 			getPresenter().updateClicked();
 			DataProvider data = new TreeDataProvider(treeDataService.getTreeDataForUser());
 			getTree().setDataProvider(data);
+			T selectedUser = getGrid().getSelectedItems().iterator().next();
 			loadGridData();
+			getTree().select(selectedNode);
+			getGrid().select(selectedUser);
+			
 
 		});
 
