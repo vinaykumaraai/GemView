@@ -229,7 +229,8 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 				String descriptionInLower = filter.getDescription().toLowerCase();
 				String typeInLower = filter.getStatusType().name().toLowerCase();
 				String statistics = filter.getStatistics().toString().toLowerCase();
-				return ((typeInLower.equals(valueInLower)) || (descriptionInLower.contains(valueInLower)) || (statistics.equals(statistics)));
+				Boolean condition = ((typeInLower.equals(valueInLower)) || (descriptionInLower.contains(valueInLower)));
+				return ((typeInLower.contains(valueInLower)) || (descriptionInLower.contains(valueInLower)) || (statistics.contains(valueInLower)));
 			});
 		});
 

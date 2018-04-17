@@ -147,10 +147,13 @@ public class Devices extends AbstractEntity{
 	public void setActive(boolean active) {
 		this.active = active;
 	}
-
 	@Override
 	public String toString() {
-		return deviceName;
+		return "Devices [deviceName=" + deviceName + ", description=" + description + ", active=" + active
+				+ ", manufacturer=" + manufacturer + ", rki=" + rki + ", osUpdate=" + osUpdate + ", serialNumber="
+				+ serialNumber + ", heartBeat=" + heartBeat + ", lastSeen=" + lastSeen + ", frequency=" + frequency
+				+ ", statusType=" + statusType + ", statistics=" + statistics + ", deviceDate=" + deviceDate + "]";
 	}
+
 	
 }
