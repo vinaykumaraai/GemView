@@ -122,7 +122,13 @@ public abstract class AbstractCrudPresenter<T extends AbstractEntity, S extends 
 		if (entity.isNew()) {
 			throw new IllegalArgumentException("Cannot delete an entity which is not in the database");
 		} else {
-			service.delete(entity.getId());
+			User user = (User) service.load(entity.getId());
+			if(user.isLocked()==true) {
+				Notification.show("User Cannot be deleted", Type.ERROR_MESSAGE);
+			}else {
+				service.delete(entity.getId());
+				getView().loadGridData();
+			}
 		}
 	}
 
@@ -319,7 +325,7 @@ public abstract class AbstractCrudPresenter<T extends AbstractEntity, S extends 
 								 * , Type.ERROR_MESSAGE); getLogger().error("Unable to delete entity of type " +
 								 * editItem.getClass().getName(), e); return; }
 								 */
-							getView().loadGridData();
+							//getView().loadGridData();
 						} else {
 							// User did not confirm
 

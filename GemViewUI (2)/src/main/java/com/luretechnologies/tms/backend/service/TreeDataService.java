@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.luretechnologies.tms.backend.data.entity.Debug;
+import com.luretechnologies.tms.backend.data.entity.Devices;
 import com.luretechnologies.tms.backend.data.entity.Node;
 import com.luretechnologies.tms.backend.data.entity.NodeLevel;
 import com.luretechnologies.tms.backend.data.entity.User;
@@ -23,14 +24,19 @@ public class TreeDataService {
 	private static final long serialVersionUID = 1L;
 	private final MockUserService mockUserService;
 	private final MockDebugService mockDebugService;
+	private final MockOdometerDeviceService mockOdometerDeviceService;
+	private List<Node> userNodeList;
+	private List<Node> debugNodeList;
+	private List<Node> odometerDeviceNodeList;
 	//private PasswordEncoder passwordEncoder;
 	
 	//DataGenerator db = new DataGenerator();
 	
 	@Autowired
-	public TreeDataService(MockUserService userRepository,MockDebugService mockDebugService) {
+	public TreeDataService(MockUserService userRepository,MockDebugService mockDebugService, MockOdometerDeviceService mockOdometerDeviceService) {
 		this.mockUserService = userRepository;
 		this.mockDebugService = mockDebugService;
+		this.mockOdometerDeviceService = mockOdometerDeviceService;
 	}
 	private List<User> getSortedUserList(Collection<User> unsortedCollection){
 		List<User> sortedList = unsortedCollection.stream().sorted((o1,o2)->{
@@ -44,15 +50,21 @@ public class TreeDataService {
 		}).collect(Collectors.toList());
 		return sortedList;
 	}
+	private List<Devices> getSortedOdometerDeviceList(Collection<Devices> unsortedCollection){
+		List<Devices> sortedList = unsortedCollection.stream().sorted((o1,o2)->{
+			return o1.getDeviceDate().compareTo(o2.getDeviceDate());
+		}).collect(Collectors.toList());
+		return sortedList;
+	}
 	public TreeData<Node> getTreeDataForUser() {
 		
 		//Tree<Node> tree = new Tree<>();
 		TreeData<Node> treeData = new TreeData<>();
-		List<User> userList1 = new ArrayList<User>(getSortedUserList(mockUserService.getRepository().values())) ; //getSortedUserList()
-		List<User> userList2 = new ArrayList<User>(getSortedUserList(mockUserService.getRepository().values())) ;
-		List<User> userList3 = new ArrayList<User>(getSortedUserList(mockUserService.getRepository().values())) ;
-		List<User> userList4 = new ArrayList<User>(getSortedUserList(mockUserService.getRepository().values())) ;
-		List<User> userList5 = new ArrayList<User>(getSortedUserList(mockUserService.getRepository().values())) ;
+		List<User> userList1 = new ArrayList<User>((mockUserService.getRepository().values())) ; //getSortedUserList()
+		List<User> userList2 = new ArrayList<User>((mockUserService.getRepository().values())) ;
+		List<User> userList3 = new ArrayList<User>((mockUserService.getRepository().values())) ;
+		List<User> userList4 = new ArrayList<User>((mockUserService.getRepository().values())) ;
+		List<User> userList5 = new ArrayList<User>((mockUserService.getRepository().values())) ;
 		
 		for(int index =0 ; index<3; index++) {
 			userList1.remove(index);
@@ -62,31 +74,37 @@ public class TreeDataService {
 			userList5.remove(index+2);
 			
 		}
+		userNodeList = new ArrayList();
 		
 		Node node = new Node();
 		node.setLabel("Enterprise Entity");
 		node.setLevel(NodeLevel.ENTITY);
 		node.setEntityList(userList1);
+		userNodeList.add(node);
 		
 		Node node1 = new Node();
 		node1.setLabel("Region West");
 		node1.setLevel(NodeLevel.REGION);
 		node1.setEntityList(userList2);
+		userNodeList.add(node1);
 
 		Node node2 = new Node();
 		node2.setLabel("Merchant 1");
 		node2.setLevel(NodeLevel.MERCHANT);
 		node2.setEntityList(userList3);
+		userNodeList.add(node2);
 		
 		Node node3 = new Node();
 		node3.setLabel("Terminal Entity 1");
 		node3.setLevel(NodeLevel.TERMINAL);
 		node3.setEntityList(userList4);
+		userNodeList.add(node3);
 		
 		Node node4 = new Node();
 		node4.setLabel("Device 1");
 		node4.setLevel(NodeLevel.DEVICE);
 		node4.setEntityList(userList5);
+		userNodeList.add(node4);
 		
 		treeData.addItem(null,node);
 		treeData.addItem(node,node1);
@@ -96,6 +114,10 @@ public class TreeDataService {
 		
 		return treeData;
 	}
+	public List<Node> getUserNodeList(){
+		return this.userNodeList;
+	}
+	
 public TreeData<Node> getTreeDataForDebug() {
 		
 		//Tree<Node> tree = new Tree<>();
@@ -119,31 +141,37 @@ public TreeData<Node> getTreeDataForDebug() {
 			debugList5.remove(index+2);
 			
 		}
+		debugNodeList= new ArrayList();
 		
 		Node node = new Node();
 		node.setLabel("Enterprise Entity");
 		node.setLevel(NodeLevel.ENTITY);
 		node.setEntityList(debugList1);
+		debugNodeList.add(node);
 		
 		Node node1 = new Node();
 		node1.setLabel("Region West");
 		node1.setLevel(NodeLevel.REGION);
 		node1.setEntityList(debugList2);
+		debugNodeList.add(node1);
 
 		Node node2 = new Node();
 		node2.setLabel("Merchant 1");
 		node2.setLevel(NodeLevel.MERCHANT);
 		node2.setEntityList(debugList3);
+		debugNodeList.add(node2);
 		
 		Node node3 = new Node();
 		node3.setLabel("Terminal Entity 1");
 		node3.setLevel(NodeLevel.TERMINAL);
 		node3.setEntityList(debugList4);
+		debugNodeList.add(node3);
 		
 		Node node4 = new Node();
 		node4.setLabel("Device 1");
 		node4.setLevel(NodeLevel.DEVICE);
 		node4.setEntityList(debugList5);
+		debugNodeList.add(node4);
 		
 		treeData.addItem(null,node);
 		treeData.addItem(node,node1);
@@ -153,6 +181,78 @@ public TreeData<Node> getTreeDataForDebug() {
 		
 		return treeData;
 	}
+
+public List<Node> getDebugNodeList(){
+	return this.debugNodeList;
+}
+
+public TreeData<Node> getTreeDataForDeviceOdometer() {
+	
+	//Tree<Node> tree = new Tree<>();
+	TreeData<Node> treeData = new TreeData<>();
+	List<Devices> odometerDeviceList1 = new ArrayList<Devices>(getSortedOdometerDeviceList(mockOdometerDeviceService.getRepository().values())) ; 
+	List<Devices> odometerDeviceList2 = new ArrayList<Devices>(getSortedOdometerDeviceList(mockOdometerDeviceService.getRepository().values())) ;
+	List<Devices> odometerDeviceList3 = new ArrayList<Devices>(getSortedOdometerDeviceList(mockOdometerDeviceService.getRepository().values())) ;
+	List<Devices> odometerDeviceList4 = new ArrayList<Devices>(getSortedOdometerDeviceList(mockOdometerDeviceService.getRepository().values())) ;
+	List<Devices> odometerDeviceList5 = new ArrayList<Devices>(getSortedOdometerDeviceList(mockOdometerDeviceService.getRepository().values())) ;
+	
+	for(int index =0 ; index<3; index++) {
+		if(odometerDeviceList1.size()>index)
+		odometerDeviceList1.remove(index);
+		if(odometerDeviceList2.size()>index+1)
+		odometerDeviceList2.remove(index+1);
+		if(odometerDeviceList3.size()>index+2)
+		odometerDeviceList3.remove(index+2);
+		if(odometerDeviceList4.size()>index+3)
+		odometerDeviceList4.remove(index+3);
+		if(odometerDeviceList5.size()>index+2)
+		odometerDeviceList5.remove(index+2);
+		
+	}
+	odometerDeviceNodeList= new ArrayList();
+	
+	Node node = new Node();
+	node.setLabel("Enterprise Entity");
+	node.setLevel(NodeLevel.ENTITY);
+	node.setEntityList(odometerDeviceList1);
+	odometerDeviceNodeList.add(node);
+	
+	Node node1 = new Node();
+	node1.setLabel("Region West");
+	node1.setLevel(NodeLevel.REGION);
+	node1.setEntityList(odometerDeviceList2);
+	odometerDeviceNodeList.add(node1);
+
+	Node node2 = new Node();
+	node2.setLabel("Merchant 1");
+	node2.setLevel(NodeLevel.MERCHANT);
+	node2.setEntityList(odometerDeviceList3);
+	odometerDeviceNodeList.add(node2);
+	
+	Node node3 = new Node();
+	node3.setLabel("Terminal Entity 1");
+	node3.setLevel(NodeLevel.TERMINAL);
+	node3.setEntityList(odometerDeviceList4);
+	odometerDeviceNodeList.add(node3);
+	
+	Node node4 = new Node();
+	node4.setLabel("Device 1");
+	node4.setLevel(NodeLevel.DEVICE);
+	node4.setEntityList(odometerDeviceList5);
+	odometerDeviceNodeList.add(node4);
+	
+	treeData.addItem(null,node);
+	treeData.addItem(node,node1);
+	treeData.addItem(node1,node2);
+	treeData.addItem(node2,node3);
+	treeData.addItem(node3,node4);
+	
+	return treeData;
+}
+
+public List<Node> getOdometerDeviceList(){
+	return this.odometerDeviceNodeList;
+}
 //	private List<User> mockUserData(int count) {
 //		User user;
 //		List<List<User>> userData = new ArrayList<>();

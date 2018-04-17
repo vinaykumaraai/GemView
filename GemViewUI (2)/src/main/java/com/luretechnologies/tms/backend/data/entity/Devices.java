@@ -1,6 +1,9 @@
 package com.luretechnologies.tms.backend.data.entity;
 
-public class Devices {
+import java.util.Date;
+import java.util.Objects;
+
+public class Devices extends AbstractEntity{
 
 	private String deviceName;
 
@@ -21,6 +24,49 @@ public class Devices {
 	private String lastSeen;
 	
 	private String frequency;
+	
+	private StatusType statusType;
+	
+	private Integer statistics;
+	
+	private Date deviceDate;
+	
+	public Devices() {
+		
+	}
+	public Devices(StatusType statusType, String description,Integer statistics) {
+		super(false);
+		Objects.requireNonNull(statusType);
+		Objects.requireNonNull(description);
+		Objects.requireNonNull(statistics);
+		this.statusType = statusType;
+		this.description = description;
+		this.statistics = statistics;
+	}
+	
+	public Date getDeviceDate() {
+		return deviceDate;
+	}
+
+	public void setDeviceDate(Date deviceDate) {
+		this.deviceDate = deviceDate;
+	}
+
+	public StatusType getStatusType() {
+		return statusType;
+	}
+
+	public void setStatusType(StatusType statusType) {
+		this.statusType = statusType;
+	}
+
+	public Integer getStatistics() {
+		return statistics;
+	}
+
+	public void setStatistics(Integer statistics) {
+		this.statistics = statistics;
+	}
 	
 	public String getFrequency() {
 		return frequency;

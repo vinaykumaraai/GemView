@@ -8,6 +8,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
@@ -60,7 +61,7 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 	private static HorizontalSplitPanel splitScreen;
 	private static DateField debugStartDateField, debugEndDateField;
 	private OffsetDateTime odt = OffsetDateTime.now ();
-	private ZoneOffset zoneOffset = odt.getOffset ();
+	//private ZoneOffset zoneOffset = odt.getOffset ();
 
 	@Autowired
 	public AuditView() {
@@ -162,9 +163,16 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		    				//debugGrid.getDataProvider().refreshAll();
 		    				//nodeTree.getSelectionModel().deselectAll();
 		    				nodeTree.getDataProvider().refreshAll();
-		    				debugStartDateField.setValue(localTimeNow.toLocalDate());
-		    				debugEndDateField.setValue(localTimeNow.toLocalDate());
+		    				//debugStartDateField.setDateFormat(dateFormat);;
+		    				//debugEndDateField.setValue(localTimeNow.toLocalDate());
 		    				debugSearch.clear();
+		    				//debugGrid.getDataProvider().refreshAll();
+		    				//debugGrid.deselectAll();
+		    				loadGrid();
+		    				debugStartDateField.clear();
+		    				debugEndDateField.clear();
+		    				
+		    				//debugGrid.getSelectedItems()
 		    				//Page.getCurrent().reload();
 		                } else {
 		                    // User did not confirm
@@ -172,6 +180,20 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		                }
 		            }
 		        });
+	}
+	
+	private void loadGrid() {
+		treeDataService.getTreeDataForDebug();
+		List<Node> nodeList = treeDataService.getDebugNodeList();
+		Set<Node> nodeSet = nodeTree.getSelectionModel().getSelectedItems();
+		Node nodeSelected = nodeSet.iterator().next();
+		for(Node node : nodeList) {
+			if(node.getLabel().equals(nodeSelected.getLabel())) {
+				DataProvider data = new ListDataProvider(node.getEntityList());
+				debugGrid.setDataProvider(data);
+			}
+		}
+		
 	}
 	
 	private VerticalLayout getDebugLayout() {
@@ -253,17 +275,19 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		//dateDeleteLayout.setSizeFull();
 		
 		debugStartDateField = new DateField();
+		//debugStartDateField.setWidth("100%");
+		debugStartDateField.setPlaceholder("Start Date");
 		debugStartDateField.setResponsive(true);
 		debugStartDateField.setDateFormat(DATE_FORMAT);
-		debugStartDateField.setDateOutOfRangeMessage("Future Dates Cannot be selected" );
 		debugStartDateField.setRangeEnd(localTimeNow.toLocalDate());
 		//debugStartDateField.setValue(LocalDateTime.now());
 		debugStartDateField.setDescription("Start Date");
 		debugEndDateField = new DateField();
+		//debugEndDateField.setWidth("100%");
+		debugEndDateField.setPlaceholder("End Date");
 		debugEndDateField.setResponsive(true);
 		debugEndDateField.setDateFormat(DATE_FORMAT);
-		debugEndDateField.setDateOutOfRangeMessage("Future Dates Cannot be selected" );
-		debugEndDateField.setRangeEnd(localTimeNow.toLocalDate());
+		debugEndDateField.setRangeEnd(localTimeNow.toLocalDate().plusDays(1));
 		//debugEndDateField.setValue(LocalDateTime.now());
 		debugEndDateField.setDescription("End Date");
 		optionsLayout.addComponent(debugSearchLayout);
@@ -283,42 +307,59 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		
 		//end Date listner
 		debugEndDateField.addValueChangeListener(change ->{
-//			if(change.getValue().toEpochSecond(zoneOffset) > LocalDateTime.now().toEpochSecond(zoneOffset)) {
-//				Notification.show("Future Dates Cannot be selected", Notification.Type.ERROR_MESSAGE);
-//			}else if(change.getValue().toEpochSecond(zoneOffset) < debugStartDateField.getValue().toEpochSecond(zoneOffset)){
-//				Notification.show("End Data cannot be less than Start Date", Notification.Type.ERROR_MESSAGE);
-//			}else {
-			if(change.getValue().compareTo(debugStartDateField.getValue()) > 0) {
-				ListDataProvider<Debug> debugDataProvider = (ListDataProvider<Debug>) debugGrid.getDataProvider();
-				debugDataProvider.setFilter(filter -> {
-					Date debugDate = filter.getDateOfDebug();
-					try {
-						return debugDate.after(dateFormatter.parse(debugStartDateField.getValue().minusDays(1).toString())) && debugDate.before(dateFormatter.parse(change.getValue().plusDays(1).toString()));
-					} catch (ParseException e) {
-						System.out.println(e.getMessage() + filter.toString());
+         if(!(change.getValue() == null)) {
+        	 if(!nodeTree.getSelectedItems().isEmpty()) {
+        		 	if(debugStartDateField.getValue()!=null) {
+        	 		if(change.getValue().compareTo(debugStartDateField.getValue()) >= 0 ) {
+        	 				ListDataProvider<Debug> debugDataProvider = (ListDataProvider<Debug>) debugGrid.getDataProvider();
+        	 				debugDataProvider.setFilter(filter -> {
+        	 				Date debugDate = filter.getDateOfDebug();
+        	 				try {
+        	 					return debugDate.after(dateFormatter.parse(debugStartDateField.getValue().minusDays(1).toString())) && debugDate.before(dateFormatter.parse(change.getValue().plusDays(1).toString()));
+        	 				} catch (ParseException e) {
+        	 					System.out.println(e.getMessage() + filter.toString());
 						
-						return false;
-					}
+        	 					return false;
+        	 				}
 				});
-			}
-//		}
+			} 
+        		 	}else {
+        		 		Notification.show("Select Start Date to filter the data", Notification.Type.WARNING_MESSAGE).setDelayMsec(3000);
+        		 		debugEndDateField.clear();
+        		 	}
+        }else {
+        	Notification.show("Please Select any Node to filter the data", Notification.Type.WARNING_MESSAGE).setDelayMsec(3000);
+        	debugStartDateField.clear();
+			debugEndDateField.clear();
+        }
+	}
 	});
 		debugStartDateField.addValueChangeListener(change ->{
-//			if(change.getValue().toEpochSecond(zoneOffset) > LocalDateTime.now().toEpochSecond(zoneOffset)) {
-//				Notification.show("Future Dates Cannot be selected", Notification.Type.ERROR_MESSAGE);
-//			}else if(change.getValue().toEpochSecond(zoneOffset) > debugEndDateField.getValue().toEpochSecond(zoneOffset)){
-//				Notification.show("Start Data cannot be more than End Date", Notification.Type.ERROR_MESSAGE);
-//			}
-			
+			if(change.getValue()!=null) {
+				debugEndDateField.setRangeStart(debugStartDateField.getValue().plusDays(1));
+				debugEndDateField.setRangeEnd(localTimeNow.toLocalDate().plusDays(1));
+			}
 	});
 		
-		nodeTree.addItemClickListener(selection ->{
-				if(nodeTree.getSelectionModel().isSelected(selection.getItem())) {
-					debugGrid.setDataProvider(debugService.getListDataProvider());
-				}else {
-					DataProvider data = new ListDataProvider(selection.getItem().getEntityList());
+			nodeTree.addItemClickListener(selection ->{
+//				if(nodeTree.getSelectionModel().isSelected(selection.getItem())) {
+//					debugGrid.setDataProvider(debugService.getListDataProvider());
+//				}else {
+//					DataProvider data = new ListDataProvider(selection.getItem().getEntityList());
+//					debugGrid.setDataProvider(data);
+//				}
+			
+			treeDataService.getTreeDataForDebug();
+			List<Node> nodeList = treeDataService.getDebugNodeList();
+			for(Node node : nodeList) {
+				if(node.getLabel().equals(selection.getItem().getLabel())) {
+					DataProvider data = new ListDataProvider(node.getEntityList());
 					debugGrid.setDataProvider(data);
+					debugSearch.clear();
 				}
+			}
+			debugStartDateField.clear();
+			debugEndDateField.clear();
 				
 		});
 		return debugLayout;

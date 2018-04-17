@@ -67,7 +67,7 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 	
 	@Autowired
 	public HeartbeatView() {
-		selectedDevice = new Devices();
+		//selectedDevice = new Devices();
 		emptyDevice.setManufacturer("");
 		emptyDevice.setDeviceName("");
 		emptyDevice.setDescription("");

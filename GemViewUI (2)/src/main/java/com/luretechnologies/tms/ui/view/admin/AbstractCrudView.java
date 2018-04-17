@@ -234,14 +234,22 @@ public abstract class AbstractCrudView<T extends AbstractEntity> implements Seri
 			loadGridData();
 			getTree().select(selectedNode);
 			getGrid().select(selectedUser);
-			
 
 		});
 
 		getTree().addItemClickListener(e -> {
-			DataProvider data = new ListDataProvider(e.getItem().getEntityList());
-			getGrid().setDataProvider(data);
-			getSearch().clear();
+			treeDataService.getTreeDataForUser();
+			List<Node> nodeList = treeDataService.getUserNodeList();
+			for(Node node : nodeList) {
+				if(node.getLabel().equals(e.getItem().getLabel())) {
+					DataProvider data = new ListDataProvider(node.getEntityList());
+					getGrid().setDataProvider(data);
+					getSearch().clear();
+				}
+			}
+//			DataProvider data = new ListDataProvider(e.getItem().getEntityList());
+//			getGrid().setDataProvider(data);
+//			getSearch().clear();
 			//treeNodeInputLabel.clear();
 			// selectedTreeNode=e.getItem();
 		});
