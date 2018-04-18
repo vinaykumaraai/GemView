@@ -10,10 +10,13 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.luretechnologies.tms.backend.data.entity.Alert;
 import com.luretechnologies.tms.backend.data.entity.Debug;
 import com.luretechnologies.tms.backend.data.entity.Node;
+import com.luretechnologies.tms.backend.service.AlertService;
 import com.luretechnologies.tms.backend.service.DebugService;
 import com.luretechnologies.tms.backend.service.TreeDataService;
+import com.luretechnologies.tms.ui.components.FormFieldType;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.event.ShortcutAction.KeyCode;
@@ -23,11 +26,13 @@ import com.vaadin.navigator.View;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.DateTimeField;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.DateField;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TextField;
@@ -47,12 +52,13 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 	private static final SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
 	private static final LocalDateTime localTimeNow = LocalDateTime.now();
 	private static Grid<Debug> debugGrid;
-	private static Button deleteGridRow;
+	private static Grid<Alert> alertGrid;
+	private static Button deleteHistoryGridRow, deleteAlertGridRow, editAlertGridRow, createAlertGridRow;
 	private static Tree<Node> nodeTree;
 	private static TextField treeNodeSearch, debugSearch;
 	private static HorizontalSplitPanel splitScreen;
 	private static TabSheet assetTabSheet;
-	private static DateTimeField debugStartDateField, debugEndDateField;
+	private static DateField debugStartDateField, debugEndDateField;
 	
 	@Autowired
 	public AssetcontrolView() {
@@ -64,6 +70,10 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 
 	@Autowired
 	public DebugService debugService;
+	
+	@Autowired
+	public AlertService alertService;
+	
 	@PostConstruct
 	private void inti() {
 		setSpacing(false);
@@ -74,6 +84,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		treeNodeSearch.setIcon(VaadinIcons.SEARCH);
 		treeNodeSearch.setStyleName("small inline-icon search");
 		treeNodeSearch.setPlaceholder("Search");
+		treeNodeSearch.setVisible(false);
 		configureTreeNodeSearch();
 		
 		Panel panel = getAndLoadAuditPanel();
@@ -140,10 +151,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		assetTabSheet = new TabSheet();
 		assetTabSheet.setHeight(100.0f, Unit.PERCENTAGE);
 		assetTabSheet.setSizeFull();
-		assetTabSheet.addStyleName(ValoTheme.TABSHEET_EQUAL_WIDTH_TABS);
-		assetTabSheet.addStyleName(ValoTheme.TABSHEET_CENTERED_TABS);
-		assetTabSheet.addStyleName(ValoTheme.TABSHEET_COMPACT_TABBAR);
-		assetTabSheet.addStyleName(ValoTheme.TABSHEET_ICONS_ON_TOP);
+		assetTabSheet.addStyleNames(ValoTheme.TABSHEET_EQUAL_WIDTH_TABS,ValoTheme.TABSHEET_CENTERED_TABS,ValoTheme.TABSHEET_ICONS_ON_TOP,ValoTheme.TABSHEET_COMPACT_TABBAR,ValoTheme.TABSHEET_PADDED_TABBAR);
 		assetTabSheet.addTab(getHistory(), "History");
 		assetTabSheet.addTab(getAlert(), "Alert");
 		assetTabSheet.addTab(getDebug(), "Debug");
@@ -203,10 +211,10 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 			});
 		});
 
-			deleteGridRow = new Button(VaadinIcons.TRASH);
-			deleteGridRow.addStyleName(ValoTheme.BUTTON_FRIENDLY);
-			deleteGridRow.setResponsive(true);
-			deleteGridRow.addClickListener(clicked -> {
+			deleteHistoryGridRow = new Button(VaadinIcons.TRASH);
+			deleteHistoryGridRow.addStyleName(ValoTheme.BUTTON_FRIENDLY);
+			deleteHistoryGridRow.setResponsive(true);
+			deleteHistoryGridRow.addClickListener(clicked -> {
 				debugService.removeDebug(debugGrid.getSelectedItems().iterator().next());
 				ListDataProvider<Debug> refreshDebugDataProvider = debugService.getListDataProvider();
 				debugGrid.setDataProvider(refreshDebugDataProvider);
@@ -214,8 +222,10 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 				debugGrid.getDataProvider().refreshAll();
 				nodeTree.getSelectionModel().deselectAll();
 				nodeTree.getDataProvider().refreshAll();
-				debugStartDateField.setValue(localTimeNow);
-				debugEndDateField.setValue(localTimeNow);
+				debugStartDateField.setPlaceholder("Start Date");
+				debugStartDateField.setRangeEnd(localTimeNow.toLocalDate());
+				debugEndDateField.setRangeEnd(localTimeNow.toLocalDate());
+				debugEndDateField.setPlaceholder("End Date");
 				debugSearch.clear();
 
 			});
@@ -237,24 +247,24 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		//dateDeleteLayout.setWidth("100%");
 		//dateDeleteLayout.setSizeFull();
 		
-		debugStartDateField = new DateTimeField();
+		debugStartDateField = new DateField();
 		debugStartDateField.setResponsive(true);
 		debugStartDateField.setDateFormat(DATE_FORMAT);
-		debugStartDateField.setValue(LocalDateTime.now());
-		debugStartDateField.setDescription("Start Date");
-		debugEndDateField = new DateTimeField();
+		debugStartDateField.setRangeEnd(LocalDateTime.now().toLocalDate());
+		debugStartDateField.setPlaceholder("Start Date");
+		debugEndDateField = new DateField();
 		debugEndDateField.setResponsive(true);
 		debugEndDateField.setDateFormat(DATE_FORMAT);
-		debugEndDateField.setValue(LocalDateTime.now());
-		debugEndDateField.setDescription("End Date");
+		debugEndDateField.setRangeEnd(LocalDateTime.now().toLocalDate());
+		debugEndDateField.setPlaceholder("End Date");
 		optionsLayout.addComponent(debugSearchLayout);
 		optionsLayout.setComponentAlignment(debugSearchLayout, Alignment.MIDDLE_LEFT);
 		dateDeleteLayout.addComponent(debugStartDateField);
 		dateDeleteLayout.setComponentAlignment(debugStartDateField, Alignment.MIDDLE_LEFT);
 		dateDeleteLayout.addComponent(debugEndDateField);
 		dateDeleteLayout.setComponentAlignment(debugEndDateField, Alignment.MIDDLE_RIGHT);
-		dateDeleteLayout.addComponent(deleteGridRow);
-		dateDeleteLayout.setComponentAlignment(deleteGridRow, Alignment.MIDDLE_RIGHT);
+		dateDeleteLayout.addComponent(deleteHistoryGridRow);
+		dateDeleteLayout.setComponentAlignment(deleteHistoryGridRow, Alignment.MIDDLE_RIGHT);
 		optionsLayout.addComponent(dateDeleteLayout);
 		optionsLayout.setComponentAlignment(dateDeleteLayout, Alignment.MIDDLE_RIGHT);
 		debugLayout.addComponent(optionsLayout);
@@ -293,6 +303,19 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 	
 	private VerticalLayout getAlert() {
 		VerticalLayout alertLayout = new VerticalLayout();
+		Label alertCommands = new Label("Alert Commands");
+		alertCommands.addStyleNames(ValoTheme.LABEL_BOLD,ValoTheme.LABEL_H3);
+		alertLayout.addComponent(alertCommands);
+		alertLayout.addComponent(getFormFieldWithLabel("Alert Type", FormFieldType.TEXTBOX));
+		alertLayout.addComponent(getFormFieldWithLabel("Name", FormFieldType.TEXTBOX));
+		alertLayout.addComponent(getFormFieldWithLabel("Description", FormFieldType.TEXTBOX));
+		alertLayout.addComponent(getFormFieldWithLabel("Active", FormFieldType.CHECKBOX));
+		alertLayout.addComponent(getFormFieldWithLabel("Email to:", FormFieldType.TEXTBOX));
+		//Add,Delete,Edit Button Layout
+		alertLayout.addComponent(getAlertGridButtonLayout());
+		alertLayout.setComponentAlignment(alertLayout.getComponent(6), Alignment.TOP_RIGHT);
+		//Alert Grid
+		alertLayout.addComponent(getAlertGrid());
 		return alertLayout;
 	}
 	private VerticalLayout getDebug() {
@@ -300,4 +323,72 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		return debugLayout;
 	}
 	
+	
+	private HorizontalLayout getAlertGridButtonLayout() {
+		HorizontalLayout alertGridButtonLayout = new HorizontalLayout();
+		//FIXME: make the button green colored icon
+		createAlertGridRow = new Button(VaadinIcons.FOLDER_ADD,click ->{
+			//TODO: add the click event 
+		});
+		createAlertGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY);
+		editAlertGridRow = new Button(VaadinIcons.PENCIL,click ->{
+			//TODO: add the click event 
+			if(alertGrid.getSelectedItems().size() > 0) {
+				//FIXME: add edit code
+			}
+		});
+		editAlertGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY);
+		deleteAlertGridRow = new Button(VaadinIcons.TRASH,click ->{
+			//TODO: add the click event 
+			if(alertGrid.getSelectedItems().size() > 0) {
+				//FIXME: put confirmation Dialog
+				alertService.removeAlert(alertGrid.getSelectedItems().iterator().next());
+				ListDataProvider<Alert> refreshAlertDataProvider = alertService.getListDataProvider();
+				alertGrid.setDataProvider(refreshAlertDataProvider);
+				//Refreshing
+				alertGrid.getDataProvider().refreshAll();
+			}
+		});
+		deleteAlertGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY);
+		alertGridButtonLayout.addComponent(createAlertGridRow);
+		alertGridButtonLayout.addComponent(editAlertGridRow);
+		alertGridButtonLayout.addComponent(deleteAlertGridRow);
+		
+		return alertGridButtonLayout;
+	}
+	private HorizontalLayout getFormFieldWithLabel(String labelName, FormFieldType type) {
+		HorizontalLayout fieldLayout = new HorizontalLayout();
+		Label label = new Label(labelName);
+		label.setResponsive(true);
+		fieldLayout.addComponent(label);
+		switch (type) {
+		case TEXTBOX:
+			TextField textField = new TextField();
+			textField.setSizeFull();
+			textField.addStyleNames(ValoTheme.TEXTFIELD_ALIGN_CENTER);
+			textField.setResponsive(true);
+			fieldLayout.addComponent(textField);
+			break;
+		case CHECKBOX:
+			CheckBox checkBox = new CheckBox();
+			checkBox.setSizeFull();
+			fieldLayout.addComponent(checkBox);
+			break;
+		default:
+			break;
+		}
+		return fieldLayout;
+	}
+	
+	private Grid<Alert> getAlertGrid(){
+		alertGrid = new Grid<>(Alert.class);
+		alertGrid.setWidth("100%");
+		alertGrid.setResponsive(true);
+		alertGrid.setSelectionMode(SelectionMode.SINGLE);
+		alertGrid.setColumns("type", "description","active","email");
+		alertGrid.getColumn("type").setCaption("Alert Type");
+		alertGrid.setDataProvider(alertService.getListDataProvider());
+		
+		return alertGrid;
+	}
 }
