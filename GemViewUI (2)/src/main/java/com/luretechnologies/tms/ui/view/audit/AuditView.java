@@ -41,6 +41,7 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 
 @SpringView(name = AuditView.VIEW_NAME)
@@ -76,6 +77,15 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 
 	@PostConstruct
 	private void init() {
+		//FIXME : Sample code for browser resizing .
+		Page.getCurrent().addBrowserWindowResizeListener(r->{
+			System.out.println("Height "+ r.getHeight() + "Width:  " + r.getWidth()+ " in pixel");
+			if(r.getWidth()<=1000) {
+				debugSearch.setWidth(40,Unit.PERCENTAGE);
+			}else {
+				debugSearch.setSizeFull();
+			}
+		});
 		setSpacing(false);
 		setMargin(false);
 		setResponsive(true);
