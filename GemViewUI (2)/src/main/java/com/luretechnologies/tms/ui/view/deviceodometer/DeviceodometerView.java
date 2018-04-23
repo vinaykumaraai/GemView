@@ -1,9 +1,41 @@
+/**
+ * COPYRIGHT @ Lure Technologies, LLC.
+ * ALL RIGHTS RESERVED
+ *
+ * Developed by Lure Technologies, LLC. (www.luretechnologies.com)
+ *
+ * Copyright in the whole and every part of this software program belongs to
+ * Lure Technologies, LLC (“Lure”).  It may not be used, sold, licensed,
+ * transferred, copied or reproduced in whole or in part in any manner or
+ * form other than in accordance with and subject to the terms of a written
+ * license from Lure or with the prior written consent of Lure or as
+ * permitted by applicable law.
+ *
+ * This software program contains confidential and proprietary information and
+ * must not be disclosed, in whole or in part, to any person or organization
+ * without the prior written consent of Lure.  If you are neither the
+ * intended recipient, nor an agent, employee, nor independent contractor
+ * responsible for delivering this message to the intended recipient, you are
+ * prohibited from copying, disclosing, distributing, disseminating, and/or
+ * using the information in this email in any manner. If you have received
+ * this message in error, please advise us immediately at
+ * legal@luretechnologies.com by return email and then delete the message from your
+ * computer and all other records (whether electronic, hard copy, or
+ * otherwise).
+ *
+ * Any copies or reproductions of this software program (in whole or in part)
+ * made by any method must also include a copy of this legend.
+ *
+ * Inquiries should be made to legal@luretechnologies.com
+ *
+ */
 package com.luretechnologies.tms.ui.view.deviceodometer;
 
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -45,6 +77,7 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 
 	private static final String DATE_FORMAT = "dd/MM/yyyy";
 	private static final SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+	private static final DateTimeFormatter  dateFormatter1 = DateTimeFormatter.ofPattern("MM-dd-YYYY");
 	/**
 	 * 
 	 */
@@ -82,11 +115,7 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 		configureTreeNodeSearch();
 		
 		Panel panel = getAndLoadOdometerPanel();
-		//HorizontalLayout treeButtonLayout = new HorizontalLayout();
 		VerticalLayout treePanelLayout = new VerticalLayout();
-		//treePanelLayout.addComponentAsFirst(treeNodeSearch);
-		//treePanelLayout.addComponent(treeButtonLayout);
-		//treePanelLayout.addComponentAsFirst(treeButtonLayout);
 		nodeTree = new Tree<Node>();
 		nodeTree.setTreeData(treeDataService.getTreeDataForDeviceOdometer());
 		nodeTree.setItemIconGenerator(item -> {
@@ -110,10 +139,8 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 		treePanelLayout.setMargin(true);
 		treePanelLayout.setHeight("100%");
 		treePanelLayout.setStyleName("split-height");
-		//treePanelLayout.setComponentAlignment(nodeTree, Alignment.BOTTOM_LEFT);
 		splitScreen = new HorizontalSplitPanel();
 		splitScreen.setFirstComponent(treePanelLayout);
-		//splitScreen.setFirstComponent(nodeTree);
 		splitScreen.setSplitPosition(20);
 		splitScreen.addComponent(getOdometerDeviceLayout());
 		splitScreen.setHeight("100%");
@@ -125,16 +152,21 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 		panel.setHeight("100%");
 		panel.addStyleName(ValoTheme.PANEL_WELL);
 		panel.setCaptionAsHtml(true);
-		panel.setCaption("<h1 style=color:#216C2A;font-weight:bold;>Device Odometer</h1>");
+		panel.setCaption("Device Odometer");
 		panel.setResponsive(true);
 		panel.setSizeFull();
+		//panel.setStyleName("odometer-verticalLayout");
         addComponent(panel);
        return panel;
 	}
 	
+	private void clearCalenderDates() {
+		odometerStartDateField.clear();
+		odometerEndDateField.clear();
+	}
+	
 	private void configureTreeNodeSearch() {
 		// FIXME Not able to put Tree Search since its using a Hierarchical
-		// Dataprovider.
 		treeNodeSearch.addValueChangeListener(changed -> {
 			String valueInLower = changed.getValue().toLowerCase();
 //			ListDataProvider<Node> nodeDataProvider = (ListDataProvider<Node>) nodeTree.getDataProvider();
@@ -152,23 +184,11 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 		                if (dialog.isConfirmed()) {
 		                    // Confirmed to continue
 		                	odometerDeviceService.removeOdometerDevice(odometerDeviceGrid.getSelectedItems().iterator().next());
-//		    				ListDataProvider<Debug> refreshDebugDataProvider = debugService.getListDataProvider();
-//		    				debugGrid.setDataProvider(refreshDebugDataProvider);
-		    				//Refreshing
-		    				//debugGrid.getDataProvider().refreshAll();
-		    				//nodeTree.getSelectionModel().deselectAll();
 		    				nodeTree.getDataProvider().refreshAll();
-		    				//debugStartDateField.setDateFormat(dateFormat);;
-		    				//debugEndDateField.setValue(localTimeNow.toLocalDate());
 		    				odometerDeviceSearch.clear();
-		    				//debugGrid.getDataProvider().refreshAll();
-		    				//debugGrid.deselectAll();
 		    				loadGrid();
-		    				odometerStartDateField.clear();
-		    				odometerEndDateField.clear();
+		    				clearCalenderDates();
 		    				
-		    				//debugGrid.getSelectedItems()
-		    				//Page.getCurrent().reload();
 		                } else {
 		                    // User did not confirm
 		                    
@@ -193,18 +213,20 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 	
 	@SuppressWarnings("unchecked")
 	private VerticalLayout getOdometerDeviceLayout() {
+		//VerticalLayout verticalLayout = new VerticalLayout();
+		//verticalLayout.setWidth("100%");
+		//verticalLayout.setHeight("100%");
+		//verticalLayout.setStyleName("split-height");
 		VerticalLayout odometerDeviceLayout = new VerticalLayout();
 		odometerDeviceLayout.setWidth("100%");
+		//odometerDeviceLayout.setHeight("100%");
+		//odometerDeviceLayout.setStyleName("odometer-verticalLayout");
 		odometerDeviceLayout.setResponsive(true);
-		//debugLayout.setSizeUndefined();
 		odometerDeviceGrid = new Grid<>(Devices.class);
 		odometerDeviceGrid.setWidth("100%");
 		odometerDeviceGrid.setResponsive(true);
 		odometerDeviceGrid.setSelectionMode(SelectionMode.SINGLE);
 		odometerDeviceGrid.setColumns("statusType", "description", "statistics");
-		//debugGrid.setDataProvider(debugService.getListDataProvider());
-
-		// debugGrid.setData();
 		odometerDeviceSearch = new TextField();
 		odometerDeviceSearch.setWidth("100%");
 		odometerDeviceSearch.setIcon(VaadinIcons.SEARCH);
@@ -224,12 +246,10 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 		odometerDeviceSearch.addValueChangeListener(valueChange -> {
 			String valueInLower = valueChange.getValue().toLowerCase();
 			ListDataProvider<Devices> odometerDeviceDataProvider = (ListDataProvider<Devices>) odometerDeviceGrid.getDataProvider();
-			//ListDataProvider<Devices> odometerDeviceDataProvider = odometerDeviceService.getListDataProvider() ;
 			odometerDeviceDataProvider.setFilter(filter -> {
 				String descriptionInLower = filter.getDescription().toLowerCase();
 				String typeInLower = filter.getStatusType().name().toLowerCase();
 				String statistics = filter.getStatistics().toString().toLowerCase();
-				Boolean condition = ((typeInLower.equals(valueInLower)) || (descriptionInLower.contains(valueInLower)));
 				return ((typeInLower.contains(valueInLower)) || (descriptionInLower.contains(valueInLower)) || (statistics.contains(valueInLower)));
 			});
 		});
@@ -246,10 +266,8 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 			});
 		
 		HorizontalLayout optionsLayout = new HorizontalLayout();
-		//optionsLayout.setComponentAlignment(childComponent, alignment);
 		optionsLayout.setWidth("100%");
 		optionsLayout.setHeight("50%");
-		//optionsLayout.setSizeUndefined();
 		optionsLayout.setResponsive(true);
 		
 		HorizontalLayout odometerSearchLayout = new HorizontalLayout();
@@ -258,36 +276,35 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 		odometerSearchLayout.setComponentAlignment(odometerDeviceSearch, Alignment.TOP_LEFT);
 		
 		HorizontalLayout dateDeleteLayout = new HorizontalLayout();
-		dateDeleteLayout.setSizeUndefined();
-		//dateDeleteLayout.setWidth("100%");
-		//dateDeleteLayout.setSizeFull();
+		dateDeleteLayout.setWidth("100%");
 		
 		odometerStartDateField = new DateField();
-		//debugStartDateField.setWidth("100%");
+		odometerStartDateField.setWidth("100%");
 		odometerStartDateField.setPlaceholder("Start Date");
 		odometerStartDateField.setResponsive(true);
 		odometerStartDateField.setDateFormat(DATE_FORMAT);
 		odometerStartDateField.setRangeEnd(localTimeNow.toLocalDate());
-		//debugStartDateField.setValue(LocalDateTime.now());
 		odometerStartDateField.setDescription("Start Date");
+		
 		odometerEndDateField = new DateField();
-		//debugEndDateField.setWidth("100%");
+		odometerEndDateField.setWidth("100%");
 		odometerEndDateField.setPlaceholder("End Date");
 		odometerEndDateField.setResponsive(true);
 		odometerEndDateField.setDateFormat(DATE_FORMAT);
 		odometerEndDateField.setRangeEnd(localTimeNow.toLocalDate().plusDays(1));
-		//debugEndDateField.setValue(LocalDateTime.now());
+		odometerEndDateField.setDateOutOfRangeMessage("Same Date cannot be selected");
 		odometerEndDateField.setDescription("End Date");
+		
 		optionsLayout.addComponent(odometerSearchLayout);
 		optionsLayout.setComponentAlignment(odometerSearchLayout, Alignment.MIDDLE_LEFT);
 		dateDeleteLayout.addComponent(odometerStartDateField);
-		dateDeleteLayout.setComponentAlignment(odometerStartDateField, Alignment.MIDDLE_LEFT);
+		dateDeleteLayout.setComponentAlignment(odometerStartDateField, Alignment.TOP_LEFT);
 		dateDeleteLayout.addComponent(odometerEndDateField);
-		dateDeleteLayout.setComponentAlignment(odometerEndDateField, Alignment.MIDDLE_RIGHT);
+		dateDeleteLayout.setComponentAlignment(odometerEndDateField, Alignment.TOP_LEFT);
 		dateDeleteLayout.addComponent(deleteGridRow);
-		dateDeleteLayout.setComponentAlignment(deleteGridRow, Alignment.MIDDLE_RIGHT);
+		dateDeleteLayout.setComponentAlignment(deleteGridRow, Alignment.TOP_LEFT);
 		optionsLayout.addComponent(dateDeleteLayout);
-		optionsLayout.setComponentAlignment(dateDeleteLayout, Alignment.MIDDLE_RIGHT);
+		optionsLayout.setComponentAlignment(dateDeleteLayout, Alignment.TOP_LEFT);
 		odometerDeviceLayout.addComponent(optionsLayout);
 		odometerDeviceLayout.setComponentAlignment(optionsLayout, Alignment.TOP_LEFT);
 		odometerDeviceLayout.addComponent(odometerDeviceGrid);
@@ -299,6 +316,8 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
         	 if(!nodeTree.getSelectedItems().isEmpty()) {
         		 	if(odometerStartDateField.getValue()!=null) {
         	 		if(change.getValue().compareTo(odometerStartDateField.getValue()) >= 0 ) {
+        	 			String date = odometerEndDateField.getValue().format(dateFormatter1);
+        	 			odometerEndDateField.setDescription(date);
         	 				ListDataProvider<Devices> odometerDeviceDataProvider = (ListDataProvider<Devices>) odometerDeviceGrid.getDataProvider();
         	 				odometerDeviceDataProvider.setFilter(filter -> {
         	 				Date odometerDeviceDate = filter.getDeviceDate();
@@ -317,26 +336,21 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
         		 	}
         }else {
         	Notification.show("Please Select any Node to filter the data", Notification.Type.WARNING_MESSAGE).setDelayMsec(3000);
-        	odometerStartDateField.clear();
-        	odometerEndDateField.clear();
+        	clearCalenderDates();
         }
 	}
 	});
 		odometerStartDateField.addValueChangeListener(change ->{
 			if(change.getValue()!=null) {
+				odometerEndDateField.clear();
 				odometerEndDateField.setRangeStart(odometerStartDateField.getValue().plusDays(1));
 				odometerEndDateField.setRangeEnd(localTimeNow.toLocalDate().plusDays(1));
+				String date = odometerStartDateField.getValue().format(dateFormatter1);
+				odometerStartDateField.setDescription(date);
 			}
 	});
 		
-			nodeTree.addItemClickListener(selection ->{
-//				if(nodeTree.getSelectionModel().isSelected(selection.getItem())) {
-//					debugGrid.setDataProvider(debugService.getListDataProvider());
-//				}else {
-//					DataProvider data = new ListDataProvider(selection.getItem().getEntityList());
-//					debugGrid.setDataProvider(data);
-//				}
-			
+			nodeTree.addItemClickListener(selection ->{			
 			treeDataService.getTreeDataForDeviceOdometer();
 			List<Node> nodeList = treeDataService.getOdometerDeviceList();
 			for(Node node : nodeList) {
@@ -346,10 +360,10 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 					odometerDeviceSearch.clear();
 				}
 			}
-			odometerStartDateField.clear();
-			odometerEndDateField.clear();
+			clearCalenderDates();
 				
 		});
+			//verticalLayout.addComponent(odometerDeviceLayout);
 		return odometerDeviceLayout;
 	}
 }

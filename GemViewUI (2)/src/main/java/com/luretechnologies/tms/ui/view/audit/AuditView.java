@@ -1,11 +1,44 @@
+/**
+ * COPYRIGHT @ Lure Technologies, LLC.
+ * ALL RIGHTS RESERVED
+ *
+ * Developed by Lure Technologies, LLC. (www.luretechnologies.com)
+ *
+ * Copyright in the whole and every part of this software program belongs to
+ * Lure Technologies, LLC (“Lure”).  It may not be used, sold, licensed,
+ * transferred, copied or reproduced in whole or in part in any manner or
+ * form other than in accordance with and subject to the terms of a written
+ * license from Lure or with the prior written consent of Lure or as
+ * permitted by applicable law.
+ *
+ * This software program contains confidential and proprietary information and
+ * must not be disclosed, in whole or in part, to any person or organization
+ * without the prior written consent of Lure.  If you are neither the
+ * intended recipient, nor an agent, employee, nor independent contractor
+ * responsible for delivering this message to the intended recipient, you are
+ * prohibited from copying, disclosing, distributing, disseminating, and/or
+ * using the information in this email in any manner. If you have received
+ * this message in error, please advise us immediately at
+ * legal@luretechnologies.com by return email and then delete the message from your
+ * computer and all other records (whether electronic, hard copy, or
+ * otherwise).
+ *
+ * Any copies or reproductions of this software program (in whole or in part)
+ * made by any method must also include a copy of this legend.
+ *
+ * Inquiries should be made to legal@luretechnologies.com
+ *
+ */
 package com.luretechnologies.tms.ui.view.audit;
 
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -41,14 +74,14 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 
 @SpringView(name = AuditView.VIEW_NAME)
 public class AuditView extends VerticalLayout implements Serializable, View {
 
-	private static final String DATE_FORMAT = "dd/MM/yyyy";
+	private static final String DATE_FORMAT = "MM/dd/yyyy";
 	private static final SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+	private static final DateTimeFormatter  dateFormatter1 = DateTimeFormatter.ofPattern("MM-dd-YYYY");
 	/**
 	 * 
 	 */
@@ -58,11 +91,10 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 	private static Grid<Debug> debugGrid;
 	private static Tree<Node> nodeTree;
 	private static Button deleteGridRow;
+	private static Button search;
 	private static TextField treeNodeSearch, debugSearch;
 	private static HorizontalSplitPanel splitScreen;
 	private static DateField debugStartDateField, debugEndDateField;
-	private OffsetDateTime odt = OffsetDateTime.now ();
-	//private ZoneOffset zoneOffset = odt.getOffset ();
 
 	@Autowired
 	public AuditView() {
@@ -78,14 +110,14 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 	@PostConstruct
 	private void init() {
 		//FIXME : Sample code for browser resizing .
-		Page.getCurrent().addBrowserWindowResizeListener(r->{
-			System.out.println("Height "+ r.getHeight() + "Width:  " + r.getWidth()+ " in pixel");
-			if(r.getWidth()<=1000) {
-				debugSearch.setWidth(40,Unit.PERCENTAGE);
-			}else {
-				debugSearch.setSizeFull();
-			}
-		});
+				Page.getCurrent().addBrowserWindowResizeListener(r->{
+					System.out.println("Height "+ r.getHeight() + "Width:  " + r.getWidth()+ " in pixel");
+					if(r.getWidth()<=1000) {
+						debugSearch.setWidth(40,Unit.PERCENTAGE);
+					}else {
+						debugSearch.setSizeFull();
+					}
+				});
 		setSpacing(false);
 		setMargin(false);
 		setResponsive(true);
@@ -93,15 +125,12 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		treeNodeSearch = new TextField();
 		treeNodeSearch.setIcon(VaadinIcons.SEARCH);
 		treeNodeSearch.setStyleName("small inline-icon search");
+		treeNodeSearch.addStyleName("v-textfield-font");
 		treeNodeSearch.setPlaceholder("Search");
 		configureTreeNodeSearch();
 		
 		Panel panel = getAndLoadAuditPanel();
-		//HorizontalLayout treeButtonLayout = new HorizontalLayout();
 		VerticalLayout treePanelLayout = new VerticalLayout();
-		//treePanelLayout.addComponentAsFirst(treeNodeSearch);
-		//treePanelLayout.addComponent(treeButtonLayout);
-		//treePanelLayout.addComponentAsFirst(treeButtonLayout);
 		nodeTree = new Tree<Node>();
 		nodeTree.setTreeData(treeDataService.getTreeDataForDebug());
 		nodeTree.setItemIconGenerator(item -> {
@@ -125,22 +154,21 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		treePanelLayout.setMargin(true);
 		treePanelLayout.setHeight("100%");
 		treePanelLayout.setStyleName("split-height");
-		//treePanelLayout.setComponentAlignment(nodeTree, Alignment.BOTTOM_LEFT);
 		splitScreen = new HorizontalSplitPanel();
 		splitScreen.setFirstComponent(treePanelLayout);
-		//splitScreen.setFirstComponent(nodeTree);
 		splitScreen.setSplitPosition(20);
 		splitScreen.addComponent(getDebugLayout());
 		splitScreen.setHeight("100%");
 		panel.setContent(splitScreen);
 	}
 	
+	
 	public Panel getAndLoadAuditPanel() {
 		Panel panel = new Panel();
 		panel.setHeight("100%");
 		panel.addStyleName(ValoTheme.PANEL_WELL);
 		panel.setCaptionAsHtml(true);
-		panel.setCaption("<h1 style=color:#216C2A;font-weight:bold;>Audit</h1>");
+		panel.setCaption("Audit");
 		panel.setResponsive(true);
 		panel.setSizeFull();
         addComponent(panel);
@@ -149,7 +177,6 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 
 	private void configureTreeNodeSearch() {
 		// FIXME Not able to put Tree Search since its using a Hierarchical
-		// Dataprovider.
 		treeNodeSearch.addValueChangeListener(changed -> {
 			String valueInLower = changed.getValue().toLowerCase();
 //			ListDataProvider<Node> nodeDataProvider = (ListDataProvider<Node>) nodeTree.getDataProvider();
@@ -157,6 +184,11 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 //				return filter.getLabel().toLowerCase().contains(valueInLower);
 //			});
 		});
+	}
+	
+	private void clearCalenderDates() {
+		debugStartDateField.clear();
+		debugEndDateField.clear();
 	}
 
 	private void confirmDialog() {
@@ -167,23 +199,10 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		                if (dialog.isConfirmed()) {
 		                    // Confirmed to continue
 		                	debugService.removeDebug(debugGrid.getSelectedItems().iterator().next());
-//		    				ListDataProvider<Debug> refreshDebugDataProvider = debugService.getListDataProvider();
-//		    				debugGrid.setDataProvider(refreshDebugDataProvider);
-		    				//Refreshing
-		    				//debugGrid.getDataProvider().refreshAll();
-		    				//nodeTree.getSelectionModel().deselectAll();
 		    				nodeTree.getDataProvider().refreshAll();
-		    				//debugStartDateField.setDateFormat(dateFormat);;
-		    				//debugEndDateField.setValue(localTimeNow.toLocalDate());
 		    				debugSearch.clear();
-		    				//debugGrid.getDataProvider().refreshAll();
-		    				//debugGrid.deselectAll();
 		    				loadGrid();
-		    				debugStartDateField.clear();
-		    				debugEndDateField.clear();
-		    				
-		    				//debugGrid.getSelectedItems()
-		    				//Page.getCurrent().reload();
+		    				clearCalenderDates();
 		                } else {
 		                    // User did not confirm
 		                    
@@ -210,13 +229,11 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		VerticalLayout debugLayout = new VerticalLayout();
 		debugLayout.setWidth("100%");
 		debugLayout.setResponsive(true);
-		//debugLayout.setSizeUndefined();
 		debugGrid = new Grid<>(Debug.class);
 		debugGrid.setWidth("100%");
 		debugGrid.setResponsive(true);
 		debugGrid.setSelectionMode(SelectionMode.SINGLE);
 		debugGrid.setColumns("type", "description");
-		//debugGrid.setDataProvider(debugService.getListDataProvider());
 		debugGrid.getColumn("type").setCaption("Debug Type").setStyleGenerator(style -> {
 			switch (style.getType()) {
 			case ERROR:
@@ -229,8 +246,8 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 			}
 		});
 
-		// debugGrid.setData();
 		debugSearch = new TextField();
+		//debugSearch
 		debugSearch.setWidth("100%");
 		debugSearch.setIcon(VaadinIcons.SEARCH);
 		debugSearch.setStyleName("small inline-icon search");
@@ -258,7 +275,9 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 
 			deleteGridRow = new Button(VaadinIcons.TRASH);
 			deleteGridRow.addStyleName(ValoTheme.BUTTON_FRIENDLY);
+			deleteGridRow.addStyleName("v-button-customstyle");
 			deleteGridRow.setResponsive(true);
+			//deleteGridRow.setWidth("100%");
 			deleteGridRow.addClickListener(clicked -> {
 				if(debugGrid.getSelectedItems().isEmpty()) {
 					Notification.show("Select any Debug type to delete", Notification.Type.WARNING_MESSAGE).setDelayMsec(3000);;
@@ -267,11 +286,10 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 				}
 			});
 		
+		
 		HorizontalLayout optionsLayout = new HorizontalLayout();
-		//optionsLayout.setComponentAlignment(childComponent, alignment);
 		optionsLayout.setWidth("100%");
 		optionsLayout.setHeight("50%");
-		//optionsLayout.setSizeUndefined();
 		optionsLayout.setResponsive(true);
 		
 		HorizontalLayout debugSearchLayout = new HorizontalLayout();
@@ -280,36 +298,41 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		debugSearchLayout.setComponentAlignment(debugSearch, Alignment.TOP_LEFT);
 		
 		HorizontalLayout dateDeleteLayout = new HorizontalLayout();
-		dateDeleteLayout.setSizeUndefined();
-		//dateDeleteLayout.setWidth("100%");
-		//dateDeleteLayout.setSizeFull();
+		dateDeleteLayout.setWidth("100%");
+		//dateDeleteLayout.setSizeUndefined();
 		
 		debugStartDateField = new DateField();
-		//debugStartDateField.setWidth("100%");
+		debugStartDateField.setWidth("100%");
+		//debugStartDateField.setCaption("Start Date");
 		debugStartDateField.setPlaceholder("Start Date");
 		debugStartDateField.setResponsive(true);
 		debugStartDateField.setDateFormat(DATE_FORMAT);
 		debugStartDateField.setRangeEnd(localTimeNow.toLocalDate());
-		//debugStartDateField.setValue(LocalDateTime.now());
 		debugStartDateField.setDescription("Start Date");
+		debugStartDateField.addStyleName("v-textfield-font");
+		
 		debugEndDateField = new DateField();
-		//debugEndDateField.setWidth("100%");
+		debugEndDateField.setWidth("100%");
+		//debugEndDateField.setCaption("End Date");
 		debugEndDateField.setPlaceholder("End Date");
 		debugEndDateField.setResponsive(true);
 		debugEndDateField.setDateFormat(DATE_FORMAT);
-		debugEndDateField.setRangeEnd(localTimeNow.toLocalDate().plusDays(1));
-		//debugEndDateField.setValue(LocalDateTime.now());
+		//debugEndDateField.setRangeEnd(localTimeNow.toLocalDate().plusDays(1));
+		debugEndDateField.setDateOutOfRangeMessage("Same Date cannot be selected");
 		debugEndDateField.setDescription("End Date");
+		debugEndDateField.addStyleName("v-textfield-font");
+			
 		optionsLayout.addComponent(debugSearchLayout);
 		optionsLayout.setComponentAlignment(debugSearchLayout, Alignment.MIDDLE_LEFT);
 		dateDeleteLayout.addComponent(debugStartDateField);
-		dateDeleteLayout.setComponentAlignment(debugStartDateField, Alignment.MIDDLE_LEFT);
+		dateDeleteLayout.setComponentAlignment(debugStartDateField, Alignment.TOP_RIGHT);
 		dateDeleteLayout.addComponent(debugEndDateField);
-		dateDeleteLayout.setComponentAlignment(debugEndDateField, Alignment.MIDDLE_RIGHT);
+		dateDeleteLayout.setComponentAlignment(debugEndDateField, Alignment.TOP_RIGHT);
 		dateDeleteLayout.addComponent(deleteGridRow);
-		dateDeleteLayout.setComponentAlignment(deleteGridRow, Alignment.MIDDLE_RIGHT);
+		dateDeleteLayout.setComponentAlignment(deleteGridRow, Alignment.TOP_LEFT);
 		optionsLayout.addComponent(dateDeleteLayout);
-		optionsLayout.setComponentAlignment(dateDeleteLayout, Alignment.MIDDLE_RIGHT);
+		optionsLayout.setComponentAlignment(dateDeleteLayout, Alignment.TOP_RIGHT);
+		//optionsLayout.addComponents(debugSearch,debugStartDateField,debugEndDateField, deleteGridRow);
 		debugLayout.addComponent(optionsLayout);
 		debugLayout.setComponentAlignment(optionsLayout, Alignment.TOP_LEFT);
 		debugLayout.addComponent(debugGrid);
@@ -321,6 +344,8 @@ public class AuditView extends VerticalLayout implements Serializable, View {
         	 if(!nodeTree.getSelectedItems().isEmpty()) {
         		 	if(debugStartDateField.getValue()!=null) {
         	 		if(change.getValue().compareTo(debugStartDateField.getValue()) >= 0 ) {
+        	 			String date = debugEndDateField.getValue().format(dateFormatter1);
+        	 			debugEndDateField.setDescription(date);
         	 				ListDataProvider<Debug> debugDataProvider = (ListDataProvider<Debug>) debugGrid.getDataProvider();
         	 				debugDataProvider.setFilter(filter -> {
         	 				Date debugDate = filter.getDateOfDebug();
@@ -339,26 +364,21 @@ public class AuditView extends VerticalLayout implements Serializable, View {
         		 	}
         }else {
         	Notification.show("Please Select any Node to filter the data", Notification.Type.WARNING_MESSAGE).setDelayMsec(3000);
-        	debugStartDateField.clear();
-			debugEndDateField.clear();
+        	clearCalenderDates();
         }
 	}
 	});
 		debugStartDateField.addValueChangeListener(change ->{
 			if(change.getValue()!=null) {
-				debugEndDateField.setRangeStart(debugStartDateField.getValue().plusDays(1));
-				debugEndDateField.setRangeEnd(localTimeNow.toLocalDate().plusDays(1));
+				debugEndDateField.clear();
+				debugEndDateField.setRangeStart(change.getValue().plusDays(1));
+				//debugEndDateField.setRangeEnd(localTimeNow.toLocalDate().plusDays(1));
+				String date = debugStartDateField.getValue().format(dateFormatter1);
+				debugStartDateField.setDescription(date);
 			}
 	});
 		
-			nodeTree.addItemClickListener(selection ->{
-//				if(nodeTree.getSelectionModel().isSelected(selection.getItem())) {
-//					debugGrid.setDataProvider(debugService.getListDataProvider());
-//				}else {
-//					DataProvider data = new ListDataProvider(selection.getItem().getEntityList());
-//					debugGrid.setDataProvider(data);
-//				}
-			
+			nodeTree.addItemClickListener(selection ->{			
 			treeDataService.getTreeDataForDebug();
 			List<Node> nodeList = treeDataService.getDebugNodeList();
 			for(Node node : nodeList) {
@@ -368,8 +388,7 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 					debugSearch.clear();
 				}
 			}
-			debugStartDateField.clear();
-			debugEndDateField.clear();
+			clearCalenderDates();
 				
 		});
 		return debugLayout;

@@ -29,29 +29,68 @@
  * Inquiries should be made to legal@luretechnologies.com
  *
  */
+package com.luretechnologies.tms.backend.data.entity;
 
-package com.luretechnologies.tms.app;
+import java.util.Date;
 
-import com.vaadin.spring.access.SecuredViewAccessControl;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
-@Configuration
-public class ApplicationConfiguration {
+public class HeartBeatHistory extends AbstractEntity{
 
 	/**
-	 * The password encoder to use when encrypting passwords.
+	 * 
 	 */
-	@Bean
-	public PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
+	private static final long serialVersionUID = 1L;
+
+	private String ip;
+	
+	private String status;
+	
+	private String process;
+	
+	private String dateTime;
+	
+	private Date date;
+
+	public HeartBeatHistory(Date date) {
+		this.date=date;
+	}
+	
+	public Date getDate() {
+		return date;
 	}
 
-	@Bean
-	SecuredViewAccessControl securedViewAccessControl()
-	{
-		return new SecuredViewAccessControl();
+	public void setDate(Date date) {
+		this.date = date;
+	}
+
+	public String getIP() {
+		return ip;
+	}
+
+	public void setIP(String iP) {
+		this.ip = iP;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public String getProcess() {
+		return process;
+	}
+
+	public void setProcess(String process) {
+		this.process = process;
+	}
+
+	public String getDateTime() {
+		return dateTime;
+	}
+
+	public void setDateTime(String dateTime) {
+		this.dateTime = dateTime;
 	}
 }

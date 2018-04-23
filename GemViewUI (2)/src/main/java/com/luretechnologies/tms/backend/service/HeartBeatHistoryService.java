@@ -29,29 +29,36 @@
  * Inquiries should be made to legal@luretechnologies.com
  *
  */
+package com.luretechnologies.tms.backend.service;
 
-package com.luretechnologies.tms.app;
+import java.util.List;
 
-import com.vaadin.spring.access.SecuredViewAccessControl;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import com.luretechnologies.tms.backend.data.entity.HeartBeatHistory;
+import com.vaadin.data.provider.ListDataProvider;
 
-@Configuration
-public class ApplicationConfiguration {
-
-	/**
-	 * The password encoder to use when encrypting passwords.
-	 */
-	@Bean
-	public PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
+@Service
+public class HeartBeatHistoryService {
+	
+	private final MockHeartBeatHistory mockHBHistory;
+	
+	@Autowired
+	public HeartBeatHistoryService(MockHeartBeatHistory mockHBHistory) {
+		this.mockHBHistory=mockHBHistory;
 	}
-
-	@Bean
-	SecuredViewAccessControl securedViewAccessControl()
-	{
-		return new SecuredViewAccessControl();
+	
+	public ListDataProvider<HeartBeatHistory> getListDataProvider(){
+		ListDataProvider<HeartBeatHistory> hbHistoryDataProvider = new ListDataProvider<>(mockHBHistory.getSavedList());
+		return hbHistoryDataProvider;
+	}
+	
+	public void removeHBHistoryDevice(HeartBeatHistory hbHistory) {
+		mockHBHistory.deleteHBHistory(hbHistory);
+	}
+	
+	public List<HeartBeatHistory> getHBHistoryList(){
+		List<HeartBeatHistory> hbHistoryList = mockHBHistory.getSavedList();
+		return hbHistoryList;
 	}
 }

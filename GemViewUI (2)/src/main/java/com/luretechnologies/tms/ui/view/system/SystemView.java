@@ -1,8 +1,40 @@
+/**
+ * COPYRIGHT @ Lure Technologies, LLC.
+ * ALL RIGHTS RESERVED
+ *
+ * Developed by Lure Technologies, LLC. (www.luretechnologies.com)
+ *
+ * Copyright in the whole and every part of this software program belongs to
+ * Lure Technologies, LLC (“Lure”).  It may not be used, sold, licensed,
+ * transferred, copied or reproduced in whole or in part in any manner or
+ * form other than in accordance with and subject to the terms of a written
+ * license from Lure or with the prior written consent of Lure or as
+ * permitted by applicable law.
+ *
+ * This software program contains confidential and proprietary information and
+ * must not be disclosed, in whole or in part, to any person or organization
+ * without the prior written consent of Lure.  If you are neither the
+ * intended recipient, nor an agent, employee, nor independent contractor
+ * responsible for delivering this message to the intended recipient, you are
+ * prohibited from copying, disclosing, distributing, disseminating, and/or
+ * using the information in this email in any manner. If you have received
+ * this message in error, please advise us immediately at
+ * legal@luretechnologies.com by return email and then delete the message from your
+ * computer and all other records (whether electronic, hard copy, or
+ * otherwise).
+ *
+ * Any copies or reproductions of this software program (in whole or in part)
+ * made by any method must also include a copy of this legend.
+ *
+ * Inquiries should be made to legal@luretechnologies.com
+ *
+ */
 package com.luretechnologies.tms.ui.view.system;
 
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Random;
 
 import javax.annotation.PostConstruct;
 
@@ -31,6 +63,7 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.Component.Focusable;
 import com.vaadin.ui.themes.ValoTheme;
 
 @SpringView(name = SystemView.VIEW_NAME)
@@ -42,7 +75,7 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 	private static final long serialVersionUID = 1L;
 	public static final String VIEW_NAME = "system";
 	
-	Map<String, Systems> systemRepo = new LinkedHashMap<>();
+	Map<Integer, Systems> systemRepo = new LinkedHashMap<>();
 	Grid<Systems> systemGrid = new Grid<Systems>();
 	private volatile Systems selectedSystem;
 	private TextField systemDescription;
@@ -62,31 +95,35 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		system.setParameterName("SERVER1 IP");
 		system.setDescription("Server1 IP Address");
 		system.setType("Text");
-		system.setValue("1.1.1.1");
+		system.setSystemValue("1.1.1.1");
+		system.setId(1);
 		
 		Systems system1 = new Systems();
 		system1.setParameterName("SERVER2 IP");
 		system1.setDescription("Server2 IP Address");
 		system1.setType("Text");
-		system1.setValue("1.0.1.0");
+		system1.setSystemValue("1.0.1.0");
+		system1.setId(2);
 		
 		Systems system2 = new Systems();
 		system2.setParameterName("AVAILABLE CON");
 		system2.setDescription("Available Connections");
 		system2.setType("Numeric");
-		system2.setValue("23");
+		system2.setSystemValue("23");
+		system2.setId(3);
 		
 		Systems system3 = new Systems();
 		system3.setParameterName("SYSTEM MESSAGE");
 		system3.setDescription("Welcome Message");
 		system3.setType("Text");
-		system3.setValue("Welcome to GemView");
+		system3.setSystemValue("Welcome to GemView");
+		system3.setId(4);
 		
 		
-		systemRepo.put(system.getParameterName(), system);
-		systemRepo.put(system1.getParameterName(), system1);
-		systemRepo.put(system2.getParameterName(), system2);
-		systemRepo.put(system3.getParameterName(), system3);
+		systemRepo.put(system.getId(), system);
+		systemRepo.put(system1.getId(), system1);
+		systemRepo.put(system2.getId(), system2);
+		systemRepo.put(system3.getId(), system3);
 		
 	}
 	
@@ -101,7 +138,8 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		panel.setContent(verticalLayout);
 		verticalLayout.setSpacing(false);
 		verticalLayout.setMargin(false);
-		Label availableSystem = new Label("<h2 style=font-weight:bold;padding-left:12px;word-wrap:break-word;>Parameters & Settings</h2>", ContentMode.HTML);
+		Label availableSystem = new Label("Parameters & Settings", ContentMode.HTML);
+		availableSystem.addStyleName("label-style");
 		HorizontalLayout horizontalLayout = new HorizontalLayout();
 		horizontalLayout.setSizeFull();
 		
@@ -125,6 +163,7 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		
 		Button cancel = new Button("Cancel");
 		cancel.addStyleName(ValoTheme.BUTTON_FRIENDLY);
+		cancel.addStyleName("v-button-customstyle");
 		cancel.setResponsive(true);
 		cancel.addClickListener(new ClickListener() {
 			public void buttonClick(ClickEvent event) {	
@@ -139,6 +178,7 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		
 		Button save = new Button("Save");
 		save.addStyleName(ValoTheme.BUTTON_FRIENDLY);
+		save.addStyleName("v-button-customstyle");
 		save.setResponsive(true);
 		save.addClickListener(new ClickListener() {
 			/**
@@ -154,12 +194,18 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 				selectedSystem.setParameterName(parametername);
 				selectedSystem.setDescription(description);
 				selectedSystem.setType(type);
-				selectedSystem.setValue(value);
+				selectedSystem.setSystemValue(value);
 				if(description.isEmpty() || description== null|| parametername.isEmpty() || parametername== null 
 						|| type.isEmpty() || type== null || value.isEmpty() || value== null) {
 					Notification.show("Fill all details", Notification.Type.WARNING_MESSAGE).setDelayMsec(3000);
 				} else {
-				systemRepo.put(selectedSystem.getParameterName(), selectedSystem);
+					//systemRepo.co
+					Random rand = new Random();
+					int  n = rand.nextInt(50) + 1;
+					if(selectedSystem.getId()==null) {
+						selectedSystem.setId(n);
+					}
+				systemRepo.put(selectedSystem.getId(), selectedSystem);
 				systemGrid.getDataProvider().refreshAll();
 				systemGrid.select(selectedSystem);
 				systemInfoLayout.removeAllComponents();
@@ -185,7 +231,8 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		panel.setHeight("100%");
 		panel.addStyleName(ValoTheme.PANEL_WELL);
 		panel.setCaptionAsHtml(true);
-		panel.setCaption("<h1 style=color:#216C2A;font-weight:bold;>System</h1>");
+		panel.setCaption("Systems");
+		//panel.setStyleName("h1");
 		panel.setResponsive(true);
 		panel.setSizeFull();
         addComponent(panel);
@@ -215,13 +262,12 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		parameterName.setWidth("48%");
 		parameterName.setStyleName("role-textbox");
 		parameterName.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
+		parameterName.addStyleName("v-grid-cell");
 		parameterName.setEnabled(isEditableOnly);
-		//descriptionHL.addComponent(deviceDescription);
 		formLayout.addComponent(parameterName);
 	}
 	
 	private void getSystemDescription(FormLayout formLayout, boolean isEditableOnly) {
-		//HorizontalLayout descriptionHL = new HorizontalLayout();
 		String description = selectedSystem.getDescription() != null ? selectedSystem.getDescription(): "";
 		systemDescription = new TextField("Description", description);
 		selectedSystem.setDescription(systemDescription.getValue());
@@ -229,54 +275,61 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		systemDescription.setWidth("48%");
 		systemDescription.setStyleName("role-textbox");
 		systemDescription.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
+		systemDescription.addStyleName("v-grid-cell");
 		systemDescription.setEnabled(isEditableOnly);
-		//descriptionHL.addComponent(deviceDescription);
 		formLayout.addComponent(systemDescription);
 	}
 	
 	private void getSystemType(FormLayout formLayout, boolean isEditableOnly) {
-		//HorizontalLayout descriptionHL = new HorizontalLayout();
 		String type = selectedSystem.getType() != null ? selectedSystem.getType(): "";
 		systemType = new TextField("Type", type);
-		selectedSystem.setDescription(systemType.getValue());
+		selectedSystem.setType(systemType.getValue());
 		systemType.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
 		systemType.setWidth("48%");
 		systemType.setStyleName("role-textbox");
 		systemType.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
+		systemType.addStyleName("v-grid-cell");
 		systemType.setEnabled(isEditableOnly);
-		//descriptionHL.addComponent(deviceDescription);
 		formLayout.addComponent(systemType);
 	}
 	
 	private void getSystemValue(FormLayout formLayout, boolean isEditableOnly) {
-		//HorizontalLayout descriptionHL = new HorizontalLayout();
-		String value = selectedSystem.getValue() != null ? selectedSystem.getValue(): "";
+		String value = selectedSystem.getSystemValue() != null ? selectedSystem.getSystemValue(): "";
 		systemValue = new TextField("Value", value);
-		selectedSystem.setDescription(systemValue.getValue());
+		selectedSystem.setSystemValue(systemValue.getValue());
 		systemValue.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
 		systemValue.setWidth("48%");
 		systemValue.setStyleName("role-textbox");
 		systemValue.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
+		systemValue.addStyleName("v-grid-cell");
 		systemValue.setEnabled(isEditableOnly);
-		//descriptionHL.addComponent(deviceDescription);
 		formLayout.addComponent(systemValue);
+	}
+	
+	private Focusable getFirstFormField() {
+		return parameterName;
 	}
 	
 	private void getSystemGrid(VerticalLayout verticalLayout, VerticalLayout systemInfoLayout) {
 		Button addNewDevice = new Button(VaadinIcons.FOLDER_ADD);
 		addNewDevice.addStyleName(ValoTheme.BUTTON_FRIENDLY);
+		addNewDevice.addStyleName("v-button-customstyle");
 		addNewDevice.addClickListener(new ClickListener() {
 			public void buttonClick(ClickEvent event) {
+				systemGrid.deselectAll();
 				systemInfoLayout.removeAllComponents();
 				selectedSystem = new Systems();
-				getAndLoadSystemForm(systemInfoLayout, true);				
+				getAndLoadSystemForm(systemInfoLayout, true);
+				getFirstFormField().focus();
 			}
 		});
 		
 		Button editDevice = new Button(VaadinIcons.EDIT);
 		editDevice.addStyleName(ValoTheme.BUTTON_FRIENDLY);
+		editDevice.addStyleName("v-button-customstyle");
 		editDevice.addClickListener(new ClickListener() {
 			public void buttonClick(ClickEvent event) {
+				//parameterName.focus();
 				if(systemDescription.getValue()==null || systemDescription.getValue().isEmpty() || 
 						parameterName.getValue()==null ||  parameterName.getValue().isEmpty() ||
 								systemType.getValue()==null ||  systemType.getValue().isEmpty() ||
@@ -284,13 +337,15 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 					Notification.show("Select any Role to Modify", Notification.Type.WARNING_MESSAGE).setDelayMsec(3000);;
 				}else {
 					systemInfoLayout.removeAllComponents();
-					getAndLoadSystemForm(systemInfoLayout, true);		
+					getAndLoadSystemForm(systemInfoLayout, true);	
+					getFirstFormField().focus();
 				}
 			}
 		});
 		
 		Button deleteDevice = new Button(VaadinIcons.TRASH);
 		deleteDevice.addStyleName(ValoTheme.BUTTON_FRIENDLY);
+		deleteDevice.addStyleName("v-button-customstyle");
 		deleteDevice.addClickListener(new ClickListener() {
 			
 			@Override
@@ -299,7 +354,7 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 						parameterName.getValue()==null ||  parameterName.getValue().isEmpty() ||
 						systemType.getValue()==null ||  systemType.getValue().isEmpty() ||
 						systemValue.getValue()==null ||  systemValue.getValue().isEmpty()) {
-					Notification.show("Select role to delete", Notification.Type.ERROR_MESSAGE);
+					Notification.show("Select particular parameter to delete", Notification.Type.ERROR_MESSAGE);
 				}else {
 				
 				confirmDialog( systemInfoLayout);
@@ -314,13 +369,13 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		buttonGroup.addComponent(deleteDevice);
 		
 		systemGrid.setCaptionAsHtml(true);
+		systemGrid.addStyleName("v-grid-cell-fontSize");
 		systemGrid.setHeightByRows(5);
 		systemGrid.addColumn(Systems::getParameterName).setCaption("Paramater");
 		systemGrid.addColumn(Systems::getDescription).setCaption("Description");
 		systemGrid.addColumn(Systems:: getType).setCaption("Type");
-		systemGrid.addColumn(Systems:: getValue).setCaption("Value");
+		systemGrid.addColumn(Systems:: getSystemValue).setCaption("Value");
 		
-		//devicesGrid.setHeightByRows(5);
 		systemGrid.setItems(systemRepo.values());
 		systemGrid.setWidth("100%");
 		systemGrid.setResponsive(true);

@@ -4,7 +4,7 @@ import java.util.Objects;
 
 /**
  * 
- * @author sils
+ * @author Vinay
  *
  */
 public class Alert extends AbstractEntity {
