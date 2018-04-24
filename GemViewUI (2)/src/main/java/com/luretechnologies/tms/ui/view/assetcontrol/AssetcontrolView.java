@@ -6,6 +6,8 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
+import java.util.Vector;
 
 import javax.annotation.PostConstruct;
 
@@ -29,6 +31,7 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.DateField;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Grid.SelectionMode;
@@ -55,7 +58,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 	private static final LocalDateTime localTimeNow = LocalDateTime.now();
 	private static Grid<Debug> debugGrid, deviceDebugGrid;
 	private static Grid<Alert> alertGrid;
-	private static Button deleteHistoryGridRow, deleteAlertGridRow, editAlertGridRow, createAlertGridRow;
+	private static Button deleteHistoryGridRow, deleteAlertGridRow, editAlertGridRow, createAlertGridRow,saveAlertForm,resetAlertForm;
 	private static Tree<Node> nodeTree;
 	private static TextField treeNodeSearch, debugSearch;
 	private static HorizontalSplitPanel splitScreen;
@@ -297,10 +300,37 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 
 		nodeTree.addItemClickListener(selection -> {
 			if (nodeTree.getSelectionModel().isSelected(selection.getItem())) {
-				debugGrid.setDataProvider(debugService.getListDataProvider());
+				switch (assetTabSheet.getSelectedTab().getCaption().toLowerCase()) {
+				case "history":
+					debugGrid.setDataProvider(debugService.getListDataProvider());
+					break;
+				case "alert":
+					alertGrid.setDataProvider(alertService.getListDataProvider());
+					break;
+				case "debug":
+					deviceDebugGrid.setDataProvider(debugService.getListDataProvider());
+					break;
+				default:
+					break;
+				}
+
 			} else {
-				DataProvider data = new ListDataProvider(selection.getItem().getEntityList());
-				debugGrid.setDataProvider(data);
+				switch (assetTabSheet.getSelectedTab().getCaption().toLowerCase()) {
+				case "history":
+					DataProvider data = new ListDataProvider(selection.getItem().getEntityList());
+					debugGrid.setDataProvider(data);
+					break;
+				case "alert":
+					// FIXME: Adding tree node with alert information
+					alertGrid.setDataProvider(alertService.getListDataProvider());
+					break;
+				case "debug":
+					// FIXME: Adding tree node with devicedebug infomration
+					deviceDebugGrid.setDataProvider(debugService.getListDataProvider());
+					break;
+				default:
+					break;
+				}
 			}
 
 		});
@@ -312,16 +342,26 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		Label alertCommands = new Label("Alert Commands");
 		alertCommands.addStyleNames(ValoTheme.LABEL_BOLD, ValoTheme.LABEL_H3);
 		alertLayout.addComponent(alertCommands);
-		alertLayout.addComponent(getFormFieldWithLabel("Alert Type", FormFieldType.TEXTBOX));
-		alertLayout.addComponent(getFormFieldWithLabel("Name", FormFieldType.TEXTBOX));
-		alertLayout.addComponent(getFormFieldWithLabel("Description", FormFieldType.TEXTBOX));
-		alertLayout.addComponent(getFormFieldWithLabel("Active", FormFieldType.CHECKBOX));
-		alertLayout.addComponent(getFormFieldWithLabel("Email to:", FormFieldType.TEXTBOX));
+		Component[] alertFormComponentArray = { getFormFieldWithLabel("Alert Type", FormFieldType.TEXTBOX),
+				getFormFieldWithLabel("Name", FormFieldType.TEXTBOX),
+				getFormFieldWithLabel("Description", FormFieldType.TEXTBOX),
+				getFormFieldWithLabel("Active", FormFieldType.CHECKBOX),
+				getFormFieldWithLabel("Email to:", FormFieldType.TEXTBOX) };
+		alertLayout.addComponents(alertFormComponentArray);
 		// Add,Delete,Edit Button Layout
-		alertLayout.addComponent(getAlertGridButtonLayout());
+		alertLayout.addComponent(getAlertGridButtonLayout(alertFormComponentArray));
 		alertLayout.setComponentAlignment(alertLayout.getComponent(6), Alignment.TOP_RIGHT);
 		// Alert Grid
 		alertLayout.addComponent(getAlertGrid());
+		alertGrid.addItemClickListener(item->{
+			if(item.getItem()!=null) {
+				((TextField)(((HorizontalLayout) alertFormComponentArray[0]).getComponent(1))).setValue(item.getItem().getType().name());
+				((TextField)(((HorizontalLayout) alertFormComponentArray[1]).getComponent(1))).setValue(item.getItem().getDescription().split(" ")[0]);
+				((TextField)(((HorizontalLayout) alertFormComponentArray[2]).getComponent(1))).setValue(item.getItem().getDescription());
+				((CheckBox)(((HorizontalLayout) alertFormComponentArray[3]).getComponent(1))).setValue(item.getItem().isActive());
+				((TextField)(((HorizontalLayout) alertFormComponentArray[4]).getComponent(1))).setValue(item.getItem().getEmail());
+			}
+		});
 		return alertLayout;
 	}
 
@@ -340,13 +380,14 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		HorizontalLayout comboBoxLayout = getFormFieldWithLabel("", FormFieldType.COMBOBOX);
 		Label comboxLabel = (Label) comboBoxLayout.getComponent(0);
 		comboxLabel.setCaptionAsHtml(true);
-		comboxLabel.setCaption("Debug<br/>Duration"); //FIXME: add font-weight and font-color to match with other labels
+		comboxLabel.setCaption("Debug<br/>Duration"); // FIXME: add font-weight and font-color to match with other
+														// labels
 		comboxLabel.setStyleName(ValoTheme.LABEL_LIGHT);
 		ComboBox<String> combox = (ComboBox<String>) comboBoxLayout.getComponent(1);
 		combox.setDataProvider(new ListDataProvider<>(Arrays.asList("24 Hours", "1 Hour", " 30 minutes")));
-		
+
 		debugLayout.addComponent(comboBoxLayout);
-		debugLayout.setComponentAlignment(comboBoxLayout, Alignment.TOP_RIGHT); //FIXME : alignment issue
+		debugLayout.setComponentAlignment(comboBoxLayout, Alignment.TOP_RIGHT); // FIXME : alignment issue
 		// Grid
 		Label debugMonitoring = new Label("Device Debug Monitoring");
 		debugMonitoring.addStyleNames(ValoTheme.LABEL_BOLD, ValoTheme.LABEL_H3);
@@ -469,7 +510,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		return deviceDebugGrid;
 	}
 
-	private HorizontalLayout getAlertGridButtonLayout() {
+	private HorizontalLayout getAlertGridButtonLayout(Component[] componentArray) {
 		HorizontalLayout alertGridButtonLayout = new HorizontalLayout();
 		// FIXME: make the button green colored icon
 		createAlertGridRow = new Button(VaadinIcons.FOLDER_ADD, click -> {
@@ -495,6 +536,27 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 			}
 		});
 		deleteAlertGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY);
+		saveAlertForm = new Button(VaadinIcons.DOWNLOAD,click ->{
+			//TODO: add Save Event
+		});
+		saveAlertForm.addStyleName(ValoTheme.BUTTON_FRIENDLY);
+		resetAlertForm = new Button(VaadinIcons.ERASER,click ->{
+			for (Component component : componentArray) {
+				HorizontalLayout componentLayout = (HorizontalLayout)component;
+				Component insideComponent = componentLayout.getComponent(1);
+				if( insideComponent instanceof TextField) {
+					TextField textField = (TextField)insideComponent;
+					textField.clear();
+				}else if(insideComponent instanceof CheckBox) {
+					CheckBox checkBox = (CheckBox) insideComponent;
+					checkBox.clear();
+				}
+			}
+		});
+		resetAlertForm.addStyleName(ValoTheme.BUTTON_FRIENDLY);
+		
+		alertGridButtonLayout.addComponent(saveAlertForm);
+		alertGridButtonLayout.addComponent(resetAlertForm);
 		alertGridButtonLayout.addComponent(createAlertGridRow);
 		alertGridButtonLayout.addComponent(editAlertGridRow);
 		alertGridButtonLayout.addComponent(deleteAlertGridRow);

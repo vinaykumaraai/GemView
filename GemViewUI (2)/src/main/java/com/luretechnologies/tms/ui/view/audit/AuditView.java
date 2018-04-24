@@ -5,7 +5,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -17,7 +16,6 @@ import org.vaadin.dialogs.ConfirmDialog;
 
 import com.luretechnologies.tms.backend.data.entity.Debug;
 import com.luretechnologies.tms.backend.data.entity.Node;
-import com.luretechnologies.tms.backend.data.entity.Systems;
 import com.luretechnologies.tms.backend.service.DebugService;
 import com.luretechnologies.tms.backend.service.TreeDataService;
 import com.vaadin.data.provider.DataProvider;
@@ -30,8 +28,8 @@ import com.vaadin.server.Page;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.DateField;
-import com.vaadin.ui.DateTimeField;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.HorizontalLayout;
@@ -41,7 +39,6 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 
 @SpringView(name = AuditView.VIEW_NAME)
@@ -62,7 +59,10 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 	private static HorizontalSplitPanel splitScreen;
 	private static DateField debugStartDateField, debugEndDateField;
 	private OffsetDateTime odt = OffsetDateTime.now ();
-	//private ZoneOffset zoneOffset = odt.getOffset ();
+	
+	private static HorizontalLayout maxmizedBrowserLayout;
+	private static VerticalLayout minimizedBrowserLayout = new VerticalLayout();
+	
 
 	@Autowired
 	public AuditView() {
@@ -78,12 +78,31 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 	@PostConstruct
 	private void init() {
 		//FIXME : Sample code for browser resizing .
+	
 		Page.getCurrent().addBrowserWindowResizeListener(r->{
 			System.out.println("Height "+ r.getHeight() + "Width:  " + r.getWidth()+ " in pixel");
 			if(r.getWidth()<=1000) {
-				debugSearch.setWidth(40,Unit.PERCENTAGE);
+				if(!minimizedBrowserLayout.isVisible()) {
+				maxmizedBrowserLayout.setVisible(false);
+				minimizedBrowserLayout.setVisible(true);
+				Component firstComponent = maxmizedBrowserLayout.getComponent(0);
+				Component secondComponent = maxmizedBrowserLayout.getComponent(1);
+				minimizedBrowserLayout.addComponent(firstComponent);
+				minimizedBrowserLayout.setComponentAlignment(firstComponent, Alignment.MIDDLE_LEFT);
+				minimizedBrowserLayout.addComponent(secondComponent);
+				minimizedBrowserLayout.setComponentAlignment(secondComponent, Alignment.MIDDLE_RIGHT);
+				}
 			}else {
-				debugSearch.setSizeFull();
+				if(!maxmizedBrowserLayout.isVisible()) {
+				maxmizedBrowserLayout.setVisible(true);
+				minimizedBrowserLayout.setVisible(false);
+				Component firstComponent = minimizedBrowserLayout.getComponent(0);
+				Component secondComponent = minimizedBrowserLayout.getComponent(1);
+				maxmizedBrowserLayout.addComponent(firstComponent);
+				maxmizedBrowserLayout.setComponentAlignment(firstComponent, Alignment.MIDDLE_LEFT);
+				maxmizedBrowserLayout.addComponent(secondComponent);
+				maxmizedBrowserLayout.setComponentAlignment(secondComponent, Alignment.MIDDLE_RIGHT);
+				}
 			}
 		});
 		setSpacing(false);
@@ -267,13 +286,16 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 				}
 			});
 		
-		HorizontalLayout optionsLayout = new HorizontalLayout();
+		maxmizedBrowserLayout = new HorizontalLayout();
 		//optionsLayout.setComponentAlignment(childComponent, alignment);
-		optionsLayout.setWidth("100%");
-		optionsLayout.setHeight("50%");
+		maxmizedBrowserLayout.setWidth("100%");
+		maxmizedBrowserLayout.setHeight("50%");
 		//optionsLayout.setSizeUndefined();
-		optionsLayout.setResponsive(true);
-		
+		maxmizedBrowserLayout.setResponsive(true);
+		minimizedBrowserLayout = new VerticalLayout();
+		minimizedBrowserLayout.setVisible(false);
+		minimizedBrowserLayout.setHeight("50%");
+		minimizedBrowserLayout.setResponsive(true);
 		HorizontalLayout debugSearchLayout = new HorizontalLayout();
 		debugSearchLayout.setWidth("100%");
 		debugSearchLayout.addComponent(debugSearch);
@@ -300,20 +322,23 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		debugEndDateField.setRangeEnd(localTimeNow.toLocalDate().plusDays(1));
 		//debugEndDateField.setValue(LocalDateTime.now());
 		debugEndDateField.setDescription("End Date");
-		optionsLayout.addComponent(debugSearchLayout);
-		optionsLayout.setComponentAlignment(debugSearchLayout, Alignment.MIDDLE_LEFT);
+		maxmizedBrowserLayout.addComponent(debugSearchLayout);
+		maxmizedBrowserLayout.setComponentAlignment(debugSearchLayout, Alignment.MIDDLE_LEFT);
+		
 		dateDeleteLayout.addComponent(debugStartDateField);
 		dateDeleteLayout.setComponentAlignment(debugStartDateField, Alignment.MIDDLE_LEFT);
 		dateDeleteLayout.addComponent(debugEndDateField);
 		dateDeleteLayout.setComponentAlignment(debugEndDateField, Alignment.MIDDLE_RIGHT);
 		dateDeleteLayout.addComponent(deleteGridRow);
 		dateDeleteLayout.setComponentAlignment(deleteGridRow, Alignment.MIDDLE_RIGHT);
-		optionsLayout.addComponent(dateDeleteLayout);
-		optionsLayout.setComponentAlignment(dateDeleteLayout, Alignment.MIDDLE_RIGHT);
-		debugLayout.addComponent(optionsLayout);
-		debugLayout.setComponentAlignment(optionsLayout, Alignment.TOP_LEFT);
-		debugLayout.addComponent(debugGrid);
+		maxmizedBrowserLayout.addComponent(dateDeleteLayout);
+		maxmizedBrowserLayout.setComponentAlignment(dateDeleteLayout, Alignment.MIDDLE_RIGHT);
 		
+		debugLayout.addComponent(maxmizedBrowserLayout);
+		debugLayout.setComponentAlignment(maxmizedBrowserLayout, Alignment.TOP_LEFT);
+		debugLayout.addComponent(minimizedBrowserLayout);
+		debugLayout.setComponentAlignment(minimizedBrowserLayout, Alignment.TOP_LEFT);
+		debugLayout.addComponent(debugGrid);
 		
 		//end Date listner
 		debugEndDateField.addValueChangeListener(change ->{
