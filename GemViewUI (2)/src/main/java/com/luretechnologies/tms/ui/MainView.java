@@ -43,7 +43,7 @@ import com.luretechnologies.tms.ui.navigation.NavigationManager;
 import com.luretechnologies.tms.ui.view.admin.roles.RolesView;
 import com.luretechnologies.tms.ui.view.admin.user.UserAdminView;
 import com.luretechnologies.tms.ui.view.applicationstore.ApplicationStoreView;
-import com.luretechnologies.tms.ui.view.assetcontrol.AssetcontrolView;
+import com.luretechnologies.tms.ui.view.assetcontrol.AssetControlView;
 import com.luretechnologies.tms.ui.view.audit.AuditView;
 import com.luretechnologies.tms.ui.view.dashboard.DashboardView;
 import com.luretechnologies.tms.ui.view.deviceodometer.DeviceodometerView;
@@ -96,7 +96,7 @@ public class MainView extends MainViewDesign implements ViewDisplay {
 		attachNavigation(applicationstore, ApplicationStoreView.class);
 		attachNavigation(personalization, PersonalizationView.class);
 		attachNavigation(heartbeat, HeartbeatView.class);
-		attachNavigation(assetcontrol, AssetcontrolView.class);
+		attachNavigation(assetcontrol, AssetControlView.class);
 		attachNavigation(deviceodometer, DeviceodometerView.class);
 		attachNavigation(security, SecurityView.class);
 		attachNavigation(audit, AuditView.class);

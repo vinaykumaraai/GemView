@@ -45,8 +45,8 @@ import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
-@SpringView(name = AssetcontrolView.VIEW_NAME)
-public class AssetcontrolView extends VerticalLayout implements Serializable, View {
+@SpringView(name = AssetControlView.VIEW_NAME)
+public class AssetControlView extends VerticalLayout implements Serializable, View {
 
 	/**
 	 * 
@@ -66,7 +66,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 	private static DateField debugStartDateField, debugEndDateField;
 
 	@Autowired
-	public AssetcontrolView() {
+	public AssetControlView() {
 
 	}
 
@@ -80,7 +80,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 	public AlertService alertService;
 
 	@PostConstruct
-	private void inti() {
+	private void init() {
 		setSpacing(false);
 		setMargin(false);
 		setResponsive(true);
@@ -132,7 +132,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		panel.setHeight("100%");
 		panel.addStyleName(ValoTheme.PANEL_WELL);
 		panel.setCaptionAsHtml(true);
-		panel.setCaption("<h1 style=color:#216C2A;font-weight:bold;>Asset Control</h1>");
+		panel.setCaption("<h3 style=color:#216C2A;font-weight:bold;>Asset Control</h3>");
 		panel.setResponsive(true);
 		panel.setSizeFull();
 		addComponent(panel);
@@ -317,16 +317,16 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 			} else {
 				switch (assetTabSheet.getSelectedTab().getCaption().toLowerCase()) {
 				case "history":
-					DataProvider data = new ListDataProvider(selection.getItem().getEntityList());
-					debugGrid.setDataProvider(data);
+					DataProvider dataHistory = new ListDataProvider(selection.getItem().getEntityList());
+					debugGrid.setDataProvider(dataHistory);
 					break;
 				case "alert":
 					// FIXME: Adding tree node with alert information
 					alertGrid.setDataProvider(alertService.getListDataProvider());
 					break;
 				case "debug":
-					// FIXME: Adding tree node with devicedebug infomration
-					deviceDebugGrid.setDataProvider(debugService.getListDataProvider());
+					DataProvider dataDevice = new ListDataProvider(selection.getItem().getEntityList());
+					deviceDebugGrid.setDataProvider(dataDevice);
 					break;
 				default:
 					break;
