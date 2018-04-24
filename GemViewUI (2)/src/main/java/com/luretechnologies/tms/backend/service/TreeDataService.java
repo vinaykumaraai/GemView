@@ -1,3 +1,35 @@
+/**
+ * COPYRIGHT @ Lure Technologies, LLC.
+ * ALL RIGHTS RESERVED
+ *
+ * Developed by Lure Technologies, LLC. (www.luretechnologies.com)
+ *
+ * Copyright in the whole and every part of this software program belongs to
+ * Lure Technologies, LLC (“Lure”).  It may not be used, sold, licensed,
+ * transferred, copied or reproduced in whole or in part in any manner or
+ * form other than in accordance with and subject to the terms of a written
+ * license from Lure or with the prior written consent of Lure or as
+ * permitted by applicable law.
+ *
+ * This software program contains confidential and proprietary information and
+ * must not be disclosed, in whole or in part, to any person or organization
+ * without the prior written consent of Lure.  If you are neither the
+ * intended recipient, nor an agent, employee, nor independent contractor
+ * responsible for delivering this message to the intended recipient, you are
+ * prohibited from copying, disclosing, distributing, disseminating, and/or
+ * using the information in this email in any manner. If you have received
+ * this message in error, please advise us immediately at
+ * legal@luretechnologies.com by return email and then delete the message from your
+ * computer and all other records (whether electronic, hard copy, or
+ * otherwise).
+ *
+ * Any copies or reproductions of this software program (in whole or in part)
+ * made by any method must also include a copy of this legend.
+ *
+ * Inquiries should be made to legal@luretechnologies.com
+ *
+ */
+
 package com.luretechnologies.tms.backend.service;
 
 import java.util.ArrayList;
@@ -14,6 +46,7 @@ import com.luretechnologies.tms.backend.data.entity.Node;
 import com.luretechnologies.tms.backend.data.entity.NodeLevel;
 import com.luretechnologies.tms.backend.data.entity.User;
 import com.vaadin.data.TreeData;
+import com.vaadin.ui.Label;
 
 @Service
 public class TreeDataService {
@@ -28,9 +61,6 @@ public class TreeDataService {
 	private List<Node> userNodeList;
 	private List<Node> debugNodeList;
 	private List<Node> odometerDeviceNodeList;
-	//private PasswordEncoder passwordEncoder;
-	
-	//DataGenerator db = new DataGenerator();
 	
 	@Autowired
 	public TreeDataService(MockUserService userRepository,MockDebugService mockDebugService, MockOdometerDeviceService mockOdometerDeviceService) {
@@ -253,18 +283,5 @@ public TreeData<Node> getTreeDataForDeviceOdometer() {
 public List<Node> getOdometerDeviceList(){
 	return this.odometerDeviceNodeList;
 }
-//	private List<User> mockUserData(int count) {
-//		User user;
-//		List<List<User>> userData = new ArrayList<>();
-//		List<User> mockUserList = new ArrayList<>();
-//		for(int index=1; index <=10 ;index ++) {
-//			for(int j=1; j<=index;j++) {
-//				user = new User("Mock@gmail.com", "Mock", passwordEncoder.encode("Mock"), Role.HR, "Vinay", "Raai", true);
-//				mockUserList.add(user);
-//			}
-//			userData.add(mockUserList);
-//		}
-//		return userData.get(count);
-//	}
 	
 }

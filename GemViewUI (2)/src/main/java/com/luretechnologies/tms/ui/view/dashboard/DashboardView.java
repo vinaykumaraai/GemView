@@ -1,3 +1,34 @@
+/**
+ * COPYRIGHT @ Lure Technologies, LLC.
+ * ALL RIGHTS RESERVED
+ *
+ * Developed by Lure Technologies, LLC. (www.luretechnologies.com)
+ *
+ * Copyright in the whole and every part of this software program belongs to
+ * Lure Technologies, LLC (“Lure”).  It may not be used, sold, licensed,
+ * transferred, copied or reproduced in whole or in part in any manner or
+ * form other than in accordance with and subject to the terms of a written
+ * license from Lure or with the prior written consent of Lure or as
+ * permitted by applicable law.
+ *
+ * This software program contains confidential and proprietary information and
+ * must not be disclosed, in whole or in part, to any person or organization
+ * without the prior written consent of Lure.  If you are neither the
+ * intended recipient, nor an agent, employee, nor independent contractor
+ * responsible for delivering this message to the intended recipient, you are
+ * prohibited from copying, disclosing, distributing, disseminating, and/or
+ * using the information in this email in any manner. If you have received
+ * this message in error, please advise us immediately at
+ * legal@luretechnologies.com by return email and then delete the message from your
+ * computer and all other records (whether electronic, hard copy, or
+ * otherwise).
+ *
+ * Any copies or reproductions of this software program (in whole or in part)
+ * made by any method must also include a copy of this legend.
+ *
+ * Inquiries should be made to legal@luretechnologies.com
+ *
+ */
 package com.luretechnologies.tms.ui.view.dashboard;
 
 import java.time.LocalDate;
@@ -62,7 +93,6 @@ public class DashboardView extends DashboardViewDesign implements View {
 	
 	private final BoardLabel currentConnectionsLabel = new BoardLabel("CURRENT CONNECTIONS", "3/7", "current connections");
 	private final BoardLabel successfulDownloadsLabel = new BoardLabel("SUCCESSFUL DOWNLOADS(24 HOURS)", "1", "sucessful connections(24 hours)");
-	//private final BoardBox notAvailableBox = new BoardBox(notAvailableLabel);
 	private final BoardLabel requestPerSecondLabel = new BoardLabel("REQUESTS PER SECOND", "2", "request per second");
 	private final BoardLabel downloadFailuresLabel = new BoardLabel("DOWNLOAD FAILURES(24 HOURS)", "4", "download failures(24 hours)");
 	private final BoardBox downloadFailuresBox = new BoardBox(downloadFailuresLabel);
@@ -178,7 +208,6 @@ public class DashboardView extends DashboardViewDesign implements View {
 	
 	@Override
 	public void enter(ViewChangeEvent event) {
-		//DashboardData data = fetchData();
 		updateLabels(new ConnectionStats(2,3,4.1,5));
 		updateGraphs(fetchData());
 	}
@@ -198,28 +227,16 @@ public class DashboardView extends DashboardViewDesign implements View {
 	
 	private void updateGraphs(DashboardData data) {
 		serviceCalls.addData(new Number[][]{{0, 1}, {2, 2}, {3,8},{5,6},{10, 3}});
-		//incomingServiceCalls.drawChart();
 		
 		callsPerPeriod[0].setData(Arrays.asList(5,16, 7,19,9));
 		callsPerPeriod[1].setData(Arrays.asList(7,19,9,19,9));
-		//salesPerYear[2].setData(Arrays.asList(11,14,6,18,10));
 		
 		incomingCallsSeries.add(new DataSeriesItem("Admin", 22));
 		incomingCallsSeries.add(new DataSeriesItem("Admin1", 23));
 		incomingCallsSeries.add(new DataSeriesItem("Admin2", 24));
 		incomingCallsSeries.add(new DataSeriesItem("Admin3", 25));
 		incomingCallsSeries.add(new DataSeriesItem("Admin4", 26));
-		
-//		for (int i = 0; i < 3; i++) {
-//			salesPerYear[i].setData(data.getSalesPerMonth(i));
-//		}
-////
-//		for (Entry<Product, Integer> entry : data.getProductDeliveries().entrySet()) {
-//			deliveriesPerProductSeries.add(new DataSeriesItem(entry.getKey().getName(), entry.getValue()));
-//		}
 	}
-
-	
 	private void updateLabels(ConnectionStats deliveryStats) {
 		currentConnectionsLabel.setContent(Integer.toString(deliveryStats.getCurrentConnections()));
 		successfulDownloadsLabel.setContent(Integer.toString(deliveryStats.getSuccessfulDownloads()));
@@ -248,7 +265,6 @@ public class DashboardView extends DashboardViewDesign implements View {
 				.toArray(size -> new String[size]);
 		monthConf.getxAxis().setCategories(categories);
 		monthConf.getxAxis().setLabels(new Labels(false));
-		//monthConf.getxAxis().setTitle("Heartbeat");;
 	}
 
 	protected void configureColumnSeries(DataSeries series) {
@@ -258,7 +274,6 @@ public class DashboardView extends DashboardViewDesign implements View {
 		options.setBorderWidth(1);
 		options.setGroupPadding(0);
 		options.setColor(color);
-		//options.setThreshold(threshold);
 		series.setPlotOptions(options);
 
 		YAxis yaxis = series.getConfiguration().getyAxis();
