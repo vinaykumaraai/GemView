@@ -52,7 +52,7 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 	 * 
 	 */
 	private static final long serialVersionUID = 3410929503924583215L;
-	public static final String VIEW_NAME = "assetcontrol";
+	public static final String VIEW_NAME = "assetcontrolview";
 	private static final String DATE_FORMAT = "dd/MM/yyyy";
 	private static final SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
 	private static final LocalDateTime localTimeNow = LocalDateTime.now();
@@ -132,7 +132,8 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 		panel.setHeight("100%");
 		panel.addStyleName(ValoTheme.PANEL_WELL);
 		panel.setCaptionAsHtml(true);
-		panel.setCaption("<h3 style=color:#216C2A;font-weight:bold;>Asset Control</h3>");
+		//panel.setCaption("<h3 style=color:#216C2A;font-weight:bold;>Asset Control</h3>");
+		panel.setCaption("Asset Control");
 		panel.setResponsive(true);
 		panel.setSizeFull();
 		addComponent(panel);
@@ -300,7 +301,7 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 
 		nodeTree.addItemClickListener(selection -> {
 			if (nodeTree.getSelectionModel().isSelected(selection.getItem())) {
-				switch (assetTabSheet.getSelectedTab().getCaption().toLowerCase()) {
+				switch (assetTabSheet.getTab(assetTabSheet.getSelectedTab()).getCaption().toLowerCase()) {
 				case "history":
 					debugGrid.setDataProvider(debugService.getListDataProvider());
 					break;
@@ -315,7 +316,7 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 				}
 
 			} else {
-				switch (assetTabSheet.getSelectedTab().getCaption().toLowerCase()) {
+				switch (assetTabSheet.getTab(assetTabSheet.getSelectedTab()).getCaption().toLowerCase()) {
 				case "history":
 					DataProvider dataHistory = new ListDataProvider(selection.getItem().getEntityList());
 					debugGrid.setDataProvider(dataHistory);
