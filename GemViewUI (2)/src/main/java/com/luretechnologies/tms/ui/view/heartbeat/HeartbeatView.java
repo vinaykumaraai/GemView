@@ -114,6 +114,16 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 	private static Button delete;
 	private static Grid<HeartBeatHistory> hbHistoryGrid;
 	private MockHeartBeatHistory mockHBHistory;
+	private static HorizontalSplitPanel horizontalPanel;
+	private static VerticalLayout HL = new VerticalLayout();
+	private static VerticalLayout VL = new VerticalLayout();
+	private static Panel panel;
+	private static HorizontalLayout searchAndDeleteLayoutHorizontal;
+	private static VerticalLayout searchAndDeleteLayoutVertical;
+	private static HorizontalLayout searchLayout;
+	private static HorizontalLayout deleteLayoutHorizontal;
+	private static VerticalLayout deleteLayoutVertical;
+	private static VerticalLayout searchAndDeleteLayoutVerticalPhomeMode;
 	
 	@Autowired
 	private HeartBeatHistoryService hbHistoryService;
@@ -132,21 +142,25 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 	
 	@PostConstruct
 	private void inti() {
+		
 		getDeviceData();
 		setSpacing(false);
 		setMargin(false);
 		setResponsive(true);
 		setHeight("100%");
-		Panel panel = getAndLoadSystemPanel();
-		HorizontalSplitPanel horizontalPanel =  new HorizontalSplitPanel();
+		panel = getAndLoadSystemPanel();
+		//HorizontalSplitPanel horizontalPanel =  new HorizontalSplitPanel();
+		horizontalPanel =  new HorizontalSplitPanel();
 		VerticalLayout secondPanelLayout = new VerticalLayout();
 		//secondPanelLayout.setWidth("100%");
 		secondPanelLayout.setStyleName("heartbeat-verticalLayout");
 		VerticalLayout verticalDeviceFormLayout = new VerticalLayout();
 		verticalDeviceFormLayout.setWidth("100%");
 		verticalDeviceFormLayout.setStyleName("heartbeat-verticalFormLayout");
-		VerticalLayout HL = new VerticalLayout();
-		VerticalLayout VL = new VerticalLayout();
+		//VerticalLayout HL = new VerticalLayout();
+		HL = new VerticalLayout();
+		//VerticalLayout VL = new VerticalLayout();
+		VL = new VerticalLayout();
 		
 		addDeviceLabel(secondPanelLayout);
 		getDeviceFromLayout(verticalDeviceFormLayout,emptyDevice, false );
@@ -157,12 +171,114 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 		
 		horizontalPanel.setHeight("100%");
 		List<Button> terminalList = getTerminals(verticalDeviceFormLayout);
+		
+		Page.getCurrent().addBrowserWindowResizeListener(r->{
+			System.out.println("Height "+ r.getHeight() + "Width:  " + r.getWidth()+ " in pixel");
+			if(r.getWidth()< 1600 && r.getWidth() > 1150) {
+				List<HorizontalLayout> HLList = getButtonsLayoutSecondMode(terminalList);
+				desktopMode2(HLList, secondPanelLayout);
+				deletCalendarTabMode();
+			}else if(r.getWidth()<=1150 && r.getWidth()> 1000){
+				List<HorizontalLayout> HLList = getButtonsLayoutThirdMode(terminalList);
+				desktopMode1(HLList, secondPanelLayout);
+				deletCalendarPhoneMode();
+				
+			} else if(r.getWidth()<=1000 && r.getWidth()> 900) {
+				deletCalendarPhoneMode();
+			} else if(r.getWidth()<=900 && r.getWidth()>500){
+				List<HorizontalLayout> HLList = getButtonsLayoutSecondMode(terminalList);
+				desktopMode2(HLList, secondPanelLayout);
+				deletCalendarPhoneMode();
+			}else if(r.getWidth()<=500 && r.getWidth()>0) {
+				List<HorizontalLayout> HLList = getButtonsLayoutThirdMode(terminalList);
+				desktopMode1(HLList, secondPanelLayout);
+				deletCalendarPhoneMode();
+			}else {
+				List<HorizontalLayout> HLList = getButtonsLayout(terminalList);
+				desktopMode(HLList, secondPanelLayout);
+				deleteCalendarDesktopMode();
+			}
+		});
+		
 		List<HorizontalLayout> HLList = getButtonsLayout(terminalList);
 		for(HorizontalLayout hL:HLList) {
-			hL.setHeight("60px");;
+			hL.setHeight("60px");
+			hL.setResponsive(true);
 			VL.addComponents(hL);
 		}
 		HL.setHeight("100%");
+		VL.setResponsive(true);
+		HL.setResponsive(true);
+		HL.addComponent(VL);
+		horizontalPanel.setFirstComponent(HL);
+		horizontalPanel.getFirstComponent().setStyleName("split-height");
+		horizontalPanel.addComponent(secondPanelLayout);
+		horizontalPanel.setSplitPosition(40, Unit.PERCENTAGE);
+		
+		panel.setContent(horizontalPanel);
+		
+		differentModesLoad(secondPanelLayout, terminalList);
+	}
+	
+	private void deleteCalendarDesktopMode() {
+		deleteLayoutHorizontal.addComponents(startDateField,endDateField,delete);
+		searchAndDeleteLayoutHorizontal.addComponents(searchLayout, deleteLayoutHorizontal);
+		searchAndDeleteLayoutVertical.setVisible(false);
+		searchAndDeleteLayoutVerticalPhomeMode.setVisible(false);
+		searchAndDeleteLayoutHorizontal.setVisible(true);
+	}
+	
+	private void deletCalendarTabMode() {
+		deleteLayoutHorizontal.addComponents(startDateField,endDateField,delete);
+		searchAndDeleteLayoutVertical.addComponents(searchLayout, deleteLayoutHorizontal);;
+		searchAndDeleteLayoutHorizontal.setVisible(false);
+		searchAndDeleteLayoutVerticalPhomeMode.setVisible(false);
+		searchAndDeleteLayoutVertical.setVisible(true);
+	}
+	
+	private void deletCalendarPhoneMode() {
+		deleteLayoutVertical.addComponents(startDateField,endDateField,delete);
+		searchAndDeleteLayoutVerticalPhomeMode.addComponents(searchLayout, deleteLayoutVertical);;
+		searchAndDeleteLayoutHorizontal.setVisible(false);
+		searchAndDeleteLayoutVertical.setVisible(false);
+		searchAndDeleteLayoutVerticalPhomeMode.setVisible(true);
+	}
+	
+	private void differentModesLoad(VerticalLayout secondPanelLayout, List<Button> terminalList) {
+		int width = Page.getCurrent().getBrowserWindowWidth();
+		if(width< 1600 && width > 1150) {
+			List<HorizontalLayout> HLList1 = getButtonsLayoutSecondMode(terminalList);
+			desktopMode2(HLList1, secondPanelLayout);
+			
+		}else if(width<=1150 && width> 1000){
+			List<HorizontalLayout> HLList1 = getButtonsLayoutThirdMode(terminalList);
+			desktopMode1(HLList1, secondPanelLayout);
+			
+		} else if(width<=900 && width>500){
+			List<HorizontalLayout> HLList1 = getButtonsLayoutSecondMode(terminalList);
+			desktopMode2(HLList1, secondPanelLayout);
+		}else if(width<=500 && width>0) {
+			List<HorizontalLayout> HLList1 = getButtonsLayoutThirdMode(terminalList);
+			desktopMode1(HLList1, secondPanelLayout);
+		}else {
+			List<HorizontalLayout> HLList1 = getButtonsLayout(terminalList);
+			desktopMode(HLList1, secondPanelLayout);
+		}
+	}
+	
+	private void desktopMode(List<HorizontalLayout> HLList, VerticalLayout secondPanelLayout) {
+		HL = new VerticalLayout();
+		horizontalPanel  =  new HorizontalSplitPanel();
+		VL = new VerticalLayout();
+		
+		for(HorizontalLayout hL:HLList) {
+			hL.setHeight("60px");
+			hL.setResponsive(true);
+			VL.addComponents(hL);
+		}
+		HL.setHeight("100%");
+		VL.setResponsive(true);
+		HL.setResponsive(true);
 		HL.addComponent(VL);
 		horizontalPanel.setFirstComponent(HL);
 		horizontalPanel.getFirstComponent().setStyleName("split-height");
@@ -172,9 +288,48 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 		panel.setContent(horizontalPanel);
 	}
 	
-//	private List<HeartBeatHistory> getHBHistory(){
-//		return hbHistoryService.getHBHistoryList();
-//	}
+	private void desktopMode1(List<HorizontalLayout> HLList, VerticalLayout secondPanelLayout) {
+		HL = new VerticalLayout();
+		horizontalPanel  =  new HorizontalSplitPanel();
+		VL = new VerticalLayout();
+		
+		for(HorizontalLayout hL:HLList) {
+			hL.setHeight("60px");
+			hL.setResponsive(true);
+			VL.addComponents(hL);
+		}
+		HL.setHeight("100%");
+		VL.setResponsive(true);
+		HL.setResponsive(true);
+		HL.addComponent(VL);
+		horizontalPanel.setFirstComponent(HL);
+		horizontalPanel.getFirstComponent().setStyleName("split-height");
+		horizontalPanel.addComponent(secondPanelLayout);
+		horizontalPanel.setSplitPosition(40, Unit.PERCENTAGE);
+		
+		panel.setContent(horizontalPanel);
+	}
+	
+	private void desktopMode2(List<HorizontalLayout> HLList, VerticalLayout secondPanelLayout) {
+		HL = new VerticalLayout();
+		horizontalPanel  =  new HorizontalSplitPanel();
+		VL = new VerticalLayout();
+		
+		for(HorizontalLayout hL:HLList) {
+			hL.setHeight("60px");
+			hL.setResponsive(true);
+			VL.addComponents(hL);
+		}
+		HL.setHeight("100%");
+		VL.setResponsive(true);
+		HL.setResponsive(true);
+		HL.addComponent(VL);
+		horizontalPanel.setFirstComponent(HL);
+		horizontalPanel.getFirstComponent().setStyleName("split-height");
+		horizontalPanel.addComponent(secondPanelLayout);
+		horizontalPanel.setSplitPosition(40, Unit.PERCENTAGE);
+		panel.setContent(horizontalPanel);
+	}
 	
 	private void getDeviceData() {
 		List<HeartBeatHistory> hbHistoryListActive = hbHistoryService.getHBHistoryList();
@@ -260,12 +415,13 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 	}
 	
 	private void getSearchAndDelete(VerticalLayout layout) {
-		HorizontalLayout horizontalLayout = new HorizontalLayout();
-		horizontalLayout.setWidth("100%");
-		HorizontalLayout searchLayout = new HorizontalLayout();
+		searchAndDeleteLayoutHorizontal = new HorizontalLayout();
+		searchAndDeleteLayoutHorizontal.setWidth("100%");
+		searchLayout = new HorizontalLayout();
 		searchLayout.setWidth("100%");
-		HorizontalLayout deleteLayout = new HorizontalLayout();
-		deleteLayout.setWidth("100%");
+		deleteLayoutHorizontal = new HorizontalLayout();
+		deleteLayoutHorizontal.setWidth("100%");
+		deleteLayoutHorizontal.setVisible(true);
 		
 		search = new TextField();
 		search.setIcon(VaadinIcons.SEARCH);
@@ -273,6 +429,7 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 		search.setStyleName("small inline-icon search");
 		search.setPlaceholder("Search");
 		search.setResponsive(true);
+		search.addStyleName("v-textfield-font");
 		search.addShortcutListener(new ShortcutListener("Clear",KeyCode.ESCAPE,null) {
 			
 			@Override
@@ -303,6 +460,7 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 		startDateField.setRangeEnd(localTimeNow.toLocalDate());
 		startDateField.setDescription("Start Date");
 		startDateField.setPlaceholder("Start Date");
+		startDateField.addStyleName("v-textfield-font");
 		
 		endDateField = new DateField();
 		endDateField.setWidth("100%");
@@ -312,11 +470,27 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 		endDateField.setDescription("End Date");
 		endDateField.setPlaceholder("End Date");
 		endDateField.setDateOutOfRangeMessage("Same Date cannot be selected");
+		endDateField.addStyleName("v-textfield-font");
 		
-		deleteLayout.addComponent(startDateField);
-		deleteLayout.setComponentAlignment(startDateField, Alignment.MIDDLE_LEFT);
-		deleteLayout.addComponent(endDateField);
-		deleteLayout.setComponentAlignment(endDateField, Alignment.MIDDLE_CENTER);
+		//Vertical Initialization
+		searchAndDeleteLayoutVertical = new VerticalLayout();
+		searchAndDeleteLayoutVertical.setVisible(false);
+		searchAndDeleteLayoutVertical.setStyleName("heartbeat-verticalLayout");
+		
+		//deleteLayout Vertical Initialization
+		deleteLayoutVertical = new VerticalLayout();
+		deleteLayoutVertical.setVisible(true);
+		deleteLayoutVertical.setStyleName("heartbeat-verticalLayout");
+		
+		//Phone Mode
+		searchAndDeleteLayoutVerticalPhomeMode = new VerticalLayout();
+		searchAndDeleteLayoutVerticalPhomeMode.setVisible(false);
+		searchAndDeleteLayoutVerticalPhomeMode.setStyleName("heartbeat-verticalLayout");
+		
+		deleteLayoutHorizontal.addComponent(startDateField);
+		deleteLayoutHorizontal.setComponentAlignment(startDateField, Alignment.MIDDLE_LEFT);
+		deleteLayoutHorizontal.addComponent(endDateField);
+		deleteLayoutHorizontal.setComponentAlignment(endDateField, Alignment.MIDDLE_CENTER);
 		
 		delete = new Button(VaadinIcons.TRASH);
 		delete.addStyleName(ValoTheme.BUTTON_FRIENDLY);
@@ -328,15 +502,18 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 				confirmDialog();
 			}
 		});
-		deleteLayout.addComponent(delete);
+		deleteLayoutHorizontal.addComponent(delete);
+		deleteLayoutHorizontal.setVisible(true);
 		
 		//deleteLayout.setComponentAlignment(delete, Alignment.MIDDLE_RIGHT);
 		
-		horizontalLayout.addComponents(searchLayout, deleteLayout );
-		horizontalLayout.setComponentAlignment(searchLayout, Alignment.TOP_LEFT);
-		horizontalLayout.setComponentAlignment(deleteLayout, Alignment.MIDDLE_RIGHT);
+		searchAndDeleteLayoutHorizontal.addComponents(searchLayout, deleteLayoutHorizontal );
+		searchAndDeleteLayoutHorizontal.setComponentAlignment(searchLayout, Alignment.TOP_LEFT);
+		searchAndDeleteLayoutHorizontal.setComponentAlignment(deleteLayoutHorizontal, Alignment.MIDDLE_RIGHT);
 		
-		layout.addComponent(horizontalLayout);
+		layout.addComponent(searchAndDeleteLayoutHorizontal);
+		layout.addComponent(searchAndDeleteLayoutVertical);
+		layout.addComponent(searchAndDeleteLayoutVerticalPhomeMode);
 		//layout.setComponentAlignment(horizontalLayout, Alignment.TOP_LEFT);
 		
 		endDateField.addValueChangeListener(change ->{
@@ -387,7 +564,7 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 		VL.setStyleName("heartbeat-verticalLayout");
 		hbHistoryGrid= new Grid<>(HeartBeatHistory.class);
 		hbHistoryGrid.setWidth("100%");
-		hbHistoryGrid.setHeightByRows(5);
+		hbHistoryGrid.setHeightByRows(7);
 		hbHistoryGrid.setResponsive(true);
 		hbHistoryGrid.setSelectionMode(SelectionMode.SINGLE);
 		hbHistoryGrid.setColumns("dateTime", "IP", "status", "process");
@@ -470,6 +647,43 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 			if(hL.getComponentCount()<3) {
 				hL.addComponents(button);
 			} else if(hL.getComponentCount()==3) {
+				hLList.add(hL);
+				hL=new HorizontalLayout();
+				hL.addComponents(button);
+			}
+		}
+		hLList.add(hL);
+		return hLList;
+		
+	}
+	
+
+	private List<HorizontalLayout> getButtonsLayoutSecondMode(List<Button> terminalButtons) {
+		
+		List<HorizontalLayout> hLList = new ArrayList<HorizontalLayout>();
+		HorizontalLayout hL = new HorizontalLayout();
+		for(Button button:terminalButtons) {
+			if(hL.getComponentCount()<2) {
+				hL.addComponents(button);
+			} else if(hL.getComponentCount()==2) {
+				hLList.add(hL);
+				hL=new HorizontalLayout();
+				hL.addComponents(button);
+			}
+		}
+		hLList.add(hL);
+		return hLList;
+		
+	}
+	
+private List<HorizontalLayout> getButtonsLayoutThirdMode(List<Button> terminalButtons) {
+		
+		List<HorizontalLayout> hLList = new ArrayList<HorizontalLayout>();
+		HorizontalLayout hL = new HorizontalLayout();
+		for(Button button:terminalButtons) {
+			if(hL.getComponentCount()<1) {
+				hL.addComponents(button);
+			} else if(hL.getComponentCount()==1) {
 				hLList.add(hL);
 				hL=new HorizontalLayout();
 				hL.addComponents(button);

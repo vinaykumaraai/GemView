@@ -4,14 +4,17 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.Vector;
 
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.vaadin.dialogs.ConfirmDialog;
 
 import com.luretechnologies.tms.backend.data.entity.Alert;
 import com.luretechnologies.tms.backend.data.entity.Debug;
@@ -26,6 +29,7 @@ import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.event.ShortcutListener;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
+import com.vaadin.server.Page;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -38,6 +42,7 @@ import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TextField;
@@ -52,9 +57,10 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 	 * 
 	 */
 	private static final long serialVersionUID = 3410929503924583215L;
-	public static final String VIEW_NAME = "assetcontrolview";
-	private static final String DATE_FORMAT = "dd/MM/yyyy";
+	public static final String VIEW_NAME = "assetcontrol";
+	private static final String DATE_FORMAT = "MM/dd/yyyy";
 	private static final SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+	private static final DateTimeFormatter  dateFormatter1 = DateTimeFormatter.ofPattern("MM-dd-YYYY");
 	private static final LocalDateTime localTimeNow = LocalDateTime.now();
 	private static Grid<Debug> debugGrid, deviceDebugGrid;
 	private static Grid<Alert> alertGrid;
@@ -64,6 +70,13 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 	private static HorizontalSplitPanel splitScreen;
 	private static TabSheet assetTabSheet;
 	private static DateField debugStartDateField, debugEndDateField;
+	private static VerticalLayout debugLayoutFull;
+	private static HorizontalLayout optionsLayoutHorizontalDesktop;
+	private static VerticalLayout optionsLayoutVerticalTab;
+	private static VerticalLayout optionsLayoutVerticalPhone;
+	private static HorizontalLayout debugSearchLayout;
+	private static HorizontalLayout dateDeleteLayout;
+	private static VerticalLayout dateDeleteLayoutPhone;
 
 	@Autowired
 	public AssetControlView() {
@@ -81,6 +94,21 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 
 	@PostConstruct
 	private void init() {
+		Page.getCurrent().addBrowserWindowResizeListener(r->{
+			System.out.println("Height "+ r.getHeight() + "Width:  " + r.getWidth()+ " in pixel");
+			if(r.getWidth()<=1450 && r.getWidth()>=700) {
+				tabMode();
+				splitScreen.setSplitPosition(30);
+			}else if(r.getWidth()<=699 && r.getWidth()> 0){
+				phoneMode();
+				splitScreen.setSplitPosition(35);
+				
+			} else {
+				desktopMode();
+				splitScreen.setSplitPosition(20);
+			}
+		});
+		
 		setSpacing(false);
 		setMargin(false);
 		setResponsive(true);
@@ -88,6 +116,7 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 		treeNodeSearch = new TextField();
 		treeNodeSearch.setIcon(VaadinIcons.SEARCH);
 		treeNodeSearch.setStyleName("small inline-icon search");
+		treeNodeSearch.addStyleName("v-textfield-font");
 		treeNodeSearch.setPlaceholder("Search");
 		treeNodeSearch.setVisible(false);
 		configureTreeNodeSearch();
@@ -95,8 +124,8 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 		Panel panel = getAndLoadAuditPanel();
 		HorizontalLayout treeButtonLayout = new HorizontalLayout();
 		VerticalLayout treePanelLayout = new VerticalLayout();
-		treePanelLayout.addComponentAsFirst(treeNodeSearch);
-		treePanelLayout.addComponent(treeButtonLayout);
+		//treePanelLayout.addComponentAsFirst(treeNodeSearch);
+		//treePanelLayout.addComponent(treeButtonLayout);
 		nodeTree = new Tree<Node>();
 		nodeTree.setTreeData(treeDataService.getTreeDataForDebug());
 		nodeTree.setItemIconGenerator(item -> {
@@ -115,16 +144,30 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 				return null;
 			}
 		});
-
 		treePanelLayout.addComponent(nodeTree);
 		treePanelLayout.setMargin(true);
-		treePanelLayout.setComponentAlignment(nodeTree, Alignment.BOTTOM_LEFT);
+		treePanelLayout.setHeight("100%");
+		treePanelLayout.setStyleName("split-height");
+		//treePanelLayout.setComponentAlignment(nodeTree, Alignment.TOP_LEFT);
 		splitScreen = new HorizontalSplitPanel();
 		splitScreen.setFirstComponent(treePanelLayout);
-		splitScreen.setSplitPosition(35);
+		splitScreen.setSplitPosition(20);
 		splitScreen.addComponent(getTabSheet());
 		splitScreen.setHeight("100%");
 		panel.setContent(splitScreen);
+		
+		int width = Page.getCurrent().getBrowserWindowWidth();
+		if(width >0 && width <=699) {
+			phoneMode();
+			splitScreen.setSplitPosition(35);
+		} else if(width>=700 && width<=1400) {
+			tabMode();
+			splitScreen.setSplitPosition(30);
+		}
+		else {
+			desktopMode();
+			splitScreen.setSplitPosition(20);
+		}
 	}
 
 	public Panel getAndLoadAuditPanel() {
@@ -139,7 +182,47 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 		addComponent(panel);
 		return panel;
 	}
-
+	private void tabMode() {
+		optionsLayoutVerticalTab.addStyleName("heartbeat-verticalLayout");
+		dateDeleteLayout.addComponent(debugStartDateField);
+		dateDeleteLayout.setComponentAlignment(debugStartDateField, Alignment.TOP_RIGHT);
+		dateDeleteLayout.addComponent(debugEndDateField);
+		dateDeleteLayout.setComponentAlignment(debugEndDateField, Alignment.TOP_RIGHT);
+		dateDeleteLayout.addComponent(deleteHistoryGridRow);
+		dateDeleteLayout.setComponentAlignment(deleteHistoryGridRow, Alignment.TOP_LEFT);
+		optionsLayoutVerticalTab.addComponents(debugSearchLayout,dateDeleteLayout);
+		
+		optionsLayoutHorizontalDesktop.setVisible(false);
+		optionsLayoutVerticalPhone.setVisible(false);
+		optionsLayoutVerticalTab.setVisible(true);
+	}
+	
+	private void phoneMode() {
+		dateDeleteLayoutPhone.addComponents(debugStartDateField, debugEndDateField,deleteHistoryGridRow);
+		optionsLayoutVerticalPhone.addStyleName("heartbeat-verticalLayout");
+		optionsLayoutVerticalPhone.addComponents(debugSearchLayout,dateDeleteLayoutPhone);
+		optionsLayoutVerticalPhone.setVisible(true);
+		optionsLayoutHorizontalDesktop.setVisible(false);
+		optionsLayoutVerticalTab.setVisible(false);
+	}
+	
+	private void desktopMode() {
+		optionsLayoutHorizontalDesktop.addComponent(debugSearchLayout);
+		optionsLayoutHorizontalDesktop.setComponentAlignment(debugSearchLayout, Alignment.MIDDLE_LEFT);
+		dateDeleteLayout.addComponent(debugStartDateField);
+		dateDeleteLayout.setComponentAlignment(debugStartDateField, Alignment.TOP_RIGHT);
+		dateDeleteLayout.addComponent(debugEndDateField);
+		dateDeleteLayout.setComponentAlignment(debugEndDateField, Alignment.TOP_RIGHT);
+		dateDeleteLayout.addComponent(deleteHistoryGridRow);
+		dateDeleteLayout.setComponentAlignment(deleteHistoryGridRow, Alignment.TOP_LEFT);
+		optionsLayoutHorizontalDesktop.addComponent(dateDeleteLayout);
+		//optionsLayoutHorizontalDesktop.addComponent(dateDeleteLayout);
+		optionsLayoutHorizontalDesktop.setComponentAlignment(dateDeleteLayout, Alignment.TOP_RIGHT);
+		optionsLayoutHorizontalDesktop.setVisible(true);
+		optionsLayoutVerticalTab.setVisible(false);
+		optionsLayoutVerticalPhone.setVisible(false);
+	}
+	
 	private void configureTreeNodeSearch() {
 		// FIXME Not able to put Tree Search since its using a Hierarchical
 		// Dataprovider.
@@ -167,20 +250,60 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 
 		return assetTabSheet;
 	}
+	
+	private void clearCalenderDates() {
+		debugStartDateField.clear();
+		debugEndDateField.clear();
+	}
+	
+	private void confirmDialog() {
+		ConfirmDialog.show(this.getUI(), "Please Confirm:", "Are you sure you want to delete?",
+		        "Ok", "Cancel", new ConfirmDialog.Listener() {
+
+		            public void onClose(ConfirmDialog dialog) {
+		                if (dialog.isConfirmed()) {
+		                    // Confirmed to continue
+		                	debugService.removeDebug(debugGrid.getSelectedItems().iterator().next());
+		    				nodeTree.getDataProvider().refreshAll();
+		    				debugSearch.clear();
+		    				loadGrid();
+		    				clearCalenderDates();
+		                } else {
+		                    // User did not confirm
+		                    
+		                }
+		            }
+		        });
+	}
+	
+	private void loadGrid() {
+		treeDataService.getTreeDataForDebug();
+		List<Node> nodeList = treeDataService.getDebugNodeList();
+		Set<Node> nodeSet = nodeTree.getSelectionModel().getSelectedItems();
+		Node nodeSelected = nodeSet.iterator().next();
+		for(Node node : nodeList) {
+			if(node.getLabel().equals(nodeSelected.getLabel())) {
+				DataProvider data = new ListDataProvider(node.getEntityList());
+				debugGrid.setDataProvider(data);
+			}
+		}
+		
+	}
 
 	/**
 	 * @param debugLayout
 	 */
 	private VerticalLayout getHistory() {
-		VerticalLayout debugLayout = new VerticalLayout();
-		debugLayout.setWidth("100%");
-		debugLayout.setResponsive(true);
+		debugLayoutFull = new VerticalLayout();
+		debugLayoutFull.setWidth("100%");
+		debugLayoutFull.setResponsive(true);
 		debugGrid = new Grid<>(Debug.class);
 		debugGrid.setWidth("100%");
+		debugGrid.setHeightByRows(20);
 		debugGrid.setResponsive(true);
 		debugGrid.setSelectionMode(SelectionMode.SINGLE);
 		debugGrid.setColumns("type", "description");
-		debugGrid.setDataProvider(debugService.getListDataProvider());
+		//debugGrid.setDataProvider(debugService.getListDataProvider());
 		debugGrid.getColumn("type").setCaption("Debug Type").setStyleGenerator(style -> {
 			switch (style.getType()) {
 			case ERROR:
@@ -224,82 +347,144 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 		deleteHistoryGridRow.addStyleName(ValoTheme.BUTTON_FRIENDLY);
 		deleteHistoryGridRow.setResponsive(true);
 		deleteHistoryGridRow.addClickListener(clicked -> {
-			debugService.removeDebug(debugGrid.getSelectedItems().iterator().next());
-			ListDataProvider<Debug> refreshDebugDataProvider = debugService.getListDataProvider();
-			debugGrid.setDataProvider(refreshDebugDataProvider);
-			// Refreshing
-			debugGrid.getDataProvider().refreshAll();
-			nodeTree.getSelectionModel().deselectAll();
-			nodeTree.getDataProvider().refreshAll();
-			debugStartDateField.setPlaceholder("Start Date");
-			debugStartDateField.setRangeEnd(localTimeNow.toLocalDate());
-			debugEndDateField.setRangeEnd(localTimeNow.toLocalDate());
-			debugEndDateField.setPlaceholder("End Date");
-			debugSearch.clear();
+//			debugService.removeDebug(debugGrid.getSelectedItems().iterator().next());
+//			ListDataProvider<Debug> refreshDebugDataProvider = debugService.getListDataProvider();
+//			debugGrid.setDataProvider(refreshDebugDataProvider);
+//			// Refreshing
+//			debugGrid.getDataProvider().refreshAll();
+//			nodeTree.getSelectionModel().deselectAll();
+//			nodeTree.getDataProvider().refreshAll();
+//			debugStartDateField.setPlaceholder("Start Date");
+//			debugStartDateField.setRangeEnd(localTimeNow.toLocalDate());
+//			debugEndDateField.setRangeEnd(localTimeNow.toLocalDate());
+//			debugEndDateField.setPlaceholder("End Date");
+//			debugSearch.clear();
+			
+			if(debugGrid.getSelectedItems().isEmpty()) {
+				Notification.show("Select any Debug type to delete", Notification.Type.WARNING_MESSAGE).setDelayMsec(3000);;
+			}else {
+				confirmDialog();
+			}
 
 		});
 
-		HorizontalLayout optionsLayout = new HorizontalLayout();
+		 optionsLayoutHorizontalDesktop = new HorizontalLayout();
 		// optionsLayout.setComponentAlignment(childComponent, alignment);
-		optionsLayout.setWidth("100%");
-		optionsLayout.setHeight("50%");
+		optionsLayoutHorizontalDesktop.setWidth("100%");
+		optionsLayoutHorizontalDesktop.setHeight("50%");
 		// optionsLayout.setSizeUndefined();
-		optionsLayout.setResponsive(true);
+		optionsLayoutHorizontalDesktop.setResponsive(true);
 
-		HorizontalLayout debugSearchLayout = new HorizontalLayout();
+		debugSearchLayout = new HorizontalLayout();
 		debugSearchLayout.setWidth("100%");
 		debugSearchLayout.addComponent(debugSearch);
 		debugSearchLayout.setComponentAlignment(debugSearch, Alignment.TOP_LEFT);
 
-		HorizontalLayout dateDeleteLayout = new HorizontalLayout();
-		dateDeleteLayout.setSizeUndefined();
-		// dateDeleteLayout.setWidth("100%");
-		// dateDeleteLayout.setSizeFull();
+//		dateDeleteLayout = new HorizontalLayout();
+//		dateDeleteLayout.setSizeUndefined();
+//		// dateDeleteLayout.setWidth("100%");
+//		// dateDeleteLayout.setSizeFull();
 
 		debugStartDateField = new DateField();
+		debugStartDateField.setWidth("100%");
+		//debugStartDateField.setCaption("Start Date");
+		debugStartDateField.setPlaceholder("Start Date");
 		debugStartDateField.setResponsive(true);
 		debugStartDateField.setDateFormat(DATE_FORMAT);
-		debugStartDateField.setRangeEnd(LocalDateTime.now().toLocalDate());
-		debugStartDateField.setPlaceholder("Start Date");
+		debugStartDateField.setRangeEnd(localTimeNow.toLocalDate());
+		debugStartDateField.setDescription("Start Date");
+		debugStartDateField.addStyleName("v-textfield-font");
+		
 		debugEndDateField = new DateField();
+		debugEndDateField.setWidth("100%");
+		//debugEndDateField.setCaption("End Date");
+		debugEndDateField.setPlaceholder("End Date");
 		debugEndDateField.setResponsive(true);
 		debugEndDateField.setDateFormat(DATE_FORMAT);
-		debugEndDateField.setRangeEnd(LocalDateTime.now().toLocalDate());
-		debugEndDateField.setPlaceholder("End Date");
-		optionsLayout.addComponent(debugSearchLayout);
-		optionsLayout.setComponentAlignment(debugSearchLayout, Alignment.MIDDLE_LEFT);
+		//debugEndDateField.setRangeEnd(localTimeNow.toLocalDate().plusDays(1));
+		debugEndDateField.setDateOutOfRangeMessage("Same Date cannot be selected");
+		debugEndDateField.setDescription("End Date");
+		debugEndDateField.addStyleName("v-textfield-font");
+		
+		//Vertical Initialization
+		optionsLayoutVerticalTab = new VerticalLayout();
+		optionsLayoutVerticalTab.setVisible(false);
+		
+		//Vertical Phone Mode 
+		optionsLayoutVerticalPhone= new VerticalLayout();
+		optionsLayoutVerticalPhone.setVisible(false);
+		dateDeleteLayoutPhone = new VerticalLayout();
+		dateDeleteLayoutPhone.setVisible(true);
+		dateDeleteLayoutPhone.addStyleName("heartbeat-verticalLayout");
+		
+		dateDeleteLayout = new HorizontalLayout();
+		dateDeleteLayout.setVisible(true);
+		dateDeleteLayout.setWidth("100%");
+		
+		optionsLayoutHorizontalDesktop.addComponent(debugSearchLayout);
+		optionsLayoutHorizontalDesktop.setComponentAlignment(debugSearchLayout, Alignment.MIDDLE_LEFT);
 		dateDeleteLayout.addComponent(debugStartDateField);
 		dateDeleteLayout.setComponentAlignment(debugStartDateField, Alignment.MIDDLE_LEFT);
 		dateDeleteLayout.addComponent(debugEndDateField);
 		dateDeleteLayout.setComponentAlignment(debugEndDateField, Alignment.MIDDLE_RIGHT);
 		dateDeleteLayout.addComponent(deleteHistoryGridRow);
 		dateDeleteLayout.setComponentAlignment(deleteHistoryGridRow, Alignment.MIDDLE_RIGHT);
-		optionsLayout.addComponent(dateDeleteLayout);
-		optionsLayout.setComponentAlignment(dateDeleteLayout, Alignment.MIDDLE_RIGHT);
-		debugLayout.addComponent(optionsLayout);
-		debugLayout.setComponentAlignment(optionsLayout, Alignment.TOP_LEFT);
-		debugLayout.addComponent(debugGrid);
+		optionsLayoutHorizontalDesktop.addComponent(dateDeleteLayout);
+		optionsLayoutHorizontalDesktop.setComponentAlignment(dateDeleteLayout, Alignment.MIDDLE_RIGHT);
+		
+		
+		debugLayoutFull.addComponent(optionsLayoutHorizontalDesktop);
+		debugLayoutFull.setComponentAlignment(optionsLayoutHorizontalDesktop, Alignment.TOP_LEFT);
+		debugLayoutFull.addComponent(optionsLayoutVerticalTab);
+		debugLayoutFull.setComponentAlignment(optionsLayoutVerticalTab, Alignment.TOP_LEFT);
+		debugLayoutFull.addComponent(optionsLayoutVerticalPhone);
+		debugLayoutFull.setComponentAlignment(optionsLayoutVerticalPhone, Alignment.TOP_LEFT);
+		debugLayoutFull.addComponent(debugGrid);
 
-		// end Date listner
-		debugEndDateField.addValueChangeListener(change -> {
-			if (change.getValue().compareTo(debugStartDateField.getValue()) > 0) {
-				ListDataProvider<Debug> debugDataProvider = (ListDataProvider<Debug>) debugGrid.getDataProvider();
-				debugDataProvider.setFilter(filter -> {
-					Date debugDate = filter.getDateOfDebug();
-					try {
-						return debugDate
-								.after(dateFormatter.parse(debugStartDateField.getValue().minusDays(1).toString()))
-								&& debugDate.before(dateFormatter.parse(change.getValue().plusDays(1).toString()));
-					} catch (ParseException e) {
-						System.out.println(e.getMessage() + filter.toString());
-
-						return false;
-					}
-				});
+		//end Date listner
+		debugEndDateField.addValueChangeListener(change ->{
+	         if(!(change.getValue() == null)) {
+	        	 if(!nodeTree.getSelectedItems().isEmpty()) {
+	        		 	if(debugStartDateField.getValue()!=null) {
+	        	 		if(change.getValue().compareTo(debugStartDateField.getValue()) >= 0 ) {
+	        	 			String date = debugEndDateField.getValue().format(dateFormatter1);
+	        	 			debugEndDateField.setDescription(date);
+	        	 				ListDataProvider<Debug> debugDataProvider = (ListDataProvider<Debug>) debugGrid.getDataProvider();
+	        	 				debugDataProvider.setFilter(filter -> {
+	        	 				Date debugDate = filter.getDateOfDebug();
+	        	 				try {
+	        	 					return debugDate.after(dateFormatter.parse(debugStartDateField.getValue().minusDays(1).toString())) && debugDate.before(dateFormatter.parse(change.getValue().plusDays(1).toString()));
+	        	 				} catch (ParseException e) {
+	        	 					System.out.println(e.getMessage() + filter.toString());
+							
+	        	 					return false;
+	        	 				}
+					});
+				} 
+	        		 	}else {
+	        		 		Notification.show("Select Start Date to filter the data", Notification.Type.WARNING_MESSAGE).setDelayMsec(3000);
+	        		 		debugEndDateField.clear();
+	        		 	}
+	        }else {
+	        	Notification.show("Please Select any Node to filter the data", Notification.Type.WARNING_MESSAGE).setDelayMsec(3000);
+	        	clearCalenderDates();
+	        }
+		}
+	});
+		
+		debugStartDateField.addValueChangeListener(change ->{
+			if(change.getValue()!=null) {
+				debugEndDateField.clear();
+				debugEndDateField.setRangeStart(change.getValue().plusDays(1));
+				//debugEndDateField.setRangeEnd(localTimeNow.toLocalDate().plusDays(1));
+				String date = debugStartDateField.getValue().format(dateFormatter1);
+				debugStartDateField.setDescription(date);
 			}
-		});
+	});
 
 		nodeTree.addItemClickListener(selection -> {
+			treeDataService.getTreeDataForDebug();
+			List<Node> nodeList = treeDataService.getDebugNodeList();
 			if (nodeTree.getSelectionModel().isSelected(selection.getItem())) {
 				switch (assetTabSheet.getTab(assetTabSheet.getSelectedTab()).getCaption().toLowerCase()) {
 				case "history":
@@ -335,12 +520,13 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 			}
 
 		});
-		return debugLayout;
+		return debugLayoutFull;
 	}
 
 	private VerticalLayout getAlert() {
 		VerticalLayout alertLayout = new VerticalLayout();
 		Label alertCommands = new Label("Alert Commands");
+		alertCommands.addStyleName("label-style");
 		alertCommands.addStyleNames(ValoTheme.LABEL_BOLD, ValoTheme.LABEL_H3);
 		alertLayout.addComponent(alertCommands);
 		Component[] alertFormComponentArray = { getFormFieldWithLabel("Alert Type", FormFieldType.TEXTBOX),

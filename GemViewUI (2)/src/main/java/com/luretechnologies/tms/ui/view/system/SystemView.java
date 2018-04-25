@@ -125,6 +125,16 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		systemRepo.put(system2.getId(), system2);
 		systemRepo.put(system3.getId(), system3);
 		
+		for(int index =5; index<=25; index++) {
+			Systems systemLoop = new Systems();
+			systemLoop.setParameterName("SYSTEM MESSAGE "+index);
+			systemLoop.setDescription("Welcome Message "+index);
+			systemLoop.setType("Text");
+			systemLoop.setSystemValue("Welcome to GemView "+index);
+			systemLoop.setId(index);
+			systemRepo.put(systemLoop.getId(), systemLoop);
+		}
+		
 	}
 	
 	@PostConstruct
@@ -257,7 +267,7 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		
 		String parametername = selectedSystem.getParameterName() != null ? selectedSystem.getParameterName(): "";
 		parameterName = new TextField("Parameter Name", parametername);
-		selectedSystem.setParameterName(parameterName.getValue());
+		selectedSystem.setParameterName(parameterName.getValue().toUpperCase());
 		parameterName.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
 		parameterName.setWidth("48%");
 		parameterName.setStyleName("role-textbox");
@@ -370,7 +380,7 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		
 		systemGrid.setCaptionAsHtml(true);
 		systemGrid.addStyleName("v-grid-cell-fontSize");
-		systemGrid.setHeightByRows(5);
+		systemGrid.setHeightByRows(12);
 		systemGrid.addColumn(Systems::getParameterName).setCaption("Paramater");
 		systemGrid.addColumn(Systems::getDescription).setCaption("Description");
 		systemGrid.addColumn(Systems:: getType).setCaption("Type");
@@ -411,7 +421,7 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		                if (dialog.isConfirmed()) {
 		                    // Confirmed to continue
 		                	systemInfoLayout.removeAllComponents();
-		                	systemRepo.remove(selectedSystem.getParameterName());
+		                	systemRepo.remove(selectedSystem.getId());
 		                	systemGrid.getDataProvider().refreshAll();
 		                	selectedSystem = new Systems();
 		                	getAndLoadSystemForm(systemInfoLayout, false);

@@ -33,6 +33,8 @@ package com.luretechnologies.tms.backend.data.entity;
 
 import java.util.List;
 
+import com.vaadin.ui.Label;
+
 /**
  * @author Vinay
  *
@@ -58,6 +60,7 @@ public class Node {
 	}
 
 	public void setLabel(String label) {
+		//Label label = new
 		this.label = label;
 	}
 
@@ -71,7 +74,7 @@ public class Node {
 
 	@Override
 	public String toString() {
-		return label;
+		return label.toString();
 	}	
 	 
 }

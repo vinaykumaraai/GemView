@@ -35,6 +35,9 @@ package com.luretechnologies.tms.backend.service;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,34 +55,38 @@ import com.vaadin.spring.annotation.SpringComponent;
 @SpringComponent
 public class MockDebugService extends CrudService<Debug>{
 	private Map<Long,Debug> debugDirectory = new HashMap<Long, Debug>();
+	private Date now = new Date();
 	private LocalDate currentLocalDate = LocalDate.now();
+	private LocalDateTime currentLocalDateTime = LocalDateTime.now();
 	private SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+	private SimpleDateFormat sdfDate = new SimpleDateFormat("MM-dd-yyyy HH:mm:ss");
+	private static final DateTimeFormatter  dateFormatter1 = DateTimeFormatter.ofPattern("MM-dd-YYYY HH:mm:ss");
 	@PostConstruct
 	public void createInitialDebugs() throws ParseException
 	{
 		//TODO add the Date time
-		Debug debug = new Debug(DebugType.ERROR,"There is an error 1",dateFormatter.parse(currentLocalDate.toString()));
+		Debug debug = new Debug(DebugType.ERROR,"There is an error 1",dateFormatter.parse(currentLocalDate.toString()), dateFormatter1.format(currentLocalDateTime));
 		debug.setId(debug.getId()+2);
 		debugDirectory.put(debug.getId(), debug);
-		 debug = new Debug(DebugType.WARN,"WARNNNNN 1",dateFormatter.parse(currentLocalDate.plusDays(2).toString()));
+		 debug = new Debug(DebugType.WARN,"WARNNNNN 1",dateFormatter.parse(currentLocalDate.plusDays(2).toString()), dateFormatter1.format(currentLocalDateTime.plusDays(2)));
 		 debug.setId(debug.getId()+3);
 		debugDirectory.put(debug.getId(), debug);
-		 debug = new Debug(DebugType.INFO,"It is an Info 1",dateFormatter.parse(currentLocalDate.plusDays(4).toString()));
+		 debug = new Debug(DebugType.INFO,"It is an Info 1",dateFormatter.parse(currentLocalDate.plusDays(4).toString()),dateFormatter1.format(currentLocalDateTime.plusDays(4)));
 		 debug.setId(debug.getId()+4);
 		debugDirectory.put(debug.getId(), debug);
-		debug = new Debug(DebugType.ERROR,"Again is an error 2",dateFormatter.parse(currentLocalDate.plusDays(3).toString()));
+		debug = new Debug(DebugType.ERROR,"Again is an error 2",dateFormatter.parse(currentLocalDate.plusDays(3).toString()),dateFormatter1.format(currentLocalDateTime.plusDays(3)));
 		debug.setId(debug.getId()+5);
 		debugDirectory.put(debug.getId(), debug);
-		debug = new Debug(DebugType.INFO,"It is an Info 2",dateFormatter.parse(currentLocalDate.plusDays(3).toString()));
+		debug = new Debug(DebugType.INFO,"It is an Info 2",dateFormatter.parse(currentLocalDate.plusDays(3).toString()),dateFormatter1.format(currentLocalDateTime.plusDays(3)));
 		debug.setId(debug.getId()+6);
 		debugDirectory.put(debug.getId(), debug);
-		 debug = new Debug(DebugType.WARN,"WARNNNNN 2",dateFormatter.parse(currentLocalDate.minusDays(2).toString()));
+		 debug = new Debug(DebugType.WARN,"WARNNNNN 2",dateFormatter.parse(currentLocalDate.minusDays(2).toString()),dateFormatter1.format(currentLocalDateTime.minusDays(2)));
 		 debug.setId(debug.getId()+7);
 		debugDirectory.put(debug.getId(), debug);
-		 debug = new Debug(DebugType.INFO,"It is an Info 3",dateFormatter.parse(currentLocalDate.minusDays(4).toString()));
+		 debug = new Debug(DebugType.INFO,"It is an Info 3",dateFormatter.parse(currentLocalDate.minusDays(4).toString()),dateFormatter1.format(currentLocalDateTime.minusDays(4)));
 		 debug.setId(debug.getId()+8);
 		debugDirectory.put(debug.getId(), debug);
-		debug = new Debug(DebugType.ERROR,"Again is an error 3",dateFormatter.parse(currentLocalDate.minusDays(3).toString()));
+		debug = new Debug(DebugType.ERROR,"Again is an error 3",dateFormatter.parse(currentLocalDate.minusDays(3).toString()),dateFormatter1.format(currentLocalDateTime.minusDays(3)));
 		debug.setId(debug.getId()+9);
 		debugDirectory.put(debug.getId(), debug);
 	}

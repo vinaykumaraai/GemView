@@ -35,11 +35,21 @@ package com.luretechnologies.tms.backend.data.entity;
 import java.util.Date;
 import java.util.Objects;
 
+import com.vaadin.ui.DateTimeField;
+
 public class Debug extends AbstractEntity {
 
 	private DebugType type;
 	private String description;
 	private Date dateOfDebug;
+	private String dateTime;
+	
+	public String getDateTime() {
+		return dateTime;
+	}
+	public void setDateTime(String dateTime) {
+		this.dateTime = dateTime;
+	}
 	public DebugType getType() {
 		return type;
 	}
@@ -61,18 +71,22 @@ public class Debug extends AbstractEntity {
 	public Debug() {
 		// TODO Auto-generated constructor stub
 	}
-	public Debug(DebugType type, String description,Date dateOfDebug) {
+	public Debug(DebugType type, String description,Date dateOfDebug, String dateTime) {
 		super(false);
 		Objects.requireNonNull(type);
 		Objects.requireNonNull(description);
 		Objects.requireNonNull(dateOfDebug);
+		Objects.requireNonNull(dateTime);
 		this.type = type;
 		this.description = description;
 		this.dateOfDebug = dateOfDebug;
+		this.dateTime = dateTime;
 	}
+	
 	@Override
 	public String toString() {
-		return "Debug [type=" + type + ", description=" + description + ", dateOfDebug=" + dateOfDebug + "]";
+		return "Debug [type=" + type + ", description=" + description + ", dateOfDebug=" + dateOfDebug + ", dateTime="
+				+ dateTime + "]";
 	}
 	@Override
 	public int hashCode() {

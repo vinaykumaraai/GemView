@@ -34,8 +34,10 @@ package com.luretechnologies.tms.ui.view.audit;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
@@ -48,6 +50,7 @@ import org.vaadin.dialogs.ConfirmDialog;
 
 import com.luretechnologies.tms.backend.data.entity.Debug;
 import com.luretechnologies.tms.backend.data.entity.Node;
+import com.luretechnologies.tms.backend.data.entity.Systems;
 import com.luretechnologies.tms.backend.service.DebugService;
 import com.luretechnologies.tms.backend.service.TreeDataService;
 import com.vaadin.data.provider.DataProvider;
@@ -60,14 +63,16 @@ import com.vaadin.server.Page;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Component;
 import com.vaadin.ui.DateField;
+import com.vaadin.ui.DateTimeField;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
+import com.vaadin.ui.ItemCaptionGenerator;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Panel;
+import com.vaadin.ui.StyleGenerator;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
@@ -92,11 +97,14 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 	private static TextField treeNodeSearch, debugSearch;
 	private static HorizontalSplitPanel splitScreen;
 	private static DateField debugStartDateField, debugEndDateField;
-
-	private OffsetDateTime odt = OffsetDateTime.now ();
+	private static VerticalLayout debugLayoutFull;
+	private static HorizontalLayout optionsLayoutHorizontalDesktop;
+	private static VerticalLayout optionsLayoutVerticalTab;
+	private static VerticalLayout optionsLayoutVerticalPhone;
+	private static HorizontalLayout debugSearchLayout;
+	private static HorizontalLayout dateDeleteLayout;
+	private static VerticalLayout dateDeleteLayoutPhone;
 	
-	private static HorizontalLayout maxmizedBrowserLayout;
-	private static VerticalLayout minimizedBrowserLayout = new VerticalLayout();
 	
 
 	@Autowired
@@ -113,31 +121,18 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 	@PostConstruct
 	private void init() {
 		//FIXME : Sample code for browser resizing .
-	
 		Page.getCurrent().addBrowserWindowResizeListener(r->{
 			System.out.println("Height "+ r.getHeight() + "Width:  " + r.getWidth()+ " in pixel");
-			if(r.getWidth()<=1000) {
-				if(!minimizedBrowserLayout.isVisible()) {
-				maxmizedBrowserLayout.setVisible(false);
-				minimizedBrowserLayout.setVisible(true);
-				Component firstComponent = maxmizedBrowserLayout.getComponent(0);
-				Component secondComponent = maxmizedBrowserLayout.getComponent(1);
-				minimizedBrowserLayout.addComponent(firstComponent);
-				minimizedBrowserLayout.setComponentAlignment(firstComponent, Alignment.MIDDLE_LEFT);
-				minimizedBrowserLayout.addComponent(secondComponent);
-				minimizedBrowserLayout.setComponentAlignment(secondComponent, Alignment.MIDDLE_RIGHT);
-				}
-			}else {
-				if(!maxmizedBrowserLayout.isVisible()) {
-				maxmizedBrowserLayout.setVisible(true);
-				minimizedBrowserLayout.setVisible(false);
-				Component firstComponent = minimizedBrowserLayout.getComponent(0);
-				Component secondComponent = minimizedBrowserLayout.getComponent(1);
-				maxmizedBrowserLayout.addComponent(firstComponent);
-				maxmizedBrowserLayout.setComponentAlignment(firstComponent, Alignment.MIDDLE_LEFT);
-				maxmizedBrowserLayout.addComponent(secondComponent);
-				maxmizedBrowserLayout.setComponentAlignment(secondComponent, Alignment.MIDDLE_RIGHT);
-				}
+			if(r.getWidth()<=1450 && r.getWidth()>=700) {
+				tabMode();
+				splitScreen.setSplitPosition(30);
+			}else if(r.getWidth()<=699 && r.getWidth()> 0){
+				phoneMode();
+				splitScreen.setSplitPosition(35);
+				
+			} else {
+				desktopMode();
+				splitScreen.setSplitPosition(20);
 			}
 		});
 		setSpacing(false);
@@ -170,7 +165,7 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 			default:
 				return null;
 			}
-		});
+		});		
 		
 		treePanelLayout.addComponent(nodeTree);
 		treePanelLayout.setMargin(true);
@@ -182,9 +177,62 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		splitScreen.addComponent(getDebugLayout());
 		splitScreen.setHeight("100%");
 		panel.setContent(splitScreen);
+		int width = Page.getCurrent().getBrowserWindowWidth();
+		if(width >0 && width <=699) {
+			phoneMode();
+			splitScreen.setSplitPosition(35);
+		} else if(width>=700 && width<=1400) {
+			tabMode();
+			splitScreen.setSplitPosition(30);
+		}
+		else {
+			desktopMode();
+			splitScreen.setSplitPosition(20);
+		}
 	}
 	
 	
+	
+	private void tabMode() {
+		optionsLayoutVerticalTab.addStyleName("heartbeat-verticalLayout");
+		dateDeleteLayout.addComponent(debugStartDateField);
+		dateDeleteLayout.setComponentAlignment(debugStartDateField, Alignment.TOP_RIGHT);
+		dateDeleteLayout.addComponent(debugEndDateField);
+		dateDeleteLayout.setComponentAlignment(debugEndDateField, Alignment.TOP_RIGHT);
+		dateDeleteLayout.addComponent(deleteGridRow);
+		dateDeleteLayout.setComponentAlignment(deleteGridRow, Alignment.TOP_LEFT);
+		optionsLayoutVerticalTab.addComponents(debugSearchLayout,dateDeleteLayout);
+		
+		optionsLayoutHorizontalDesktop.setVisible(false);
+		optionsLayoutVerticalPhone.setVisible(false);
+		optionsLayoutVerticalTab.setVisible(true);
+	}
+	
+	private void phoneMode() {
+		dateDeleteLayoutPhone.addComponents(debugStartDateField, debugEndDateField,deleteGridRow);
+		optionsLayoutVerticalPhone.addStyleName("heartbeat-verticalLayout");
+		optionsLayoutVerticalPhone.addComponents(debugSearchLayout,dateDeleteLayoutPhone);
+		optionsLayoutVerticalPhone.setVisible(true);
+		optionsLayoutHorizontalDesktop.setVisible(false);
+		optionsLayoutVerticalTab.setVisible(false);
+	}
+	
+	private void desktopMode() {
+		optionsLayoutHorizontalDesktop.addComponent(debugSearchLayout);
+		optionsLayoutHorizontalDesktop.setComponentAlignment(debugSearchLayout, Alignment.MIDDLE_LEFT);
+		dateDeleteLayout.addComponent(debugStartDateField);
+		dateDeleteLayout.setComponentAlignment(debugStartDateField, Alignment.TOP_RIGHT);
+		dateDeleteLayout.addComponent(debugEndDateField);
+		dateDeleteLayout.setComponentAlignment(debugEndDateField, Alignment.TOP_RIGHT);
+		dateDeleteLayout.addComponent(deleteGridRow);
+		dateDeleteLayout.setComponentAlignment(deleteGridRow, Alignment.TOP_LEFT);
+		optionsLayoutHorizontalDesktop.addComponent(dateDeleteLayout);
+		//optionsLayoutHorizontalDesktop.addComponent(dateDeleteLayout);
+		optionsLayoutHorizontalDesktop.setComponentAlignment(dateDeleteLayout, Alignment.TOP_RIGHT);
+		optionsLayoutHorizontalDesktop.setVisible(true);
+		optionsLayoutVerticalTab.setVisible(false);
+		optionsLayoutVerticalPhone.setVisible(false);
+	}
 	public Panel getAndLoadAuditPanel() {
 		Panel panel = new Panel();
 		panel.setHeight("100%");
@@ -248,14 +296,16 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 	}
 	
 	private VerticalLayout getDebugLayout() {
-		VerticalLayout debugLayout = new VerticalLayout();
-		debugLayout.setWidth("100%");
-		debugLayout.setResponsive(true);
+		//debugLayoutFull.removeAllComponents();
+		debugLayoutFull =  new VerticalLayout();
+		debugLayoutFull.setWidth("100%");
+		debugLayoutFull.setResponsive(true);
 		debugGrid = new Grid<>(Debug.class);
 		debugGrid.setWidth("100%");
+		debugGrid.setHeightByRows(20);
 		debugGrid.setResponsive(true);
 		debugGrid.setSelectionMode(SelectionMode.SINGLE);
-		debugGrid.setColumns("type", "description");
+		debugGrid.setColumns("type", "description", "dateTime");
 		debugGrid.getColumn("type").setCaption("Debug Type").setStyleGenerator(style -> {
 			switch (style.getType()) {
 			case ERROR:
@@ -291,13 +341,14 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 			debugDataProvider.setFilter(filter -> {
 				String descriptionInLower = filter.getDescription().toLowerCase();
 				String typeInLower = filter.getType().name().toLowerCase();
-				return typeInLower.equals(valueInLower) || descriptionInLower.contains(valueInLower);
+				String dateTime = filter.getDateTime().toLowerCase();
+				return typeInLower.equals(valueInLower) || descriptionInLower.contains(valueInLower) || dateTime.contains(valueInLower);
 			});
 		});
 
 			deleteGridRow = new Button(VaadinIcons.TRASH);
 			deleteGridRow.addStyleName(ValoTheme.BUTTON_FRIENDLY);
-			deleteGridRow.addStyleName("v-button-customstyle");
+			//deleteGridRow.addStyleName("v-button-customstyle");
 			deleteGridRow.setResponsive(true);
 			//deleteGridRow.setWidth("100%");
 			deleteGridRow.addClickListener(clicked -> {
@@ -308,30 +359,19 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 				}
 			});
 		
-
-		maxmizedBrowserLayout = new HorizontalLayout();
-		//optionsLayout.setComponentAlignment(childComponent, alignment);
-		maxmizedBrowserLayout.setWidth("100%");
-		maxmizedBrowserLayout.setHeight("50%");
-		//optionsLayout.setSizeUndefined();
-		maxmizedBrowserLayout.setResponsive(true);
-		minimizedBrowserLayout = new VerticalLayout();
-		minimizedBrowserLayout.setVisible(false);
-		minimizedBrowserLayout.setHeight("50%");
-		minimizedBrowserLayout.setResponsive(true);
-
-		HorizontalLayout optionsLayout = new HorizontalLayout();
-		optionsLayout.setWidth("100%");
-		optionsLayout.setHeight("50%");
-		optionsLayout.setResponsive(true);
 		
-		HorizontalLayout debugSearchLayout = new HorizontalLayout();
+		optionsLayoutHorizontalDesktop = new HorizontalLayout();
+		optionsLayoutHorizontalDesktop.setWidth("100%");
+		optionsLayoutHorizontalDesktop.setHeight("50%");
+		optionsLayoutHorizontalDesktop.setResponsive(true);
+		
+		debugSearchLayout = new HorizontalLayout();
+		debugSearchLayout.setVisible(true);
 		debugSearchLayout.setWidth("100%");
 		debugSearchLayout.addComponent(debugSearch);
 		debugSearchLayout.setComponentAlignment(debugSearch, Alignment.TOP_LEFT);
 		
-		HorizontalLayout dateDeleteLayout = new HorizontalLayout();
-		dateDeleteLayout.setWidth("100%");
+		
 		//dateDeleteLayout.setSizeUndefined();
 		
 		debugStartDateField = new DateField();
@@ -353,27 +393,45 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		//debugEndDateField.setRangeEnd(localTimeNow.toLocalDate().plusDays(1));
 		debugEndDateField.setDateOutOfRangeMessage("Same Date cannot be selected");
 		debugEndDateField.setDescription("End Date");
-
-		maxmizedBrowserLayout.addComponent(debugSearchLayout);
-		maxmizedBrowserLayout.setComponentAlignment(debugSearchLayout, Alignment.MIDDLE_LEFT);
-		
 		debugEndDateField.addStyleName("v-textfield-font");
-			
+		
+		//Vertical Initialization
+		optionsLayoutVerticalTab = new VerticalLayout();
+//		optionsLayoutVertical.addComponent(debugSearchLayout);
+		optionsLayoutVerticalTab.setVisible(false);
+		
+		//Vertical Phone Mode 
+		optionsLayoutVerticalPhone= new VerticalLayout();
+		optionsLayoutVerticalPhone.setVisible(false);
+		dateDeleteLayoutPhone = new VerticalLayout();
+		dateDeleteLayoutPhone.setVisible(true);
+		dateDeleteLayoutPhone.addStyleName("heartbeat-verticalLayout");
+		
+		dateDeleteLayout = new HorizontalLayout();
+		dateDeleteLayout.setVisible(true);
+		dateDeleteLayout.setWidth("100%");
+		
+		optionsLayoutHorizontalDesktop.addComponent(debugSearchLayout);
+		optionsLayoutHorizontalDesktop.setComponentAlignment(debugSearchLayout, Alignment.MIDDLE_LEFT);
 		dateDeleteLayout.addComponent(debugStartDateField);
 		dateDeleteLayout.setComponentAlignment(debugStartDateField, Alignment.TOP_RIGHT);
 		dateDeleteLayout.addComponent(debugEndDateField);
 		dateDeleteLayout.setComponentAlignment(debugEndDateField, Alignment.TOP_RIGHT);
 		dateDeleteLayout.addComponent(deleteGridRow);
-
-		dateDeleteLayout.setComponentAlignment(deleteGridRow, Alignment.MIDDLE_RIGHT);
-		maxmizedBrowserLayout.addComponent(dateDeleteLayout);
-		maxmizedBrowserLayout.setComponentAlignment(dateDeleteLayout, Alignment.MIDDLE_RIGHT);
-
-		debugLayout.addComponent(maxmizedBrowserLayout);
-		debugLayout.setComponentAlignment(maxmizedBrowserLayout, Alignment.TOP_LEFT);
-		debugLayout.addComponent(minimizedBrowserLayout);
-		debugLayout.setComponentAlignment(minimizedBrowserLayout, Alignment.TOP_LEFT);
-		debugLayout.addComponent(debugGrid);
+		dateDeleteLayout.setComponentAlignment(deleteGridRow, Alignment.TOP_LEFT);
+		optionsLayoutHorizontalDesktop.addComponent(dateDeleteLayout);
+		optionsLayoutHorizontalDesktop.setComponentAlignment(dateDeleteLayout, Alignment.TOP_RIGHT);
+		
+		
+		//optionsLayout.addComponents(debugSearch,debugStartDateField,debugEndDateField, deleteGridRow);
+		debugLayoutFull.addComponent(optionsLayoutHorizontalDesktop);
+		debugLayoutFull.setComponentAlignment(optionsLayoutHorizontalDesktop, Alignment.TOP_LEFT);
+		debugLayoutFull.addComponent(optionsLayoutVerticalTab);
+		debugLayoutFull.setComponentAlignment(optionsLayoutVerticalTab, Alignment.TOP_LEFT);
+		debugLayoutFull.addComponent(optionsLayoutVerticalPhone);
+		debugLayoutFull.setComponentAlignment(optionsLayoutVerticalPhone, Alignment.TOP_LEFT);
+		debugLayoutFull.addComponent(debugGrid);
+		
 		
 		//end Date listner
 		debugEndDateField.addValueChangeListener(change ->{
@@ -428,6 +486,6 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 			clearCalenderDates();
 				
 		});
-		return debugLayout;
+		return debugLayoutFull;
 	}
 }

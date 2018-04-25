@@ -44,6 +44,7 @@ import org.vaadin.dialogs.ConfirmDialog;
 
 import com.luretechnologies.tms.backend.data.entity.Devices;
 import com.luretechnologies.tms.backend.data.entity.Roles;
+import com.luretechnologies.tms.backend.data.entity.Systems;
 import com.luretechnologies.tms.ui.components.ConfirmDialogFactory;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
@@ -136,6 +137,17 @@ public class DevicesView extends VerticalLayout implements Serializable, View{
 		devicesRepo.put(device2.getIdnumber(), device2);
 		devicesRepo.put(device3.getIdnumber(), device3);
 		
+		for(int index =5; index<=25; index++) {
+			Devices deviceLoop = new Devices();
+			deviceLoop.setActive(false);
+			deviceLoop.setRki(true);
+			deviceLoop.setOsUpdate(false);
+			deviceLoop.setDescription("PINPAD"+index);
+			deviceLoop.setDeviceName("QQ9000"+index);
+			deviceLoop.setManufacturer("IDTECH"+index);
+			deviceLoop.setIdnumber(index);
+			devicesRepo.put(deviceLoop.getIdnumber(), deviceLoop);
+		}
 	}
 	
 	@PostConstruct
@@ -470,6 +482,7 @@ public class DevicesView extends VerticalLayout implements Serializable, View{
 		
 		devicesGrid.setItems(devicesRepo.values());
 		devicesGrid.setWidth("100%");
+		devicesGrid.setHeightByRows(11);
 		devicesGrid.setResponsive(true);
 		
 		devicesGrid.addSelectionListener(e -> {
@@ -503,7 +516,7 @@ public class DevicesView extends VerticalLayout implements Serializable, View{
 		                if (dialog.isConfirmed()) {
 		                    // Confirmed to continue
 		                	deviceInfoLayout.removeAllComponents();
-		                	devicesRepo.remove(selectedDevice.getDeviceName());
+		                	devicesRepo.remove(selectedDevice.getId());
 		                	devicesGrid.getDataProvider().refreshAll();
 		                	selectedDevice = new Devices();
 		                	getAndLoadDeviceForm(deviceInfoLayout, false);

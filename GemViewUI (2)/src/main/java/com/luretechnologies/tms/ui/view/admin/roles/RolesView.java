@@ -460,7 +460,7 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 		roleGrid.setHeightByRows(4);
 		roleGrid.setItems(rolesRepo.values());
 		roleGrid.setWidth("100%");
-		roleGrid.setHeight("210px");
+		roleGrid.setHeightByRows(6);;
 		roleGrid.setResponsive(true);
 		
 		roleGrid.addSelectionListener(e -> {
