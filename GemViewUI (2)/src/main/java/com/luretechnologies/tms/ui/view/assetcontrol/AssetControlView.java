@@ -485,8 +485,7 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 	});
 
 		nodeTree.addItemClickListener(selection -> {
-			treeDataService.getTreeDataForDebug();
-			List<Node> nodeList = treeDataService.getDebugNodeList();
+			List<ExtendedNode> nodeList = treeDataService.getDebugAndAlertNodeList();
 			if (nodeTree.getSelectionModel().isSelected(selection.getItem())) {
 				switch (assetTabSheet.getTab(assetTabSheet.getSelectedTab()).getCaption().toLowerCase()) {
 				case "history":
@@ -550,7 +549,7 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 				((TextField)alertFormComponentArray[0]).setValue(item.getItem().getType().name());
 				((TextField)alertFormComponentArray[1]).setValue(item.getItem().getName());
 				((TextField)alertFormComponentArray[2]).setValue(item.getItem().getDescription());
-				((CheckBox) alertFormComponentArray[3]).setValue(item.getItem().isActive());
+				((CheckBox)alertFormComponentArray[3]).setValue(item.getItem().isActive());
 				((TextField)alertFormComponentArray[4]).setValue(item.getItem().getEmail());
 			}
 		});
@@ -562,19 +561,18 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 				saveAlertForm.setEnabled(true);
 			}else {
 				for (Component component : alertFormComponentArray) {
-					HorizontalLayout componentLayout = (HorizontalLayout)component;
-					Component insideComponent = componentLayout.getComponent(1);
-					if(insideComponent.isEnabled())
-						insideComponent.setEnabled(false);
+					if(component.isEnabled())
+						component.setEnabled(false);
 					
-					if( insideComponent instanceof TextField) {
-						TextField textField = (TextField)insideComponent;
+					if( component instanceof TextField) {
+						TextField textField = (TextField)component;
 						textField.clear();
-					}else if(insideComponent instanceof CheckBox) {
-						CheckBox checkBox = (CheckBox) insideComponent;
+					}else if(component instanceof CheckBox) {
+						CheckBox checkBox = (CheckBox) component;
 						checkBox.clear();
 					}
 				}
+				createAlertGridRow.setEnabled(true);
 				editAlertGridRow.setEnabled(false);
 				deleteAlertGridRow.setEnabled(false);
 				resetAlertForm.setEnabled(false);
@@ -803,6 +801,7 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 			alertGrid.setData(nodeTree.getSelectedItems().iterator().next().getExtendedList());
 			}
 			alertGrid.getDataProvider().refreshAll();
+			alertGrid.deselectAll();
 		});
 		saveAlertForm.addStyleName(ValoTheme.BUTTON_FRIENDLY);
 		saveAlertForm.setEnabled(false);
