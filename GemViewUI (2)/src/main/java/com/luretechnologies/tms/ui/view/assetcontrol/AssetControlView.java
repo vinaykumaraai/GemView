@@ -280,10 +280,10 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 	
 	private void loadGrid() {
 		treeDataService.getTreeDataForDebug();
-		List<Node> nodeList = treeDataService.getDebugNodeList();
-		Set<Node> nodeSet = nodeTree.getSelectionModel().getSelectedItems();
-		Node nodeSelected = nodeSet.iterator().next();
-		for(Node node : nodeList) {
+		List<ExtendedNode> nodeList = treeDataService.getDebugAndAlertNodeList();
+		Set<ExtendedNode> nodeSet = nodeTree.getSelectionModel().getSelectedItems();
+		ExtendedNode nodeSelected = nodeSet.iterator().next();
+		for(ExtendedNode node : nodeList) {
 			if(node.getLabel().equals(nodeSelected.getLabel())) {
 				DataProvider data = new ListDataProvider(node.getEntityList());
 				debugGrid.setDataProvider(data);
@@ -763,7 +763,6 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 		editAlertGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY);
 		editAlertGridRow.setEnabled(false);
 		deleteAlertGridRow = new Button(VaadinIcons.TRASH, click -> {
-			// TODO: add the click event
 			if (alertGrid.getSelectedItems().size() > 0) {
 				// FIXME: put confirmation Dialog
 				alertService.removeAlert(alertGrid.getSelectedItems().iterator().next());
@@ -777,7 +776,6 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 		deleteAlertGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY);
 		deleteAlertGridRow.setEnabled(false);
 		saveAlertForm = new Button(VaadinIcons.DOWNLOAD,click ->{
-			//TODO: add Save Event
 			for (Component component : componentArray) {
 				if(component.isEnabled())
 					component.setEnabled(false);
