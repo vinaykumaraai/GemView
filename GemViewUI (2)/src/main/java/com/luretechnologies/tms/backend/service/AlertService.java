@@ -42,4 +42,8 @@ public class AlertService {
 	public void removeAlert(Alert alert) {
 		mockAlertService.deleteAlert(alert);
 	}
+	
+	public void saveAlert(Alert alert) {
+		mockAlertService.save(alert);
+	}
 }
