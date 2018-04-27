@@ -31,6 +31,6 @@
  */
 package com.luretechnologies.tms.ui.view.assetcontrol;
 
-public class AssetControlAlert {
+public class AlertTab {
 
 }
