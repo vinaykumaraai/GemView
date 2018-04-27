@@ -526,10 +526,21 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 
 	private VerticalLayout getAlert() {
 		VerticalLayout alertLayout = new VerticalLayout();
+		VerticalLayout alertVerticalButtonLayout = new VerticalLayout();
+		alertVerticalButtonLayout.setDefaultComponentAlignment(Alignment.MIDDLE_RIGHT);
+		alertVerticalButtonLayout.addStyleName("heartbeat-verticalLayout");
+		VerticalLayout formLayout = new VerticalLayout();
+		formLayout.addStyleNames("heartbeat-verticalLayout", "assertAlert-formLayout");
+		alertLayout.addStyleName("heartbeat-verticalLayout");
 		Label alertCommands = new Label("Alert Commands");
 		alertCommands.addStyleName("label-style");
 		alertCommands.addStyleNames(ValoTheme.LABEL_BOLD, ValoTheme.LABEL_H3);
 		alertLayout.addComponent(alertCommands);
+		HorizontalLayout activeBoxLayout = new HorizontalLayout();
+		Label active = new Label("Active");
+		alertCommands.addStyleName("label-style");
+		CheckBox activeCheckBox = new CheckBox();
+		activeBoxLayout.addComponents(active, activeCheckBox);
 		Component[] alertFormComponentArray = { getFormFieldWithLabel("Alert Type", FormFieldType.TEXTBOX),
 				getFormFieldWithLabel("Name", FormFieldType.TEXTBOX),
 				getFormFieldWithLabel("Description", FormFieldType.TEXTBOX),
@@ -537,9 +548,11 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 				getFormFieldWithLabel("Email to:", FormFieldType.TEXTBOX) };
 		
 		FormLayout alertFormLayout = new FormLayout(alertFormComponentArray);
-		alertLayout.addComponent(alertFormLayout);
+		formLayout.addComponent(alertFormLayout);
+		alertLayout.addComponent(formLayout);
 		// Add,Delete,Edit Button Layout
-		alertLayout.addComponent(getAlertGridButtonLayout(alertFormComponentArray));
+		alertVerticalButtonLayout.addComponent(getAlertGridButtonLayout(alertFormComponentArray));
+		alertLayout.addComponent(alertVerticalButtonLayout);
 		alertLayout.setComponentAlignment(alertLayout.getComponent(1), Alignment.TOP_RIGHT);
 		// Alert Grid
 		alertLayout.addComponent(getAlertGrid());
@@ -728,6 +741,7 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 
 	private HorizontalLayout getAlertGridButtonLayout(Component[] componentArray) {
 		HorizontalLayout alertGridButtonLayout = new HorizontalLayout();
+		alertGridButtonLayout.setDefaultComponentAlignment(Alignment.MIDDLE_RIGHT);
 		createAlertGridRow = new Button(VaadinIcons.FOLDER_ADD, click -> {
 			for (Component component : componentArray) {
 				if(!component.isEnabled())
@@ -745,6 +759,7 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 			resetAlertForm.setEnabled(true);
 		});
 		createAlertGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY);
+		createAlertGridRow.addStyleName("v-button-customstyle");
 		editAlertGridRow = new Button(VaadinIcons.PENCIL, click -> {
 			if (alertGrid.getSelectedItems().size() > 0) {
 				for (Component component : componentArray) {
@@ -759,6 +774,7 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 			
 		});
 		editAlertGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY);
+		editAlertGridRow.addStyleName("v-button-customstyle");
 		editAlertGridRow.setEnabled(false);
 		deleteAlertGridRow = new Button(VaadinIcons.TRASH, click -> {
 			if (alertGrid.getSelectedItems().size() > 0) {
@@ -772,6 +788,7 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 			}
 		});
 		deleteAlertGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY);
+		deleteAlertGridRow.addStyleName("v-button-customstyle");
 		deleteAlertGridRow.setEnabled(false);
 		saveAlertForm = new Button(VaadinIcons.DOWNLOAD,click ->{
 			for (Component component : componentArray) {
@@ -779,6 +796,7 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 					component.setEnabled(false);
 				
 			}
+			saveAlertForm.addStyleName("v-button-customstyle");
 			Alert alert;
 			if(alertGrid.getSelectedItems().size()>0) {
 				alert = alertGrid.getSelectedItems().iterator().next();
@@ -804,6 +822,7 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 			alertGrid.deselectAll();
 		});
 		saveAlertForm.addStyleName(ValoTheme.BUTTON_FRIENDLY);
+		saveAlertForm.addStyleName("v-button-customstyle");
 		saveAlertForm.setEnabled(false);
 		resetAlertForm = new Button(VaadinIcons.ERASER,click ->{
 			for (Component component : componentArray) {
@@ -826,6 +845,7 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 			saveAlertForm.setEnabled(false);
 		});
 		resetAlertForm.addStyleName(ValoTheme.BUTTON_FRIENDLY);
+		resetAlertForm.addStyleName("v-button-customstyle");
 		resetAlertForm.setEnabled(false);
 		alertGridButtonLayout.addComponent(saveAlertForm);
 		alertGridButtonLayout.addComponent(resetAlertForm);
@@ -840,7 +860,7 @@ Component component = null ;
 		switch (type) {
 		case TEXTBOX:
 			TextField textField = new TextField(labelName,"");
-			textField.setSizeFull();
+			textField.setWidth("60%");
 			textField.addStyleNames(ValoTheme.TEXTFIELD_INLINE_ICON,"role-textbox","v-grid-cell",ValoTheme.TEXTFIELD_BORDERLESS);
 			textField.setResponsive(true);
 			textField.setEnabled(false);

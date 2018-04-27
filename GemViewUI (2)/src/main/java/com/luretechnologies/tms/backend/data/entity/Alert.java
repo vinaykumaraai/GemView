@@ -19,13 +19,15 @@ public class Alert extends AbstractEntity {
 		super(false);
 	}
 
-	public Alert(AlertType type, String description, String email, boolean active) {
+	public Alert(AlertType type, String Name, String description, String email, boolean active) {
 		super(false);
 		Objects.requireNonNull(type);
+		Objects.requireNonNull(Name);
 		Objects.requireNonNull(description);
 		Objects.requireNonNull(email);
 		Objects.requireNonNull(active);
 		this.type = type;
+		this.name=Name;
 		this.description = description;
 		this.email = email;
 		this.active = active;

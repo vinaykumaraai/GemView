@@ -26,25 +26,25 @@ public class MockAlertService extends CrudService<Alert>{
 	public void createInitialAlertss() throws ParseException
 	{
 		//TODO add the Date time
-		Alert alert = new Alert(AlertType.REBOOT,"Reboot Happend","xyz@abc.com",true);
+		Alert alert = new Alert(AlertType.REBOOT,"Device 1","Reboot Happend","xyz@abc.com",true);
 		alert.setId(alert.getId()+2);
 		alertDirectory.put(alert.getId(), alert);
-		 alert = new Alert(AlertType.REFUND,"Refund Happend","abc@xyz.com",true);
+		 alert = new Alert(AlertType.REFUND,"Device 2", "Refund Happend","abc@xyz.com",true);
 		 alert.setId(alert.getId()+3);
 		alertDirectory.put(alert.getId(), alert);
-		 alert = new Alert(AlertType.NOT_ACTIVE,"This is not active","xyz@abc.com",false);
+		 alert = new Alert(AlertType.NOT_ACTIVE,"Device 3","This is not active","xyz@abc.com",false);
 		 alert.setId(alert.getId()+4);
 		alertDirectory.put(alert.getId(), alert);
-		alert = new Alert(AlertType.VOID,"This is void","xyz@abc.com",true);
+		alert = new Alert(AlertType.VOID,"Device 4","This is void","xyz@abc.com",true);
 		alert.setId(alert.getId()+5);
 		alertDirectory.put(alert.getId(), alert);
-		alert = new Alert(AlertType.REBOOT,"Reboot Happend2","xyz@abc.com",true);
+		alert = new Alert(AlertType.REBOOT,"Device 5","Reboot Happend2","xyz@abc.com",true);
 		alert.setId(alert.getId()+6);
 		alertDirectory.put(alert.getId(), alert);
-		 alert = new Alert(AlertType.REFUND,"Refund Happend2","xyz@abc.com",true);
+		 alert = new Alert(AlertType.REFUND,"Device 6","Refund Happend2","xyz@abc.com",true);
 		 alert.setId(alert.getId()+7);
 		alertDirectory.put(alert.getId(), alert);
-		 alert = new Alert(AlertType.VOID,"void","xyz@abc.com",true);
+		 alert = new Alert(AlertType.VOID,"Device 7","void","xyz@abc.com",true);
 		 alert.setId(alert.getId()+8);
 		alertDirectory.put(alert.getId(), alert);
 	}
