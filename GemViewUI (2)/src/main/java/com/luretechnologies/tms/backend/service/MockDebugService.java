@@ -65,28 +65,28 @@ public class MockDebugService extends CrudService<Debug>{
 	public void createInitialDebugs() throws ParseException
 	{
 		//TODO add the Date time
-		Debug debug = new Debug(DebugType.ERROR,"There is an error 1",dateFormatter.parse(currentLocalDate.toString()), dateFormatter1.format(currentLocalDateTime),"Error",true,false);
+		Debug debug = new Debug(DebugType.ERROR,"There is an error 1",dateFormatter.parse(currentLocalDate.toString()), dateFormatter1.format(currentLocalDateTime));
 		debug.setId(debug.getId()+2);
 		debugDirectory.put(debug.getId(), debug);
-		 debug = new Debug(DebugType.WARN,"WARNNNNN 1",dateFormatter.parse(currentLocalDate.plusDays(2).toString()), dateFormatter1.format(currentLocalDateTime.plusDays(2)),"Warnning",true,false);
+		 debug = new Debug(DebugType.WARN,"WARNNNNN 1",dateFormatter.parse(currentLocalDate.plusDays(2).toString()), dateFormatter1.format(currentLocalDateTime.plusDays(2)));
 		 debug.setId(debug.getId()+3);
 		debugDirectory.put(debug.getId(), debug);
-		 debug = new Debug(DebugType.INFO,"It is an Info 1",dateFormatter.parse(currentLocalDate.plusDays(4).toString()),dateFormatter1.format(currentLocalDateTime.plusDays(4)),"Information",false,true);
+		 debug = new Debug(DebugType.INFO,"It is an Info 1",dateFormatter.parse(currentLocalDate.plusDays(4).toString()),dateFormatter1.format(currentLocalDateTime.plusDays(4)));
 		 debug.setId(debug.getId()+4);
 		debugDirectory.put(debug.getId(), debug);
-		debug = new Debug(DebugType.ERROR,"Again is an error 2",dateFormatter.parse(currentLocalDate.plusDays(3).toString()),dateFormatter1.format(currentLocalDateTime.plusDays(3)),"Error",true,true);
+		debug = new Debug(DebugType.ERROR,"Again is an error 2",dateFormatter.parse(currentLocalDate.plusDays(3).toString()),dateFormatter1.format(currentLocalDateTime.plusDays(3)));
 		debug.setId(debug.getId()+5);
 		debugDirectory.put(debug.getId(), debug);
-		debug = new Debug(DebugType.INFO,"It is an Info 2",dateFormatter.parse(currentLocalDate.plusDays(3).toString()),dateFormatter1.format(currentLocalDateTime.plusDays(3)),"Information", true,true);
+		debug = new Debug(DebugType.INFO,"It is an Info 2",dateFormatter.parse(currentLocalDate.plusDays(3).toString()),dateFormatter1.format(currentLocalDateTime.plusDays(3)));
 		debug.setId(debug.getId()+6);
 		debugDirectory.put(debug.getId(), debug);
-		 debug = new Debug(DebugType.WARN,"WARNNNNN 2",dateFormatter.parse(currentLocalDate.minusDays(2).toString()),dateFormatter1.format(currentLocalDateTime.minusDays(2)),"Warnning",false,true);
+		 debug = new Debug(DebugType.WARN,"WARNNNNN 2",dateFormatter.parse(currentLocalDate.minusDays(2).toString()),dateFormatter1.format(currentLocalDateTime.minusDays(2)));
 		 debug.setId(debug.getId()+7);
 		debugDirectory.put(debug.getId(), debug);
-		 debug = new Debug(DebugType.INFO,"It is an Info 3",dateFormatter.parse(currentLocalDate.minusDays(4).toString()),dateFormatter1.format(currentLocalDateTime.minusDays(4)),"Information",false,false);
+		 debug = new Debug(DebugType.INFO,"It is an Info 3",dateFormatter.parse(currentLocalDate.minusDays(4).toString()),dateFormatter1.format(currentLocalDateTime.minusDays(4)));
 		 debug.setId(debug.getId()+8);
 		debugDirectory.put(debug.getId(), debug);
-		debug = new Debug(DebugType.ERROR,"Again is an error 3",dateFormatter.parse(currentLocalDate.minusDays(3).toString()),dateFormatter1.format(currentLocalDateTime.minusDays(3)),"Error",true,true);
+		debug = new Debug(DebugType.ERROR,"Again is an error 3",dateFormatter.parse(currentLocalDate.minusDays(3).toString()),dateFormatter1.format(currentLocalDateTime.minusDays(3)));
 		debug.setId(debug.getId()+9);
 		debugDirectory.put(debug.getId(), debug);
 	}

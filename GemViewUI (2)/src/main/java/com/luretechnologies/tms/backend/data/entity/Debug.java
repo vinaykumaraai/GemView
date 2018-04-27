@@ -40,94 +40,54 @@ import com.vaadin.ui.DateTimeField;
 public class Debug extends AbstractEntity {
 
 	private DebugType type;
-	private String description, dateTime, name;
+	private String description;
 	private Date dateOfDebug;
-	private boolean active, debug;
-
+	private String dateTime;
+	
 	public String getDateTime() {
 		return dateTime;
 	}
-
 	public void setDateTime(String dateTime) {
 		this.dateTime = dateTime;
 	}
-
 	public DebugType getType() {
 		return type;
 	}
-
 	public void setType(DebugType type) {
 		this.type = type;
 	}
-
 	public String getDescription() {
 		return description;
 	}
-
 	public void setDescription(String description) {
 		this.description = description;
 	}
-
 	public Date getDateOfDebug() {
 		return dateOfDebug;
 	}
-
 	public void setDateOfDebug(Date dateOfDebug) {
 		this.dateOfDebug = dateOfDebug;
 	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public boolean isDebug() {
-		return debug;
-	}
-
-	public void setDebug(boolean debug) {
-		this.debug = debug;
-	}
-
-	public boolean isActive() {
-		return active;
-	}
-
-	public void setActive(boolean active) {
-		this.active = active;
-	}
-
 	public Debug() {
 		// TODO Auto-generated constructor stub
 	}
-
-	public Debug(DebugType type, String description, Date dateOfDebug, String dateTime,String name,boolean active,boolean debug) {
+	public Debug(DebugType type, String description,Date dateOfDebug, String dateTime) {
 		super(false);
 		Objects.requireNonNull(type);
 		Objects.requireNonNull(description);
 		Objects.requireNonNull(dateOfDebug);
 		Objects.requireNonNull(dateTime);
-		Objects.requireNonNull(name);
-		Objects.requireNonNull(active);
-		Objects.requireNonNull(debug);
 		this.type = type;
 		this.description = description;
 		this.dateOfDebug = dateOfDebug;
 		this.dateTime = dateTime;
-		this.active = active;
-		this.debug = debug;
-		this.name = name;
 	}
-
+	
 	@Override
 	public String toString() {
 		return "Debug [type=" + type + ", description=" + description + ", dateOfDebug=" + dateOfDebug + ", dateTime="
 				+ dateTime + "]";
 	}
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -137,7 +97,6 @@ public class Debug extends AbstractEntity {
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		return result;
 	}
-
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -161,5 +120,6 @@ public class Debug extends AbstractEntity {
 			return false;
 		return true;
 	}
-
+	
+	
 }

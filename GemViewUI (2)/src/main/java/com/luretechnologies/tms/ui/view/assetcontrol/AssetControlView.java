@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Date;
@@ -624,25 +623,7 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 		debugLayout.addComponent(debugMonitoring);
 		debugLayout.addComponent(getDeviceDebugGridSearchLayout());
 		debugLayout.addComponent(getDeviceDebugGrid());
-		
-		deviceDebugGrid.addSelectionListener(selection->{
-			if(selection.getFirstSelectedItem().isPresent()) {
-				Debug selectedDebug = selection.getFirstSelectedItem().get();
-				((TextField)deviceDebugFormLayout.getComponent(0)).setValue(selectedDebug.getType().name());
-				((TextField)deviceDebugFormLayout.getComponent(1)).setValue(selectedDebug.getName());
-				((TextField)deviceDebugFormLayout.getComponent(2)).setValue(selectedDebug.getDescription());
-				((CheckBox)deviceDebugFormLayout.getComponent(3)).setValue(selectedDebug.isActive());
-				((TextField)deviceDebugFormLayout.getComponent(4)).setValue(selectedDebug.getId().toString());
-				((CheckBox)deviceDebugFormLayout.getComponent(5)).setValue(selectedDebug.isDebug());
-				//FIXME: provide combo option based on dateOfDebug
-				LocalDateTime debugTime = LocalDateTime.ofInstant(selectedDebug.getDateOfDebug().toInstant(), ZoneId.systemDefault());
-				if(debugTime.isBefore(LocalDateTime.now()))
-					((ComboBox<String>)deviceDebugFormLayout.getComponent(6)).setValue("1 Hour");	
-				
-				
-				
-			}
-		});
+
 		return debugLayout;
 	}
 
@@ -754,7 +735,6 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 				return "";
 			}
 		});
-		
 
 		return deviceDebugGrid;
 	}
@@ -895,7 +875,6 @@ Component component = null ;
 		case COMBOBOX:
 			ComboBox<String> combobox = new ComboBox<String>(labelName);
 			combobox.setSizeFull();
-			combobox.setEnabled(false);
 			component = combobox;
 		default:
 			break;
