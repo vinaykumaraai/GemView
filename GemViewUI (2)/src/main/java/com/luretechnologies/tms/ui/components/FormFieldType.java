@@ -8,7 +8,7 @@ package com.luretechnologies.tms.ui.components;
  *
  */
 public enum FormFieldType {
-	TEXTBOX("TextBox"), CHECKBOX("CheckBox"), COMBOBOX("Combobox");
+	TEXTBOX("TextBox"), CHECKBOX("CheckBox"), COMBOBOX("Combobox"), HORIZONTALLAYOUT("HorizontalLayout");
 	String type;
 
 	FormFieldType(String type) {

@@ -49,6 +49,8 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TabSheet;
+import com.vaadin.ui.TabSheet.SelectedTabChangeEvent;
+import com.vaadin.ui.TabSheet.SelectedTabChangeListener;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
@@ -67,8 +69,8 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 	private static final DateTimeFormatter  dateFormatter1 = DateTimeFormatter.ofPattern("MM-dd-YYYY");
 	private static final LocalDateTime localTimeNow = LocalDateTime.now();
 	private static Grid<Debug> debugGrid, deviceDebugGrid;
-	private static Grid<Alert> alertGrid;
-	private static Button deleteHistoryGridRow, deleteAlertGridRow, editAlertGridRow, createAlertGridRow,saveAlertForm,resetAlertForm;
+	private static Grid<Alert> alertGrid =new Grid<>(Alert.class);
+	private static Button deleteHistoryGridRow, deleteAlertGridRow, editAlertGridRow, createAlertGridRow,saveAlertForm,cancelAlertForm;
 	private static Tree<ExtendedNode> nodeTree;
 	private static TextField treeNodeSearch, debugSearch;
 	private static HorizontalSplitPanel splitScreen;
@@ -251,7 +253,7 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 		assetTabSheet.addTab(getHistory(), "History");
 		assetTabSheet.addTab(getAlert(), "Alert");
 		assetTabSheet.addTab(getDebug(), "Debug");
-
+		
 		return assetTabSheet;
 	}
 	
@@ -527,7 +529,7 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 	}
 
 	private VerticalLayout getAlert() {
-		Button[] buttons= {createAlertGridRow,editAlertGridRow,deleteAlertGridRow,saveAlertForm,resetAlertForm};
+		Button[] buttons= {createAlertGridRow,editAlertGridRow,deleteAlertGridRow,saveAlertForm,cancelAlertForm};
 		AlertTab alertTab  = new AlertTab(alertGrid, alertService, nodeTree, buttons);
 		return alertTab.getAlert();
 	}

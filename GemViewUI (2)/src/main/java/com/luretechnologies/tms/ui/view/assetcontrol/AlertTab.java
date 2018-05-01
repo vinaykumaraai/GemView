@@ -40,6 +40,8 @@ import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
@@ -53,7 +55,7 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
 public class AlertTab {
-	Button createAlertGridRow, editAlertGridRow, deleteAlertGridRow, saveAlertForm, resetAlertForm;
+	Button createAlertGridRow, editAlertGridRow, deleteAlertGridRow, saveAlertForm, cancelAlertForm;
 	Grid<Alert> alertGrid;
 	AlertService alertService;
 	Tree<ExtendedNode> nodeTree;
@@ -62,7 +64,7 @@ public class AlertTab {
 		editAlertGridRow = buttons[1];
 		deleteAlertGridRow = buttons[2];
 		saveAlertForm = buttons[3];
-		resetAlertForm = buttons[4];
+		cancelAlertForm = buttons[4];
 		this.alertGrid = alertGrid;
 		this.alertService = alertService;
 		this.nodeTree = nodeTree;
@@ -73,6 +75,14 @@ public class AlertTab {
 		
 		VerticalLayout alertLayout = new VerticalLayout();
 		VerticalLayout alertVerticalButtonLayout = new VerticalLayout();
+		HorizontalLayout alertCommandLabel = new HorizontalLayout();
+		HorizontalLayout saveCancelLayout = new HorizontalLayout();
+		HorizontalLayout alertSaveCancleAndLabelLayout = new HorizontalLayout();
+		
+		alertCommandLabel.setWidth("100%");
+		alertSaveCancleAndLabelLayout.setWidth("100%");
+		
+		
 		alertVerticalButtonLayout.setDefaultComponentAlignment(Alignment.MIDDLE_RIGHT);
 		alertVerticalButtonLayout.addStyleName("heartbeat-verticalLayout");
 		VerticalLayout formLayout = new VerticalLayout();
@@ -81,7 +91,21 @@ public class AlertTab {
 		Label alertCommands = new Label("Alert Commands");
 		alertCommands.addStyleName("label-style");
 		alertCommands.addStyleNames(ValoTheme.LABEL_BOLD, ValoTheme.LABEL_H3);
-		alertLayout.addComponent(alertCommands);
+		alertCommandLabel.addComponent(alertCommands);
+		
+		saveAlertForm = new Button("Save");
+		cancelAlertForm = new Button("Cancel");
+		saveCancelLayout.setDefaultComponentAlignment(Alignment.MIDDLE_RIGHT);
+		saveCancelLayout.addComponents( cancelAlertForm,saveAlertForm);
+		saveCancelLayout.setResponsive(true);
+		saveCancelLayout.setStyleName("save-cancelButtonsAlignment");
+		
+		alertSaveCancleAndLabelLayout.addComponents(alertCommandLabel, saveCancelLayout);
+		alertSaveCancleAndLabelLayout.setComponentAlignment(saveCancelLayout, Alignment.MIDDLE_RIGHT);
+	
+		
+		alertLayout.addComponent(alertSaveCancleAndLabelLayout);
+		
 		HorizontalLayout activeBoxLayout = new HorizontalLayout();
 		Label active = new Label("Active");
 		alertCommands.addStyleName("label-style");
@@ -91,7 +115,7 @@ public class AlertTab {
 				ComponentUtil.getFormFieldWithLabel("Alert Type", FormFieldType.TEXTBOX),
 				ComponentUtil.getFormFieldWithLabel("Name", FormFieldType.TEXTBOX),
 				ComponentUtil.getFormFieldWithLabel("Description", FormFieldType.TEXTBOX),
-				ComponentUtil.getFormFieldWithLabel("Active", FormFieldType.CHECKBOX),
+				ComponentUtil.getFormFieldWithLabel("", FormFieldType.HORIZONTALLAYOUT),
 				ComponentUtil.getFormFieldWithLabel("Email to:", FormFieldType.TEXTBOX) };
 
 		FormLayout alertFormLayout = new FormLayout(alertFormComponentArray);
@@ -109,7 +133,9 @@ public class AlertTab {
 				((TextField) alertFormComponentArray[0]).setValue(item.getItem().getType().name());
 				((TextField) alertFormComponentArray[1]).setValue(item.getItem().getName());
 				((TextField) alertFormComponentArray[2]).setValue(item.getItem().getDescription());
-				((CheckBox) alertFormComponentArray[3]).setValue(item.getItem().isActive());
+				HorizontalLayout HL= (HorizontalLayout)alertFormComponentArray[3];
+				CheckBox checkbox = (CheckBox) HL.getComponent(1);
+				checkbox.setValue(item.getItem().isActive());
 				((TextField) alertFormComponentArray[4]).setValue(item.getItem().getEmail());
 			}
 		});
@@ -117,7 +143,7 @@ public class AlertTab {
 			if (selection.getFirstSelectedItem().isPresent()) {
 				editAlertGridRow.setEnabled(true);
 				deleteAlertGridRow.setEnabled(true);
-				resetAlertForm.setEnabled(true);
+				cancelAlertForm.setEnabled(true);
 				saveAlertForm.setEnabled(true);
 			} else {
 				for (Component component : alertFormComponentArray) {
@@ -127,15 +153,16 @@ public class AlertTab {
 					if (component instanceof TextField) {
 						TextField textField = (TextField) component;
 						textField.clear();
-					} else if (component instanceof CheckBox) {
-						CheckBox checkBox = (CheckBox) component;
-						checkBox.clear();
+					} else if (component instanceof HorizontalLayout) {
+						HorizontalLayout HL = (HorizontalLayout) component;
+						CheckBox checkbox = (CheckBox) HL.getComponent(1);
+						checkbox.clear();
 					}
 				}
 				createAlertGridRow.setEnabled(true);
 				editAlertGridRow.setEnabled(false);
 				deleteAlertGridRow.setEnabled(false);
-				resetAlertForm.setEnabled(false);
+				cancelAlertForm.setEnabled(false);
 				saveAlertForm.setEnabled(false);
 			}
 		});
@@ -144,7 +171,7 @@ public class AlertTab {
 	}
 
 	private Grid<Alert> getAlertGrid() {
-		alertGrid = new Grid<>(Alert.class);
+		//alertGrid = new Grid<>(Alert.class);
 		alertGrid.setWidth("100%");
 		alertGrid.setResponsive(true);
 		alertGrid.setSelectionMode(SelectionMode.SINGLE);
@@ -159,20 +186,22 @@ public class AlertTab {
 		HorizontalLayout alertGridButtonLayout = new HorizontalLayout();
 		alertGridButtonLayout.setDefaultComponentAlignment(Alignment.MIDDLE_RIGHT);
 		createAlertGridRow = new Button(VaadinIcons.FOLDER_ADD, click -> {
+			TextField type = (TextField) componentArray[0];
 			for (Component component : componentArray) {
 				if (!component.isEnabled())
 					component.setEnabled(true);
-
+					type.focus();
 				if (component instanceof TextField) {
 					TextField textField = (TextField) component;
 					textField.clear();
-				} else if (component instanceof CheckBox) {
-					CheckBox checkBox = (CheckBox) component;
-					checkBox.clear();
+				} else if (component instanceof HorizontalLayout) {
+					HorizontalLayout HL = (HorizontalLayout) component;
+					CheckBox checkbox = (CheckBox) HL.getComponent(1);
+					checkbox.clear();
 				}
 			}
 			saveAlertForm.setEnabled(true);
-			resetAlertForm.setEnabled(true);
+			cancelAlertForm.setEnabled(true);
 		});
 		createAlertGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY);
 		createAlertGridRow.addStyleName("v-button-customstyle");
@@ -206,7 +235,8 @@ public class AlertTab {
 		deleteAlertGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY);
 		deleteAlertGridRow.addStyleName("v-button-customstyle");
 		deleteAlertGridRow.setEnabled(false);
-		saveAlertForm = new Button(VaadinIcons.DOWNLOAD, click -> {
+		saveAlertForm.addClickListener(new ClickListener() {
+			public void buttonClick(ClickEvent event) {	
 			for (Component component : componentArray) {
 				if (component.isEnabled())
 					component.setEnabled(false);
@@ -222,9 +252,11 @@ public class AlertTab {
 			alert.setType(((TextField) componentArray[0]).getValue());
 			alert.setName(((TextField) componentArray[1]).getValue());
 			alert.setDescription(((TextField) componentArray[2]).getValue());
-			alert.setActive(((CheckBox) componentArray[3]).getValue());
+			HorizontalLayout HL= (HorizontalLayout)componentArray[3];
+			CheckBox checkbox = (CheckBox) HL.getComponent(1);
+			alert.setActive(checkbox.getValue());
 			alert.setEmail(((TextField) componentArray[4]).getValue());
-			resetAlertForm.setEnabled(false);
+			cancelAlertForm.setEnabled(false);
 			editAlertGridRow.setEnabled(false);
 			deleteAlertGridRow.setEnabled(false);
 			saveAlertForm.setEnabled(false);
@@ -236,35 +268,37 @@ public class AlertTab {
 			}
 			alertGrid.getDataProvider().refreshAll();
 			alertGrid.deselectAll();
+			}
 		});
 		saveAlertForm.addStyleName(ValoTheme.BUTTON_FRIENDLY);
 		saveAlertForm.addStyleName("v-button-customstyle");
 		saveAlertForm.setEnabled(false);
-		resetAlertForm = new Button(VaadinIcons.ERASER, click -> {
+		cancelAlertForm.addClickListener(new ClickListener() {
+			public void buttonClick(ClickEvent event) {	
 			for (Component component : componentArray) {
 				component.setEnabled(false);
 				if (component instanceof TextField) {
 					TextField textField = (TextField) component;
 					textField.clear();
-				} else if (component instanceof CheckBox) {
-					CheckBox checkBox = (CheckBox) component;
-					checkBox.clear();
+				} else if (component instanceof HorizontalLayout) {
+					HorizontalLayout HL = (HorizontalLayout) component;
+					CheckBox checkbox = (CheckBox) HL.getComponent(1);
+					checkbox.clear();
 				}
 
 			}
 			if (alertGrid.getSelectedItems().size() > 0) {
 				alertGrid.deselectAll();
 			}
-			resetAlertForm.setEnabled(false);
+			cancelAlertForm.setEnabled(false);
 			editAlertGridRow.setEnabled(false);
 			deleteAlertGridRow.setEnabled(false);
 			saveAlertForm.setEnabled(false);
+			}
 		});
-		resetAlertForm.addStyleName(ValoTheme.BUTTON_FRIENDLY);
-		resetAlertForm.addStyleName("v-button-customstyle");
-		resetAlertForm.setEnabled(false);
-		alertGridButtonLayout.addComponent(saveAlertForm);
-		alertGridButtonLayout.addComponent(resetAlertForm);
+		cancelAlertForm.addStyleName(ValoTheme.BUTTON_FRIENDLY);
+		cancelAlertForm.addStyleName("v-button-customstyle");
+		cancelAlertForm.setEnabled(false);
 		alertGridButtonLayout.addComponent(createAlertGridRow);
 		alertGridButtonLayout.addComponent(editAlertGridRow);
 		alertGridButtonLayout.addComponent(deleteAlertGridRow);
