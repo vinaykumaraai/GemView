@@ -31,7 +31,6 @@
  */
 package com.luretechnologies.tms.ui.view.admin.user;
 
-
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,6 +54,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.Component.Focusable;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Grid.SelectionMode;
+import com.vaadin.ui.renderers.HtmlRenderer;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
@@ -66,17 +66,17 @@ public class UserAdminView extends AbstractCrudView<User> {
 	private final UserAdminPresenter presenter;
 
 	private final UserAdminViewDesign userAdminViewDesign;
-	
-	//private TreeDataEntity treeData;
-	
+
+	// private TreeDataEntity treeData;
+
 	private Tree<Node> tree;
-	
+
 	private boolean passwordRequired;
 
 	/**
-	 * Custom validator to be able to decide dynamically whether the password
-	 * field is required or not (empty value when updating the user is
-	 * interpreted as 'do not change the password').
+	 * Custom validator to be able to decide dynamically whether the password field
+	 * is required or not (empty value when updating the user is interpreted as 'do
+	 * not change the password').
 	 */
 	private Validator<String> passwordValidator = new Validator<String>() {
 
@@ -97,11 +97,10 @@ public class UserAdminView extends AbstractCrudView<User> {
 
 	@Autowired
 	public MockUserService userService;
-	
+
 	@Autowired
 	public TreeDataService treeDataService;
-	
-	
+
 	@Autowired
 	public UserAdminView(UserAdminPresenter presenter) {
 		this.presenter = presenter;
@@ -113,7 +112,11 @@ public class UserAdminView extends AbstractCrudView<User> {
 	@PostConstruct
 	private void init() {
 		presenter.init(this);
-		getGrid().setColumns("name", "lastname", "active","email","role");
+		getGrid().setColumns("name", "lastname");
+		getGrid().addColumn(c -> c.isActive() ? VaadinIcons.CHECK.getHtml() : VaadinIcons.CLOSE_CIRCLE.getHtml(),
+				new HtmlRenderer()).setCaption("active");
+		getGrid().addColumn("email");
+		getGrid().addColumn("role");
 		getGrid().getColumn("lastname").setCaption("Last Name");
 	}
 
@@ -198,44 +201,43 @@ public class UserAdminView extends AbstractCrudView<User> {
 	protected Focusable getFirstFormField() {
 		return getViewComponent().name;
 	}
-	
+
 	@Override
 	protected TextField getUserName() {
 		return getViewComponent().name;
 	}
-	
+
 	@Override
 	protected Button getEdit() {
 		Button btn = getViewComponent().edit;
 		btn.addStyleName("v-button-customstyle");
 		return btn;
 	}
-	
+
 	@Override
 	protected HorizontalSplitPanel getSplitScreen() {
 		return getViewComponent().splitscreen;
 	}
-	
+
 	@Override
 	protected VerticalLayout userDataLayout() {
 		return getViewComponent().userdatalayout;
 	}
-	
+
 	@Override
 	protected Tree<Node> getTree() {
 		return this.tree;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	protected Tree<Node> getUserTree(TreeData<Node> treeData) {
-			this.tree = new Tree<>();
-			this.tree.setSelectionMode(SelectionMode.SINGLE);
-			TreeDataProvider<Node> dataProvider = new TreeDataProvider<>(treeData);
-			tree.setTreeData(treeData);
-			
-			return tree;
-			
-			
+		this.tree = new Tree<>();
+		this.tree.setSelectionMode(SelectionMode.SINGLE);
+		TreeDataProvider<Node> dataProvider = new TreeDataProvider<>(treeData);
+		tree.setTreeData(treeData);
+
+		return tree;
+
 	}
 }

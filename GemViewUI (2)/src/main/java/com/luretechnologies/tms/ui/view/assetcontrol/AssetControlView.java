@@ -135,7 +135,7 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 		treeNodeSearch.setVisible(false);
 		configureTreeNodeSearch();
 
-		Panel panel = getAndLoadAuditPanel();
+		Panel panel = getAndLoadAssetControlPanel();
 		HorizontalLayout treeButtonLayout = new HorizontalLayout();
 		VerticalLayout treePanelLayout = new VerticalLayout();
 		//treePanelLayout.addComponentAsFirst(treeNodeSearch);
@@ -184,7 +184,7 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 		}
 	}
 
-	public Panel getAndLoadAuditPanel() {
+	public Panel getAndLoadAssetControlPanel() {
 		Panel panel = new Panel();
 		panel.setHeight("100%");
 		panel.addStyleName(ValoTheme.PANEL_WELL);
