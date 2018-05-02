@@ -70,19 +70,27 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 	private static final LocalDateTime localTimeNow = LocalDateTime.now();
 	private static Grid<Debug> debugGrid, deviceDebugGrid;
 	private static Grid<Alert> alertGrid =new Grid<>(Alert.class);
-	private static Button deleteHistoryGridRow, deleteAlertGridRow, editAlertGridRow, createAlertGridRow,saveAlertForm,cancelAlertForm;
+	private static Button deleteHistoryGridRow, deleteAlertGridRow, editAlertGridRow, createAlertGridRow,saveAlertForm,cancelAlertForm,deleteDeviceDebugGridRow;
 	private static Tree<ExtendedNode> nodeTree;
-	private static TextField treeNodeSearch, debugSearch;
+	private static TextField treeNodeSearch, historySearch,deviceDebugGridSearch;
 	private static HorizontalSplitPanel splitScreen;
 	private static TabSheet assetTabSheet;
-	private static DateField debugStartDateField, debugEndDateField;
-	private static VerticalLayout debugLayoutFull;
-	private static HorizontalLayout optionsLayoutHorizontalDesktop;
-	private static VerticalLayout optionsLayoutVerticalTab;
-	private static VerticalLayout optionsLayoutVerticalPhone;
+	private static DateField debugStartDateField, debugEndDateField,deviceDebugStartDateField,deviceDebugEndDateField;
+	private static VerticalLayout historyLayoutFull;
+	private static HorizontalLayout optionsLayoutHistoryHorizontalDesktop;
+	private static VerticalLayout optionsLayoutHistoryVerticalTab;
+	private static VerticalLayout optionsLayoutHistoryVerticalPhone;
+	private static HorizontalLayout historySearchLayout;
+	private static HorizontalLayout dateDeleteHistoryLayout;
+	private static VerticalLayout dateDeleteHistoryLayoutPhone;
+	
+	private static VerticalLayout debugLayout;
+	private static HorizontalLayout optionsLayoutDebugHorizontalDesktop;
+	private static VerticalLayout optionsLayoutDebugVerticalTab;
+	private static VerticalLayout optionsLayoutDebugVerticalPhone;
 	private static HorizontalLayout debugSearchLayout;
-	private static HorizontalLayout dateDeleteLayout;
-	private static VerticalLayout dateDeleteLayoutPhone;
+	private static HorizontalLayout dateDeleteDebugLayout;
+	private static VerticalLayout dateDeleteDebugLayoutPhone;
 
 	@Autowired
 	public AssetControlView() {
@@ -181,7 +189,6 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 		panel.setHeight("100%");
 		panel.addStyleName(ValoTheme.PANEL_WELL);
 		panel.setCaptionAsHtml(true);
-		//panel.setCaption("<h3 style=color:#216C2A;font-weight:bold;>Asset Control</h3>");
 		panel.setCaption("Asset Control");
 		panel.setResponsive(true);
 		panel.setSizeFull();
@@ -189,44 +196,84 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 		return panel;
 	}
 	private void tabMode() {
-		optionsLayoutVerticalTab.addStyleName("heartbeat-verticalLayout");
-		dateDeleteLayout.addComponent(debugStartDateField);
-		dateDeleteLayout.setComponentAlignment(debugStartDateField, Alignment.TOP_RIGHT);
-		dateDeleteLayout.addComponent(debugEndDateField);
-		dateDeleteLayout.setComponentAlignment(debugEndDateField, Alignment.TOP_RIGHT);
-		dateDeleteLayout.addComponent(deleteHistoryGridRow);
-		dateDeleteLayout.setComponentAlignment(deleteHistoryGridRow, Alignment.TOP_LEFT);
-		optionsLayoutVerticalTab.addComponents(debugSearchLayout,dateDeleteLayout);
+		//For History Screen
+		optionsLayoutHistoryVerticalTab.addStyleName("heartbeat-verticalLayout");
+		dateDeleteHistoryLayout.addComponent(debugStartDateField);
+		dateDeleteHistoryLayout.setComponentAlignment(debugStartDateField, Alignment.TOP_RIGHT);
+		dateDeleteHistoryLayout.addComponent(debugEndDateField);
+		dateDeleteHistoryLayout.setComponentAlignment(debugEndDateField, Alignment.TOP_RIGHT);
+		dateDeleteHistoryLayout.addComponent(deleteHistoryGridRow);
+		dateDeleteHistoryLayout.setComponentAlignment(deleteHistoryGridRow, Alignment.TOP_LEFT);
+		optionsLayoutHistoryVerticalTab.addComponents(historySearchLayout,dateDeleteHistoryLayout);
 		
-		optionsLayoutHorizontalDesktop.setVisible(false);
-		optionsLayoutVerticalPhone.setVisible(false);
-		optionsLayoutVerticalTab.setVisible(true);
+		optionsLayoutHistoryHorizontalDesktop.setVisible(false);
+		optionsLayoutHistoryVerticalPhone.setVisible(false);
+		optionsLayoutHistoryVerticalTab.setVisible(true);
+		
+		//Debug Screen
+		optionsLayoutDebugVerticalTab.addStyleName("heartbeat-verticalLayout");
+		dateDeleteDebugLayout.addComponent(deviceDebugStartDateField);
+		dateDeleteDebugLayout.setComponentAlignment(deviceDebugStartDateField, Alignment.TOP_RIGHT);
+		dateDeleteDebugLayout.addComponent(deviceDebugEndDateField);
+		dateDeleteDebugLayout.setComponentAlignment(deviceDebugEndDateField, Alignment.TOP_RIGHT);
+		dateDeleteDebugLayout.addComponent(deleteDeviceDebugGridRow);
+		dateDeleteDebugLayout.setComponentAlignment(deleteDeviceDebugGridRow, Alignment.TOP_LEFT);
+		optionsLayoutDebugVerticalTab.addComponents(debugSearchLayout,dateDeleteDebugLayout);
+		
+		optionsLayoutDebugHorizontalDesktop.setVisible(false);
+		optionsLayoutDebugVerticalPhone.setVisible(false);
+		optionsLayoutDebugVerticalTab.setVisible(true);
+		
 	}
 	
 	private void phoneMode() {
-		dateDeleteLayoutPhone.addComponents(debugStartDateField, debugEndDateField,deleteHistoryGridRow);
-		optionsLayoutVerticalPhone.addStyleName("heartbeat-verticalLayout");
-		optionsLayoutVerticalPhone.addComponents(debugSearchLayout,dateDeleteLayoutPhone);
-		optionsLayoutVerticalPhone.setVisible(true);
-		optionsLayoutHorizontalDesktop.setVisible(false);
-		optionsLayoutVerticalTab.setVisible(false);
+		//History Screen
+		dateDeleteHistoryLayoutPhone.addComponents(debugStartDateField, debugEndDateField,deleteHistoryGridRow);
+		optionsLayoutHistoryVerticalPhone.addStyleName("heartbeat-verticalLayout");
+		optionsLayoutHistoryVerticalPhone.addComponents(historySearchLayout,dateDeleteHistoryLayoutPhone);
+		optionsLayoutHistoryVerticalPhone.setVisible(true);
+		optionsLayoutHistoryHorizontalDesktop.setVisible(false);
+		optionsLayoutHistoryVerticalTab.setVisible(false);
+		
+		//Debug Screen
+		dateDeleteDebugLayoutPhone.addComponents(deviceDebugStartDateField, deviceDebugEndDateField,deleteDeviceDebugGridRow);
+		optionsLayoutDebugVerticalPhone.addStyleName("heartbeat-verticalLayout");
+		optionsLayoutDebugVerticalPhone.addComponents(debugSearchLayout,dateDeleteDebugLayoutPhone);
+		optionsLayoutDebugVerticalPhone.setVisible(true);
+		optionsLayoutDebugHorizontalDesktop.setVisible(false);
+		optionsLayoutDebugVerticalTab.setVisible(false);
 	}
 	
 	private void desktopMode() {
-		optionsLayoutHorizontalDesktop.addComponent(debugSearchLayout);
-		optionsLayoutHorizontalDesktop.setComponentAlignment(debugSearchLayout, Alignment.MIDDLE_LEFT);
-		dateDeleteLayout.addComponent(debugStartDateField);
-		dateDeleteLayout.setComponentAlignment(debugStartDateField, Alignment.TOP_RIGHT);
-		dateDeleteLayout.addComponent(debugEndDateField);
-		dateDeleteLayout.setComponentAlignment(debugEndDateField, Alignment.TOP_RIGHT);
-		dateDeleteLayout.addComponent(deleteHistoryGridRow);
-		dateDeleteLayout.setComponentAlignment(deleteHistoryGridRow, Alignment.TOP_LEFT);
-		optionsLayoutHorizontalDesktop.addComponent(dateDeleteLayout);
-		//optionsLayoutHorizontalDesktop.addComponent(dateDeleteLayout);
-		optionsLayoutHorizontalDesktop.setComponentAlignment(dateDeleteLayout, Alignment.TOP_RIGHT);
-		optionsLayoutHorizontalDesktop.setVisible(true);
-		optionsLayoutVerticalTab.setVisible(false);
-		optionsLayoutVerticalPhone.setVisible(false);
+		//History Screen
+		optionsLayoutHistoryHorizontalDesktop.addComponent(historySearchLayout);
+		optionsLayoutHistoryHorizontalDesktop.setComponentAlignment(historySearchLayout, Alignment.MIDDLE_LEFT);
+		dateDeleteHistoryLayout.addComponent(debugStartDateField);
+		dateDeleteHistoryLayout.setComponentAlignment(debugStartDateField, Alignment.TOP_RIGHT);
+		dateDeleteHistoryLayout.addComponent(debugEndDateField);
+		dateDeleteHistoryLayout.setComponentAlignment(debugEndDateField, Alignment.TOP_RIGHT);
+		dateDeleteHistoryLayout.addComponent(deleteHistoryGridRow);
+		dateDeleteHistoryLayout.setComponentAlignment(deleteHistoryGridRow, Alignment.TOP_LEFT);
+		optionsLayoutHistoryHorizontalDesktop.addComponent(dateDeleteHistoryLayout);
+		optionsLayoutHistoryHorizontalDesktop.setComponentAlignment(dateDeleteHistoryLayout, Alignment.TOP_RIGHT);
+		optionsLayoutHistoryHorizontalDesktop.setVisible(true);
+		optionsLayoutHistoryVerticalTab.setVisible(false);
+		optionsLayoutHistoryVerticalPhone.setVisible(false);
+		
+		//Debug Screen
+		optionsLayoutDebugHorizontalDesktop.addComponent(debugSearchLayout);
+		optionsLayoutDebugHorizontalDesktop.setComponentAlignment(debugSearchLayout, Alignment.MIDDLE_LEFT);
+		dateDeleteDebugLayout.addComponent(deviceDebugStartDateField);
+		dateDeleteDebugLayout.setComponentAlignment(deviceDebugStartDateField, Alignment.TOP_RIGHT);
+		dateDeleteDebugLayout.addComponent(deviceDebugEndDateField);
+		dateDeleteDebugLayout.setComponentAlignment(deviceDebugEndDateField, Alignment.TOP_RIGHT);
+		dateDeleteDebugLayout.addComponent(deleteDeviceDebugGridRow);
+		dateDeleteDebugLayout.setComponentAlignment(deleteDeviceDebugGridRow, Alignment.TOP_LEFT);
+		optionsLayoutDebugHorizontalDesktop.addComponent(dateDeleteDebugLayout);
+		optionsLayoutDebugHorizontalDesktop.setComponentAlignment(dateDeleteDebugLayout, Alignment.TOP_RIGHT);
+		optionsLayoutDebugHorizontalDesktop.setVisible(true);
+		optionsLayoutDebugVerticalTab.setVisible(false);
+		optionsLayoutDebugVerticalPhone.setVisible(false);
 	}
 	
 	private void configureTreeNodeSearch() {
@@ -260,6 +307,8 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 	private void clearCalenderDates() {
 		debugStartDateField.clear();
 		debugEndDateField.clear();
+		deviceDebugEndDateField.clear();
+		deviceDebugStartDateField.clear();
 	}
 	
 	private void confirmDialog() {
@@ -271,9 +320,32 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 		                    // Confirmed to continue
 		                	debugService.removeDebug(debugGrid.getSelectedItems().iterator().next());
 		    				nodeTree.getDataProvider().refreshAll();
-		    				debugSearch.clear();
+		    				historySearch.clear();
 		    				loadGrid();
 		    				clearCalenderDates();
+		                } else {
+		                    // User did not confirm
+		                    
+		                }
+		            }
+		        });
+	}
+	
+	private void confirmDialogDebug() {
+		ConfirmDialog.show(this.getUI(), "Please Confirm:", "Are you sure you want to delete?",
+		        "Ok", "Cancel", new ConfirmDialog.Listener() {
+
+		            public void onClose(ConfirmDialog dialog) {
+		                if (dialog.isConfirmed()) {
+		                    // Confirmed to continue
+		                	debugService.removeDebug(deviceDebugGrid.getSelectedItems().iterator().next());
+		        			ListDataProvider<Debug> refreshDebugDataProvider = debugService.getListDataProvider();
+		        			deviceDebugGrid.setDataProvider(refreshDebugDataProvider);
+		        			// Refreshing
+		        			deviceDebugGrid.getDataProvider().refreshAll();
+		        			deviceDebugGridSearch.clear();
+		        			clearCalenderDates();
+		        			//deviceDebugGridSearch.clear();
 		                } else {
 		                    // User did not confirm
 		                    
@@ -300,9 +372,9 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 	 * @param debugLayout
 	 */
 	private VerticalLayout getHistory() {
-		debugLayoutFull = new VerticalLayout();
-		debugLayoutFull.setWidth("100%");
-		debugLayoutFull.setResponsive(true);
+		historyLayoutFull = new VerticalLayout();
+		historyLayoutFull.setWidth("100%");
+		historyLayoutFull.setResponsive(true);
 		debugGrid = new Grid<>(Debug.class);
 		debugGrid.setWidth("100%");
 		debugGrid.setHeightByRows(20);
@@ -323,23 +395,23 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 		});
 
 		// debugGrid.setData();
-		debugSearch = new TextField();
-		debugSearch.setWidth("100%");
-		debugSearch.setIcon(VaadinIcons.SEARCH);
-		debugSearch.setStyleName("small inline-icon search");
-		debugSearch.setPlaceholder("Search");
-		debugSearch.setResponsive(true);
-		debugSearch.addShortcutListener(new ShortcutListener("Clear", KeyCode.ESCAPE, null) {
+		historySearch = new TextField();
+		historySearch.setWidth("100%");
+		historySearch.setIcon(VaadinIcons.SEARCH);
+		historySearch.setStyleName("small inline-icon search");
+		historySearch.setPlaceholder("Search");
+		historySearch.setResponsive(true);
+		historySearch.addShortcutListener(new ShortcutListener("Clear", KeyCode.ESCAPE, null) {
 
 			@Override
 			public void handleAction(Object sender, Object target) {
-				if (target == debugSearch) {
-					debugSearch.clear();
+				if (target == historySearch) {
+					historySearch.clear();
 				}
 
 			}
 		});
-		debugSearch.addValueChangeListener(valueChange -> {
+		historySearch.addValueChangeListener(valueChange -> {
 			String valueInLower = valueChange.getValue().toLowerCase();
 			ListDataProvider<Debug> debugDataProvider = (ListDataProvider<Debug>) debugGrid.getDataProvider();
 			debugDataProvider.setFilter(filter -> {
@@ -374,17 +446,17 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 
 		});
 
-		 optionsLayoutHorizontalDesktop = new HorizontalLayout();
+		 optionsLayoutHistoryHorizontalDesktop = new HorizontalLayout();
 		// optionsLayout.setComponentAlignment(childComponent, alignment);
-		optionsLayoutHorizontalDesktop.setWidth("100%");
-		optionsLayoutHorizontalDesktop.setHeight("50%");
+		optionsLayoutHistoryHorizontalDesktop.setWidth("100%");
+		optionsLayoutHistoryHorizontalDesktop.setHeight("50%");
 		// optionsLayout.setSizeUndefined();
-		optionsLayoutHorizontalDesktop.setResponsive(true);
+		optionsLayoutHistoryHorizontalDesktop.setResponsive(true);
 
-		debugSearchLayout = new HorizontalLayout();
-		debugSearchLayout.setWidth("100%");
-		debugSearchLayout.addComponent(debugSearch);
-		debugSearchLayout.setComponentAlignment(debugSearch, Alignment.TOP_LEFT);
+		historySearchLayout = new HorizontalLayout();
+		historySearchLayout.setWidth("100%");
+		historySearchLayout.addComponent(historySearch);
+		historySearchLayout.setComponentAlignment(historySearch, Alignment.TOP_LEFT);
 
 //		dateDeleteLayout = new HorizontalLayout();
 //		dateDeleteLayout.setSizeUndefined();
@@ -413,39 +485,39 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 		debugEndDateField.addStyleName("v-textfield-font");
 		
 		//Vertical Initialization
-		optionsLayoutVerticalTab = new VerticalLayout();
-		optionsLayoutVerticalTab.setVisible(false);
+		optionsLayoutHistoryVerticalTab = new VerticalLayout();
+		optionsLayoutHistoryVerticalTab.setVisible(false);
 		
 		//Vertical Phone Mode 
-		optionsLayoutVerticalPhone= new VerticalLayout();
-		optionsLayoutVerticalPhone.setVisible(false);
-		dateDeleteLayoutPhone = new VerticalLayout();
-		dateDeleteLayoutPhone.setVisible(true);
-		dateDeleteLayoutPhone.addStyleName("heartbeat-verticalLayout");
+		optionsLayoutHistoryVerticalPhone= new VerticalLayout();
+		optionsLayoutHistoryVerticalPhone.setVisible(false);
+		dateDeleteHistoryLayoutPhone = new VerticalLayout();
+		dateDeleteHistoryLayoutPhone.setVisible(true);
+		dateDeleteHistoryLayoutPhone.addStyleName("heartbeat-verticalLayout");
 		
-		dateDeleteLayout = new HorizontalLayout();
-		dateDeleteLayout.setVisible(true);
-		dateDeleteLayout.setWidth("100%");
+		dateDeleteHistoryLayout = new HorizontalLayout();
+		dateDeleteHistoryLayout.setVisible(true);
+		dateDeleteHistoryLayout.setWidth("100%");
 		
-		optionsLayoutHorizontalDesktop.addComponent(debugSearchLayout);
-		optionsLayoutHorizontalDesktop.setComponentAlignment(debugSearchLayout, Alignment.MIDDLE_LEFT);
-		dateDeleteLayout.addComponent(debugStartDateField);
-		dateDeleteLayout.setComponentAlignment(debugStartDateField, Alignment.MIDDLE_LEFT);
-		dateDeleteLayout.addComponent(debugEndDateField);
-		dateDeleteLayout.setComponentAlignment(debugEndDateField, Alignment.MIDDLE_RIGHT);
-		dateDeleteLayout.addComponent(deleteHistoryGridRow);
-		dateDeleteLayout.setComponentAlignment(deleteHistoryGridRow, Alignment.MIDDLE_RIGHT);
-		optionsLayoutHorizontalDesktop.addComponent(dateDeleteLayout);
-		optionsLayoutHorizontalDesktop.setComponentAlignment(dateDeleteLayout, Alignment.MIDDLE_RIGHT);
+		optionsLayoutHistoryHorizontalDesktop.addComponent(historySearchLayout);
+		optionsLayoutHistoryHorizontalDesktop.setComponentAlignment(historySearchLayout, Alignment.MIDDLE_LEFT);
+		dateDeleteHistoryLayout.addComponent(debugStartDateField);
+		dateDeleteHistoryLayout.setComponentAlignment(debugStartDateField, Alignment.MIDDLE_LEFT);
+		dateDeleteHistoryLayout.addComponent(debugEndDateField);
+		dateDeleteHistoryLayout.setComponentAlignment(debugEndDateField, Alignment.MIDDLE_RIGHT);
+		dateDeleteHistoryLayout.addComponent(deleteHistoryGridRow);
+		dateDeleteHistoryLayout.setComponentAlignment(deleteHistoryGridRow, Alignment.MIDDLE_RIGHT);
+		optionsLayoutHistoryHorizontalDesktop.addComponent(dateDeleteHistoryLayout);
+		optionsLayoutHistoryHorizontalDesktop.setComponentAlignment(dateDeleteHistoryLayout, Alignment.MIDDLE_RIGHT);
 		
 		
-		debugLayoutFull.addComponent(optionsLayoutHorizontalDesktop);
-		debugLayoutFull.setComponentAlignment(optionsLayoutHorizontalDesktop, Alignment.TOP_LEFT);
-		debugLayoutFull.addComponent(optionsLayoutVerticalTab);
-		debugLayoutFull.setComponentAlignment(optionsLayoutVerticalTab, Alignment.TOP_LEFT);
-		debugLayoutFull.addComponent(optionsLayoutVerticalPhone);
-		debugLayoutFull.setComponentAlignment(optionsLayoutVerticalPhone, Alignment.TOP_LEFT);
-		debugLayoutFull.addComponent(debugGrid);
+		historyLayoutFull.addComponent(optionsLayoutHistoryHorizontalDesktop);
+		historyLayoutFull.setComponentAlignment(optionsLayoutHistoryHorizontalDesktop, Alignment.TOP_LEFT);
+		historyLayoutFull.addComponent(optionsLayoutHistoryVerticalTab);
+		historyLayoutFull.setComponentAlignment(optionsLayoutHistoryVerticalTab, Alignment.TOP_LEFT);
+		historyLayoutFull.addComponent(optionsLayoutHistoryVerticalPhone);
+		historyLayoutFull.setComponentAlignment(optionsLayoutHistoryVerticalPhone, Alignment.TOP_LEFT);
+		historyLayoutFull.addComponent(debugGrid);
 
 		//end Date listner
 		debugEndDateField.addValueChangeListener(change ->{
@@ -525,7 +597,7 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 			}
 
 		});
-		return debugLayoutFull;
+		return historyLayoutFull;
 	}
 
 	private VerticalLayout getAlert() {
@@ -535,18 +607,27 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 	}
 
 	private VerticalLayout getDebug() {
-		VerticalLayout debugLayout = new VerticalLayout();
+		debugLayout = new VerticalLayout();
+		HorizontalLayout debugLabel = new HorizontalLayout();
+		HorizontalLayout debugMonitoringLabel = new HorizontalLayout();
+		
+		debugLayout.addStyleName("heartbeat-verticalLayout");
 		Label entityInformation = new Label("Entity Information");
 		entityInformation.addStyleNames(ValoTheme.LABEL_BOLD, ValoTheme.LABEL_H3);
+		entityInformation.addStyleName("label-style");
+		debugLabel.setWidth("100%");
+		debugLabel.addComponent(entityInformation);
+		
+		
 		debugLayout.addComponent(entityInformation);
-		// Form
 		FormLayout deviceDebugFormLayout = new FormLayout();
+		deviceDebugFormLayout.addStyleNames("heartbeat-verticalLayout", "assertAlert-formLayout");
 		deviceDebugFormLayout.addComponent(ComponentUtil.getFormFieldWithLabel("Entity Type", FormFieldType.TEXTBOX));
 		deviceDebugFormLayout.addComponent(ComponentUtil.getFormFieldWithLabel("Name", FormFieldType.TEXTBOX));
 		deviceDebugFormLayout.addComponent(ComponentUtil.getFormFieldWithLabel("Description", FormFieldType.TEXTBOX));
-		deviceDebugFormLayout.addComponent(ComponentUtil.getFormFieldWithLabel("Active", FormFieldType.CHECKBOX));
+		deviceDebugFormLayout.addComponent(ComponentUtil.getFormFieldWithLabel("Entity Active", FormFieldType.HORIZONTALLAYOUT));
 		deviceDebugFormLayout.addComponent(ComponentUtil.getFormFieldWithLabel("Serial Num.", FormFieldType.TEXTBOX));
-		deviceDebugFormLayout.addComponent(ComponentUtil.getFormFieldWithLabel("Debug", FormFieldType.CHECKBOX));
+		deviceDebugFormLayout.addComponent(ComponentUtil.getFormFieldWithLabel("Receive Debug", FormFieldType.HORIZONTALLAYOUT));
 		ComboBox<String> combox = (ComboBox<String>)ComponentUtil.getFormFieldWithLabel("", FormFieldType.COMBOBOX);
 		combox.setCaptionAsHtml(true);
 		combox.setCaption("Debug<br/>Duration"); 
@@ -559,8 +640,11 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 		// Grid
 		Label debugMonitoring = new Label("Device Debug Monitoring");
 		debugMonitoring.addStyleNames(ValoTheme.LABEL_BOLD, ValoTheme.LABEL_H3);
-		debugLayout.addComponent(debugMonitoring);
-		debugLayout.addComponent(getDeviceDebugGridSearchLayout());
+		debugMonitoring.addStyleName("label-style");
+		debugMonitoringLabel.addStyleName("assetDebug-label");
+		debugMonitoringLabel.addComponent(debugMonitoring);
+		debugLayout.addComponent(debugMonitoringLabel);
+		getDeviceDebugGridSearchLayout();
 		debugLayout.addComponent(getDeviceDebugGrid());
 		
 		deviceDebugGrid.addSelectionListener(selection->{
@@ -569,9 +653,15 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 				((TextField)deviceDebugFormLayout.getComponent(0)).setValue(selectedDebug.getType().name());
 				((TextField)deviceDebugFormLayout.getComponent(1)).setValue(selectedDebug.getName());
 				((TextField)deviceDebugFormLayout.getComponent(2)).setValue(selectedDebug.getDescription());
-				((CheckBox)deviceDebugFormLayout.getComponent(3)).setValue(selectedDebug.isActive());
+				HorizontalLayout HL= (HorizontalLayout)deviceDebugFormLayout.getComponent(3);
+				CheckBox checkbox = (CheckBox) HL.getComponent(1);
+				checkbox.setValue(selectedDebug.isActive());
+				//((CheckBox)deviceDebugFormLayout.getComponent(3)).setValue(selectedDebug.isActive());
 				((TextField)deviceDebugFormLayout.getComponent(4)).setValue(selectedDebug.getId().toString());
-				((CheckBox)deviceDebugFormLayout.getComponent(5)).setValue(selectedDebug.isDebug());
+				HorizontalLayout HL1= (HorizontalLayout)deviceDebugFormLayout.getComponent(5);
+				CheckBox checkbox1 = (CheckBox) HL1.getComponent(1);
+				checkbox1.setValue(selectedDebug.isDebug());
+				//((CheckBox)deviceDebugFormLayout.getComponent(5)).setValue(selectedDebug.isDebug());
 				//FIXME: provide combo option based on dateOfDebug
 				LocalDateTime debugTime = LocalDateTime.ofInstant(selectedDebug.getDateOfDebug().toInstant(), ZoneId.systemDefault());
 				if(debugTime.isBefore(LocalDateTime.now()))
@@ -586,8 +676,14 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 		return debugLayout;
 	}
 
-	private HorizontalLayout getDeviceDebugGridSearchLayout() {
-		TextField deviceDebugGridSearch = new TextField();
+	private void getDeviceDebugGridSearchLayout() {
+		
+		optionsLayoutDebugHorizontalDesktop = new HorizontalLayout();
+		optionsLayoutDebugHorizontalDesktop.setWidth("100%");
+		optionsLayoutDebugHorizontalDesktop.setHeight("50%");
+		optionsLayoutDebugHorizontalDesktop.setResponsive(true);
+		
+		deviceDebugGridSearch = new TextField();
 		deviceDebugGridSearch.setWidth("100%");
 		deviceDebugGridSearch.setIcon(VaadinIcons.SEARCH);
 		deviceDebugGridSearch.setStyleName("small inline-icon search");
@@ -612,54 +708,100 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 				return typeInLower.equals(valueInLower) || descriptionInLower.contains(valueInLower);
 			});
 		});
-		final DateField deviceDebugStartDateField = new DateField();
-		final DateField deviceDebugEndDateField = new DateField();
+		
+		debugSearchLayout = new HorizontalLayout();
+		debugSearchLayout.setWidth("100%");
+		debugSearchLayout.addComponent(deviceDebugGridSearch);
+		debugSearchLayout.setComponentAlignment(deviceDebugGridSearch, Alignment.TOP_LEFT);
+		
+		deviceDebugStartDateField = new DateField();
+		deviceDebugEndDateField = new DateField();
 
-		Button deleteDeviceDebugGridRow = new Button(VaadinIcons.TRASH);
+		deleteDeviceDebugGridRow = new Button(VaadinIcons.TRASH);
 		deleteDeviceDebugGridRow.addStyleName(ValoTheme.BUTTON_FRIENDLY);
 		deleteDeviceDebugGridRow.setResponsive(true);
 		deleteDeviceDebugGridRow.addClickListener(clicked -> {
-			debugService.removeDebug(deviceDebugGrid.getSelectedItems().iterator().next());
-			ListDataProvider<Debug> refreshDebugDataProvider = debugService.getListDataProvider();
-			deviceDebugGrid.setDataProvider(refreshDebugDataProvider);
-			// Refreshing
-			deviceDebugGrid.getDataProvider().refreshAll();
-			deviceDebugStartDateField.setPlaceholder("Start Date");
-			deviceDebugStartDateField.setRangeEnd(localTimeNow.toLocalDate());
-			deviceDebugEndDateField.setRangeEnd(localTimeNow.toLocalDate());
-			deviceDebugEndDateField.setPlaceholder("End Date");
-			deviceDebugGridSearch.clear();
+//			debugService.removeDebug(deviceDebugGrid.getSelectedItems().iterator().next());
+//			ListDataProvider<Debug> refreshDebugDataProvider = debugService.getListDataProvider();
+//			deviceDebugGrid.setDataProvider(refreshDebugDataProvider);
+//			// Refreshing
+//			deviceDebugGrid.getDataProvider().refreshAll();
+//			deviceDebugStartDateField.setPlaceholder("Start Date");
+//			deviceDebugStartDateField.setRangeEnd(localTimeNow.toLocalDate());
+//			deviceDebugEndDateField.setRangeEnd(localTimeNow.toLocalDate());
+//			deviceDebugEndDateField.setPlaceholder("End Date");
+//			deviceDebugGridSearch.clear();
+			confirmDialogDebug();
 
 		});
-
+		
+		deviceDebugStartDateField.setWidth("100%");
 		deviceDebugStartDateField.setResponsive(true);
 		deviceDebugStartDateField.setDateFormat(DATE_FORMAT);
 		deviceDebugStartDateField.setRangeEnd(LocalDateTime.now().toLocalDate());
 		deviceDebugStartDateField.setPlaceholder("Start Date");
+		deviceDebugStartDateField.addStyleName("v-textfield-font");
+		
 		deviceDebugEndDateField.setResponsive(true);
+		deviceDebugEndDateField.setWidth("100%");
 		deviceDebugEndDateField.setDateFormat(DATE_FORMAT);
-		deviceDebugEndDateField.setRangeEnd(LocalDateTime.now().toLocalDate());
+		///deviceDebugEndDateField.setRangeEnd(LocalDateTime.now().toLocalDate());
 		deviceDebugEndDateField.setPlaceholder("End Date");
+		deviceDebugEndDateField.setDateOutOfRangeMessage("Same Date cannot be selected");
+		deviceDebugEndDateField.addStyleName("v-textfield-font");
 
-		// end Date listner
-		deviceDebugEndDateField.addValueChangeListener(change -> {
-			if (change.getValue().compareTo(deviceDebugStartDateField.getValue()) > 0) {
-				ListDataProvider<Debug> deviceDebugDataProvider = (ListDataProvider<Debug>) deviceDebugGrid
-						.getDataProvider();
-				deviceDebugDataProvider.setFilter(filter -> {
-					Date debugDate = filter.getDateOfDebug();
-					try {
-						return debugDate.after(
-								dateFormatter.parse(deviceDebugStartDateField.getValue().minusDays(1).toString()))
-								&& debugDate.before(dateFormatter.parse(change.getValue().plusDays(1).toString()));
-					} catch (ParseException e) {
-						System.out.println(e.getMessage() + filter.toString());
+		//Vertical Initialization
+		optionsLayoutDebugVerticalTab = new VerticalLayout();
+		optionsLayoutDebugVerticalTab.setVisible(false);
+		
+		//Vertical Phone Mode 
+		optionsLayoutDebugVerticalPhone= new VerticalLayout();
+		optionsLayoutDebugVerticalPhone.setVisible(false);
+		dateDeleteDebugLayoutPhone = new VerticalLayout();
+		dateDeleteDebugLayoutPhone.setVisible(true);
+		dateDeleteDebugLayoutPhone.addStyleName("heartbeat-verticalLayout");
+		
+		dateDeleteDebugLayout = new HorizontalLayout();
+		dateDeleteDebugLayout.setVisible(true);
+		dateDeleteDebugLayout.setWidth("100%");
+		
+		optionsLayoutDebugHorizontalDesktop.addComponent(debugSearchLayout);
+		optionsLayoutDebugHorizontalDesktop.setComponentAlignment(debugSearchLayout, Alignment.MIDDLE_LEFT);
+		dateDeleteDebugLayout.addComponent(deviceDebugStartDateField);
+		dateDeleteDebugLayout.setComponentAlignment(deviceDebugStartDateField, Alignment.MIDDLE_LEFT);
+		dateDeleteDebugLayout.addComponent(deviceDebugEndDateField);
+		dateDeleteDebugLayout.setComponentAlignment(deviceDebugEndDateField, Alignment.MIDDLE_RIGHT);
+		dateDeleteDebugLayout.addComponent(deleteDeviceDebugGridRow);
+		dateDeleteDebugLayout.setComponentAlignment(deleteDeviceDebugGridRow, Alignment.MIDDLE_RIGHT);
+		optionsLayoutDebugHorizontalDesktop.addComponent(dateDeleteDebugLayout);
+		optionsLayoutDebugHorizontalDesktop.setComponentAlignment(dateDeleteDebugLayout, Alignment.MIDDLE_RIGHT);
+		
+		debugLayout.addComponent(optionsLayoutDebugHorizontalDesktop);
+		debugLayout.setComponentAlignment(optionsLayoutDebugHorizontalDesktop, Alignment.TOP_LEFT);
+		debugLayout.addComponent(optionsLayoutDebugVerticalTab);
+		debugLayout.setComponentAlignment(optionsLayoutDebugVerticalTab, Alignment.TOP_LEFT);
+		debugLayout.addComponent(optionsLayoutDebugVerticalPhone);
+		debugLayout.setComponentAlignment(optionsLayoutDebugVerticalPhone, Alignment.TOP_LEFT);
 
-						return false;
-					}
-				});
-			}
-		});
+//		// end Date listner
+//		deviceDebugEndDateField.addValueChangeListener(change -> {
+//			if (change.getValue().compareTo(deviceDebugStartDateField.getValue()) > 0) {
+//				ListDataProvider<Debug> deviceDebugDataProvider = (ListDataProvider<Debug>) deviceDebugGrid
+//						.getDataProvider();
+//				deviceDebugDataProvider.setFilter(filter -> {
+//					Date debugDate = filter.getDateOfDebug();
+//					try {
+//						return debugDate.after(
+//								dateFormatter.parse(deviceDebugStartDateField.getValue().minusDays(1).toString()))
+//								&& debugDate.before(dateFormatter.parse(change.getValue().plusDays(1).toString()));
+//					} catch (ParseException e) {
+//						System.out.println(e.getMessage() + filter.toString());
+//
+//						return false;
+//					}
+//				});
+//			}
+//		});
 
 		deviceDebugEndDateField.addShortcutListener(new ShortcutListener("Clear", KeyCode.ESCAPE, null) {
 
@@ -672,8 +814,47 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 				}
 			}
 		});
-		return new HorizontalLayout(deviceDebugGridSearch, deviceDebugStartDateField, deviceDebugEndDateField,
-				deleteDeviceDebugGridRow);
+		
+		deviceDebugEndDateField.addValueChangeListener(change ->{
+	         if(!(change.getValue() == null)) {
+	        	 if(!nodeTree.getSelectedItems().isEmpty()) {
+	        		 	if(deviceDebugStartDateField.getValue()!=null) {
+	        	 		if(change.getValue().compareTo(deviceDebugStartDateField.getValue()) >= 0 ) {
+	        	 			String date = deviceDebugEndDateField.getValue().format(dateFormatter1);
+	        	 			deviceDebugEndDateField.setDescription(date);
+	        	 				ListDataProvider<Debug> debugDataProvider = (ListDataProvider<Debug>) deviceDebugGrid.getDataProvider();
+	        	 				debugDataProvider.setFilter(filter -> {
+	        	 				Date debugDate = filter.getDateOfDebug();
+	        	 				try {
+	        	 					return debugDate.after(dateFormatter.parse(deviceDebugStartDateField.getValue().minusDays(1).toString())) && debugDate.before(dateFormatter.parse(change.getValue().plusDays(1).toString()));
+	        	 				} catch (ParseException e) {
+	        	 					System.out.println(e.getMessage() + filter.toString());
+							
+	        	 					return false;
+	        	 				}
+					});
+				} 
+	        		 	}else {
+	        		 		Notification.show("Select Start Date to filter the data", Notification.Type.WARNING_MESSAGE).setDelayMsec(3000);
+	        		 		deviceDebugEndDateField.clear();
+	        		 	}
+	        }else {
+	        	Notification.show("Please Select any Node to filter the data", Notification.Type.WARNING_MESSAGE).setDelayMsec(3000);
+	        	clearCalenderDates();
+	        }
+		}
+	});
+		
+		deviceDebugStartDateField.addValueChangeListener(change ->{
+			if(change.getValue()!=null) {
+				deviceDebugEndDateField.clear();
+				deviceDebugEndDateField.setRangeStart(change.getValue().plusDays(1));
+				//debugEndDateField.setRangeEnd(localTimeNow.toLocalDate().plusDays(1));
+				String date = deviceDebugStartDateField.getValue().format(dateFormatter1);
+				deviceDebugStartDateField.setDescription(date);
+			}
+	});
+
 	}
 
 	private Grid<Debug> getDeviceDebugGrid() {

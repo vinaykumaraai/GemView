@@ -60,15 +60,39 @@ public class ComponentUtil {
 			break;
 		case HORIZONTALLAYOUT:
 			HorizontalLayout activeBoxLayout = new HorizontalLayout();
-			Label active = new Label("Active");
-			active.setStyleName("role-activeLable");
-			active.addStyleName("v-textfield-font");
-			CheckBox activeCheckBox = new CheckBox();
-			activeCheckBox.addStyleName("v-textfield-font");
-			activeBoxLayout.addComponents(active, activeCheckBox);
-			activeBoxLayout.setStyleName("role-activeLable");
-			activeBoxLayout.addStyleName("assetAlert-activeCheckBox");
-			component =activeBoxLayout;
+			if(labelName.equals("Entity Active")) {
+				Label active = new Label("Active");
+				active.setStyleName("role-activeLable");
+				active.addStyleName("v-textfield-font");
+				CheckBox activeCheckBox = new CheckBox();
+				activeCheckBox.setCaption(labelName);
+				activeCheckBox.addStyleName("v-textfield-font");
+				activeBoxLayout.addComponents(active, activeCheckBox);
+				activeBoxLayout.setStyleName("role-activeLable");
+				activeBoxLayout.addStyleName("assetAlert-activeCheckBox");
+				component =activeBoxLayout;
+			} else if(labelName.equals("Receive Debug")) {
+				Label active = new Label("Debug");
+				active.setStyleName("role-activeLable");
+				active.addStyleName("v-textfield-font");
+				CheckBox activeCheckBox = new CheckBox();
+				activeCheckBox.setCaption(labelName);
+				activeCheckBox.addStyleName("v-textfield-font");
+				activeBoxLayout.addComponents(active, activeCheckBox);
+				activeBoxLayout.setStyleName("role-activeLable");
+				activeBoxLayout.addStyleName("assetAlert-activeCheckBox");
+				component =activeBoxLayout;
+			}else if(labelName.isEmpty()){
+				Label active = new Label("Active");
+				active.setStyleName("role-activeLable");
+				active.addStyleName("v-textfield-font");
+				CheckBox activeCheckBox = new CheckBox();
+				activeCheckBox.addStyleName("v-textfield-font");
+				activeBoxLayout.addComponents(active, activeCheckBox);
+				activeBoxLayout.setStyleName("role-activeLable");
+				activeBoxLayout.addStyleName("assetAlert-activeCheckBox");
+				component =activeBoxLayout;
+			}
 			break;
 		case CHECKBOX:
 			CheckBox checkBox = new CheckBox(labelName, false);
@@ -78,7 +102,6 @@ public class ComponentUtil {
 			break;
 		case COMBOBOX:
 			ComboBox<String> combobox = new ComboBox<String>(labelName);
-			combobox.setSizeFull();
 			combobox.setEnabled(false);
 			component = combobox;
 		default:
