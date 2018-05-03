@@ -114,7 +114,7 @@ public class UserAdminView extends AbstractCrudView<User> {
 		presenter.init(this);
 		getGrid().setColumns("name", "lastname");
 		getGrid().addColumn(c -> c.isActive() ? VaadinIcons.CHECK.getHtml() : VaadinIcons.CLOSE_CIRCLE.getHtml(),
-				new HtmlRenderer()).setCaption("active");
+				new HtmlRenderer()).setCaption("Active");
 		getGrid().addColumn("email");
 		getGrid().addColumn("role");
 		getGrid().getColumn("lastname").setCaption("Last Name");
