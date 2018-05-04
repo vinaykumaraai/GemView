@@ -125,10 +125,10 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			System.out.println("Height " + r.getHeight() + "Width:  " + r.getWidth() + " in pixel");
 			if (r.getWidth() <= 1450 && r.getWidth() >= 700) {
 				// tabMode();
+				appStoreGridLayout.removeAllComponents();
 				appStoreGridLayout.setColumns(1);
-				appStoreGridLayout.iterator().forEachRemaining(component->{
-					
-				});
+				appStoreGridLayout.setRows(4);
+				appStoreGridLayout.addComponents(getAppStoreComponents());
 			} else if (r.getWidth() <= 699 && r.getWidth() > 0) {
 				// phoneMode();
 
