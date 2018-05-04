@@ -33,6 +33,7 @@ package com.luretechnologies.tms.ui.view.applicationstore;
 
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.util.Arrays;
 
 import javax.annotation.PostConstruct;
 
@@ -42,7 +43,9 @@ import org.vaadin.dialogs.ConfirmDialog;
 import com.luretechnologies.tms.backend.data.entity.App;
 import com.luretechnologies.tms.backend.data.entity.AppDefaultParam;
 import com.luretechnologies.tms.backend.data.entity.Devices;
+import com.luretechnologies.tms.backend.data.entity.User;
 import com.luretechnologies.tms.backend.service.AppService;
+import com.luretechnologies.tms.backend.service.MockUserService;
 import com.luretechnologies.tms.backend.service.OdometerDeviceService;
 import com.vaadin.annotations.StyleSheet;
 import com.vaadin.data.provider.ListDataProvider;
@@ -89,7 +92,8 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 	public static final String VIEW_NAME = "applicationstore";
 	private FormLayout applicationDetailsForm;
 	private HorizontalLayout buttonLayout;
-
+	private Grid<AppDefaultParam> appDefaultParamGrid; 
+	
 	@Autowired
 	public ApplicationStoreView() {
 
@@ -100,21 +104,14 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 	
 	@Autowired
 	private OdometerDeviceService deviceService;
+	
+	@Autowired
+	private MockUserService userService;
 
 	@PostConstruct
 	private void init() {
 
-		Page.getCurrent().addBrowserWindowResizeListener(r -> {
-			System.out.println("Height " + r.getHeight() + "Width:  " + r.getWidth() + " in pixel");
-			if (r.getWidth() <= 1450 && r.getWidth() >= 700) {
-				// tabMode();
-			} else if (r.getWidth() <= 699 && r.getWidth() > 0) {
-				// phoneMode();
-
-			} else {
-				// desktopMode();
-			}
-		});
+		
 
 		setSpacing(false);
 		setMargin(false);
@@ -123,6 +120,22 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		GridLayout appStoreGridLayout = new GridLayout(2, 2, getAppStoreComponents());
 		appStoreGridLayout.setMargin(true);
 		panel.setContent(appStoreGridLayout);
+		
+		Page.getCurrent().addBrowserWindowResizeListener(r -> {
+			System.out.println("Height " + r.getHeight() + "Width:  " + r.getWidth() + " in pixel");
+			if (r.getWidth() <= 1450 && r.getWidth() >= 700) {
+				// tabMode();
+				appStoreGridLayout.setColumns(1);
+				appStoreGridLayout.iterator().forEachRemaining(component->{
+					
+				});
+			} else if (r.getWidth() <= 699 && r.getWidth() > 0) {
+				// phoneMode();
+
+			} else {
+				// desktopMode();
+			}
+		});
 	}
 
 	private Panel getAndLoadApplicationStorePanel() {
@@ -219,12 +232,19 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 				((TextField)applicationDetailsForm.getComponent(0)).setValue(selectedItem.getPackageName());
 				((TextField)applicationDetailsForm.getComponent(1)).setValue(selectedItem.getFile());
 				((TextField)applicationDetailsForm.getComponent(3)).setValue(selectedItem.getPackageVersion());
+				((ComboBox)applicationDetailsForm.getComponent(4)).setValue(selectedItem.getOwner());
+				((ComboBox)applicationDetailsForm.getComponent(5)).setValue(selectedItem.getDevice());
 				((CheckBox)applicationDetailsForm.getComponent(6)).setValue(selectedItem.isActive());
+				appDefaultParamGrid.setDataProvider(new ListDataProvider<>(selectedItem.getAppDefaultParamList()));
+				
 			}else {
 				((TextField)applicationDetailsForm.getComponent(0)).clear();
 				((TextField)applicationDetailsForm.getComponent(1)).clear();
 				((TextField)applicationDetailsForm.getComponent(3)).clear();
+				((ComboBox)applicationDetailsForm.getComponent(4)).clear();
+				((ComboBox)applicationDetailsForm.getComponent(5)).clear();
 				((CheckBox)applicationDetailsForm.getComponent(6)).clear();
+				appDefaultParamGrid.setDataProvider(new ListDataProvider<>(Arrays.asList()));
 			}
 		});
 		return applicationListLayout;
@@ -263,15 +283,15 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		packageVersion.addStyleNames("role-textbox", "v-grid-cell",ValoTheme.TEXTFIELD_BORDERLESS);
 		packageVersion.setEnabled(false);
 		//FIXME: put the list of organization
-		ComboBox<String> applicationOwner = new ComboBox<String>("Application <br/>Owner");
+		ComboBox<User> applicationOwner = new ComboBox<User>("Application <br/>Owner");
 		applicationOwner.setEnabled(false);
 		applicationOwner.setCaptionAsHtml(true);
+		applicationOwner.setDataProvider(new ListDataProvider<>(userService.getUsers()));
 		ComboBox<Devices> devices = new ComboBox<Devices>("Device");
 		devices.setDataProvider(deviceService.getListDataProvider());
 		devices.setEnabled(false);
 		devices.addSelectionListener(selection ->{
-			if(selection.getFirstSelectedItem().isPresent()) {
-			}
+			
 		});
 		CheckBox activeApplication = new CheckBox("Application Available", false);
 		activeApplication.setEnabled(false);
@@ -298,8 +318,9 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 	}
 
 	private VerticalLayout getApplicationDefaulParametersLayout() {
-		Grid<AppDefaultParam> appDefaultParamGrid = new Grid<>(AppDefaultParam.class);
+		appDefaultParamGrid = new Grid<>(AppDefaultParam.class);
 		appDefaultParamGrid.setColumns("parameter","description","type","active");
+		
 		TextField appDefaultParamSearch = new TextField();
 		appDefaultParamSearch.setWidth("100%");
 		appDefaultParamSearch.setIcon(VaadinIcons.SEARCH);

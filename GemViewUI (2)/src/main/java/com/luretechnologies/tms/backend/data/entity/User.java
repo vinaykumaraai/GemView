@@ -35,6 +35,14 @@ package com.luretechnologies.tms.backend.data.entity;
 import java.util.Objects;
 
 // "User" is a reserved word in some SQL implementations
+/**
+ * @author sils
+ *
+ */
+/**
+ * @author sils
+ *
+ */
 public class User extends AbstractEntity {
 
 	private String email;
@@ -139,4 +147,10 @@ public class User extends AbstractEntity {
 	public void setActive(boolean active) {
 		this.active = active;
 	}
+
+	@Override
+	public String toString() {
+		return name;
+	}
+
 }

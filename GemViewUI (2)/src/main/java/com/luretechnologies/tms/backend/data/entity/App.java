@@ -1,5 +1,6 @@
 package com.luretechnologies.tms.backend.data.entity;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -10,22 +11,31 @@ import java.util.Objects;
 public class App extends AbstractEntity {
 	private String packageName, file, packageVersion;
 	private boolean active;
-
+	private List<AppDefaultParam> appDefaultParamList;
+	private Devices device;
+	private User owner;
 	public App() {
 		// TODO Auto-generated constructor stub
 		super(false);
 	}
-
-	public App(String packageName, String file, String packageVersion, boolean active) {
+//Add the device and owner to it App
+	public App(String packageName, String file, String packageVersion, boolean active,
+			List<AppDefaultParam> appDefaultParamList,Devices device,User owner) {
 		super(false);
 		Objects.requireNonNull(packageName);
 		Objects.requireNonNull(file);
 		Objects.requireNonNull(packageVersion);
 		Objects.requireNonNull(active);
+		Objects.requireNonNull(appDefaultParamList);
+		Objects.requireNonNull(device);
+		Objects.requireNonNull(owner);
 		this.packageName = packageName;
 		this.file = file;
 		this.packageVersion = packageVersion;
 		this.active = active;
+		this.appDefaultParamList = appDefaultParamList;
+		this.device = device;
+		this.owner = owner;
 
 	}
 
@@ -61,6 +71,26 @@ public class App extends AbstractEntity {
 		this.active = active;
 	}
 
+	public List<AppDefaultParam> getAppDefaultParamList() {
+		return appDefaultParamList;
+	}
+
+	public void setAppDefaultParamList(List<AppDefaultParam> appDefaultParamList) {
+		this.appDefaultParamList = appDefaultParamList;
+	}
+
+	public Devices getDevice() {
+		return device;
+	}
+	public void setDevice(Devices device) {
+		this.device = device;
+	}
+	public User getOwner() {
+		return owner;
+	}
+	public void setOwner(User owner) {
+		this.owner = owner;
+	}
 	@Override
 	public int hashCode() {
 		final int prime = 31;

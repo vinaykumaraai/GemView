@@ -77,14 +77,16 @@ public class Devices extends AbstractEntity{
 	public Devices() {
 		
 	}
-	public Devices(StatusType statusType, String description,Integer statistics) {
+	public Devices(StatusType statusType, String description,Integer statistics,String deviceName) {
 		super(false);
 		Objects.requireNonNull(statusType);
 		Objects.requireNonNull(description);
 		Objects.requireNonNull(statistics);
+		Objects.requireNonNull(deviceName);
 		this.statusType = statusType;
 		this.description = description;
 		this.statistics = statistics;
+		this.deviceName = deviceName;
 	}
 	
 	public List<HeartBeatHistory> getHbHistoryList() {
@@ -207,6 +209,6 @@ public class Devices extends AbstractEntity{
 
 	@Override
 	public String toString() {
-		return deviceName;
+		return deviceName + " : "+statusType+" : "+statistics;
 	}
 }

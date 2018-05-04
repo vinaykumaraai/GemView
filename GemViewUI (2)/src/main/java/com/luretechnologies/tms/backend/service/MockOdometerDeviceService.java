@@ -58,42 +58,42 @@ public class MockOdometerDeviceService  extends CrudService<Devices>{
 	public void createInitialOdometerDeviceData() throws ParseException
 	{
 		//TODO add the Date time
-		Devices device = new Devices(StatusType.CARDSWIPES,"Cards Swiped Performed",25);
+		Devices device = new Devices(StatusType.CARDSWIPES,"Cards Swiped Performed",25,"Card Swipe");
 		device.setDeviceDate(dateFormatter.parse(currentLocalDate.toString()));
 		device.setId(System.currentTimeMillis()+2);
 		deviceDirectory.put(device.getId(), device);
 		
-		device = new Devices(StatusType.INVALIDCARDSWIPES, "Invalid Card Swipes", 2);
+		device = new Devices(StatusType.INVALIDCARDSWIPES, "Invalid Card Swipes", 2,"Invalid Card");
 		device.setDeviceDate(dateFormatter.parse(currentLocalDate.plusDays(2).toString()));
 		device.setId(System.currentTimeMillis()+3);
 		deviceDirectory.put(device.getId(), device);
 		
-		device = new Devices(StatusType.REBOOT, "Times Unit Has been rebooted", 21);
+		device = new Devices(StatusType.REBOOT, "Times Unit Has been rebooted", 21,"Time Unit");
 		device.setDeviceDate(dateFormatter.parse(currentLocalDate.plusDays(4).toString()));
 		device.setId(System.currentTimeMillis()+4);
 		deviceDirectory.put(device.getId(), device);
 		
-		device = new Devices(StatusType.TRANSACTIONS, "Transactions performed from the unit", 209);
+		device = new Devices(StatusType.TRANSACTIONS, "Transactions performed from the unit", 209,"Transactions");
 		device.setDeviceDate(dateFormatter.parse(currentLocalDate.plusDays(3).toString()));
 		device.setId(System.currentTimeMillis()+5);
 		deviceDirectory.put(device.getId(), device);
 		
-		device = new Devices(StatusType.INVALIDCARDSWIPES, "Invalid Card Swipes", 8);
+		device = new Devices(StatusType.INVALIDCARDSWIPES, "Invalid Card Swipes", 8,"Invalid Swipe");
 		device.setDeviceDate(dateFormatter.parse(currentLocalDate.plusDays(3).toString()));
 		device.setId(System.currentTimeMillis()+6);
 		deviceDirectory.put(device.getId(), device);
 		
-		device = new Devices(StatusType.REBOOT, "Times Unit Has been rebooted", 44);
+		device = new Devices(StatusType.REBOOT, "Times Unit Has been rebooted", 44,"Times Reboot");
 		device.setDeviceDate(dateFormatter.parse(currentLocalDate.minusDays(2).toString()));
 		device.setId(System.currentTimeMillis()+7);
 		deviceDirectory.put(device.getId(), device);
 		
-		device = new Devices(StatusType.CARDSWIPES, "Cards Swiped Performed", 89);
+		device = new Devices(StatusType.CARDSWIPES, "Cards Swiped Performed", 89,"Card");
 		device.setDeviceDate(dateFormatter.parse(currentLocalDate.minusDays(4).toString()));
 		device.setId(System.currentTimeMillis()+8);
 		deviceDirectory.put(device.getId(), device);
 		
-		device = new Devices(StatusType.TRANSACTIONS, "Transactions performed from the unit", 566);
+		device = new Devices(StatusType.TRANSACTIONS, "Transactions performed from the unit", 566,"Trans");
 		device.setDeviceDate(dateFormatter.parse(currentLocalDate.minusDays(3).toString()));
 		device.setId(System.currentTimeMillis()+9);
 		deviceDirectory.put(device.getId(), device);
