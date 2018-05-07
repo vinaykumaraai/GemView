@@ -11,7 +11,6 @@ public class AppDefaultParam extends AbstractEntity {
 	private String parameter, description;
 	private ParameterType type;
 	private boolean active;
-
 	public AppDefaultParam() {
 		// TODO Auto-generated constructor stub
 		super(false);

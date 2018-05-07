@@ -13,6 +13,7 @@ public class App extends AbstractEntity {
 	private boolean active;
 	private List<AppDefaultParam> appDefaultParamList;
 	private Devices device;
+	
 	private User owner;
 	public App() {
 		// TODO Auto-generated constructor stub

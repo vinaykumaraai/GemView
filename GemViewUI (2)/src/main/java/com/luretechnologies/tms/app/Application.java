@@ -32,6 +32,10 @@
 
 package com.luretechnologies.tms.app;
 
+import java.io.IOException;
+import java.util.Properties;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -53,9 +57,18 @@ public class Application extends SpringBootServletInitializer {
 	public static final String LOGIN_FAILURE_URL = "/login.html?error";
 	public static final String LOGIN_PROCESSING_URL = "/login";
 	public static final String OTP_CODE_URL = "code.html";
+	public static final Properties applicationProperties = new Properties();
 
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
+		try {
+			applicationProperties.load(Application.class.getClassLoader().getResourceAsStream("application.properties"));
+			System.out.println(
+					"File location : " + Application.applicationProperties.getProperty("upload.file.location"));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override
