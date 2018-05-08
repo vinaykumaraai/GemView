@@ -60,6 +60,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -68,8 +69,9 @@ public class AlertTab {
 	Grid<Alert> alertGrid;
 	AlertService alertService;
 	Tree<ExtendedNode> nodeTree;
+	UI assetControlUI;
 	//public AssetControlView assetView ;
-	public AlertTab(Grid<Alert> alertGrid, AlertService alertService,Tree<ExtendedNode> nodeTree, Button... buttons) {
+	public AlertTab(Grid<Alert> alertGrid, AlertService alertService,Tree<ExtendedNode> nodeTree,UI assetControlUI, Button... buttons) {
 		createAlertGridRow = buttons[0];
 		editAlertGridRow = buttons[1];
 		deleteAlertGridRow = buttons[2];
@@ -78,6 +80,7 @@ public class AlertTab {
 		this.alertGrid = alertGrid;
 		this.alertService = alertService;
 		this.nodeTree = nodeTree;
+		this.assetControlUI = assetControlUI;
 		
 	}
 	
@@ -272,20 +275,25 @@ public class AlertTab {
 			if(alertGrid.getSelectedItems().isEmpty()) {
 				Notification.show("Select any Debug type to delete", Notification.Type.WARNING_MESSAGE).setDelayMsec(3000);;
 			}else {
-				//assetView.confirmAlertDialog();
-			}
+			ConfirmDialog.show(assetControlUI, "Please Confirm:", "Are you sure you want to delete?",
+			        "Ok", "Cancel", dialog -> 
+			            {
+			                if (dialog.isConfirmed()) {
+			    				alertService.removeAlert(alertGrid.getSelectedItems().iterator().next());
+			    				nodeTree.getDataProvider().refreshAll();
+			    				//loadGrid();
+			    				ListDataProvider<Alert> refreshAlertDataProvider = alertService.getListDataProvider();
+			    				alertGrid.setDataProvider(refreshAlertDataProvider);
+			    				// Refreshing
+			    				alertGrid.getDataProvider().refreshAll();
+			    				deleteAlertGridRow.setEnabled(false);
+			                } else {
+			                    // User did not confirm
+			                    
+			                }
+			            });
+		}
 
-			if (alertGrid.getSelectedItems().size() > 0) {
-				// FIXME: put confirmation Dialog
-				alertService.removeAlert(alertGrid.getSelectedItems().iterator().next());
-				nodeTree.getDataProvider().refreshAll();
-				//loadGrid();
-				ListDataProvider<Alert> refreshAlertDataProvider = alertService.getListDataProvider();
-				alertGrid.setDataProvider(refreshAlertDataProvider);
-				// Refreshing
-				alertGrid.getDataProvider().refreshAll();
-				deleteAlertGridRow.setEnabled(false);
-			}
 		});
 		deleteAlertGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY);
 		deleteAlertGridRow.addStyleName("v-button-customstyle");

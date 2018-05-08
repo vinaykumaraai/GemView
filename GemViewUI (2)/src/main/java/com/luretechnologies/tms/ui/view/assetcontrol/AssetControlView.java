@@ -397,23 +397,6 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 		        });
 	}
 	
-	public void confirmAlertDialog() {
-		ConfirmDialog.show(this.getUI(), "Please Confirm:", "Are you sure you want to delete?",
-		        "Ok", "Cancel", new ConfirmDialog.Listener() {
-
-		            public void onClose(ConfirmDialog dialog) {
-		                if (dialog.isConfirmed()) {
-		                    // Confirmed to continue
-		                	alertService.removeAlert(alertGrid.getSelectedItems().iterator().next());
-		    				nodeTree.getDataProvider().refreshAll();
-		    				loadAlertGrid();
-		                } else {
-		                    // User did not confirm
-		                    
-		                }
-		            }
-		        });
-	}
 	
 	private void loadAlertGrid() {
 		treeDataService.getTreeDataForDebugAndAlert();
@@ -727,7 +710,7 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 
 	private VerticalLayout getAlert() {
 		Button[] buttons= {createAlertGridRow,editAlertGridRow,deleteAlertGridRow,saveAlertForm,cancelAlertForm};
-		AlertTab alertTab  = new AlertTab(alertGrid, alertService, nodeTree, buttons);
+		AlertTab alertTab  = new AlertTab(alertGrid, alertService, nodeTree,Page.getCurrent().getUI(), buttons);
 		return alertTab.getAlert();
 	}
 
