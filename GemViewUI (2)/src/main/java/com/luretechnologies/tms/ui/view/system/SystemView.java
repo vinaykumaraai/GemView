@@ -32,6 +32,7 @@
 package com.luretechnologies.tms.ui.view.system;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;
@@ -44,7 +45,10 @@ import org.vaadin.dialogs.ConfirmDialog;
 
 import com.luretechnologies.tms.backend.data.entity.Devices;
 import com.luretechnologies.tms.backend.data.entity.Systems;
+import com.luretechnologies.tms.ui.ComponentUtil;
 import com.luretechnologies.tms.ui.components.ConfirmDialogFactory;
+import com.luretechnologies.tms.ui.components.FormFieldType;
+import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.shared.ui.ContentMode;
@@ -52,6 +56,7 @@ import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Grid;
@@ -80,8 +85,9 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 	private volatile Systems selectedSystem;
 	private TextField systemDescription;
 	private TextField parameterName;
-	private TextField systemType;
+	//private TextField systemType;
 	private TextField systemValue;
+	private ComboBox<String> comboBoxType;
 	
 	@Autowired
 	public ConfirmDialogFactory confirmDialogFactory;
@@ -115,7 +121,7 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		Systems system3 = new Systems();
 		system3.setParameterName("SYSTEM MESSAGE");
 		system3.setDescription("Welcome Message");
-		system3.setType("Text");
+		system3.setType("Boolean");
 		system3.setSystemValue("Welcome to GemView");
 		system3.setId(4);
 		
@@ -199,7 +205,7 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 			public void buttonClick(ClickEvent event) {
 				String description = systemDescription.getValue();
 				String parametername = parameterName.getValue();
-				String type = systemType.getValue();
+				String type = comboBoxType.getValue();
 				String value = systemValue.getValue();
 				selectedSystem.setParameterName(parametername);
 				selectedSystem.setDescription(description);
@@ -292,15 +298,24 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 	
 	private void getSystemType(FormLayout formLayout, boolean isEditableOnly) {
 		String type = selectedSystem.getType() != null ? selectedSystem.getType(): "";
-		systemType = new TextField("Type", type);
-		selectedSystem.setType(systemType.getValue());
-		systemType.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
-		systemType.setWidth("48%");
-		systemType.setStyleName("role-textbox");
-		systemType.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
-		systemType.addStyleName("v-grid-cell");
-		systemType.setEnabled(isEditableOnly);
-		formLayout.addComponent(systemType);
+//		systemType = new TextField("Type", type);
+//		selectedSystem.setType(systemType.getValue());
+//		systemType.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
+//		systemType.setWidth("48%");
+//		systemType.setStyleName("role-textbox");
+//		systemType.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
+//		systemType.addStyleName("v-grid-cell");
+//		systemType.setEnabled(isEditableOnly);
+//		formLayout.addComponent(systemType);
+		comboBoxType = (ComboBox<String>)ComponentUtil.getFormFieldWithLabel("", FormFieldType.COMBOBOX);
+		comboBoxType.setEnabled(isEditableOnly);
+		comboBoxType.setCaptionAsHtml(true);
+		comboBoxType.setCaption("Type"); 
+		//combobox.addStyleName();
+		comboBoxType.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size");
+		comboBoxType.setDataProvider(new ListDataProvider<>(Arrays.asList("Text", "Numeric","Boolean")));
+		comboBoxType.setValue(type);
+		formLayout.addComponent(comboBoxType);
 	}
 	
 	private void getSystemValue(FormLayout formLayout, boolean isEditableOnly) {
@@ -342,7 +357,7 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 				//parameterName.focus();
 				if(systemDescription.getValue()==null || systemDescription.getValue().isEmpty() || 
 						parameterName.getValue()==null ||  parameterName.getValue().isEmpty() ||
-								systemType.getValue()==null ||  systemType.getValue().isEmpty() ||
+								comboBoxType.getValue()==null ||  comboBoxType.getValue().isEmpty() ||
 								systemValue.getValue()==null ||  systemValue.getValue().isEmpty()) {
 					Notification.show("Select any Role to Modify", Notification.Type.WARNING_MESSAGE).setDelayMsec(3000);;
 				}else {
@@ -362,7 +377,7 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 			public void buttonClick(ClickEvent event) {
 				if(systemDescription.getValue()==null || systemDescription.getValue().isEmpty() || 
 						parameterName.getValue()==null ||  parameterName.getValue().isEmpty() ||
-						systemType.getValue()==null ||  systemType.getValue().isEmpty() ||
+								comboBoxType.getValue()==null ||  comboBoxType.getValue().isEmpty() ||
 						systemValue.getValue()==null ||  systemValue.getValue().isEmpty()) {
 					Notification.show("Select particular parameter to delete", Notification.Type.ERROR_MESSAGE);
 				}else {

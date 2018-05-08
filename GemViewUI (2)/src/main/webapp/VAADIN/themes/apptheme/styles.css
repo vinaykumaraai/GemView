@@ -111,6 +111,19 @@
 	margin-top: -44px;
 }
 
+.applicatioStore-GridLayout {
+	padding: 0px 0px 0px 0px !important;
+}
+
+.applicatioStore-VerticalLayout {
+	padding: 20px 37px 37px 37px !important;
+}
+
+.applicatioStore-FormLayout {
+	margin-top: -35px;
+	margin-left: 20px;
+}
+
 .apptheme .v-panel-caption {
 	box-sizing: border-box;
 	padding: 1px 12px !important;
@@ -280,6 +293,20 @@
 	font-size: 14px !important;
 }
 
+.app-shell[width-range~="601px-1000px"] .v-combobox-size {
+	width: 135px;
+	height: 27px;
+}
+
+.app-shell[width-range~="601px-1000px"] .v-caption {
+	font-size: 13px;
+	font-weight: none;
+}
+
+.app-shell[width-range~="601px-1000px"] .v-tree8-cell {
+	font-size: 14px;
+}
+
 .app-shell[width-range~="-600px"] .v-panel-caption {
 	font-size: 18px !important;
 	color: #216C2A !important;
@@ -306,6 +333,20 @@
 
 .app-shell[width-range~="-600px"] .v-textfield-font {
 	font-size: 12px !important;
+}
+
+.app-shell[width-range~="-600px"] .v-combobox-size {
+	width: 120px;
+	height: 24px;
+}
+
+.app-shell[width-range~="-600px"] .v-caption {
+	font-size: 12px;
+	font-weight: none;
+}
+
+.app-shell[width-range~="-600px"] .v-tree8-cell {
+	font-size: 12px;
 }
 
 .app-shell[width-range~="-1000px"] .v-heartbeat-Button {

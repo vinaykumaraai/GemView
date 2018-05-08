@@ -31,11 +31,19 @@
  */
 package com.luretechnologies.tms.ui.view.assetcontrol;
 
+import java.util.List;
+import java.util.Set;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.vaadin.dialogs.ConfirmDialog;
+
 import com.luretechnologies.tms.backend.data.entity.Alert;
 import com.luretechnologies.tms.backend.data.entity.ExtendedNode;
 import com.luretechnologies.tms.backend.service.AlertService;
+import com.luretechnologies.tms.backend.service.TreeDataService;
 import com.luretechnologies.tms.ui.ComponentUtil;
 import com.luretechnologies.tms.ui.components.FormFieldType;
+import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Alignment;
@@ -49,6 +57,7 @@ import com.vaadin.ui.Grid;
 import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
@@ -59,6 +68,7 @@ public class AlertTab {
 	Grid<Alert> alertGrid;
 	AlertService alertService;
 	Tree<ExtendedNode> nodeTree;
+	//public AssetControlView assetView ;
 	public AlertTab(Grid<Alert> alertGrid, AlertService alertService,Tree<ExtendedNode> nodeTree, Button... buttons) {
 		createAlertGridRow = buttons[0];
 		editAlertGridRow = buttons[1];
@@ -70,7 +80,13 @@ public class AlertTab {
 		this.nodeTree = nodeTree;
 		
 	}
+	
+	@Autowired
+	public TreeDataService treeDataService;
 
+	@Autowired
+	public AssetControlView assetView ;
+	
 	public VerticalLayout getAlert() {
 		
 		VerticalLayout alertLayout = new VerticalLayout();
@@ -169,7 +185,38 @@ public class AlertTab {
 		return alertLayout;
 
 	}
+	
+	public void confirmAlertDialog() {
+		ConfirmDialog.show(assetView.getUI(), "Please Confirm:", "Are you sure you want to delete?",
+		        "Ok", "Cancel", new ConfirmDialog.Listener() {
 
+		            public void onClose(ConfirmDialog dialog) {
+		                if (dialog.isConfirmed()) {
+		                    // Confirmed to continue
+		                	alertService.removeAlert(alertGrid.getSelectedItems().iterator().next());
+		    				nodeTree.getDataProvider().refreshAll();
+		    				loadAlertGrid();
+		                } else {
+		                    // User did not confirm
+		                    
+		                }
+		            }
+		        });
+	}
+	private void loadAlertGrid() {
+		treeDataService.getTreeDataForDebugAndAlert();
+		List<ExtendedNode> nodeList = treeDataService.getDebugAndAlertNodeList();
+		Set<ExtendedNode> nodeSet = nodeTree.getSelectionModel().getSelectedItems();
+		ExtendedNode nodeSelected = nodeSet.iterator().next();
+		for(ExtendedNode node : nodeList) {
+			if(node.getLabel().equals(nodeSelected.getLabel())) {
+				DataProvider data = new ListDataProvider(node.getExtendedList());
+				alertGrid.setDataProvider(data);
+			}
+		}
+		
+	}
+	
 	private Grid<Alert> getAlertGrid() {
 		//alertGrid = new Grid<>(Alert.class);
 		alertGrid.setWidth("100%");
@@ -177,7 +224,7 @@ public class AlertTab {
 		alertGrid.setSelectionMode(SelectionMode.SINGLE);
 		alertGrid.setColumns("type", "description", "active", "email");
 		alertGrid.getColumn("type").setCaption("Alert Type");
-		alertGrid.setDataProvider(alertService.getListDataProvider());
+		//alertGrid.setDataProvider(alertService.getListDataProvider());
 
 		return alertGrid;
 	}
@@ -222,9 +269,17 @@ public class AlertTab {
 		editAlertGridRow.addStyleName("v-button-customstyle");
 		editAlertGridRow.setEnabled(false);
 		deleteAlertGridRow = new Button(VaadinIcons.TRASH, click -> {
+			if(alertGrid.getSelectedItems().isEmpty()) {
+				Notification.show("Select any Debug type to delete", Notification.Type.WARNING_MESSAGE).setDelayMsec(3000);;
+			}else {
+				//assetView.confirmAlertDialog();
+			}
+
 			if (alertGrid.getSelectedItems().size() > 0) {
 				// FIXME: put confirmation Dialog
 				alertService.removeAlert(alertGrid.getSelectedItems().iterator().next());
+				nodeTree.getDataProvider().refreshAll();
+				//loadGrid();
 				ListDataProvider<Alert> refreshAlertDataProvider = alertService.getListDataProvider();
 				alertGrid.setDataProvider(refreshAlertDataProvider);
 				// Refreshing

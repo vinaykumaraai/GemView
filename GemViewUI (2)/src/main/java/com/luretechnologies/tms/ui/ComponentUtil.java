@@ -115,8 +115,7 @@ public class ComponentUtil {
 		return component;
 	}
 	
-
-    public static void addValidator(AbstractField field, Validator validator) {
+	public static void addValidator(AbstractField field, Validator validator) {
         field.addValueChangeListener(event -> {
             ValidationResult result = validator.apply(event.getValue(), new ValueContext(field));
 

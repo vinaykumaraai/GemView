@@ -36,11 +36,7 @@ import java.util.Objects;
 
 // "User" is a reserved word in some SQL implementations
 /**
- * @author sils
- *
- */
-/**
- * @author sils
+ * @author Vinay
  *
  */
 public class User extends AbstractEntity {

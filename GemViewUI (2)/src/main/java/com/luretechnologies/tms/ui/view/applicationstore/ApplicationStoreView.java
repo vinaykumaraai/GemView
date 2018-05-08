@@ -98,6 +98,8 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 	public static final String VIEW_NAME = "applicationstore";
 	private FormLayout applicationDetailsForm;
 	private HorizontalLayout buttonLayout;
+	private HorizontalLayout applicationDetailsLabel;
+	private HorizontalLayout applicationParamLabel;
 	private Grid<AppDefaultParam> appDefaultParamGrid;
 	private static List<ApplicationFile> uploadedFileList = new ArrayList<>();
 
@@ -122,7 +124,9 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		setResponsive(true);
 		Panel panel = getAndLoadApplicationStorePanel();
 		GridLayout appStoreGridLayout = new GridLayout(2, 2, getAppStoreComponents());
+		appStoreGridLayout.setWidth("100%");
 		appStoreGridLayout.setMargin(true);
+		appStoreGridLayout.addStyleName("applicatioStore-GridLayout");
 		panel.setContent(appStoreGridLayout);
 
 		Page.getCurrent().addBrowserWindowResizeListener(r -> {
@@ -167,6 +171,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 
 	private VerticalLayout getApplicationListLayout() {
 		Grid<App> appGrid = new Grid<>(App.class);
+		appGrid.setWidth("100%");
 		appGrid.setDataProvider(appService.getListDataProvider());
 		appGrid.setColumns("packageName", "file", "packageVersion");
 		appGrid.getColumn("packageName").setCaption("Name");
@@ -208,13 +213,13 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			setApplicationFormComponentsEnable(true);
 			appGrid.deselectAll();
 		});
-		createAppGridRow.addStyleName(ValoTheme.BUTTON_FRIENDLY);
+		createAppGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		createAppGridRow.setResponsive(true);
 		Button editAppGridRow = new Button(VaadinIcons.PENCIL, click -> {
 			setApplicationFormComponentsEnable(true);
 
 		});
-		editAppGridRow.addStyleName(ValoTheme.BUTTON_FRIENDLY);
+		editAppGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		editAppGridRow.setResponsive(true);
 
 		Button deleteAppGridRow = new Button(VaadinIcons.TRASH, clicked -> {
@@ -226,11 +231,17 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			}
 
 		});
-		deleteAppGridRow.addStyleName(ValoTheme.BUTTON_FRIENDLY);
+		deleteAppGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		deleteAppGridRow.setResponsive(true);
-		HorizontalLayout appGridMenuLayout = new HorizontalLayout(applicationSearch, createAppGridRow, editAppGridRow,
+		HorizontalLayout appSearchLayout = new HorizontalLayout(applicationSearch);
+		appSearchLayout.setWidth("100%");
+		HorizontalLayout appButtonsLayout = new HorizontalLayout(createAppGridRow, editAppGridRow,
 				deleteAppGridRow);
+		//appButtonsLayout.setWidth("100%");
+		HorizontalLayout appGridMenuLayout = new HorizontalLayout(appSearchLayout, appButtonsLayout);
+		appGridMenuLayout.setWidth("100%");
 		VerticalLayout applicationListLayout = new VerticalLayout(appGridMenuLayout, appGrid);
+		applicationListLayout.addStyleName("applicatioStore-VerticalLayout");
 		appGrid.addSelectionListener(selection -> {
 			if (selection.getFirstSelectedItem().isPresent()) {
 				App selectedItem = selection.getFirstSelectedItem().get();
@@ -275,10 +286,12 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		packageName.addStyleNames("role-textbox", "v-grid-cell", ValoTheme.TEXTFIELD_BORDERLESS);
 		packageName.setCaptionAsHtml(true);
 		packageName.setEnabled(false);
+		packageName.setWidth("80%");
 		TextField packageFile = new TextField("Package File");
 		packageFile.addStyleNames("role-textbox", "v-grid-cell", ValoTheme.TEXTFIELD_BORDERLESS);
 		packageFile.setEnabled(false);
 		packageFile.setId(PACKAGE_FILE);
+		packageFile.setWidth("80%");
 		Window fileListWindow = getSmallListWindow(true, packageFile);
 		Button fileButton = new Button("Files", VaadinIcons.CARET_DOWN);
 		fileButton.setEnabled(false);
@@ -289,6 +302,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		TextField packageVersion = new TextField("Version");
 		packageVersion.addStyleNames("role-textbox", "v-grid-cell", ValoTheme.TEXTFIELD_BORDERLESS);
 		packageVersion.setEnabled(false);
+		packageVersion.setWidth("80%");
 		// FIXME: put the list of organization
 		ComboBox<User> applicationOwner = new ComboBox<User>("Application <br/>Owner");
 		applicationOwner.setEnabled(false);
@@ -306,6 +320,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			// TODO: get all the info and save it
 		});
 		saveForm.setEnabled(false);
+		saveForm.addStyleNames("v-button-customstyle", ValoTheme.BUTTON_FRIENDLY);
 		Button cancelForm = new Button("Cancel", click -> {
 			packageName.clear();
 			packageFile.clear();
@@ -313,15 +328,31 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 
 		});
 		cancelForm.setEnabled(false);
-
+		cancelForm.addStyleNames("v-button-customstyle", ValoTheme.BUTTON_FRIENDLY);
+		HorizontalLayout appDetailsSaveCancleAndLabelLayout = new HorizontalLayout();
+		appDetailsSaveCancleAndLabelLayout.setWidth("100%");
 		applicationDetailsForm = new FormLayout(packageName, packageFile, fileButton, packageVersion, applicationOwner,
 				devices, activeApplication);
-		applicationDetailsForm.setCaption("<b>Application Details</b>");
+		applicationDetailsForm.addStyleName("applicatioStore-FormLayout");
 		applicationDetailsForm.setCaptionAsHtml(true);
 		applicationDetailsForm.setComponentAlignment(fileButton, Alignment.BOTTOM_RIGHT);
-		buttonLayout = new HorizontalLayout(cancelForm, saveForm);
-		VerticalLayout applicationDetailsLayout = new VerticalLayout(buttonLayout, applicationDetailsForm);
-		applicationDetailsLayout.setComponentAlignment(buttonLayout, Alignment.TOP_RIGHT);
+		applicationDetailsLabel = new HorizontalLayout();
+		applicationDetailsLabel.setWidth("100%");
+		Label appDetailsLabel = new Label("Application Details");
+		appDetailsLabel.addStyleName("label-style");
+		appDetailsLabel.addStyleNames(ValoTheme.LABEL_BOLD, ValoTheme.LABEL_H3);
+		applicationDetailsLabel.addComponent(appDetailsLabel);
+		buttonLayout = new HorizontalLayout();
+		buttonLayout.setDefaultComponentAlignment(Alignment.MIDDLE_RIGHT);
+		buttonLayout.addComponents(cancelForm, saveForm);
+		buttonLayout.setResponsive(true);
+		buttonLayout.setStyleName("save-cancelButtonsAlignment");
+		
+		appDetailsSaveCancleAndLabelLayout.addComponents(applicationDetailsLabel, buttonLayout);
+		appDetailsSaveCancleAndLabelLayout.setComponentAlignment(buttonLayout, Alignment.MIDDLE_RIGHT);
+		VerticalLayout applicationDetailsLayout = new VerticalLayout(appDetailsSaveCancleAndLabelLayout, applicationDetailsForm);
+		applicationDetailsLayout.addStyleName("applicatioStore-VerticalLayout");
+		applicationDetailsLayout.setComponentAlignment(appDetailsSaveCancleAndLabelLayout, Alignment.TOP_RIGHT);
 		return applicationDetailsLayout;
 	}
 
@@ -381,11 +412,19 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		deleteAppDefaultParamGridRow.setResponsive(true);
 		HorizontalLayout appDefaultParamGridMenuLayout = new HorizontalLayout(appDefaultParamSearch,
 				createAppDefaultParamGridRow, editAppDefaultParamGridRow, deleteAppDefaultParamGridRow);
-
-		VerticalLayout applicationDefaultParametersLayout = new VerticalLayout(appDefaultParamGridMenuLayout,
+		
+		applicationParamLabel = new HorizontalLayout();
+		applicationParamLabel.setWidth("100%");
+		//applicationDefaultParametersLayout.setCaption("<b>Application Default Parameters</b>");
+		Label appParamLabel = new Label("Application Default Parameters");
+		appParamLabel.addStyleName("label-style");
+		appParamLabel.addStyleNames(ValoTheme.LABEL_BOLD, ValoTheme.LABEL_H3);
+		applicationParamLabel.addComponent(appParamLabel);
+		
+		VerticalLayout applicationDefaultParametersLayout = new VerticalLayout(applicationParamLabel, appDefaultParamGridMenuLayout,
 				appDefaultParamGrid);
-		applicationDefaultParametersLayout.setCaption("<b>Application Default Parameters</b>");
 		applicationDefaultParametersLayout.setCaptionAsHtml(true);
+		applicationDefaultParametersLayout.addStyleName("applicatioStore-VerticalLayout");
 		return applicationDefaultParametersLayout;
 	}
 

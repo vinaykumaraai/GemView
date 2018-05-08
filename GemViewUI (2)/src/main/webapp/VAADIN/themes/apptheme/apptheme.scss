@@ -138,6 +138,20 @@ $app-background-color: #145A32;
 	margin-top:-44px;
 }
 
+.applicatioStore-GridLayout{
+	padding: 0px 0px 0px 0px !important;
+}
+
+.applicatioStore-VerticalLayout{
+	padding: 20px 37px 37px 37px !important;
+}
+
+.applicatioStore-FormLayout{
+	margin-top:-35px;
+	margin-left:20px;
+}
+
+
 
 .apptheme .v-panel-caption {
 	box-sizing: border-box;
@@ -316,6 +330,18 @@ $app-background-color: #145A32;
 	.v-textfield-font{
 		font-size:14px !important
 	}	
+	
+	.v-combobox-size{
+		width:135px;
+		height:27px;
+	}
+	.v-caption{
+		font-size:13px;
+		font-weight:none;
+	}
+	.v-tree8-cell{
+		font-size:14px;
+	}
 }
 
 .app-shell[width-range~="-600px"]{
@@ -346,6 +372,17 @@ $app-background-color: #145A32;
 	.v-textfield-font{
 		font-size:12px !important
 	}	
+	.v-combobox-size{
+		width:120px;
+		height:24px;
+	}
+	.v-caption{
+		font-size:12px;
+		font-weight:none;
+	}
+	.v-tree8-cell{
+		font-size:12px;
+	}
 }
 
 .app-shell[width-range~="-1000px"] {

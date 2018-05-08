@@ -6,7 +6,9 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -76,6 +78,7 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 	private static HorizontalSplitPanel splitScreen;
 	private static TabSheet assetTabSheet;
 	private static DateField debugStartDateField, debugEndDateField,deviceDebugStartDateField,deviceDebugEndDateField;
+	private static FormLayout deviceDebugFormLayout;
 	private static VerticalLayout historyLayoutFull;
 	private static HorizontalLayout optionsLayoutHistoryHorizontalDesktop;
 	private static VerticalLayout optionsLayoutHistoryVerticalTab;
@@ -91,6 +94,8 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 	private static HorizontalLayout debugSearchLayout;
 	private static HorizontalLayout dateDeleteDebugLayout;
 	private static VerticalLayout dateDeleteDebugLayoutPhone;
+	
+	private static List<Debug> debugList = new ArrayList<Debug>();
 
 	@Autowired
 	public AssetControlView() {
@@ -182,8 +187,44 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 			desktopMode();
 			splitScreen.setSplitPosition(20);
 		}
+		
+		assetTabSheet.addSelectedTabChangeListener(new SelectedTabChangeListener() {
+			@Override
+			public void selectedTabChange(SelectedTabChangeEvent event) {
+				clearGridData();
+				if(nodeTree.getSelectionModel().getSelectedItems().isEmpty()) {					
+				}else {
+					nodeTree.deselect(nodeTree.getSelectedItems().iterator().next());
+				}
+			}
+		});
 	}
 
+	private void clearGridData() {
+		switch (assetTabSheet.getTab(assetTabSheet.getSelectedTab()).getCaption().toLowerCase()) {
+		case "history":
+				DataProvider data = new ListDataProvider(Collections.EMPTY_LIST);
+				debugGrid.setDataProvider(data);
+				historySearch.clear();
+				clearCalenderDates();
+			break;
+		case "alert":
+				DataProvider data1 = new ListDataProvider(Collections.EMPTY_LIST);
+				alertGrid.setDataProvider(data1);
+				clearCalenderDates();
+			break;
+		case "debug":
+			
+				DataProvider data2 = new ListDataProvider(Collections.EMPTY_LIST);
+				deviceDebugGrid.setDataProvider(data2);
+				deviceDebugGridSearch.clear();
+				clearCalenderDates();
+			break;
+		default:
+			break;
+		}
+	}
+	
 	public Panel getAndLoadAssetControlPanel() {
 		Panel panel = new Panel();
 		panel.setHeight("100%");
@@ -339,12 +380,14 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 		                if (dialog.isConfirmed()) {
 		                    // Confirmed to continue
 		                	debugService.removeDebug(deviceDebugGrid.getSelectedItems().iterator().next());
-		        			ListDataProvider<Debug> refreshDebugDataProvider = debugService.getListDataProvider();
-		        			deviceDebugGrid.setDataProvider(refreshDebugDataProvider);
+		        			//ListDataProvider<Debug> refreshDebugDataProvider = debugService.getListDataProvider();
+		        			//deviceDebugGrid.setDataProvider(refreshDebugDataProvider);
 		        			// Refreshing
 		        			deviceDebugGrid.getDataProvider().refreshAll();
 		        			deviceDebugGridSearch.clear();
+		        			loadDeviceDebugGrid();
 		        			clearCalenderDates();
+		        			//nodeTree.deselect(item);
 		        			//deviceDebugGridSearch.clear();
 		                } else {
 		                    // User did not confirm
@@ -354,8 +397,40 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 		        });
 	}
 	
+	public void confirmAlertDialog() {
+		ConfirmDialog.show(this.getUI(), "Please Confirm:", "Are you sure you want to delete?",
+		        "Ok", "Cancel", new ConfirmDialog.Listener() {
+
+		            public void onClose(ConfirmDialog dialog) {
+		                if (dialog.isConfirmed()) {
+		                    // Confirmed to continue
+		                	alertService.removeAlert(alertGrid.getSelectedItems().iterator().next());
+		    				nodeTree.getDataProvider().refreshAll();
+		    				loadAlertGrid();
+		                } else {
+		                    // User did not confirm
+		                    
+		                }
+		            }
+		        });
+	}
+	
+	private void loadAlertGrid() {
+		treeDataService.getTreeDataForDebugAndAlert();
+		List<ExtendedNode> nodeList = treeDataService.getDebugAndAlertNodeList();
+		Set<ExtendedNode> nodeSet = nodeTree.getSelectionModel().getSelectedItems();
+		ExtendedNode nodeSelected = nodeSet.iterator().next();
+		for(ExtendedNode node : nodeList) {
+			if(node.getLabel().equals(nodeSelected.getLabel())) {
+				DataProvider data = new ListDataProvider(node.getExtendedList());
+				alertGrid.setDataProvider(data);
+			}
+		}
+		
+	}
+	
 	private void loadGrid() {
-		treeDataService.getTreeDataForDebug();
+		treeDataService.getTreeDataForDebugAndAlert();
 		List<ExtendedNode> nodeList = treeDataService.getDebugAndAlertNodeList();
 		Set<ExtendedNode> nodeSet = nodeTree.getSelectionModel().getSelectedItems();
 		ExtendedNode nodeSelected = nodeSet.iterator().next();
@@ -363,6 +438,20 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 			if(node.getLabel().equals(nodeSelected.getLabel())) {
 				DataProvider data = new ListDataProvider(node.getEntityList());
 				debugGrid.setDataProvider(data);
+			}
+		}
+		
+	}
+	
+	private void loadDeviceDebugGrid() {
+		treeDataService.getTreeDataForDebugAndAlert();
+		List<ExtendedNode> nodeList = treeDataService.getDebugAndAlertNodeList();
+		Set<ExtendedNode> nodeSet = nodeTree.getSelectionModel().getSelectedItems();
+		ExtendedNode nodeSelected = nodeSet.iterator().next();
+		for(ExtendedNode node : nodeList) {
+			if(node.getLabel().equals(nodeSelected.getLabel())) {
+				DataProvider data = new ListDataProvider(node.getEntityList());
+				deviceDebugGrid.setDataProvider(data);
 			}
 		}
 		
@@ -561,17 +650,33 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 	});
 
 		nodeTree.addItemClickListener(selection -> {
+			treeDataService.getDebugAndAlertNodeList();
 			List<ExtendedNode> nodeList = treeDataService.getDebugAndAlertNodeList();
+			for(ExtendedNode node : nodeList) {
 			if (nodeTree.getSelectionModel().isSelected(selection.getItem())) {
 				switch (assetTabSheet.getTab(assetTabSheet.getSelectedTab()).getCaption().toLowerCase()) {
 				case "history":
-					debugGrid.setDataProvider(debugService.getListDataProvider());
+					if(node.getLabel().equals(selection.getItem().getLabel())) {
+						DataProvider data = new ListDataProvider(node.getEntityList());
+						debugGrid.setDataProvider(data);
+						historySearch.clear();
+					}
+					//debugGrid.setDataProvider(debugService.getListDataProvider());
 					break;
 				case "alert":
-					alertGrid.setDataProvider(alertService.getListDataProvider());
+					if(node.getLabel().equals(selection.getItem().getLabel())) {
+						DataProvider data = new ListDataProvider(node.getExtendedList());
+						alertGrid.setDataProvider(data);
+					}
+					//alertGrid.setDataProvider(alertService.getListDataProvider());
 					break;
 				case "debug":
-					deviceDebugGrid.setDataProvider(debugService.getListDataProvider());
+					if(node.getLabel().equals(selection.getItem().getLabel())) {
+						DataProvider data = new ListDataProvider(node.getEntityList());
+						deviceDebugGrid.setDataProvider(data);
+						deviceDebugGridSearch.clear();
+					}
+					//deviceDebugGrid.setDataProvider(debugService.getListDataProvider());
 					break;
 				default:
 					break;
@@ -580,21 +685,41 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 			} else {
 				switch (assetTabSheet.getTab(assetTabSheet.getSelectedTab()).getCaption().toLowerCase()) {
 				case "history":
-					DataProvider dataHistory = new ListDataProvider(selection.getItem().getEntityList());
-					debugGrid.setDataProvider(dataHistory);
+					if(node.getLabel().equals(selection.getItem().getLabel())) {
+						DataProvider data = new ListDataProvider(node.getEntityList());
+						debugGrid.setDataProvider(data);
+						historySearch.clear();
+					}
+					//DataProvider dataHistory = new ListDataProvider(selection.getItem().getEntityList());
+					//debugGrid.setDataProvider(dataHistory);
 					break;
 				case "alert":
-					DataProvider dataAlert = new ListDataProvider(selection.getItem().getExtendedList());
-					alertGrid.setDataProvider(dataAlert);
+					if(node.getLabel().equals(selection.getItem().getLabel())) {
+						DataProvider data = new ListDataProvider(node.getExtendedList());
+						alertGrid.setDataProvider(data);
+					}
+					//DataProvider dataAlert = new ListDataProvider(selection.getItem().getExtendedList());
+					//alertGrid.setDataProvider(dataAlert);
 					break;
 				case "debug":
-					DataProvider dataDevice = new ListDataProvider(selection.getItem().getEntityList());
-					deviceDebugGrid.setDataProvider(dataDevice);
+					if(node.getLabel().equals(selection.getItem().getLabel())) {
+						DataProvider data = new ListDataProvider(node.getEntityList());
+						deviceDebugGrid.setDataProvider(data);
+						deviceDebugGridSearch.clear();
+						deviceDebugGrid.deselectAll();
+						//deviceDebugFormLayout
+					}
+					//DataProvider dataDevice = new ListDataProvider(selection.getItem().getEntityList());
+					//deviceDebugGrid.setDataProvider(dataDevice);
 					break;
 				default:
 					break;
 				}
 			}
+			}
+			clearCalenderDates();
+			historySearch.clear();
+			deviceDebugGridSearch.clear();
 
 		});
 		return historyLayoutFull;
@@ -620,7 +745,7 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 		
 		
 		debugLayout.addComponent(entityInformation);
-		FormLayout deviceDebugFormLayout = new FormLayout();
+		deviceDebugFormLayout = new FormLayout();
 		deviceDebugFormLayout.addStyleNames("heartbeat-verticalLayout", "assertAlert-formLayout");
 		deviceDebugFormLayout.addComponent(ComponentUtil.getFormFieldWithLabel("Entity Type", FormFieldType.TEXTBOX));
 		deviceDebugFormLayout.addComponent(ComponentUtil.getFormFieldWithLabel("Name", FormFieldType.TEXTBOX));
@@ -631,7 +756,8 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 		ComboBox<String> combox = (ComboBox<String>)ComponentUtil.getFormFieldWithLabel("", FormFieldType.COMBOBOX);
 		combox.setCaptionAsHtml(true);
 		combox.setCaption("Debug<br/>Duration"); 
-		combox.setStyleName(ValoTheme.LABEL_LIGHT);
+		//combobox.addStyleName();
+		combox.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size");
 		combox.setDataProvider(new ListDataProvider<>(Arrays.asList("24 Hours", "1 Hour", " 30 Minutes")));
 
 		deviceDebugFormLayout.addComponent(combox);
@@ -671,6 +797,20 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 				
 				
 				
+			}else {
+				for(int index=0; index<7;index++) {
+					if(deviceDebugFormLayout.getComponent(index) instanceof TextField) {
+						TextField textField = (TextField) deviceDebugFormLayout.getComponent(index);
+						textField.clear();
+					} else if(deviceDebugFormLayout.getComponent(index) instanceof HorizontalLayout) {
+						HorizontalLayout HL = (HorizontalLayout) deviceDebugFormLayout.getComponent(index);
+						CheckBox checkbox = (CheckBox) HL.getComponent(1);
+						checkbox.clear();
+					}else if(deviceDebugFormLayout.getComponent(index) instanceof ComboBox) {
+						ComboBox comboBox = (ComboBox) deviceDebugFormLayout.getComponent(index);
+						comboBox.clear();
+					}
+				}
 			}
 		});
 		return debugLayout;
@@ -863,7 +1003,7 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 		deviceDebugGrid.setResponsive(true);
 		deviceDebugGrid.setSelectionMode(SelectionMode.SINGLE);
 		deviceDebugGrid.setColumns("type", "description");
-		deviceDebugGrid.setDataProvider(debugService.getListDataProvider());
+		//deviceDebugGrid.setDataProvider(debugService.getListDataProvider());
 		deviceDebugGrid.getColumn("type").setCaption("Debug Type").setStyleGenerator(style -> {
 			switch (style.getType()) {
 			case ERROR:
