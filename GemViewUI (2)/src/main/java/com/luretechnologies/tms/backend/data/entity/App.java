@@ -13,6 +13,7 @@ public class App extends AbstractEntity {
 	private boolean active;
 	private List<AppDefaultParam> appDefaultParamList;
 	private Devices device;
+	private Profile profile;
 	
 	private User owner;
 	public App() {
@@ -21,7 +22,7 @@ public class App extends AbstractEntity {
 	}
 //Add the device and owner to it App
 	public App(String packageName, String file, String packageVersion, boolean active,
-			List<AppDefaultParam> appDefaultParamList,Devices device,User owner) {
+			List<AppDefaultParam> appDefaultParamList,Devices device,User owner, Profile profile) {
 		super(false);
 		Objects.requireNonNull(packageName);
 		Objects.requireNonNull(file);
@@ -37,6 +38,7 @@ public class App extends AbstractEntity {
 		this.appDefaultParamList = appDefaultParamList;
 		this.device = device;
 		this.owner = owner;
+		this.profile = profile;
 
 	}
 
@@ -91,6 +93,12 @@ public class App extends AbstractEntity {
 	}
 	public void setOwner(User owner) {
 		this.owner = owner;
+	}
+	public Profile getProfile() {
+		return profile;
+	}
+	public void setProfile(Profile profile) {
+		this.profile = profile;
 	}
 	@Override
 	public int hashCode() {

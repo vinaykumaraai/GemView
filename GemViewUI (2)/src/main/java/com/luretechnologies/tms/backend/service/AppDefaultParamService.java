@@ -38,11 +38,11 @@ public class AppDefaultParamService {
 		return appDataProvider;
 	}
 	
-	public void removeApp(AppDefaultParam appDefaultParam) {
+	public void removeAppDefaultParam(AppDefaultParam appDefaultParam) {
 		mockAppDefaultParamService.deleteAppDefaultParam(appDefaultParam);
 	}
 	
-	public void saveApp(AppDefaultParam appDefaultParam) {
+	public void saveAppDefaultParam(AppDefaultParam appDefaultParam) {
 		mockAppDefaultParamService.save(appDefaultParam);
 	}
 }

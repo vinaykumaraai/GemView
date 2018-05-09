@@ -11,11 +11,10 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.luretechnologies.tms.backend.data.Role;
 import com.luretechnologies.tms.backend.data.entity.App;
 import com.luretechnologies.tms.backend.data.entity.AppDefaultParam;
 import com.luretechnologies.tms.backend.data.entity.Devices;
-import com.luretechnologies.tms.backend.data.entity.StatusType;
+import com.luretechnologies.tms.backend.data.entity.Profile;
 import com.luretechnologies.tms.backend.data.entity.User;
 import com.vaadin.data.provider.Query;
 import com.vaadin.spring.annotation.SpringComponent;
@@ -30,20 +29,25 @@ public class MockAppService extends CrudService<App>{
 	private MockUserService mockUserService;
 	@Autowired
 	private MockOdometerDeviceService mockDeviceService;
+	
+	@Autowired
+	private MockProfileService mockProfileService;
+	
 	@PostConstruct
 	public void createInitialAlertss() throws ParseException
 	{	List<Devices> deviceList = mockDeviceService.getSavedList();
 		List<User> userList = mockUserService.getSavedList();
+		List<Profile> profileList = mockProfileService.getSavedList();
 		
-		App app = new App("Payment Application","PAYAPP.tgz","1.0",true,mockAppDefaultParamService.getSavedList(),deviceList.get(0),userList.get(0));
+		App app = new App("Payment Application","PAYAPP.tgz","1.0",true,mockAppDefaultParamService.getSavedList(),deviceList.get(0),userList.get(0),profileList.get(0));
 		app.setId(app.getId()+2);
 		appDirectory.put(app.getId(), app);
 		List<AppDefaultParam> listParam1 = mockAppDefaultParamService.getSavedList().subList(1, 2);
-		 app = new App("Gift Card Application","GIFTAPP.tgz","2.0",true,listParam1,deviceList.get(1),userList.get(1));
+		 app = new App("Gift Card Application","GIFTAPP.tgz","2.0",true,listParam1,deviceList.get(1),userList.get(1),profileList.get(1));
 		 app.setId(app.getId()+3);
 		appDirectory.put(app.getId(), app);
 		List<AppDefaultParam> listParam2 = mockAppDefaultParamService.getSavedList().subList(0, 1);
-		 app = new App("Operating System","OSAPP.tgz","1.4",false,listParam2,deviceList.get(2),userList.get(2));
+		 app = new App("Operating System","OSAPP.tgz","1.4",false,listParam2,deviceList.get(2),userList.get(2),profileList.get(0));
 		 app.setId(app.getId()+4);
 		appDirectory.put(app.getId(), app);
 	}
