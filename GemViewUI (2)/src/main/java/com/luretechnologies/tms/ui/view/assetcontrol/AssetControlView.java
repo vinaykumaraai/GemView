@@ -710,7 +710,7 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 
 	private VerticalLayout getAlert() {
 		Button[] buttons= {createAlertGridRow,editAlertGridRow,deleteAlertGridRow,saveAlertForm,cancelAlertForm};
-		AlertTab alertTab  = new AlertTab(alertGrid, alertService, nodeTree,Page.getCurrent().getUI(), buttons);
+		AlertTab alertTab  = new AlertTab(alertGrid, alertService, nodeTree,Page.getCurrent().getUI(), treeDataService,buttons);
 		return alertTab.getAlert();
 	}
 

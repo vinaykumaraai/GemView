@@ -38,7 +38,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.dialogs.ConfirmDialog;
 
 import com.luretechnologies.tms.backend.data.entity.Alert;
+import com.luretechnologies.tms.backend.data.entity.AlertType;
 import com.luretechnologies.tms.backend.data.entity.ExtendedNode;
+import com.luretechnologies.tms.backend.data.entity.Node;
 import com.luretechnologies.tms.backend.service.AlertService;
 import com.luretechnologies.tms.backend.service.TreeDataService;
 import com.luretechnologies.tms.ui.ComponentUtil;
@@ -70,8 +72,9 @@ public class AlertTab {
 	AlertService alertService;
 	Tree<ExtendedNode> nodeTree;
 	UI assetControlUI;
+	TreeDataService treeDataService;
 	//public AssetControlView assetView ;
-	public AlertTab(Grid<Alert> alertGrid, AlertService alertService,Tree<ExtendedNode> nodeTree,UI assetControlUI, Button... buttons) {
+	public AlertTab(Grid<Alert> alertGrid, AlertService alertService,Tree<ExtendedNode> nodeTree,UI assetControlUI, TreeDataService treeDataService, Button... buttons) {
 		createAlertGridRow = buttons[0];
 		editAlertGridRow = buttons[1];
 		deleteAlertGridRow = buttons[2];
@@ -81,11 +84,12 @@ public class AlertTab {
 		this.alertService = alertService;
 		this.nodeTree = nodeTree;
 		this.assetControlUI = assetControlUI;
+		this.treeDataService = treeDataService;
 		
 	}
 	
-	@Autowired
-	public TreeDataService treeDataService;
+//	@Autowired
+//	public TreeDataService treeDataService;
 
 	@Autowired
 	public AssetControlView assetView ;
@@ -281,12 +285,12 @@ public class AlertTab {
 			                if (dialog.isConfirmed()) {
 			    				alertService.removeAlert(alertGrid.getSelectedItems().iterator().next());
 			    				nodeTree.getDataProvider().refreshAll();
-			    				//loadGrid();
-			    				ListDataProvider<Alert> refreshAlertDataProvider = alertService.getListDataProvider();
-			    				alertGrid.setDataProvider(refreshAlertDataProvider);
-			    				// Refreshing
-			    				alertGrid.getDataProvider().refreshAll();
-			    				deleteAlertGridRow.setEnabled(false);
+			    				loadAlertGrid();
+//			    				ListDataProvider<Alert> refreshAlertDataProvider = alertService.getListDataProvider();
+//			    				alertGrid.setDataProvider(refreshAlertDataProvider);
+//			    				// Refreshing
+//			    				alertGrid.getDataProvider().refreshAll();
+//			    				deleteAlertGridRow.setEnabled(false);
 			                } else {
 			                    // User did not confirm
 			                    
@@ -325,9 +329,12 @@ public class AlertTab {
 			saveAlertForm.setEnabled(false);
 			alertService.saveAlert(alert);
 			if (nodeTree.getSelectedItems().size() <= 0) {
-				alertGrid.setData(alertService.getListDataProvider());
+				Notification.show("Please select any entity on Tree");
 			} else {
-				alertGrid.setData(nodeTree.getSelectedItems().iterator().next().getExtendedList());
+				//alertGrid.setData(alertService.getListDataProvider());
+				loadAlertGrid();
+				//alertGrid.setData(nodeTree.getSelectedItems().iterator().next().getExtendedList());
+	
 			}
 			alertGrid.getDataProvider().refreshAll();
 			alertGrid.deselectAll();

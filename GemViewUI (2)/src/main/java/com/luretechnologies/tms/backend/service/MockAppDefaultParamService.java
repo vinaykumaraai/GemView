@@ -22,7 +22,7 @@ import com.vaadin.spring.annotation.SpringComponent;
 public class MockAppDefaultParamService extends CrudService<AppDefaultParam>{
 	private Map<Long,AppDefaultParam> appDefaultParamDirectory = new HashMap<Long, AppDefaultParam>();
 	@PostConstruct
-	public void createInitialAlertss() throws ParseException
+	public void createInitialAppParams() throws ParseException
 	{
 		AppDefaultParam defaultParams = new AppDefaultParam("properties", "This is for properties", ParameterType.TEXT, true);
 		defaultParams.setId(defaultParams.getId()+2);
@@ -42,7 +42,7 @@ public class MockAppDefaultParamService extends CrudService<AppDefaultParam>{
 			appDefaultParamDirectory.put(appDefaultParam.getId(), appDefaultParam);
 		}
 		else
-			throw new RuntimeException("Alert Already present");
+			throw new RuntimeException("Parameter Already present");
 		
 	}
 	
