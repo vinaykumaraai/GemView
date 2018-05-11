@@ -114,6 +114,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 	private static List<ApplicationFile> uploadedFileList = new ArrayList<>();
 	private Grid<App> appGrid;
 	private App selectedApp;
+	private Profile selectedProfile;
 
 	@Autowired
 	public ApplicationStoreView() {
@@ -128,7 +129,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 
 	@Autowired
 	private MockUserService userService;
-	
+
 	@Autowired
 	private ProfileService profileService;
 
@@ -155,32 +156,32 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 				phoneAndTabMode();
 			} else {
 				desktopMode();
-				
+
 			}
 		});
 		differentModesLoad();
 	}
-	
+
 	private void differentModesLoad() {
 		int width = Page.getCurrent().getBrowserWindowWidth();
-		if(width <= 1300 && width >= 700) {
+		if (width <= 1300 && width >= 700) {
 			phoneAndTabMode();
-			
-		}else if(width<=699 && width> 0){
+
+		} else if (width <= 699 && width > 0) {
 			phoneAndTabMode();
-			
+
 		} else {
 			desktopMode();
 		}
 	}
-	
+
 	private void phoneAndTabMode() {
 		appStoreGridLayout.removeAllComponents();
 		appStoreGridLayout.setColumns(1);
 		appStoreGridLayout.setRows(4);
 		appStoreGridLayout.addComponents(getAppStoreComponents());
 	}
-	
+
 	private void desktopMode() {
 		appStoreGridLayout.removeAllComponents();
 		appStoreGridLayout.setColumns(2);
@@ -225,8 +226,8 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		// VaadinIcons.CLOSE_CIRCLE_O.getHtml(),
 		// new HtmlRenderer()).setCaption("Active");
 		appGrid.setSelectionMode(SelectionMode.SINGLE);
-		//appGrid.addHeaderRowAt(1);
-		//appGrid.set
+		// appGrid.addHeaderRowAt(1);
+		// appGrid.set
 		TextField applicationSearch = new TextField();
 		applicationSearch.setWidth("100%");
 		applicationSearch.setIcon(VaadinIcons.SEARCH);
@@ -261,10 +262,10 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		createAppGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		createAppGridRow.setResponsive(true);
 		Button editAppGridRow = new Button(VaadinIcons.PENCIL, click -> {
-			if(appGrid.getSelectedItems().isEmpty()) {
+			if (appGrid.getSelectedItems().isEmpty()) {
 				Notification.show("Please select any app to delete", Notification.Type.WARNING_MESSAGE);
-			}else {
-			setApplicationFormComponentsEnable(true);
+			} else {
+				setApplicationFormComponentsEnable(true);
 			}
 
 		});
@@ -284,9 +285,8 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		deleteAppGridRow.setResponsive(true);
 		HorizontalLayout appSearchLayout = new HorizontalLayout(applicationSearch);
 		appSearchLayout.setWidth("100%");
-		HorizontalLayout appButtonsLayout = new HorizontalLayout(createAppGridRow, editAppGridRow,
-				deleteAppGridRow);
-		//appButtonsLayout.setWidth("100%");
+		HorizontalLayout appButtonsLayout = new HorizontalLayout(createAppGridRow, editAppGridRow, deleteAppGridRow);
+		// appButtonsLayout.setWidth("100%");
 		HorizontalLayout appGridMenuLayout = new HorizontalLayout(appSearchLayout, appButtonsLayout);
 		appGridMenuLayout.setWidth("100%");
 		VerticalLayout applicationListLayout = new VerticalLayout(appGridMenuLayout, appGrid);
@@ -299,11 +299,18 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 				((TextField) applicationDetailsForm.getComponent(3)).setValue(selectedApp.getPackageVersion());
 				((ComboBox) applicationDetailsForm.getComponent(4)).setValue(selectedApp.getOwner());
 				((ComboBox) applicationDetailsForm.getComponent(5)).setValue(selectedApp.getDevice());
-				HorizontalLayout HL= (HorizontalLayout)applicationDetailsForm.getComponent(6);
+				HorizontalLayout HL = (HorizontalLayout) applicationDetailsForm.getComponent(6);
 				CheckBox checkbox = (CheckBox) HL.getComponent(1);
 				checkbox.setValue(selectedApp.isActive());
-				//((CheckBox) applicationDetailsForm.getComponent(6)).setValue(selectedItem.isActive());
+				// ((CheckBox)
+				// applicationDetailsForm.getComponent(6)).setValue(selectedItem.isActive());
 				appDefaultParamGrid.setDataProvider(new ListDataProvider<>(selectedApp.getAppDefaultParamList()));
+				if (selectedApp.getProfile() != null)
+					((TextField) ((HorizontalLayout) ((VerticalLayout) appDefaultParamGrid.getParent()).getComponent(1))
+							.getComponent(2)).setValue(selectedApp.getProfile().toString());
+				else
+					((TextField) ((HorizontalLayout) ((VerticalLayout) appDefaultParamGrid.getParent()).getComponent(1))
+							.getComponent(2)).setValue("");
 
 			} else {
 				((TextField) applicationDetailsForm.getComponent(0)).clear();
@@ -311,11 +318,14 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 				((TextField) applicationDetailsForm.getComponent(3)).clear();
 				((ComboBox) applicationDetailsForm.getComponent(4)).clear();
 				((ComboBox) applicationDetailsForm.getComponent(5)).clear();
-				HorizontalLayout HL= (HorizontalLayout)applicationDetailsForm.getComponent(6);
+				HorizontalLayout HL = (HorizontalLayout) applicationDetailsForm.getComponent(6);
 				CheckBox checkbox = (CheckBox) HL.getComponent(1);
 				checkbox.clear();
-				//((CheckBox) applicationDetailsForm.getComponent(6)).clear();
+				// ((CheckBox) applicationDetailsForm.getComponent(6)).clear();
 				appDefaultParamGrid.setDataProvider(new ListDataProvider<>(Arrays.asList()));
+				((TextField) ((HorizontalLayout) ((VerticalLayout) appDefaultParamGrid.getParent()).getComponent(1))
+						.getComponent(2)).clear();
+				setApplicationFormComponentsEnable(false);
 			}
 		});
 		return applicationListLayout;
@@ -330,40 +340,40 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			Component component = applicationDetailsForm.getComponent(i);
 			if (component.getId() == null) {
 				component.setEnabled(flag);
-				
-			}else if(component.getId().equalsIgnoreCase(PACKAGE_FILE)){
+
+			} else if (component.getId().equalsIgnoreCase(PACKAGE_FILE)) {
 				component.setEnabled(false);
-				
-			}else if(component.getId().equalsIgnoreCase(ACTIVE_LAYOUT)) {
-				HorizontalLayout HL= (HorizontalLayout)component;
+
+			} else if (component.getId().equalsIgnoreCase(ACTIVE_LAYOUT)) {
+				HorizontalLayout HL = (HorizontalLayout) component;
 				CheckBox checkbox = (CheckBox) HL.getComponent(1);
 				checkbox.setEnabled(flag);
 			}
-		} 
+		}
 		buttonLayout.getComponent(0).setEnabled(flag);
 		buttonLayout.getComponent(1).setEnabled(flag);
-		
-		int defaultParamCount = ((VerticalLayout)appDefaultParamGrid.getParent()).getComponentCount();
-		for(int i=0;i<defaultParamCount;i++) {
-			Component component = ((VerticalLayout)appDefaultParamGrid.getParent()).getComponent(i);
+
+		int defaultParamCount = ((VerticalLayout) appDefaultParamGrid.getParent()).getComponentCount();
+		for (int i = 0; i < defaultParamCount; i++) {
+			Component component = ((VerticalLayout) appDefaultParamGrid.getParent()).getComponent(i);
 			component.setEnabled(flag);
 		}
 	}
 
-//	private void loadAppGrid() {
-//		treeDataService.getTreeDataForDebugAndAlert();
-//		List<ExtendedNode> nodeList = treeDataService.getDebugAndAlertNodeList();
-//		Set<ExtendedNode> nodeSet = nodeTree.getSelectionModel().getSelectedItems();
-//		ExtendedNode nodeSelected = nodeSet.iterator().next();
-//		for(ExtendedNode node : nodeList) {
-//			if(node.getLabel().equals(nodeSelected.getLabel())) {
-//				DataProvider data = new ListDataProvider(node.getExtendedList());
-//				alertGrid.setDataProvider(data);
-//			}
-//		}
-//		
-//	}
-	
+	// private void loadAppGrid() {
+	// treeDataService.getTreeDataForDebugAndAlert();
+	// List<ExtendedNode> nodeList = treeDataService.getDebugAndAlertNodeList();
+	// Set<ExtendedNode> nodeSet = nodeTree.getSelectionModel().getSelectedItems();
+	// ExtendedNode nodeSelected = nodeSet.iterator().next();
+	// for(ExtendedNode node : nodeList) {
+	// if(node.getLabel().equals(nodeSelected.getLabel())) {
+	// DataProvider data = new ListDataProvider(node.getExtendedList());
+	// alertGrid.setDataProvider(data);
+	// }
+	// }
+	//
+	// }
+
 	private VerticalLayout getAppicationDetailsLayout() {
 
 		TextField packageName = new TextField("Application Package Name");
@@ -411,27 +421,29 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		activeBoxLayout.setStyleName("role-activeLable");
 		activeBoxLayout.addStyleName("assetAlert-activeCheckBox");
 		Button saveForm = new Button("Save");
-		saveForm.addClickListener(click ->{
-				App app;
-				if (appGrid.getSelectedItems().size() > 0) {
-					app = appGrid.getSelectedItems().iterator().next();
-				} else {
-					app = new App();
-				}
-				app.setPackageName(packageName.getValue());
-				app.setFile(packageFile.getValue());
-				app.setPackageVersion(packageVersion.getValue());
-				app.setOwner(applicationOwner.getValue());
-				app.setDevice(devices.getValue());
-				app.setActive(activeApplication.getValue());
-				//Check if Profile is set and get all Default Params to be set
-				app.setAppDefaultParamList(appDefaultParamGrid.getDataProvider().fetch(new Query<>()).collect(Collectors.toList()));
-				
-				appService.saveApp(app);
-				appGrid.setDataProvider(appService.getListDataProvider());
-				appGrid.getDataProvider().refreshAll();
-				appGrid.deselectAll();
-			
+		saveForm.addClickListener(click -> {
+			App app;
+			if (appGrid.getSelectedItems().size() > 0) {
+				app = appGrid.getSelectedItems().iterator().next();
+			} else {
+				app = new App();
+			}
+			app.setPackageName(packageName.getValue());
+			app.setFile(packageFile.getValue());
+			app.setPackageVersion(packageVersion.getValue());
+			app.setOwner(applicationOwner.getValue());
+			app.setDevice(devices.getValue());
+			app.setActive(activeApplication.getValue());
+			// Check if Profile is set and get all Default Params to be set
+			app.setAppDefaultParamList(
+					appDefaultParamGrid.getDataProvider().fetch(new Query<>()).collect(Collectors.toList()));
+			if (selectedProfile != null)
+				app.setProfile(selectedProfile);
+			appService.saveApp(app);
+			appGrid.setDataProvider(appService.getListDataProvider());
+			appGrid.getDataProvider().refreshAll();
+			appGrid.deselectAll();
+
 		});
 		saveForm.setEnabled(false);
 		saveForm.addStyleNames("v-button-customstyle", ValoTheme.BUTTON_FRIENDLY);
@@ -440,6 +452,8 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			packageFile.clear();
 			packageVersion.clear();
 			appDefaultParamGrid.setDataProvider(new ListDataProvider<>(Arrays.asList()));
+			((TextField) ((HorizontalLayout) ((VerticalLayout) appDefaultParamGrid.getParent()).getComponent(1))
+					.getComponent(2)).clear();
 
 		});
 		cancelForm.setEnabled(false);
@@ -462,10 +476,11 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		buttonLayout.addComponents(cancelForm, saveForm);
 		buttonLayout.setResponsive(true);
 		buttonLayout.setStyleName("save-cancelButtonsAlignment");
-		
+
 		appDetailsSaveCancleAndLabelLayout.addComponents(applicationDetailsLabel, buttonLayout);
 		appDetailsSaveCancleAndLabelLayout.setComponentAlignment(buttonLayout, Alignment.MIDDLE_RIGHT);
-		VerticalLayout applicationDetailsLayout = new VerticalLayout(appDetailsSaveCancleAndLabelLayout, applicationDetailsForm);
+		VerticalLayout applicationDetailsLayout = new VerticalLayout(appDetailsSaveCancleAndLabelLayout,
+				applicationDetailsForm);
 		applicationDetailsLayout.addStyleName("applicatioStore-VerticalLayout");
 		applicationDetailsLayout.setComponentAlignment(appDetailsSaveCancleAndLabelLayout, Alignment.TOP_RIGHT);
 		return applicationDetailsLayout;
@@ -482,10 +497,11 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		paramComboBox.setDataProvider(new ListDataProvider<>(Arrays.asList(ParameterType.values())));
 		appDefaultParamGrid.getColumn("type").setEditorComponent(paramComboBox);
 		appDefaultParamGrid.getColumn("active").setEditorComponent(new CheckBox());
-		appDefaultParamGrid.getEditor().setEnabled(true).addSaveListener(save->{
-			//Save listner. Typically value is set to selected App
-			//If not happening then get the Object from list of Selected App and set the edited value
-		
+		appDefaultParamGrid.getEditor().setEnabled(true).addSaveListener(save -> {
+			// Save listner. Typically value is set to selected App
+			// If not happening then get the Object from list of Selected App and set the
+			// edited value
+
 		});
 
 		TextField appDefaultParamSearch = new TextField();
@@ -521,14 +537,14 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			appDefaultParamGrid.deselectAll();
 			if (createParamGridWindow.getParent() == null)
 				UI.getCurrent().addWindow(createParamGridWindow);
-			
+
 		});
 		createAppDefaultParamGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		createAppDefaultParamGridRow.setResponsive(true);
 		Button editAppDefaultParamGridRow = new Button(VaadinIcons.PENCIL, click -> {
 			// Try to add the inline Grid edit function
-						if (appDefaultParamGrid.getSelectedItems().size() > 0)
-							appDefaultParamGrid.getEditor().setEnabled(true);
+			if (appDefaultParamGrid.getSelectedItems().size() > 0)
+				appDefaultParamGrid.getEditor().setEnabled(true);
 		});
 		editAppDefaultParamGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		editAppDefaultParamGridRow.setResponsive(true);
@@ -560,19 +576,23 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 					optionList.select(selectedApp.getProfile());
 			}
 		});
-		
-		HorizontalLayout appParamHeaderButtonLayout = new HorizontalLayout(clearAllParams, profileDropDown,profileField);
+
+		HorizontalLayout appParamHeaderButtonLayout = new HorizontalLayout(clearAllParams, profileDropDown,
+				profileField);
 		appParamHeaderButtonLayout.setWidth("50%");
 		appParamHeaderButtonLayout.setEnabled(false);
 		HorizontalLayout appParamSearchLayout = new HorizontalLayout(appDefaultParamSearch);
 		appParamSearchLayout.setWidth("100%");
-		HorizontalLayout appParamButtonsLayout = new HorizontalLayout(createAppDefaultParamGridRow, deleteAppDefaultParamGridRow);
-		//appParamButtonsLayout.setWidth("100%");
+		HorizontalLayout appParamButtonsLayout = new HorizontalLayout(createAppDefaultParamGridRow,
+				deleteAppDefaultParamGridRow);
+		// appParamButtonsLayout.setWidth("100%");
 		HorizontalLayout appParamGridMenuLayout = new HorizontalLayout(appParamSearchLayout, appParamButtonsLayout);
 		appParamGridMenuLayout.setWidth("100%");
-//		HorizontalLayout appDefaultParamGridMenuLayout = new HorizontalLayout(appDefaultParamSearch,
-//				createAppDefaultParamGridRow, editAppDefaultParamGridRow, deleteAppDefaultParamGridRow);
-		
+		// HorizontalLayout appDefaultParamGridMenuLayout = new
+		// HorizontalLayout(appDefaultParamSearch,
+		// createAppDefaultParamGridRow, editAppDefaultParamGridRow,
+		// deleteAppDefaultParamGridRow);
+
 		applicationParamLabelLayout = new HorizontalLayout();
 		applicationParamLabelLayout.setWidth("100%");
 		Label appParamLabel = new Label("Application Default Parameters");
@@ -581,8 +601,8 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		applicationParamLabelLayout.addComponents(appParamLabel);
 		appParamGridMenuLayout.setEnabled(false);
 		appDefaultParamGrid.setEnabled(false);
-		VerticalLayout applicationDefaultParametersLayout = new VerticalLayout(applicationParamLabelLayout,appParamHeaderButtonLayout, appParamGridMenuLayout,
-				appDefaultParamGrid);
+		VerticalLayout applicationDefaultParametersLayout = new VerticalLayout(applicationParamLabelLayout,
+				appParamHeaderButtonLayout, appParamGridMenuLayout, appDefaultParamGrid);
 		applicationDefaultParametersLayout.setCaptionAsHtml(true);
 		applicationDefaultParametersLayout.addStyleName("applicatioStore-VerticalLayout");
 		return applicationDefaultParametersLayout;
@@ -618,10 +638,12 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 					public void onClose(ConfirmDialog dialog) {
 						if (dialog.isConfirmed()) {
 							// Confirmed to continue
-							//appDefaultParamService.removeAppDefaultParam((AppDefaultParam)appDefaultParamGrid.getSelectionModel().getFirstSelectedItem().get());
-							//Save Form should take care what is deleted 
-							selectedApp.getAppDefaultParamList().remove((AppDefaultParam)appDefaultParamGrid.getSelectionModel().getFirstSelectedItem().get());
-							appDefaultParamGrid.setDataProvider(new ListDataProvider<>(selectedApp.getAppDefaultParamList()));
+							// appDefaultParamService.removeAppDefaultParam((AppDefaultParam)appDefaultParamGrid.getSelectionModel().getFirstSelectedItem().get());
+							// Save Form should take care what is deleted
+							selectedApp.getAppDefaultParamList().remove((AppDefaultParam) appDefaultParamGrid
+									.getSelectionModel().getFirstSelectedItem().get());
+							appDefaultParamGrid
+									.setDataProvider(new ListDataProvider<>(selectedApp.getAppDefaultParamList()));
 							// appService.removeApp(appGrid.getSelectedItems().iterator().next());
 							appSearch.clear();
 							// TODO add Grid reload
@@ -645,15 +667,17 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			if (selection.getFirstSelectedItem().isPresent()) {
 				// FIXME: selection of value
 				if (field != null) {
-				String value = selection.getValue().toString();
-				
-				field.setValue(value.substring(1, value.length()-1));
+					String value = selection.getValue().toString();
+					field.setValue(value.substring(1, value.length() - 1));
 				}
-//				} else {
-//					//set profile
-//					selectedApp.setProfile((Profile)selection.getValue());
-//				}
-				
+				if (selection.getValue() instanceof Profile) {
+					selectedProfile = (Profile) selection.getValue();
+				}
+				// } else {
+				// //set profile
+				// selectedApp.setProfile((Profile)selection.getValue());
+				// }
+
 			}
 		});
 		// FIXME: for button caption pass the value full or partial in method paramter
@@ -665,7 +689,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 				Window fileUpload = openFileUploadWindow(optionList);
 				if (fileUpload.getParent() == null) {
 					UI.getCurrent().addWindow(fileUpload);
-				} else if(fileUpload.getComponentCount()>0){
+				} else if (fileUpload.getComponentCount() > 0) {
 					fileUpload.close();
 				}
 			});
@@ -687,36 +711,40 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			deleteButton = new Button("Delete Profile", click -> {
 				if (optionList.getSelectedItems().size() == 1) {
 					// FIXME: call delete service of Profile checking if its instace of Profile
-					optionList.getSelectedItems().iterator().next();
+					Profile selected = (Profile) optionList.getSelectedItems().iterator().next();
+					selectedApp.setProfile(null);
+					profileService.removeProfile(selected);
+					optionList.setDataProvider(profileService.getListDataProvider());
+					field.clear();
+
 				}
 			});
 		}
 		addNewButton.addStyleNames(ValoTheme.BUTTON_SMALL, "v-button-customstyle", ValoTheme.BUTTON_FRIENDLY);
 		deleteButton.addStyleNames(ValoTheme.BUTTON_SMALL, "v-button-customstyle", ValoTheme.BUTTON_FRIENDLY);
 
-		
 		VerticalLayout listLayout = new VerticalLayout(optionList, addNewButton, deleteButton);
 		listLayout.addStyleName("applicatioStore-ListLayout");
 		Window smaillListWindow = new Window("", listLayout);
 		smaillListWindow.setWidth(250, Unit.PIXELS);
 		smaillListWindow.setHeight(220, Unit.PIXELS);
-		//smaillListWindow.setWindowMode(WindowMode.NORMAL);
+		// smaillListWindow.setWindowMode(WindowMode.NORMAL);
 		smaillListWindow.setClosable(true);
 		smaillListWindow.setDraggable(true);
 		smaillListWindow.setModal(true);
 		smaillListWindow.setResizable(true);
-		//smaillListWindow.setPositionX(800);
-		//smaillListWindow.setPositionY(150);
+		// smaillListWindow.setPositionX(800);
+		// smaillListWindow.setPositionY(150);
 		smaillListWindow.center();
 		return smaillListWindow;
 	}
-	
+
 	private Window openProfileWindow(ListSelect optionList) {
 		Window profileWindow = new Window("Add Profile");
 		TextField profileName = new TextField("Name");
 		ComboBox<ProfileType> profileType = new ComboBox<>("Type");
 		profileType.setDataProvider(new ListDataProvider<>(Arrays.asList(ProfileType.values())));
-		
+
 		Button saveProfile = new Button("Save", click -> {
 			if (profileType.getSelectedItem().isPresent() && StringUtils.isNotEmpty(profileName.getValue())) {
 				Profile pToSave = new Profile(profileType.getValue(), profileName.getValue());
@@ -749,7 +777,8 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		parameterType.setDataProvider(new ListDataProvider<>(Arrays.asList(ParameterType.values())));
 		CheckBox parameterActive = new CheckBox("Active");
 		Button saveParameter = new Button("Save", click -> {
-			if (StringUtils.isNotEmpty(parameterType.getValue().name()) && StringUtils.isNotEmpty(parameterName.getValue())) {
+			if (StringUtils.isNotEmpty(parameterType.getValue().name())
+					&& StringUtils.isNotEmpty(parameterName.getValue())) {
 				AppDefaultParam appDefaultParam = new AppDefaultParam(parameterName.getValue(),
 						parameterDescription.getValue(), parameterType.getValue(), parameterActive.getValue());
 				// appDefaultParamService.saveAppDefaultParam(appDefaultParam);
@@ -783,7 +812,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		lineBreakCounter.setSlow(true);
 
 		FileUploadReceiver fileUploadReceiver = new FileUploadReceiver();
-		//fileUploadReceiver.
+		// fileUploadReceiver.
 
 		Upload uploadFile = new Upload("Upload File here", lineBreakCounter);
 		uploadFile.setImmediateMode(false);
@@ -793,18 +822,18 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 
 		Window fileUploadWindow = new Window("File Upload", uploadFile);
 		UploadInfoWindow uploadInfoWindow = new UploadInfoWindow(uploadFile, lineBreakCounter, fileUploadReceiver,
-				optionList,fileUploadWindow);
+				optionList, fileUploadWindow);
 
 		uploadFile.addStartedListener(event -> {
 			if (uploadInfoWindow.getParent() == null) {
 				UI.getCurrent().addWindow(uploadInfoWindow);
-//				fileUploadWindow.close();
+				// fileUploadWindow.close();
 			}
 			uploadInfoWindow.setClosable(false);
 		});
 		uploadFile.addFinishedListener(event -> uploadInfoWindow.setClosable(true));
 		fileUploadWindow.addStyleName("applicatioStore-UploadWindow");
-		//fileUploadWindow.setCaption("<h3 style=color:216C2A;>File Upload</h3>");
+		// fileUploadWindow.setCaption("<h3 style=color:216C2A;>File Upload</h3>");
 		fileUploadWindow.setWidth(30, Unit.PERCENTAGE);
 		fileUploadWindow.setHeight(10, Unit.PERCENTAGE);
 		fileUploadWindow.setClosable(true);
@@ -812,8 +841,8 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		fileUploadWindow.setResizable(false);
 		fileUploadWindow.setModal(true);
 		fileUploadWindow.center();
-		
-		//uploadFile.addFinishedListener(listener)
+
+		// uploadFile.addFinishedListener(listener)
 		return fileUploadWindow;
 	}
 
@@ -833,7 +862,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		private final ListSelect optionList;
 
 		private UploadInfoWindow(final Upload upload, final LineBreakCounter lineBreakCounter,
-				final FileUploadReceiver fileUploadReceiver, final ListSelect optionList,Window uploadWindow) {
+				final FileUploadReceiver fileUploadReceiver, final ListSelect optionList, Window uploadWindow) {
 			super("Status");
 			this.counter = lineBreakCounter;
 			this.fileUploadReceiver = fileUploadReceiver;
@@ -922,7 +951,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			} else {
 
 			}
-			//close the window
+			// close the window
 			close();
 			uploadWindow.close();
 		}
@@ -990,9 +1019,9 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			FileOutputStream fos = null; // Stream to write to
 			try {
 				// Open the file for writing.
-				//Application.applicationProperties.getProperty("upload.file.location")  not working.
-				file = new ApplicationFile("C:/temp"+ File.separator
-						+ filename);
+				// Application.applicationProperties.getProperty("upload.file.location") not
+				// working.
+				file = new ApplicationFile("C:/temp" + File.separator + filename);
 				fos = new FileOutputStream(file);
 			} catch (final java.io.FileNotFoundException e) {
 				new Notification("Could not open file: ", e.getMessage(), Notification.Type.ERROR_MESSAGE)
