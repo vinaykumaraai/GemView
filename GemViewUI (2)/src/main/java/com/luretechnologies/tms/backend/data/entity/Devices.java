@@ -73,6 +73,8 @@ public class Devices extends AbstractEntity{
 	private Date deviceDate;
 	
 	private List<HeartBeatHistory> hbHistoryList;
+	
+	private List<OverRideParameters> overRideParamList;
 
 	public Devices() {
 		
@@ -89,6 +91,14 @@ public class Devices extends AbstractEntity{
 		this.deviceName = deviceName;
 	}
 	
+	
+	
+	public List<OverRideParameters> getOverRideParamList() {
+		return overRideParamList;
+	}
+	public void setOverRideParamList(List<OverRideParameters> overRideParamList) {
+		this.overRideParamList = overRideParamList;
+	}
 	public List<HeartBeatHistory> getHbHistoryList() {
 		return hbHistoryList;
 	}

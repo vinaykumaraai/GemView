@@ -548,14 +548,20 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			appDefaultParamGrid.setDataProvider(new ListDataProvider<>(Arrays.asList()));
 		});
 		Button profileDropDown = new Button("Profile", VaadinIcons.CARET_DOWN);
-		Window openProfileWindow = getSmallListWindow(false, null);
+		TextField profileField = new TextField();
+		profileField.setEnabled(false);
+		Window openProfileWindow = getSmallListWindow(false, profileField);
 		profileDropDown.addClickListener(click -> {
 			if (openProfileWindow.getParent() == null) {
 				UI.getCurrent().addWindow(openProfileWindow);
-				//FIXME: add Profile selection while opening the window 	if(selectedApp.getProfile() != null)		optionList.select(selectedApp.getProfile());
+				ListSelect<Profile> optionList = (ListSelect<Profile>) ((VerticalLayout) openProfileWindow.getContent())
+						.getComponent(0);
+				if (selectedApp.getProfile() != null)
+					optionList.select(selectedApp.getProfile());
 			}
 		});
-		HorizontalLayout appParamHeaderButtonLayout = new HorizontalLayout(clearAllParams, profileDropDown);
+		
+		HorizontalLayout appParamHeaderButtonLayout = new HorizontalLayout(clearAllParams, profileDropDown,profileField);
 		appParamHeaderButtonLayout.setWidth("50%");
 		appParamHeaderButtonLayout.setEnabled(false);
 		HorizontalLayout appParamSearchLayout = new HorizontalLayout(appDefaultParamSearch);
@@ -642,10 +648,12 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 				String value = selection.getValue().toString();
 				
 				field.setValue(value.substring(1, value.length()-1));
-				} else {
-					//set profile
-					selectedApp.setProfile((Profile)selection.getValue());
 				}
+//				} else {
+//					//set profile
+//					selectedApp.setProfile((Profile)selection.getValue());
+//				}
+				
 			}
 		});
 		// FIXME: for button caption pass the value full or partial in method paramter
@@ -783,17 +791,18 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		uploadFile.addStyleName("applicatioStore-UploadButton");
 		uploadFile.setReceiver(fileUploadReceiver);
 
+		Window fileUploadWindow = new Window("File Upload", uploadFile);
 		UploadInfoWindow uploadInfoWindow = new UploadInfoWindow(uploadFile, lineBreakCounter, fileUploadReceiver,
-				optionList);
+				optionList,fileUploadWindow);
 
 		uploadFile.addStartedListener(event -> {
 			if (uploadInfoWindow.getParent() == null) {
 				UI.getCurrent().addWindow(uploadInfoWindow);
+//				fileUploadWindow.close();
 			}
 			uploadInfoWindow.setClosable(false);
 		});
 		uploadFile.addFinishedListener(event -> uploadInfoWindow.setClosable(true));
-		Window fileUploadWindow = new Window("File Upload", uploadFile);
 		fileUploadWindow.addStyleName("applicatioStore-UploadWindow");
 		//fileUploadWindow.setCaption("<h3 style=color:216C2A;>File Upload</h3>");
 		fileUploadWindow.setWidth(30, Unit.PERCENTAGE);
@@ -808,7 +817,6 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		return fileUploadWindow;
 	}
 
-	@StyleSheet("uploadexample.css")
 	private static class UploadInfoWindow extends Window implements Upload.StartedListener, Upload.ProgressListener,
 			Upload.FailedListener, Upload.SucceededListener, Upload.FinishedListener {
 		private final Label state = new Label();
@@ -820,16 +828,18 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		private final Button cancelButton;
 		private final LineBreakCounter counter;
 		private final FileUploadReceiver fileUploadReceiver;
+		private final Window uploadWindow;
 
 		private final ListSelect optionList;
 
 		private UploadInfoWindow(final Upload upload, final LineBreakCounter lineBreakCounter,
-				final FileUploadReceiver fileUploadReceiver, final ListSelect optionList) {
+				final FileUploadReceiver fileUploadReceiver, final ListSelect optionList,Window uploadWindow) {
 			super("Status");
 			this.counter = lineBreakCounter;
 			this.fileUploadReceiver = fileUploadReceiver;
 			this.optionList = optionList;
 			addStyleName("upload-info");
+			this.uploadWindow = uploadWindow;
 
 			setResizable(false);
 			setDraggable(false);
@@ -912,6 +922,9 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			} else {
 
 			}
+			//close the window
+			close();
+			uploadWindow.close();
 		}
 
 		@Override
