@@ -59,7 +59,6 @@ import com.luretechnologies.tms.backend.service.AppService;
 import com.luretechnologies.tms.backend.service.MockUserService;
 import com.luretechnologies.tms.backend.service.OdometerDeviceService;
 import com.luretechnologies.tms.backend.service.ProfileService;
-import com.vaadin.annotations.StyleSheet;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.data.provider.Query;
 import com.vaadin.event.ShortcutAction.KeyCode;
@@ -115,6 +114,10 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 	private Grid<App> appGrid;
 	private App selectedApp;
 	private Profile selectedProfile;
+	private ComboBox<User> applicationOwner;
+	private ComboBox<Devices> devices;
+	private CheckBox activeApplication;
+	private TextField packageName;
 
 	@Autowired
 	public ApplicationStoreView() {
@@ -222,12 +225,8 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		appGrid.getColumn("file").setCaption("File");
 		appGrid.getColumn("packageVersion").setCaption("Version");
 		appGrid.addColumn("active").setCaption("Active");
-		// appGrid.addColumn(c -> c.isActive() ? VaadinIcons.CHECK.getHtml() :
-		// VaadinIcons.CLOSE_CIRCLE_O.getHtml(),
-		// new HtmlRenderer()).setCaption("Active");
 		appGrid.setSelectionMode(SelectionMode.SINGLE);
-		// appGrid.addHeaderRowAt(1);
-		// appGrid.set
+		
 		TextField applicationSearch = new TextField();
 		applicationSearch.setWidth("100%");
 		applicationSearch.setIcon(VaadinIcons.SEARCH);
@@ -258,6 +257,8 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		Button createAppGridRow = new Button(VaadinIcons.FOLDER_ADD, click -> {
 			setApplicationFormComponentsEnable(true);
 			appGrid.deselectAll();
+			packageName.focus();
+			
 		});
 		createAppGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		createAppGridRow.setResponsive(true);
@@ -376,7 +377,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 
 	private VerticalLayout getAppicationDetailsLayout() {
 
-		TextField packageName = new TextField("Application Package Name");
+		packageName = new TextField("Application Package Name");
 		packageName.addStyleNames("role-textbox", "v-grid-cell", ValoTheme.TEXTFIELD_BORDERLESS);
 		packageName.setCaptionAsHtml(true);
 		packageName.setEnabled(false);
@@ -399,11 +400,11 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		packageVersion.setEnabled(false);
 		packageVersion.setWidth("80%");
 		// FIXME: put the list of organization
-		ComboBox<User> applicationOwner = new ComboBox<User>("Application Owner");
+		applicationOwner = new ComboBox<User>("Application Owner");
 		applicationOwner.setEnabled(false);
 		applicationOwner.setCaptionAsHtml(true);
 		applicationOwner.setDataProvider(new ListDataProvider<>(userService.getUsers()));
-		ComboBox<Devices> devices = new ComboBox<Devices>("Device");
+		devices = new ComboBox<Devices>("Device");
 		devices.setDataProvider(deviceService.getListDataProvider());
 		devices.setEnabled(false);
 		// devices.addSelectionListener(selection -> {
@@ -414,7 +415,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		Label active = new Label("Active");
 		active.setStyleName("role-activeLable");
 		active.addStyleName("v-textfield-font");
-		CheckBox activeApplication = new CheckBox("Application Available", false);
+		activeApplication = new CheckBox("Application Available", false);
 		activeApplication.setEnabled(false);
 		activeApplication.addStyleName("v-textfield-font");
 		activeBoxLayout.addComponents(active, activeApplication);
@@ -449,8 +450,20 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		saveForm.addStyleNames("v-button-customstyle", ValoTheme.BUTTON_FRIENDLY);
 		Button cancelForm = new Button("Cancel", click -> {
 			packageName.clear();
+			//packageName.setEnabled(false);
 			packageFile.clear();
+			//packageFile.setEnabled(false);
 			packageVersion.clear();
+			//packageVersion.setEnabled(false);
+			applicationOwner.clear();
+			//applicationOwner.setEnabled(false);
+			devices.clear();
+			//devices.setEnabled(false);
+			activeApplication.clear();
+			//activeApplication.setEnabled(false);
+			
+			setApplicationFormComponentsEnable(false);
+			
 			appDefaultParamGrid.setDataProvider(new ListDataProvider<>(Arrays.asList()));
 			((TextField) ((HorizontalLayout) ((VerticalLayout) appDefaultParamGrid.getParent()).getComponent(1))
 					.getComponent(2)).clear();

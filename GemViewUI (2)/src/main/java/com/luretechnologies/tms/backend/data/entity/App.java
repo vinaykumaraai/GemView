@@ -142,8 +142,7 @@ public class App extends AbstractEntity {
 
 	@Override
 	public String toString() {
-		return "App [packageName=" + packageName + ", file=" + file + ", version=" + packageVersion + ", active="
-				+ active + "]";
+		return packageName;
 	}
 
 }

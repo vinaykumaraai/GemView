@@ -219,6 +219,6 @@ public class Devices extends AbstractEntity{
 
 	@Override
 	public String toString() {
-		return deviceName + " : "+statusType+" : "+statistics;
+		return deviceName;
 	}
 }

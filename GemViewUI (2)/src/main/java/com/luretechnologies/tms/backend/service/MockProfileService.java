@@ -66,6 +66,9 @@ public class MockProfileService extends CrudService<Profile>{
 		 profile = new Profile(ProfileType.RETAIL,"SuperMarket");
 		 profile.setId(profile.getId()+3);
 		debugDirectory.put(profile.getId(), profile);
+		profile = new Profile(ProfileType.MOTO,"Automobile");
+		 profile.setId(profile.getId()+4);
+		debugDirectory.put(profile.getId(), profile);
 		 
 	}
 	

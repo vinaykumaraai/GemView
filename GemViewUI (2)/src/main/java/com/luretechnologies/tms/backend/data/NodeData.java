@@ -29,39 +29,9 @@
  * Inquiries should be made to legal@luretechnologies.com
  *
  */
+package com.luretechnologies.tms.backend.data;
 
-package com.luretechnologies.tms.backend.data.entity;
+public class NodeData {
 
-import java.util.Date;
-import java.util.Objects;
-
-public class Profile extends AbstractEntity {
-
-	private ProfileType type;
-	private String name;
-	public ProfileType getType() {
-		return type;
-	}
-	public void setType(ProfileType type) {
-		this.type = type;
-	}
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public Profile(ProfileType type, String name) {
-		super(false);
-		Objects.requireNonNull(type);
-		Objects.requireNonNull(name);
-		this.type = type;
-		this.name = name;
-	}
-	@Override
-	public String toString() {
-		return type.toString();
-	}	
-
+	
 }

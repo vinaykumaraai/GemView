@@ -45,6 +45,26 @@ public class Node {
 	
 	public String label;
 	
+	public Devices device;
+	
+	public String description;
+	
+	public String serialNum;
+	
+	public boolean active;
+	
+	public boolean heartBeat;
+	
+	public String frequency;
+	
+	public String additionaFiles;
+	
+	public String update;
+	
+	public App app;
+	
+	public Profile profile;
+	
 	public List<? extends AbstractEntity> entityList;
 	
 	public NodeLevel getLevel() {
@@ -70,6 +90,87 @@ public class Node {
 
 	public void setEntityList(List<? extends AbstractEntity> entityList) {
 		this.entityList = entityList;
+	}
+
+	
+	public Devices getDevice() {
+		return device;
+	}
+
+	public void setDevice(Devices device) {
+		this.device = device;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public String getSerialNum() {
+		return serialNum;
+	}
+
+	public void setSerialNum(String serialNum) {
+		this.serialNum = serialNum;
+	}
+
+	public boolean isActive() {
+		return active;
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
+	}
+
+	public boolean isHeartBeat() {
+		return heartBeat;
+	}
+
+	public void setHeartBeat(boolean heartBeat) {
+		this.heartBeat = heartBeat;
+	}
+
+	public String getFrequency() {
+		return frequency;
+	}
+
+	public void setFrequency(String frequency) {
+		this.frequency = frequency;
+	}
+
+	public String getAdditionaFiles() {
+		return additionaFiles;
+	}
+
+	public void setAdditionaFiles(String additionaFiles) {
+		this.additionaFiles = additionaFiles;
+	}
+
+	public String getUpdate() {
+		return update;
+	}
+
+	public void setUpdate(String update) {
+		this.update = update;
+	}
+
+	public App getApp() {
+		return app;
+	}
+
+	public void setApp(App app) {
+		this.app = app;
+	}
+
+	public Profile getProfile() {
+		return profile;
+	}
+
+	public void setProfile(Profile profile) {
+		this.profile = profile;
 	}
 
 	@Override

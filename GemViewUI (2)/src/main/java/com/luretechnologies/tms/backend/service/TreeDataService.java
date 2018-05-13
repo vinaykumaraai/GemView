@@ -41,11 +41,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.luretechnologies.tms.backend.data.entity.Alert;
+import com.luretechnologies.tms.backend.data.entity.App;
 import com.luretechnologies.tms.backend.data.entity.Debug;
 import com.luretechnologies.tms.backend.data.entity.Devices;
 import com.luretechnologies.tms.backend.data.entity.ExtendedNode;
 import com.luretechnologies.tms.backend.data.entity.Node;
 import com.luretechnologies.tms.backend.data.entity.NodeLevel;
+import com.luretechnologies.tms.backend.data.entity.OverRideParameters;
+import com.luretechnologies.tms.backend.data.entity.Profile;
+import com.luretechnologies.tms.backend.data.entity.ProfileType;
 import com.luretechnologies.tms.backend.data.entity.User;
 import com.vaadin.data.TreeData;
 
@@ -60,18 +64,24 @@ public class TreeDataService {
 	private final MockDebugService mockDebugService;
 	private final MockOdometerDeviceService mockOdometerDeviceService;
 	private final MockAlertService mockAlertService;
+	private final MockOverRideParamService mockOverRideParamService;
+	private final MockAppService mockAppService;
 	private List<Node> userNodeList;
+	private List<Node> persliztnNodeList;
 	private List<Node> debugNodeList;
 	private List<ExtendedNode> debugAndAlertNodeList;
 	private List<Node> odometerDeviceNodeList;
 
 	@Autowired
 	public TreeDataService(MockUserService userRepository, MockDebugService mockDebugService,
-			MockOdometerDeviceService mockOdometerDeviceService, MockAlertService mockAlertService) {
+			MockOdometerDeviceService mockOdometerDeviceService, MockAlertService mockAlertService, 
+			MockOverRideParamService mockOverRideParamService, MockAppService mockAppService) {
 		this.mockUserService = userRepository;
 		this.mockDebugService = mockDebugService;
 		this.mockOdometerDeviceService = mockOdometerDeviceService;
 		this.mockAlertService = mockAlertService;
+		this.mockOverRideParamService = mockOverRideParamService;
+		this.mockAppService = mockAppService;
 	}
 
 	private List<User> getSortedUserList(Collection<User> unsortedCollection) {
@@ -97,6 +107,13 @@ public class TreeDataService {
 
 	private List<Alert> getSortedAlertList(Collection<Alert> unsortedCollection) {
 		List<Alert> sortedList = unsortedCollection.stream().sorted((o1, o2) -> {
+			return o1.getType().compareTo(o2.getType());
+		}).collect(Collectors.toList());
+		return sortedList;
+	}
+	
+	private List<OverRideParameters> getSortedParamList(Collection<OverRideParameters> unsortedCollection) {
+		List<OverRideParameters> sortedList = unsortedCollection.stream().sorted((o1, o2) -> {
 			return o1.getType().compareTo(o2.getType());
 		}).collect(Collectors.toList());
 		return sortedList;
@@ -396,5 +413,120 @@ public TreeData<ExtendedNode> getTreeDataForDebugAndAlert() {
 	public List<Node> getOdometerDeviceList() {
 		return this.odometerDeviceNodeList;
 	}
+	
+	public TreeData<Node> getTreeDataForPersonlization() {
 
+		// Tree<Node> tree = new Tree<>();
+		TreeData<Node> treeData = new TreeData<>();
+		List<OverRideParameters> paramList1 = new ArrayList<OverRideParameters>(getSortedParamList(mockOverRideParamService.getRepository().values())); // getSortedUserList()
+		List<OverRideParameters> paramList2 = new ArrayList<OverRideParameters>(getSortedParamList(mockOverRideParamService.getRepository().values()));
+		List<OverRideParameters> paramList3 = new ArrayList<OverRideParameters>(getSortedParamList(mockOverRideParamService.getRepository().values()));
+		List<OverRideParameters> paramList4 = new ArrayList<OverRideParameters>(getSortedParamList(mockOverRideParamService.getRepository().values()));
+		List<OverRideParameters> paramList5 = new ArrayList<OverRideParameters>(getSortedParamList(mockOverRideParamService.getRepository().values()));
+
+//		for (int index = 0; index < 3; index++) {
+//			paramList1.remove(index);
+//			paramList2.remove(index + 1);
+//			paramList3.remove(index + 2);
+//			paramList4.remove(index + 3);
+//			paramList5.remove(index + 2);
+//
+//		}
+		persliztnNodeList = new ArrayList();
+		List<Devices> deviceList = new ArrayList<Devices>(mockOdometerDeviceService.getRepository().values());
+		List<App> appList = new ArrayList<App>(mockAppService.getRepository().values());
+		
+		Node node = new Node();
+		node.setLabel("Enterprise Entity");
+		node.setLevel(NodeLevel.ENTITY);
+		node.setDevice(deviceList.get(1));
+		node.setDescription("This is Entity Description");
+		node.setActive(true);
+		node.setSerialNum("12AFDTH598U");
+		node.setHeartBeat(false);
+		node.setFrequency("120 Seconds");
+		node.setApp(appList.get(0));
+		node.setAdditionaFiles("Entity Files ");
+		node.setProfile(new Profile(ProfileType.FOOD, "Subway"));
+		node.setUpdate("update 1");
+		node.setEntityList(paramList1);
+		persliztnNodeList.add(node);
+
+		Node node1 = new Node();
+		node1.setLabel("Region West");
+		node1.setLevel(NodeLevel.REGION);
+		node1.setDevice(deviceList.get(2));
+		node1.setDescription("This is Region Description");
+		node1.setActive(true);
+		node1.setSerialNum("67AFDETG670U");
+		node1.setHeartBeat(true);
+		node1.setFrequency("1 Hr");
+		node1.setApp(appList.get(1));
+		node1.setAdditionaFiles("Region Files ");
+		node1.setProfile(new Profile(ProfileType.FOOD, "Papa Jhones"));
+		node1.setUpdate("update 2");
+		node1.setEntityList(paramList2);
+		persliztnNodeList.add(node1);
+
+		Node node2 = new Node();
+		node2.setLabel("Merchant 1");
+		node2.setLevel(NodeLevel.MERCHANT);
+		node2.setDevice(deviceList.get(3));
+		node2.setDescription("This is Merchant Description");
+		node2.setActive(false);
+		node2.setSerialNum("8967TYHTG670U");
+		node2.setHeartBeat(true);
+		node2.setFrequency("24 Hr");
+		node2.setApp(appList.get(2));
+		node2.setAdditionaFiles("Merchant Files ");
+		node2.setProfile(new Profile(ProfileType.FOOD, "Star Bucks"));
+		node2.setUpdate("update 4");
+		node2.setEntityList(paramList3);
+		persliztnNodeList.add(node2);
+
+		Node node3 = new Node();
+		node3.setLabel("Terminal Entity 1");
+		node3.setLevel(NodeLevel.TERMINAL);
+		node3.setDevice(deviceList.get(4));
+		node3.setDescription("This is Terminal Description");
+		node3.setActive(false);
+		node3.setSerialNum("3457TYHFR70U");
+		node3.setHeartBeat(true);
+		node3.setFrequency("1 week");
+		node3.setApp(appList.get(0));
+		node3.setAdditionaFiles("Terminal Files");
+		node3.setProfile(new Profile(ProfileType.RETAIL, "Walmart"));
+		node3.setUpdate("update 5");
+		node3.setEntityList(paramList4);
+		persliztnNodeList.add(node3);
+
+		Node node4 = new Node();
+		node4.setLabel("Device 1");
+		node4.setLevel(NodeLevel.DEVICE);
+		node4.setDevice(deviceList.get(5));
+		node4.setDescription("This is Device Description");
+		node4.setActive(false);
+		node4.setSerialNum("9087TYHFEFT");
+		node4.setHeartBeat(true);
+		node4.setFrequency("1 month");
+		node4.setApp(appList.get(2));
+		node4.setAdditionaFiles("Device Files");
+		node4.setProfile(new Profile(ProfileType.RETAIL, "Target"));
+		node4.setUpdate("update 6");
+		node4.setEntityList(paramList5);
+		persliztnNodeList.add(node4);
+
+		treeData.addItem(null, node);
+		treeData.addItem(node, node1);
+		treeData.addItem(node1, node2);
+		treeData.addItem(node2, node3);
+		treeData.addItem(node3, node4);
+
+		return treeData;
+	}
+	
+	public List<Node> getPersonlizationList() {
+		return this.persliztnNodeList;
+	}
+	
 }
