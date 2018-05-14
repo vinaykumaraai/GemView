@@ -32,6 +32,7 @@
 package com.luretechnologies.tms.backend.data.entity;
 
 import java.util.List;
+import java.util.UUID;
 
 import com.vaadin.ui.Label;
 
@@ -40,6 +41,7 @@ import com.vaadin.ui.Label;
  *
  */
 public class Node {
+	public String id;
 
 	public NodeLevel level;
 	
@@ -173,9 +175,46 @@ public class Node {
 		this.profile = profile;
 	}
 
+	public String getId() {
+		return id;
+	}
+
 	@Override
 	public String toString() {
 		return label.toString();
-	}	
-	 
+	}
+
+	
+public Node() {
+	this.id = UUID.randomUUID().toString();
+}
+
+@Override
+public int hashCode() {
+	final int prime = 31;
+	int result = 1;
+	result = prime * result + ((id == null) ? 0 : id.hashCode());
+	return result;
+}
+
+@Override
+public boolean equals(Object obj) {
+	if (this == obj)
+		return true;
+	if (obj == null)
+		return false;
+	if (!(obj instanceof Node))
+		return false;
+	Node other = (Node) obj;
+	if (id == null) {
+		if (other.id != null)
+			return false;
+	} else if (!id.equals(other.id))
+		return false;
+	return true;
+}
+
+
+
+	
 }
