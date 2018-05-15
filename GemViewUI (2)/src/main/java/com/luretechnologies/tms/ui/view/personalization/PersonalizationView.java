@@ -32,28 +32,22 @@
 package com.luretechnologies.tms.ui.view.personalization;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang3.StringUtils;
-import org.atmosphere.config.service.Heartbeat;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.vaadin.dialogs.ConfirmDialog;
 
 import com.luretechnologies.tms.backend.data.entity.App;
-import com.luretechnologies.tms.backend.data.entity.AppDefaultParam;
 import com.luretechnologies.tms.backend.data.entity.Devices;
-import com.luretechnologies.tms.backend.data.entity.ExtendedNode;
 import com.luretechnologies.tms.backend.data.entity.Node;
 import com.luretechnologies.tms.backend.data.entity.NodeLevel;
 import com.luretechnologies.tms.backend.data.entity.OverRideParameters;
 import com.luretechnologies.tms.backend.data.entity.ParameterType;
 import com.luretechnologies.tms.backend.data.entity.Profile;
-import com.luretechnologies.tms.backend.data.entity.ProfileType;
 import com.luretechnologies.tms.backend.service.AppService;
 import com.luretechnologies.tms.backend.service.OdometerDeviceService;
 import com.luretechnologies.tms.backend.service.OverRideParamService;
@@ -61,30 +55,30 @@ import com.luretechnologies.tms.backend.service.ProfileService;
 import com.luretechnologies.tms.backend.service.TreeDataService;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
+import com.vaadin.event.ContextClickEvent;
+import com.vaadin.event.ContextClickEvent.ContextClickListener;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
-import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Grid;
+import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
+import com.vaadin.ui.Tree.TreeContextClickEvent;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
-import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.themes.ValoTheme;
 
 @SpringView(name = PersonalizationView.VIEW_NAME)
@@ -214,6 +208,15 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 				}
 			}
 
+		});
+		nodeTree.addContextClickListener( event ->{
+			if (!(event instanceof TreeContextClickEvent)) {
+				return;
+			}
+			TreeContextClickEvent treeContextEvent = (TreeContextClickEvent) event;
+			Node contextNode = (Node) treeContextEvent.getItem();
+			UI.getCurrent().addWindow(openTreeNodeEditWindow(contextNode));
+			
 		});
 		treeLayoutWithButtons.addComponent(nodeTree);
 		treeLayoutWithButtons.setComponentAlignment(nodeTree, Alignment.TOP_LEFT);
@@ -693,7 +696,34 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 
 		entityInformationLayout.addComponents(overRideParamLabelLayout, overRideParamButtonLayout, overRideParamGrid);
 	}
-
+	private Window openTreeNodeEditWindow(Node nodeToEdit) {
+		Window nodeEditWindow = new Window("Edit Node");
+		TextField nodeName = new TextField("Name",nodeToEdit.getLabel());
+		Button saveNode = new Button("Save",click->{
+			if(StringUtils.isNotEmpty(nodeName.getValue())){
+				nodeToEdit.setLabel(nodeName.getValue());
+				nodeTree.getDataProvider().refreshAll();
+				nodeEditWindow.close();
+				
+			}else {
+				Notification.show("Empty text cant be saved.",Type.ERROR_MESSAGE);
+			}
+		});
+		
+		Button cancelNode = new Button("Cancel", click -> {
+			nodeEditWindow.close();
+		});
+		HorizontalLayout buttonLayout = new HorizontalLayout(saveNode, cancelNode);
+		FormLayout profileFormLayout = new FormLayout(nodeName);
+		
+		// Window Setup
+		nodeEditWindow.setContent(new VerticalLayout(profileFormLayout, buttonLayout));
+		nodeEditWindow.center();
+		nodeEditWindow.setModal(true);
+		nodeEditWindow.setClosable(true);
+		nodeEditWindow.setWidth(30, Unit.PERCENTAGE);
+		return nodeEditWindow;
+	}
 	private Window openEntityWindow() {
 		Window entityWindow = new Window("Add Entity");
 		TextField entityName = new TextField("Name");
