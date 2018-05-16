@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.luretechnologies.tms</groupId>
+        <artifactId>server</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+    
+    <groupId>com.luretechnologies.tms.server</groupId>
+    <artifactId>service</artifactId>
+    <packaging>pom</packaging>
+    
+    <name>tms-server-service</name>
+    
+    <properties>
+        <tms.server.shared.common.version>1.0.0-SNAPSHOT</tms.server.shared.common.version>
+    </properties>
+    
+    <modules>
+        <module>auth</module>
+        <module>admin</module>
+        <module>supporting</module>
+        <module>tms</module>
+    </modules>
+    
+    <!-- SVN -->
+    <scm>
+        <connection>scm:svn:https://svn2.lure68.net:57344/svn/tms/trunk/Sources/server/service</connection>
+        <developerConnection>scm:svn:https://svn2.lure68.net/svn/tms/trunk/Sources/server/service</developerConnection>
+        <url>https://svn2.lure68.net/svn/tms/trunk/Sources/server/service</url>
+    </scm>
+    
+    <dependencies>
+        <dependency>
+            <groupId>com.luretechnologies.tms.server.shared</groupId>
+            <artifactId>audit</artifactId>
+            <version>${tms.server.shared.common.version}</version>
+        </dependency>
+    </dependencies>
+    
+</project>

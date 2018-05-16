@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.luretechnologies.tms.server</groupId>
+        <artifactId>shared</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+    
+    <groupId>com.luretechnologies.tms.server.shared</groupId>
+    <artifactId>common</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    
+    <name>tms-server-shared-common</name>
+    <description>Description for tms-server-shared-common</description>
+    <url>http://nexus.lure68.net:8881/nexus/content/repositories/tms-server-shared-common-site/index.html</url>
+    <inceptionYear>2015</inceptionYear>
+        
+    <properties>
+        <build.name>tms-server-common</build.name>
+    </properties>
+    
+    <!-- SVN -->
+    <scm>
+        <connection>scm:svn:https://svn2.lure68.net:57344/svn/tms/trunk/Sources/server/shared/common</connection>
+        <developerConnection>scm:svn:https://svn2.lure68.net/svn/tms/trunk/Sources/server/shared/common</developerConnection>
+        <url>https://svn2.lure68.net/svn/tms/trunk/Sources/server/shared/common</url>
+    </scm>
+    <!-- SITE -->
+    <distributionManagement>
+        <site> 
+            <id>nexus-luretechnologies</id> 
+            <name>tms-server-common-site</name>
+            <url>dav:http://localhost:8081/nexus/content/repositories/tms-server-common-site/</url>
+        </site>
+    </distributionManagement>     
+    
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${spring.version}</version>
+        </dependency> 
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+            <version>1.1.0.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.4</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.9</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.hashids</groupId>
+            <artifactId>hashids</artifactId>
+            <version>1.0.1</version>
+        </dependency>
+    </dependencies>
+</project>

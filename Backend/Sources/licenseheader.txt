@@ -1,0 +1,39 @@
+<#if licenseFirst??>
+${licenseFirst}
+</#if>
+${licensePrefix}/****************************************************************************
+${licensePrefix} * COPYRIGHT © Lure Technologies, LLC.
+${licensePrefix} * ALL RIGHTS RESERVED
+${licensePrefix} *
+${licensePrefix} * Developed by Lure Technologies, LLC. (www.luretechnologies.com)
+${licensePrefix} *
+${licensePrefix} * Copyright in the whole and every part of this software program belongs to
+${licensePrefix} * Lure Technologies, LLC (“Lure”).  It may not be used, sold, licensed,
+${licensePrefix} * transferred, copied or reproduced in whole or in part in any manner or
+${licensePrefix} * form other than in accordance with and subject to the terms of a written
+${licensePrefix} * license from Lure or with the prior written consent of Lure or as
+${licensePrefix} * permitted by applicable law.
+${licensePrefix} *
+${licensePrefix} * This software program contains confidential and proprietary information and
+${licensePrefix} * must not be disclosed, in whole or in part, to any person or organization
+${licensePrefix} * without the prior written consent of Lure.  If you are neither the
+${licensePrefix} * intended recipient, nor an agent, employee, nor independent contractor
+${licensePrefix} * responsible for delivering this message to the intended recipient, you are
+${licensePrefix} * prohibited from copying, disclosing, distributing, disseminating, and/or
+${licensePrefix} * using the information in this email in any manner. If you have received
+${licensePrefix} * this message in error, please advise us immediately at
+${licensePrefix} * legal@luretechnologies.com by return email and then delete the message from your
+${licensePrefix} * computer and all other records (whether electronic, hard copy, or
+${licensePrefix} * otherwise).
+${licensePrefix} *
+${licensePrefix} * Any copies or reproductions of this software program (in whole or in part)
+${licensePrefix} * made by any method must also include a copy of this legend.
+${licensePrefix} *
+${licensePrefix} * Inquiries should be made to legal@luretechnologies.com
+${licensePrefix} ****************************************************************************/
+<#if licenseLast??>
+${licenseLast}
+</#if>
+
+
+
