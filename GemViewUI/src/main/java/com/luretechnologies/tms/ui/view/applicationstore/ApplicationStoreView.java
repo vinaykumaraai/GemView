@@ -46,6 +46,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.dialogs.ConfirmDialog;
 
+import com.luretechnologies.client.restlib.common.ApiException;
+import com.luretechnologies.client.restlib.service.RestClientService;
+import com.luretechnologies.client.restlib.service.model.UserSession;
 import com.luretechnologies.tms.backend.data.entity.App;
 import com.luretechnologies.tms.backend.data.entity.AppDefaultParam;
 import com.luretechnologies.tms.backend.data.entity.ApplicationFile;
@@ -284,7 +287,18 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		});
 		deleteAppGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		deleteAppGridRow.setResponsive(true);
-		HorizontalLayout appSearchLayout = new HorizontalLayout(applicationSearch);
+		Button callRestServiceTest = new Button("CallRest",click -> {
+			RestClientService service = new RestClientService("http://mia.lure68.net:54061/admin/api", "");
+			try {
+				UserSession session = service.getAuthApi().login("wro", "wro");
+				session.isPerformTwoFactor();
+			} catch (Exception e) {
+				// TODO Auto-generated catch blocks
+				e.printStackTrace();
+			}
+		});
+		callRestServiceTest.setVisible(false);
+		HorizontalLayout appSearchLayout = new HorizontalLayout(applicationSearch,callRestServiceTest);
 		appSearchLayout.setWidth("100%");
 		HorizontalLayout appButtonsLayout = new HorizontalLayout(createAppGridRow, editAppGridRow, deleteAppGridRow);
 		// appButtonsLayout.setWidth("100%");

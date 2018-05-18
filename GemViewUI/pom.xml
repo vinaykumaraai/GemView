@@ -21,7 +21,9 @@
 		<vaadin-spring.version>3.0.0</vaadin-spring.version>
 		<vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
 		<org.vaadin.spring.version>2.0.0.RELEASE</org.vaadin.spring.version>
-
+		<jersey-version>1.19</jersey-version>
+		<jackson-version>2.8.8</jackson-version>
+		<jodatime-version>2.9.9</jodatime-version>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<vaadin.widgetset.mode>fetch</vaadin.widgetset.mode>
@@ -68,13 +70,13 @@
 
 	<dependencies>
 
-<!-- https://mvnrepository.com/artifact/com.vaadin/grid-renderers-collection-addon -->
-<!-- https://mvnrepository.com/artifact/com.vaadin/grid-renderers-collection-addon -->
-<dependency>
-    <groupId>com.vaadin</groupId>
-    <artifactId>grid-renderers-collection-addon</artifactId>
-    <version>2.2.10</version>
-</dependency>
+		<!-- https://mvnrepository.com/artifact/com.vaadin/grid-renderers-collection-addon -->
+		<!-- https://mvnrepository.com/artifact/com.vaadin/grid-renderers-collection-addon -->
+		<dependency>
+			<groupId>com.vaadin</groupId>
+			<artifactId>grid-renderers-collection-addon</artifactId>
+			<version>2.2.10</version>
+		</dependency>
 
 
 		<dependency>
@@ -93,11 +95,8 @@
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-themes</artifactId>
 		</dependency>
-		<!-- <dependency>
-    		<groupId>com.vaadin</groupId>
-    		<artifactId>vaadin-icons-flow</artifactId>
-   			<version>1.0-SNAPSHOT</version>
-		</dependency> -->
+		<!-- <dependency> <groupId>com.vaadin</groupId> <artifactId>vaadin-icons-flow</artifactId> 
+			<version>1.0-SNAPSHOT</version> </dependency> -->
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-spring-boot-starter</artifactId>
@@ -144,14 +143,14 @@
 			<version>1.0.1</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/com.vaadin/vaadin-icons -->
-<dependency>
-    <groupId>com.vaadin</groupId>
-    <artifactId>vaadin-icons</artifactId>
-    <version>3.0.1</version>
-</dependency>
+		<dependency>
+			<groupId>com.vaadin</groupId>
+			<artifactId>vaadin-icons</artifactId>
+			<version>3.0.1</version>
+		</dependency>
 
 
-		
+
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>webcomponents-helper</artifactId>
@@ -159,17 +158,15 @@
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
 		<dependency>
-   		<groupId>org.apache.commons</groupId>
-   	 	<artifactId>commons-lang3</artifactId>
-    	<version>3.0</version>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.0</version>
 		</dependency>
-		
+
 
 		<!-- Spring -->
-		<!-- <dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-jpa</artifactId>
-		</dependency> -->
+		<!-- <dependency> <groupId>org.springframework.boot</groupId> <artifactId>spring-boot-starter-data-jpa</artifactId> 
+			</dependency> -->
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-web</artifactId>
@@ -187,16 +184,61 @@
 			<artifactId>vaadin-spring-addon-eventbus</artifactId>
 			<version>${org.vaadin.spring.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.vaadin.artur</groupId>
 			<artifactId>spring-data-provider</artifactId>
 			<version>1.0.0</version>
 		</dependency>
+		<dependency>
+			<groupId>com.luretechnologies.tms.client.rest</groupId>
+			<artifactId>admin</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/src/main/resources/tms-client-restlib-admin.jar</systemPath>
+		</dependency>
+		<!-- HTTP client: jersey-client -->
+		<dependency>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-client</artifactId>
+			<version>${jersey-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.jersey.contribs</groupId>
+			<artifactId>jersey-multipart</artifactId>
+			<version>${jersey-version}</version>
+		</dependency>
+
+		<!-- JSON processing: jackson -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>${jackson-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-annotations</artifactId>
+			<version>${jackson-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>${jackson-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-joda</artifactId>
+			<version>${jackson-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>joda-time</groupId>
+			<artifactId>joda-time</artifactId>
+			<version>${jodatime-version}</version>
+		</dependency>
 	</dependencies>
 
 	<build>
-	<finalName>gemview</finalName>
+		<finalName>gemview</finalName>
 		<plugins>
 			<plugin>
 				<groupId>com.vaadin</groupId>
@@ -232,20 +274,10 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-enforcer-plugin</artifactId>
 				<executions>
-					<!-- <execution>
-						<id>enforce-no-snapshots</id>
-						<goals>
-							<goal>enforce</goal>
-						</goals>
-						<configuration>
-							<rules>
-								<requireReleaseDeps>
-									<message>No Snapshots Allowed!</message>
-								</requireReleaseDeps>
-							</rules>
-							<fail>true</fail>
-						</configuration>
-					</execution> -->
+					<!-- <execution> <id>enforce-no-snapshots</id> <goals> <goal>enforce</goal> 
+						</goals> <configuration> <rules> <requireReleaseDeps> <message>No Snapshots 
+						Allowed!</message> </requireReleaseDeps> </rules> <fail>true</fail> </configuration> 
+						</execution> -->
 				</executions>
 			</plugin>
 		</plugins>
