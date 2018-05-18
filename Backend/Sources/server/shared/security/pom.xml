@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.luretechnologies.tms.server</groupId>
+        <artifactId>shared</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+    
+    <groupId>com.luretechnologies.tms.server.shared</groupId>
+    <artifactId>security</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    
+    <name>tms-server-shared-security</name>
+    <description>Description for tms-server-shared-security</description>
+    <url>http://nexus.lure68.net:8881/nexus/content/repositories/tms-server-shared-security-site/index.html</url>
+    <inceptionYear>2015</inceptionYear>  
+        
+    <properties>
+        <build.name>tms-server-security</build.name>
+        <tms.server.shared.data.version>1.0.0-SNAPSHOT</tms.server.shared.data.version>
+    </properties>
+    
+    <!-- SVN -->
+    <scm>
+        <connection>scm:svn:https://svn2.lure68.net/svn/tms/trunk/Sources/server/shared/security</connection>
+        <developerConnection>scm:svn:https://svn2.lure68.net/svn/tms/trunk/Sources/server/shared/security</developerConnection>
+        <url>https://svn2.lure68.net/svn/tms/trunk/Sources/server/shared/security</url>
+    </scm>
+    <!-- SITE -->
+    <distributionManagement>
+        <site> 
+            <id>nexus-luretechnologies</id> 
+            <name>tms-server-jms-site</name>
+            <url>dav:http://localhost:8081/nexus/content/repositories/tms-server-security-site/</url>
+        </site>
+    </distributionManagement>  
+        
+    <dependencies>
+        <dependency>
+            <groupId>com.luretechnologies.tms.server.shared</groupId>
+            <artifactId>data</artifactId>
+            <version>${tms.server.shared.data.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.10</version>
+            <type>jar</type>
+        </dependency>
+    </dependencies>
+</project>

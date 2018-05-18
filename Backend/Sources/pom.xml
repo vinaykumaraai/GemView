@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.luretechnologies</groupId>
+    <artifactId>tms</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    
+    <name>TMS</name>
+    <organization>
+        <name>Lure Technologies, LLC</name>
+        <url>http://www.luretechnologies.com/</url>
+    </organization>
+    <licenses>
+        <license>
+            <name>Lure Technologies, LLC License</name>
+            <url>http://www.luretechnologies.com/</url>
+        </license>
+    </licenses>
+    
+    <modules>
+        <module>shared</module>
+        <module>server</module>
+        <module>client</module>
+    </modules>
+    
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+<!--        <netbeans.hint.license>LureTechnologies.lic</netbeans.hint.license>-->
+        
+        <maven.compiler.version>3.2</maven.compiler.version>
+        <maven.compiler.source>1.7</maven.compiler.source>
+        <maven.compiler.target>1.7</maven.compiler.target> 
+        <maven.jar.plugin.version>2.6</maven.jar.plugin.version>  
+        <maven.war.plugin.version>2.3</maven.war.plugin.version>  
+        <maven.dependency.version>2.6</maven.dependency.version>
+          
+        <spring.version>4.2.3.RELEASE</spring.version>
+        <junit.version>4.12</junit.version>
+        <!-- release -->
+        <maven.release.version>2.5.2</maven.release.version>
+        <maven.deploy.version>2.8.2</maven.deploy.version>
+        <maven.version.plugin>2.2</maven.version.plugin>
+        <maven.wagon.ssh>2.4</maven.wagon.ssh>
+        <!-- reporting -->
+        <maven.site.plugin.version>3.4</maven.site.plugin.version>
+        <maven.javadoc.plugin.version>2.10.3</maven.javadoc.plugin.version> 
+        <taglist.maven.plugin.version>2.4</taglist.maven.plugin.version>
+        <maven.changelog.plugin.version>2.2</maven.changelog.plugin.version>
+        <maven.surefire.report.plugin.version>2.18.1</maven.surefire.report.plugin.version>
+        <maven.jxr.plugin.version>2.5</maven.jxr.plugin.version>
+        <findbugs.maven.plugin.version>3.0.0</findbugs.maven.plugin.version>
+        <maven.checkstyle.plugin.version>2.14</maven.checkstyle.plugin.version>
+        <maven.pmd.plugin.version>3.4</maven.pmd.plugin.version>
+        <jdepend.maven.plugin.version>2.0</jdepend.maven.plugin.version>
+        <javancss.maven.plugin.version>2.1</javancss.maven.plugin.version>
+        <maven.report.version>0.1</maven.report.version>
+        <maven.project.info.reports.plugin.version>2.8.1</maven.project.info.reports.plugin.version>   
+        <maven.cobertura.plugin>2.7</maven.cobertura.plugin>
+        <wagon.webdav.jackrabbit>2.6</wagon.webdav.jackrabbit>    
+    </properties>
+    
+    <!-- SVN -->
+    <scm>
+        <connection>scm:svn:https://svn2.lure68.net:57344/svn/tms/trunk/Sources</connection>
+        <developerConnection>scm:svn:https://svn2.lure68.net/svn/tms/trunk/Sources</developerConnection>
+        <url>https://svn2.lure68.net/svn/tms/trunk/Sources</url>
+    </scm>
+    
+    <ciManagement>
+        <url>http://nexus.lure68.net:9090</url>
+        <system>jenkins</system>
+    </ciManagement>
+
+    <build>
+        <finalName>${build.name}</finalName>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${maven.compiler.version}</version>
+                    <configuration>
+                        <source>${maven.compiler.source}</source>
+                        <target>${maven.compiler.target}</target>
+                    </configuration>
+                </plugin>               
+                <plugin>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <version>${maven.release.version}</version>
+                    <configuration>
+                        <preparationGoals>clean install</preparationGoals>
+                        <username>${scm.username}</username>
+                        <password>${scm.password}</password>
+                        <tagBase>
+                            https://svn2.lure68.net:57344/svn/tms/tags
+                        </tagBase>
+                        <useReleaseProfile>false</useReleaseProfile>
+                        <autoVersionSubmodules>true</autoVersionSubmodules>
+                    </configuration>
+                </plugin> 
+                <plugin> 
+                    <groupId>org.apache.maven.plugins</groupId> 
+                    <artifactId>maven-site-plugin</artifactId> 
+                    <version>${maven.site.plugin.version}</version> 
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.apache.maven.wagon</groupId>
+                            <artifactId>wagon-webdav-jackrabbit</artifactId>
+                            <version>${wagon.webdav.jackrabbit}</version>
+                        </dependency>
+                    </dependencies>
+                    <configuration>
+                        <reportplugins>
+                            <plugin> 
+                                <groupid>org.apache.maven.plugins</groupid>
+                                <artifactid>maven-project-info-reports-plugin</artifactid>
+                                <version>${maven.project.info.reports.plugin.version}</version>
+                                <configuration>
+                                    <dependencydetailsenabled>false</dependencydetailsenabled>     
+                                    <dependencylocationsenabled>false</dependencylocationsenabled>
+                                </configuration>
+                                <reports>
+                                    <report>dependencies</report>
+                                    <!--                                    <report>index</report>
+                                    <report>cim</report>
+                                    <report>distribution-management</report>
+                                    <report>issue-tracking</report>
+                                    <report>license</report>
+                                    <report>mailing-list</report>
+                                    <report>project-team</report>
+                                    <report>scm</report>
+                                    <report>summary</report>
+                                    <report>javadoc</report>
+                                    <report>cobertura</report>-->
+                                </reports>
+                            </plugin>
+                            <!--index, scm plugin-management, mailing-list, issue-tracking, 
+                            help, plugins, dependency-convergence, summary, dependency-management, 
+                            dependencies, license, modules, project-team, cim-->
+                        </reportplugins>
+                    </configuration> 
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <!-- Nexus ( for upload release) -->
+        <extensions>
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-ssh</artifactId>
+                <version>${maven.wagon.ssh}</version>
+            </extension>
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-ftp</artifactId>
+                <version>1.0-beta-2</version>
+            </extension>
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-webdav-jackrabbit</artifactId>
+                <version>${wagon.webdav.jackrabbit}</version>
+            </extension>
+        </extensions>    
+    </build>
+    
+    <reporting>                       
+        <plugins>
+            <!-- JavaDocs and UmlGraphDoc -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${maven.javadoc.plugin.version}</version>
+                <configuration>
+                    <doclet>org.umlgraph.doclet.UmlGraphDoc</doclet>
+                    <docletArtifact>
+                        <groupId>org.umlgraph</groupId>
+                        <artifactId>doclet</artifactId>
+                        <version>5.1</version>
+                    </docletArtifact>
+                    <additionalparam>views</additionalparam>
+                    <useStandardDocletOptions>true</useStandardDocletOptions>
+                </configuration>
+            </plugin>
+            <!--             code testing -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jxr-plugin</artifactId>
+                <version>${maven.jxr.plugin.version}</version>
+            </plugin>
+            <!--             Tags @TODO -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>taglist-maven-plugin</artifactId>
+                <version>${taglist.maven.plugin.version}</version>
+            </plugin>
+            <!--             changes into svn -->
+            <!--            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-changelog-plugin</artifactId>
+                <version>${maven.changelog.plugin.version}</version>
+            </plugin>-->
+            <!--             testing JUnit -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-report-plugin</artifactId>
+                <version>${maven.surefire.report.plugin.version}</version>
+            </plugin>
+            
+            <!--             FindBugs -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <version>${findbugs.maven.plugin.version}</version>
+                <configuration>
+                    <threshold>Normal</threshold> High|Normal|Low|Exp|Ignore 
+                    <effort>Default</effort> Min|Default|Max 
+                </configuration>
+            </plugin>
+            <!--             checkstyle -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${maven.checkstyle.plugin.version}</version>
+                <configuration>
+                    <configLocation>config/sun_checks.xml</configLocation>
+                </configuration>
+            </plugin>
+            <!-- PMD -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <version>${maven.pmd.plugin.version}</version>
+                <configuration>
+                    <sourceencoding>utf-8</sourceencoding>
+                    <minimumtokens>20</minimumtokens> 
+                    <targetjdk>1.7</targetjdk>
+                    <!--                    <reportsets>
+                        <reportset>
+                            <reports>
+                                <report>pmd</report>
+                                <report>cpd</report>
+                            </reports>
+                        </reportset>
+                    </reportsets>-->
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>javancss-maven-plugin</artifactId>
+                <version>${javancss.maven.plugin.version}</version>
+            </plugin>
+            <!-- JDepend -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>jdepend-maven-plugin</artifactId>
+                <version>${jdepend.maven.plugin.version}</version>
+            </plugin>
+            <!--  sonar -->
+            <plugin>
+                <groupId>org.codehaus.sonar-plugins</groupId>
+                <artifactId>maven-report</artifactId>
+                <version>${maven.report.version}</version>
+            </plugin>
+            <!-- cobertura -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>cobertura-maven-plugin</artifactId>
+                <version>${maven.cobertura.plugin}</version>
+                <configuration>
+                    <formats>
+                        <format>html</format>
+                        <!--<format>xml</format>-->
+                    </formats>
+                </configuration>
+            </plugin>
+        </plugins> 
+    </reporting>     
+ 
+
+</project>

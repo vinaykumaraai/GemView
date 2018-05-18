@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.luretechnologies.tms.server</groupId>
+        <artifactId>shared</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+    
+    <groupId>com.luretechnologies.tms.server.shared</groupId>
+    <artifactId>audit</artifactId>
+    <packaging>jar</packaging>
+    
+    <name>tms-server-shared-audit</name>
+    <description>Description for tms-server-shared-audit</description>
+    <url>http://nexus.lure68.net:8881/nexus/content/repositories/tms-server-shared-audit-site/index.html</url>
+    <inceptionYear>2015</inceptionYear>
+        
+    <properties>
+        <build.name>tms-server-audit</build.name>
+        <tms.server.shared.data.version>1.0.0-SNAPSHOT</tms.server.shared.data.version>
+    </properties>
+    
+    <!-- SVN -->
+    <scm>
+        <connection>scm:svn:https://svn2.lure68.net:57344/svn/tms/trunk/Sources/server/shared/audit</connection>
+        <developerConnection>scm:svn:https://svn2.lure68.net/svn/tms/trunk/Sources/server/shared/audit</developerConnection>
+        <url>https://svn2.lure68.net/svn/tms/trunk/Sources/server/shared/audit</url>
+    </scm>
+    <!-- SITE -->
+    <distributionManagement>
+        <site> 
+            <id>nexus-luretechnologies</id> 
+            <name>tms-server-audit-site</name>
+            <url>dav:http://localhost:8081/nexus/content/repositories/tms-server-audit-site/</url>
+        </site>
+    </distributionManagement>      
+    
+    <dependencies>
+        <dependency>
+            <groupId>com.luretechnologies.tms.server.shared</groupId>
+            <artifactId>data</artifactId>
+            <version>${tms.server.shared.data.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${spring.version}</version>
+        </dependency> 
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aop</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-messaging</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjrt</artifactId>
+            <version>1.6.11</version>
+        </dependency>
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+            <version>1.6.11</version>
+        </dependency>
+    </dependencies>
+</project>

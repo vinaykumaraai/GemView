@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+    <groupId>com.isomorphic</groupId>
+    <artifactId>isomorphic_core_rpc</artifactId>
+    <versioning>
+        <release>4.0p</release>
+        <versions>
+            <version>4.0p</version>
+        </versions>
+        <lastUpdated>20130422155944</lastUpdated>
+    </versioning>
+</metadata>
