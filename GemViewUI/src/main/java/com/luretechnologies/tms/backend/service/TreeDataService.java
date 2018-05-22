@@ -37,6 +37,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -52,6 +53,7 @@ import com.luretechnologies.tms.backend.data.entity.Profile;
 import com.luretechnologies.tms.backend.data.entity.ProfileType;
 import com.luretechnologies.tms.backend.data.entity.User;
 import com.vaadin.data.TreeData;
+import com.vaadin.data.provider.TreeDataProvider;
 
 @Service
 public class TreeDataService {
@@ -74,7 +76,7 @@ public class TreeDataService {
 
 	@Autowired
 	public TreeDataService(MockUserService userRepository, MockDebugService mockDebugService,
-			MockOdometerDeviceService mockOdometerDeviceService, MockAlertService mockAlertService, 
+			MockOdometerDeviceService mockOdometerDeviceService, MockAlertService mockAlertService,
 			MockOverRideParamService mockOverRideParamService, MockAppService mockAppService) {
 		this.mockUserService = userRepository;
 		this.mockDebugService = mockDebugService;
@@ -111,7 +113,7 @@ public class TreeDataService {
 		}).collect(Collectors.toList());
 		return sortedList;
 	}
-	
+
 	private List<OverRideParameters> getSortedParamList(Collection<OverRideParameters> unsortedCollection) {
 		List<OverRideParameters> sortedList = unsortedCollection.stream().sorted((o1, o2) -> {
 			return o1.getType().compareTo(o2.getType());
@@ -182,56 +184,56 @@ public class TreeDataService {
 		return this.userNodeList;
 	}
 
-public TreeData<ExtendedNode> getTreeDataForDebugAndAlert() {
-		
-		//Tree<Node> tree = new Tree<>();
+	public TreeData<ExtendedNode> getTreeDataForDebugAndAlert() {
+
+		// Tree<Node> tree = new Tree<>();
 		TreeData<ExtendedNode> treeData = new TreeData<>();
-		List<Debug> debugList1 = new ArrayList<Debug>(getSortedDebugList(mockDebugService.getRepository().values())) ; 
-		List<Debug> debugList2 = new ArrayList<Debug>(getSortedDebugList(mockDebugService.getRepository().values())) ;
-		List<Debug> debugList3 = new ArrayList<Debug>(getSortedDebugList(mockDebugService.getRepository().values())) ;
-		List<Debug> debugList4 = new ArrayList<Debug>(getSortedDebugList(mockDebugService.getRepository().values())) ;
-		List<Debug> debugList5 = new ArrayList<Debug>(getSortedDebugList(mockDebugService.getRepository().values())) ;
-		
-		for(int index =0 ; index<3; index++) {
-			if(debugList1.size()>index)
-			debugList1.remove(index);
-			if(debugList2.size()>index+1)
-			debugList2.remove(index+1);
-			if(debugList3.size()>index+2)
-			debugList3.remove(index+2);
-			if(debugList4.size()>index+3)
-			debugList4.remove(index+3);
-			if(debugList5.size()>index+2)
-			debugList5.remove(index+2);
-			
+		List<Debug> debugList1 = new ArrayList<Debug>(getSortedDebugList(mockDebugService.getRepository().values()));
+		List<Debug> debugList2 = new ArrayList<Debug>(getSortedDebugList(mockDebugService.getRepository().values()));
+		List<Debug> debugList3 = new ArrayList<Debug>(getSortedDebugList(mockDebugService.getRepository().values()));
+		List<Debug> debugList4 = new ArrayList<Debug>(getSortedDebugList(mockDebugService.getRepository().values()));
+		List<Debug> debugList5 = new ArrayList<Debug>(getSortedDebugList(mockDebugService.getRepository().values()));
+
+		for (int index = 0; index < 3; index++) {
+			if (debugList1.size() > index)
+				debugList1.remove(index);
+			if (debugList2.size() > index + 1)
+				debugList2.remove(index + 1);
+			if (debugList3.size() > index + 2)
+				debugList3.remove(index + 2);
+			if (debugList4.size() > index + 3)
+				debugList4.remove(index + 3);
+			if (debugList5.size() > index + 2)
+				debugList5.remove(index + 2);
+
 		}
-		List<Alert> alertList1 = new ArrayList<Alert>(getSortedAlertList(mockAlertService.getRepository().values())) ; 
-		List<Alert> alertList2 = new ArrayList<Alert>(getSortedAlertList(mockAlertService.getRepository().values())) ;
-		List<Alert> alertList3 = new ArrayList<Alert>(getSortedAlertList(mockAlertService.getRepository().values())) ;
-		List<Alert> alertList4 = new ArrayList<Alert>(getSortedAlertList(mockAlertService.getRepository().values())) ;
-		List<Alert> alertList5 = new ArrayList<Alert>(getSortedAlertList(mockAlertService.getRepository().values())) ;
-		for(int index =0 ; index<3; index++) {
-			if(alertList1.size()>index)
+		List<Alert> alertList1 = new ArrayList<Alert>(getSortedAlertList(mockAlertService.getRepository().values()));
+		List<Alert> alertList2 = new ArrayList<Alert>(getSortedAlertList(mockAlertService.getRepository().values()));
+		List<Alert> alertList3 = new ArrayList<Alert>(getSortedAlertList(mockAlertService.getRepository().values()));
+		List<Alert> alertList4 = new ArrayList<Alert>(getSortedAlertList(mockAlertService.getRepository().values()));
+		List<Alert> alertList5 = new ArrayList<Alert>(getSortedAlertList(mockAlertService.getRepository().values()));
+		for (int index = 0; index < 3; index++) {
+			if (alertList1.size() > index)
 				alertList1.remove(index);
-			if(alertList2.size()>index+1)
-				alertList2.remove(index+1);
-			if(alertList3.size()>index+2)
-				alertList3.remove(index+2);
-			if(alertList4.size()>index+3)
-				alertList4.remove(index+3);
-			if(alertList5.size()>index+2)
-				alertList5.remove(index+2);
+			if (alertList2.size() > index + 1)
+				alertList2.remove(index + 1);
+			if (alertList3.size() > index + 2)
+				alertList3.remove(index + 2);
+			if (alertList4.size() > index + 3)
+				alertList4.remove(index + 3);
+			if (alertList5.size() > index + 2)
+				alertList5.remove(index + 2);
 		}
-		
-		debugAndAlertNodeList = new ArrayList<>(); 
-		
+
+		debugAndAlertNodeList = new ArrayList<>();
+
 		ExtendedNode node = new ExtendedNode();
 		node.setLabel("Enterprise Entity");
 		node.setLevel(NodeLevel.ENTITY);
 		node.setEntityList(debugList1);
 		node.setExtendedList(alertList1);
 		debugAndAlertNodeList.add(node);
-		
+
 		ExtendedNode node1 = new ExtendedNode();
 		node1.setLabel("Region West");
 		node1.setLevel(NodeLevel.REGION);
@@ -245,27 +247,27 @@ public TreeData<ExtendedNode> getTreeDataForDebugAndAlert() {
 		node2.setEntityList(debugList3);
 		node2.setExtendedList(alertList2);
 		debugAndAlertNodeList.add(node2);
-		
+
 		ExtendedNode node3 = new ExtendedNode();
 		node3.setLabel("Terminal Entity 1");
 		node3.setLevel(NodeLevel.TERMINAL);
 		node3.setEntityList(debugList3);
 		node3.setExtendedList(alertList3);
 		debugAndAlertNodeList.add(node3);
-		
+
 		ExtendedNode node4 = new ExtendedNode();
 		node4.setLabel("Device 1");
 		node4.setLevel(NodeLevel.DEVICE);
 		node4.setEntityList(debugList4);
 		node4.setExtendedList(alertList4);
 		debugAndAlertNodeList.add(node4);
-		
-		treeData.addItem(null,node);
-		treeData.addItem(node,node1);
-		treeData.addItem(node1,node2);
-		treeData.addItem(node2,node3);
-		treeData.addItem(node3,node4);
-		
+
+		treeData.addItem(null, node);
+		treeData.addItem(node, node1);
+		treeData.addItem(node1, node2);
+		treeData.addItem(node2, node3);
+		treeData.addItem(node3, node4);
+
 		return treeData;
 	}
 
@@ -413,29 +415,34 @@ public TreeData<ExtendedNode> getTreeDataForDebugAndAlert() {
 	public List<Node> getOdometerDeviceList() {
 		return this.odometerDeviceNodeList;
 	}
-	
+
 	public TreeData<Node> getTreeDataForPersonlization() {
 
 		// Tree<Node> tree = new Tree<>();
 		TreeData<Node> treeData = new TreeData<>();
-		List<OverRideParameters> paramList1 = new ArrayList<OverRideParameters>(getSortedParamList(mockOverRideParamService.getRepository().values())); // getSortedUserList()
-		List<OverRideParameters> paramList2 = new ArrayList<OverRideParameters>(getSortedParamList(mockOverRideParamService.getRepository().values()));
-		List<OverRideParameters> paramList3 = new ArrayList<OverRideParameters>(getSortedParamList(mockOverRideParamService.getRepository().values()));
-		List<OverRideParameters> paramList4 = new ArrayList<OverRideParameters>(getSortedParamList(mockOverRideParamService.getRepository().values()));
-		List<OverRideParameters> paramList5 = new ArrayList<OverRideParameters>(getSortedParamList(mockOverRideParamService.getRepository().values()));
+		List<OverRideParameters> paramList1 = new ArrayList<OverRideParameters>(
+				getSortedParamList(mockOverRideParamService.getRepository().values())); // getSortedUserList()
+		List<OverRideParameters> paramList2 = new ArrayList<OverRideParameters>(
+				getSortedParamList(mockOverRideParamService.getRepository().values()));
+		List<OverRideParameters> paramList3 = new ArrayList<OverRideParameters>(
+				getSortedParamList(mockOverRideParamService.getRepository().values()));
+		List<OverRideParameters> paramList4 = new ArrayList<OverRideParameters>(
+				getSortedParamList(mockOverRideParamService.getRepository().values()));
+		List<OverRideParameters> paramList5 = new ArrayList<OverRideParameters>(
+				getSortedParamList(mockOverRideParamService.getRepository().values()));
 
-//		for (int index = 0; index < 3; index++) {
-//			paramList1.remove(index);
-//			paramList2.remove(index + 1);
-//			paramList3.remove(index + 2);
-//			paramList4.remove(index + 3);
-//			paramList5.remove(index + 2);
-//
-//		}
+		// for (int index = 0; index < 3; index++) {
+		// paramList1.remove(index);
+		// paramList2.remove(index + 1);
+		// paramList3.remove(index + 2);
+		// paramList4.remove(index + 3);
+		// paramList5.remove(index + 2);
+		//
+		// }
 		persliztnNodeList = new ArrayList();
 		List<Devices> deviceList = new ArrayList<Devices>(mockOdometerDeviceService.getRepository().values());
 		List<App> appList = new ArrayList<App>(mockAppService.getRepository().values());
-		
+
 		Node node = new Node();
 		node.setLabel("Enterprise Entity");
 		node.setLevel(NodeLevel.ENTITY);
@@ -524,9 +531,71 @@ public TreeData<ExtendedNode> getTreeDataForDebugAndAlert() {
 
 		return treeData;
 	}
-	
+
 	public List<Node> getPersonlizationList() {
 		return this.persliztnNodeList;
 	}
-	
+
+	public TreeData<Node> getFilteredTreeByNodeName(TreeData<Node> allTreeData, String filterTextInLower) {
+		if (StringUtils.isEmpty(filterTextInLower)) {
+			return allTreeData;
+		} else {
+			TreeData<Node> treeData = new TreeData<>();
+			Node rootNode = allTreeData.getRootItems().get(0);
+			if (checkIfLabelStartsWith(filterTextInLower, rootNode)) {
+				treeData.addItem(null, rootNode);
+			}
+
+			for (Node childNode : allTreeData.getChildren(rootNode)) {
+
+				if (checkIfLabelStartsWith(filterTextInLower, childNode)) {
+					if (treeData.contains(rootNode))
+						treeData.addItem(rootNode, childNode);
+					else
+						treeData.addItem(null, childNode);
+				}
+
+				for (Node subChildNode : allTreeData.getChildren(childNode)) {
+
+					if (checkIfLabelStartsWith(filterTextInLower, subChildNode)) {
+						if (treeData.contains(childNode))
+							treeData.addItem(childNode, subChildNode);
+						else
+							treeData.addItem(null, subChildNode);
+					}
+					for (Node subSubChildNode : allTreeData.getChildren(subChildNode)) {
+
+						if (checkIfLabelStartsWith(filterTextInLower, subSubChildNode)) {
+							if (treeData.contains(subChildNode))
+								treeData.addItem(subChildNode, subSubChildNode);
+							else
+								treeData.addItem(null, subSubChildNode);
+						}
+
+						for (Node subSubSubChildNode : allTreeData.getChildren(subSubChildNode)) {
+
+							if (checkIfLabelStartsWith(filterTextInLower, subSubSubChildNode)) {
+								if (treeData.contains(subSubChildNode))
+									treeData.addItem(subSubChildNode, subSubSubChildNode);
+								else
+									treeData.addItem(null, subSubSubChildNode);
+							}
+
+						}
+					}
+
+				}
+			}
+			return treeData;
+		}
+	}
+
+	/**
+	 * @param filterTextInLower
+	 * @param node
+	 * @return
+	 */
+	private boolean checkIfLabelStartsWith(String filterTextInLower, Node node) {
+		return StringUtils.startsWith(node.getLabel().toLowerCase(), filterTextInLower);
+	}
 }
