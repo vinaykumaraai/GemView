@@ -548,39 +548,79 @@ public class TreeDataService {
 
 			for (Node childNode : allTreeData.getChildren(rootNode)) {
 
-				if (checkIfLabelStartsWith(filterTextInLower, childNode)) {
-					if (treeData.contains(rootNode))
-						treeData.addItem(rootNode, childNode);
-					else
-						treeData.addItem(null, childNode);
-				}
+				if (!treeData.contains(rootNode) && checkIfLabelStartsWith(filterTextInLower, childNode)) {
+					treeData.addItem(null, childNode);
+				}else if(treeData.contains(rootNode))
+					treeData.addItem(rootNode, childNode);
 
 				for (Node subChildNode : allTreeData.getChildren(childNode)) {
 
-					if (checkIfLabelStartsWith(filterTextInLower, subChildNode)) {
-						if (treeData.contains(childNode))
-							treeData.addItem(childNode, subChildNode);
-						else
-							treeData.addItem(null, subChildNode);
-					}
+					if (!treeData.contains(childNode) && checkIfLabelStartsWith(filterTextInLower, subChildNode)) {
+						treeData.addItem(null, subChildNode);
+					}else if(treeData.contains(childNode))
+						treeData.addItem(childNode, subChildNode);
+					
 					for (Node subSubChildNode : allTreeData.getChildren(subChildNode)) {
 
-						if (checkIfLabelStartsWith(filterTextInLower, subSubChildNode)) {
-							if (treeData.contains(subChildNode))
-								treeData.addItem(subChildNode, subSubChildNode);
-							else
-								treeData.addItem(null, subSubChildNode);
-						}
-
+						if (!treeData.contains(subChildNode) && checkIfLabelStartsWith(filterTextInLower, subSubChildNode)) {
+							treeData.addItem(null, subSubChildNode);
+						}else if(treeData.contains(subChildNode))
+							treeData.addItem(subChildNode,subSubChildNode);
+						
 						for (Node subSubSubChildNode : allTreeData.getChildren(subSubChildNode)) {
 
-							if (checkIfLabelStartsWith(filterTextInLower, subSubSubChildNode)) {
-								if (treeData.contains(subSubChildNode))
-									treeData.addItem(subSubChildNode, subSubSubChildNode);
-								else
-									treeData.addItem(null, subSubSubChildNode);
-							}
+							if (!treeData.contains(subSubChildNode) && checkIfLabelStartsWith(filterTextInLower, subSubSubChildNode)) {
+								treeData.addItem(null, subSubSubChildNode);
+							}else if(treeData.contains(subSubChildNode))
+								treeData.addItem(subSubChildNode,subSubSubChildNode);
+							
+						}
+					}
 
+				}
+			}
+			return treeData;
+		}
+	}
+	
+	public TreeData<ExtendedNode> getFilteredTreeByExtendedNodeName(TreeData<ExtendedNode> allTreeData, String filterTextInLower) {
+		if (StringUtils.isEmpty(filterTextInLower)) {
+			return allTreeData;
+		} else {
+			TreeData<ExtendedNode> treeData = new TreeData<>();
+			ExtendedNode rootNode = allTreeData.getRootItems().get(0);
+			if (checkIfLabelStartsWith(filterTextInLower, rootNode)) {
+				treeData.addItem(null, rootNode);
+			}
+
+			for (ExtendedNode childNode : allTreeData.getChildren(rootNode)) {
+
+				if (!treeData.contains(rootNode) && checkIfLabelStartsWith(filterTextInLower, childNode)) {
+					treeData.addItem(null, childNode);
+				}else if(treeData.contains(rootNode))
+					treeData.addItem(rootNode, childNode);
+
+				for (ExtendedNode subChildNode : allTreeData.getChildren(childNode)) {
+
+					if (!treeData.contains(childNode) && checkIfLabelStartsWith(filterTextInLower, subChildNode)) {
+						treeData.addItem(null, subChildNode);
+					}else if(treeData.contains(childNode))
+						treeData.addItem(childNode, subChildNode);
+					
+					for (ExtendedNode subSubChildNode : allTreeData.getChildren(subChildNode)) {
+
+						if (!treeData.contains(subChildNode) && checkIfLabelStartsWith(filterTextInLower, subSubChildNode)) {
+							treeData.addItem(null, subSubChildNode);
+						}else if(treeData.contains(subChildNode))
+							treeData.addItem(subChildNode,subSubChildNode);
+						
+						for (ExtendedNode subSubSubChildNode : allTreeData.getChildren(subSubChildNode)) {
+
+							if (!treeData.contains(subSubChildNode) && checkIfLabelStartsWith(filterTextInLower, subSubSubChildNode)) {
+								treeData.addItem(null, subSubSubChildNode);
+							}else if(treeData.contains(subSubChildNode))
+								treeData.addItem(subSubChildNode,subSubSubChildNode);
+							
 						}
 					}
 
@@ -598,4 +638,5 @@ public class TreeDataService {
 	private boolean checkIfLabelStartsWith(String filterTextInLower, Node node) {
 		return StringUtils.startsWith(node.getLabel().toLowerCase(), filterTextInLower);
 	}
+
 }

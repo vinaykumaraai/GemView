@@ -137,13 +137,13 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 		treeNodeSearch.setStyleName("small inline-icon search");
 		treeNodeSearch.addStyleName("v-textfield-font");
 		treeNodeSearch.setPlaceholder("Search");
-		treeNodeSearch.setVisible(false);
+		treeNodeSearch.setVisible(true);
 		configureTreeNodeSearch();
 
 		Panel panel = getAndLoadAssetControlPanel();
 		HorizontalLayout treeButtonLayout = new HorizontalLayout();
 		VerticalLayout treePanelLayout = new VerticalLayout();
-		//treePanelLayout.addComponentAsFirst(treeNodeSearch);
+		treePanelLayout.addComponentAsFirst(treeNodeSearch);
 		//treePanelLayout.addComponent(treeButtonLayout);
 		nodeTree = new Tree<ExtendedNode>();
 		nodeTree.setTreeData(treeDataService.getTreeDataForDebugAndAlert());
@@ -322,11 +322,17 @@ public class AssetControlView extends VerticalLayout implements Serializable, Vi
 		// Dataprovider.
 		treeNodeSearch.addValueChangeListener(changed -> {
 			String valueInLower = changed.getValue().toLowerCase();
-			// ListDataProvider<Node> nodeDataProvider = (ListDataProvider<Node>)
-			// nodeTree.getDataProvider();
-			// nodeDataProvider.setFilter(filter -> {
-			// return filter.getLabel().toLowerCase().contains(valueInLower);
-			// });
+			nodeTree.setTreeData(treeDataService.getFilteredTreeByExtendedNodeName(treeDataService.getTreeDataForDebugAndAlert(), valueInLower));
+		});
+		
+		treeNodeSearch.addShortcutListener(new ShortcutListener("Clear",KeyCode.ESCAPE,null) {
+			
+			@Override
+			public void handleAction(Object sender, Object target) {
+				if (target == treeNodeSearch) {
+					treeNodeSearch.clear();
+				}
+			}
 		});
 	}
 

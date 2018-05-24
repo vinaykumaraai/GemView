@@ -33,6 +33,7 @@ package com.luretechnologies.tms.ui.view.personalization;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -53,10 +54,11 @@ import com.luretechnologies.tms.backend.service.OdometerDeviceService;
 import com.luretechnologies.tms.backend.service.OverRideParamService;
 import com.luretechnologies.tms.backend.service.ProfileService;
 import com.luretechnologies.tms.backend.service.TreeDataService;
+import com.vaadin.data.TreeData;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
-import com.vaadin.event.ContextClickEvent;
-import com.vaadin.event.ContextClickEvent.ContextClickListener;
+import com.vaadin.event.ShortcutAction.KeyCode;
+import com.vaadin.event.ShortcutListener;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.spring.annotation.SpringView;
@@ -107,6 +109,8 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 	private static Node selectedNodeForCopy;
 	private static ComboBox<NodeLevel> entityType;
 	private static FormLayout entityFormLayout;
+	private static HorizontalLayout treeButtonLayout;
+	private static Tree<Node> modifiedTree = new Tree<>();
 
 	@Autowired
 	public TreeDataService treeDataService;
@@ -150,9 +154,10 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		treeNodeSearch.addStyleName("v-textfield-font");
 		treeNodeSearch.setPlaceholder("Search");
 		treeNodeSearch.setVisible(true);
+		configureTreeNodeSearch();
 
 		Panel panel = getAndLoadPersonlizationPanel();
-		HorizontalLayout treeButtonLayout = new HorizontalLayout();
+		treeButtonLayout = new HorizontalLayout();
 		getEntityButtonsList(treeButtonLayout);
 		VerticalLayout treeLayoutWithButtons = new VerticalLayout();
 		VerticalLayout treePanelLayout = new VerticalLayout();
@@ -160,6 +165,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		treeLayoutWithButtons.addComponent(treeButtonLayout);
 		nodeTree = new Tree<Node>();
 		nodeTree.setTreeData(treeDataService.getTreeDataForDeviceOdometer());
+		modifiedTree.setTreeData(treeDataService.getTreeDataForDeviceOdometer());
 		nodeTree.setItemIconGenerator(item -> {
 			switch (item.getLevel()) {
 			case ENTITY:
@@ -257,6 +263,37 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		panel.setSizeFull();
 		addComponent(panel);
 		return panel;
+	}
+	
+	private void configureTreeNodeSearch() {
+		// FIXME Not able to put Tree Search since its using a Hierarchical
+		// Dataprovider.
+		treeNodeSearch.addValueChangeListener(changed -> {
+			String valueInLower = changed.getValue().toLowerCase();
+			nodeTree.setTreeData(treeDataService.getFilteredTreeByNodeName(modifiedTree.getTreeData(), valueInLower));
+			if(StringUtils.isEmpty(valueInLower)) {
+				createEntity.setEnabled(true); copyEntity.setEnabled(true);
+				pasteEntity.setEnabled(true); editEntity.setEnabled(true);
+				deleteEntity.setEnabled(true);
+			}
+			else {
+				createEntity.setEnabled(false); copyEntity.setEnabled(false);
+				pasteEntity.setEnabled(false); editEntity.setEnabled(false);
+				deleteEntity.setEnabled(false);
+			}
+			
+		});
+		
+		treeNodeSearch.addShortcutListener(new ShortcutListener("Clear",KeyCode.ESCAPE,null) {
+			
+			@Override
+			public void handleAction(Object sender, Object target) {
+				if (target == treeNodeSearch) {
+					treeNodeSearch.clear();
+					
+				}
+			}
+		});
 	}
 
 	private void getEntityButtonsList(HorizontalLayout treeButtonLayout) {
@@ -373,6 +410,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 						nodeTree.getDataProvider().refreshAll();
 					}
 					pasteEntity.setEnabled(false);
+					modifiedTree.setTreeData(nodeTree.getTreeData());
 				}
 			}
 		});

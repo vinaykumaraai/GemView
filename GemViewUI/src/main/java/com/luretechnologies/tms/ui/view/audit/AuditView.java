@@ -158,10 +158,13 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 				return null;
 			}
 		});
-		treePanelLayout.addComponent(treeNodeSearch);
+//		treePanelLayout.addComponent(treeNodeSearch);
+		HorizontalLayout treeNodeSearchLayout = new HorizontalLayout(treeNodeSearch);
+		treeNodeSearchLayout.setVisible(true);
+		treeNodeSearchLayout.setComponentAlignment(treeNodeSearch, Alignment.TOP_LEFT);
+		treePanelLayout.addComponent(treeNodeSearchLayout);
 		treePanelLayout.addComponent(nodeTree);
 		treePanelLayout.setMargin(true);
-		treePanelLayout.setHeight("100%");
 		treePanelLayout.setStyleName("split-height");
 		splitScreen = new HorizontalSplitPanel();
 		splitScreen.setFirstComponent(treePanelLayout);
@@ -238,13 +241,22 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 	private void configureTreeNodeSearch() {
 		treeNodeSearch.addValueChangeListener(changed -> {
 			String valueInLower = changed.getValue().toLowerCase();
-			
 			nodeTree.setTreeData(treeDataService.getFilteredTreeByNodeName(treeDataService.getTreeDataForDebug(), valueInLower));
 			//FIXME: only works for root node labels
 //			TreeDataProvider<Node> nodeDataProvider = (TreeDataProvider<Node>) nodeTree.getDataProvider();
 //			nodeDataProvider.setFilter(filter -> {
 //				return filter.getLabel().toLowerCase().contains(valueInLower);
 //			});
+		});
+		
+		treeNodeSearch.addShortcutListener(new ShortcutListener("Clear",KeyCode.ESCAPE,null) {
+			
+			@Override
+			public void handleAction(Object sender, Object target) {
+				if (target == treeNodeSearch) {
+					treeNodeSearch.clear();
+				}
+			}
 		});
 	}
 
