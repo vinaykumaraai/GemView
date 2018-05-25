@@ -157,10 +157,10 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 				return null;
 			}
 		});
-		
+		treePanelLayout.addComponent(treeNodeSearch);
 		treePanelLayout.addComponent(nodeTree);
 		treePanelLayout.setMargin(true);
-		treePanelLayout.setHeight("100%");
+//		treePanelLayout.setHeight("100%");
 		treePanelLayout.setStyleName("split-height");
 		splitScreen = new HorizontalSplitPanel();
 		splitScreen.setFirstComponent(treePanelLayout);
@@ -243,13 +243,24 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 	}
 	
 	private void configureTreeNodeSearch() {
-		// FIXME Not able to put Tree Search since its using a Hierarchical
 		treeNodeSearch.addValueChangeListener(changed -> {
 			String valueInLower = changed.getValue().toLowerCase();
-//			ListDataProvider<Node> nodeDataProvider = (ListDataProvider<Node>) nodeTree.getDataProvider();
+			nodeTree.setTreeData(treeDataService.getFilteredTreeByNodeName(treeDataService.getTreeDataForDeviceOdometer(), valueInLower));
+			//FIXME: only works for root node labels
+//			TreeDataProvider<Node> nodeDataProvider = (TreeDataProvider<Node>) nodeTree.getDataProvider();
 //			nodeDataProvider.setFilter(filter -> {
 //				return filter.getLabel().toLowerCase().contains(valueInLower);
 //			});
+		});
+		
+		treeNodeSearch.addShortcutListener(new ShortcutListener("Clear",KeyCode.ESCAPE,null) {
+			
+			@Override
+			public void handleAction(Object sender, Object target) {
+				if (target == treeNodeSearch) {
+					treeNodeSearch.clear();
+				}
+			}
 		});
 	}
 	

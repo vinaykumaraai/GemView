@@ -47,6 +47,8 @@ import com.vaadin.data.TreeData;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.data.provider.TreeDataProvider;
+import com.vaadin.event.ShortcutListener;
+import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewBeforeLeaveEvent;
@@ -115,7 +117,7 @@ public abstract class AbstractCrudView<T extends AbstractEntity> implements Seri
 	public static final String CAPTION_ADD = "Save";
 	public PasswordEncoder passwordEncoder;
 	public static Button addTreeNode, deleteTreeNode;
-	public static TextField treeNodeInputLabel;
+	public static TextField treeNodeSearch;
 
 	@Autowired
 	public TreeDataService treeDataService;
@@ -179,14 +181,17 @@ public abstract class AbstractCrudView<T extends AbstractEntity> implements Seri
 		//HorizontalLayout treeButtonLayout = new HorizontalLayout();
 		//treeButtonLayout.addComponent(addTreeNode);
 		//treeButtonLayout.addComponent(deleteTreeNode);
-		//VerticalLayout treePanelLayout = new VerticalLayout();
-		//treePanelLayout.addComponentAsFirst(treeNodeInputLabel);
+		VerticalLayout treePanelLayout = new VerticalLayout();
 		//treePanelLayout.addComponent(treeButtonLayout);
+		treeNodeSearch = new TextField();
+		configureTreeNodeSearch();
+		treePanelLayout.addComponentAsFirst(treeNodeSearch);
 		Tree<Node> treeComponent = getUserTree(treeDataService.getTreeDataForUser());
-		//treePanelLayout.addComponent(treeComponent);
+		treePanelLayout.addComponent(treeComponent);
 		//treePanelLayout.setMargin(true);
-		//treePanelLayout.setComponentAlignment(treeComponent, Alignment.BOTTOM_LEFT);
-		getSplitScreen().setFirstComponent(treeComponent);
+		treePanelLayout.setComponentAlignment(treeComponent, Alignment.BOTTOM_LEFT);
+		
+		getSplitScreen().setFirstComponent(treePanelLayout);
 		getSplitScreen().setSplitPosition(20);
 		getSplitScreen().addComponent(userDataLayout());
 //		addTreeNode.addClickListener(click -> {
@@ -328,6 +333,28 @@ public abstract class AbstractCrudView<T extends AbstractEntity> implements Seri
 		} else {
 			getLogger().warn("Unable to focus field of type " + field.getClass().getName());
 		}
+	}
+	
+	private void configureTreeNodeSearch() {
+		treeNodeSearch.addValueChangeListener(changed -> {
+			String valueInLower = changed.getValue().toLowerCase();
+			getTree().setTreeData(treeDataService.getFilteredTreeByNodeName(treeDataService.getTreeDataForUser(), valueInLower));
+			//FIXME: only works for root node labels
+//			TreeDataProvider<Node> nodeDataProvider = (TreeDataProvider<Node>) nodeTree.getDataProvider();
+//			nodeDataProvider.setFilter(filter -> {
+//				return filter.getLabel().toLowerCase().contains(valueInLower);
+//			});
+		});
+		
+		treeNodeSearch.addShortcutListener(new ShortcutListener("Clear",KeyCode.ESCAPE,null) {
+			
+			@Override
+			public void handleAction(Object sender, Object target) {
+				if (target == treeNodeSearch) {
+					treeNodeSearch.clear();
+				}
+			}
+		});
 	}
 
 	protected abstract AbstractCrudPresenter<T, ?, ? extends AbstractCrudView<T>> getPresenter();
