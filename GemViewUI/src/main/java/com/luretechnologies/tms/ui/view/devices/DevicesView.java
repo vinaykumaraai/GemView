@@ -45,6 +45,7 @@ import org.vaadin.dialogs.ConfirmDialog;
 import com.luretechnologies.tms.backend.data.entity.Devices;
 import com.luretechnologies.tms.backend.data.entity.Roles;
 import com.luretechnologies.tms.backend.data.entity.Systems;
+import com.luretechnologies.tms.ui.NotificationUtil;
 import com.luretechnologies.tms.ui.components.ConfirmDialogFactory;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
@@ -179,7 +180,7 @@ public class DevicesView extends VerticalLayout implements Serializable, View{
 		verticalLayout.addComponent(deviceInfoLayout);
 		deviceInfoLayout.setMargin(false);
 		deviceInfoLayout.setSpacing(true);
-		deviceInfoLayout.setStyleName("form-layout");
+		deviceInfoLayout.setStyleName("device-formLayout");
 		
 		getAndLoadDeviceForm(deviceInfoLayout, false);
 		
@@ -223,8 +224,8 @@ public class DevicesView extends VerticalLayout implements Serializable, View{
 				selectedDevice.setOsUpdate(osUpdateValue);
 				if(description.isEmpty() || description== null|| devicename.isEmpty() || devicename== null 
 						|| deviceManfactr.isEmpty() || deviceManfactr== null) {
-					Notification.show("Fill all details", Notification.Type.WARNING_MESSAGE).setDelayMsec(3000);
-				} else {
+					Notification.show(NotificationUtil.SAVE, Notification.Type.ERROR_MESSAGE);
+				}else {
 					Random rand = new Random();
 					int  n = rand.nextInt(50) + 1;
 					if(selectedDevice.getIdnumber()==null) {
@@ -247,6 +248,7 @@ public class DevicesView extends VerticalLayout implements Serializable, View{
 		
 		horizontalLayout.addComponents(layout1, layout2);
 		horizontalLayout.setComponentAlignment(layout2, Alignment.MIDDLE_RIGHT);
+		horizontalLayout.addStyleName("label-SaveCancelAlignment");
 		
 		getDevicesGrid(verticalLayout, deviceInfoLayout);
 		panel.setContent(verticalLayout);
@@ -266,6 +268,7 @@ public class DevicesView extends VerticalLayout implements Serializable, View{
 	
 	public void getAndLoadDeviceForm(VerticalLayout verticalLayout, boolean isEditableOnly) {
 		FormLayout formLayout = new FormLayout();
+		formLayout.addStyleName("system-LabelAlignment");
 		
 		CssLayout osUpdateLayout = new CssLayout();
 		
@@ -302,7 +305,7 @@ public class DevicesView extends VerticalLayout implements Serializable, View{
 		deviceDescription.setWidth("48%");
 		deviceDescription.setStyleName("role-textbox");
 		deviceDescription.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
-		deviceDescription.addStyleName("v-textfield-font");
+		deviceDescription.addStyleNames("v-textfield-font", "v-grid-cell");
 		deviceDescription.setEnabled(isEditableOnly);
 		formLayout.addComponent(deviceDescription);
 	}
@@ -315,7 +318,7 @@ public class DevicesView extends VerticalLayout implements Serializable, View{
 		deviceManufacturer.setWidth("48%");
 		deviceManufacturer.setStyleName("role-textbox");
 		deviceManufacturer.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
-		deviceManufacturer.addStyleName("v-textfield-font");
+		deviceManufacturer.addStyleNames("v-textfield-font", "v-grid-cell");
 		deviceManufacturer.setEnabled(isEditableOnly);
 		formLayout.addComponent(deviceManufacturer);
 	}
@@ -328,7 +331,7 @@ public class DevicesView extends VerticalLayout implements Serializable, View{
 		deviceName.setWidth("48%");
 		deviceName.setStyleName("role-textbox");
 		deviceName.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
-		deviceName.addStyleName("v-textfield-font");
+		deviceName.addStyleNames("v-textfield-font","v-grid-cell");
 		selectedDevice.setDeviceName(deviceName.getValue());
 		deviceName.setEnabled(isEditableOnly);
 		
@@ -367,7 +370,7 @@ public class DevicesView extends VerticalLayout implements Serializable, View{
 	private void getActiveCheck(FormLayout formLayout, CssLayout activeLayout, boolean isEditableOnly) {
 		boolean activeBoxValue = selectedDevice.isActive();
 		activeBox = new CheckBox("Allow Access", activeBoxValue);
-		activeBox.addStyleName("v-textfield-font");
+		activeBox.addStyleNames("v-textfield-font","device-activeButton");
 		activeBox.setEnabled(isEditableOnly);
 		selectedDevice.setActive(activeBox.getValue());
 		activeLabel = new Label("Active");
@@ -391,7 +394,7 @@ public class DevicesView extends VerticalLayout implements Serializable, View{
 		boolean rkiBoxValue = selectedDevice.isRki();
 		rkiBox = new CheckBox("Device is RKICapable (Remote Key Injection)", rkiBoxValue);
 		rkiBox.setEnabled(isEditableOnly);
-		rkiBox.addStyleName("v-textfield-font");
+		rkiBox.addStyleNames("v-textfield-font", "device-checkboxAlignment");
 		selectedDevice.setRki(rkiBox.getValue());
 		rkiLabel = new Label("RKI Capable");
 		rkiLabel.addStyleName("v-textfield-font");
@@ -399,6 +402,7 @@ public class DevicesView extends VerticalLayout implements Serializable, View{
 		rkiCapableHL.addComponent(rkiBox);
 		rkiCapableHL.setSizeUndefined();
 		rkiCapableHL.setStyleName("role-activeLable");
+		rkiCapableHL.addStyleName("device-rkiLabel");
 		rkiLayout.addComponent(rkiCapableHL);
 	}
 	
@@ -407,7 +411,7 @@ public class DevicesView extends VerticalLayout implements Serializable, View{
 		
 		boolean osBoxValue = selectedDevice.isOsUpdate();
 		osBox = new CheckBox("Device can accept O/S Update",osBoxValue);
-		osBox.addStyleName("v-textfield-font");
+		osBox.addStyleNames("v-textfield-font", "device-checkboxAlignment");
 		osBox.setEnabled(isEditableOnly);
 		selectedDevice.setOsUpdate(osBox.getValue());
 		osLabel = new Label("O/S Update");
@@ -415,6 +419,7 @@ public class DevicesView extends VerticalLayout implements Serializable, View{
 		osUpdateHL.addComponent(osLabel);
 		osUpdateHL.addComponent(osBox);
 		osUpdateHL.setStyleName("role-activeLable");
+		osUpdateHL.addStyleName("device-osLabel");
 		osUpdateHL.setSizeUndefined();
 		osUpdateLayout.addComponent(osUpdateHL);
 	}
@@ -441,7 +446,7 @@ public class DevicesView extends VerticalLayout implements Serializable, View{
 				if(deviceDescription.getValue()==null || deviceDescription.getValue().isEmpty() || 
 						deviceName.getValue()==null ||  deviceName.getValue().isEmpty() ||
 								deviceManufacturer.getValue()==null ||  deviceManufacturer.getValue().isEmpty()) {
-					Notification.show("Select any Role to Modify", Notification.Type.WARNING_MESSAGE).setDelayMsec(3000);;
+					Notification.show(NotificationUtil.DEVICES_EDIT, Notification.Type.ERROR_MESSAGE);
 				}else {
 					deviceInfoLayout.removeAllComponents();
 					getAndLoadDeviceForm(deviceInfoLayout, true);	
@@ -460,7 +465,7 @@ public class DevicesView extends VerticalLayout implements Serializable, View{
 				if(deviceDescription.getValue()==null || deviceDescription.getValue().isEmpty() || 
 						deviceName.getValue()==null ||  deviceName.getValue().isEmpty() ||
 						deviceManufacturer.getValue()==null ||  deviceManufacturer.getValue().isEmpty()) {
-					Notification.show("Select role to delete", Notification.Type.ERROR_MESSAGE);
+					Notification.show(NotificationUtil.DEVICES_DELETE, Notification.Type.ERROR_MESSAGE);
 				}else {
 				
 				confirmDialog( deviceInfoLayout);
@@ -470,6 +475,7 @@ public class DevicesView extends VerticalLayout implements Serializable, View{
 		
 		HorizontalLayout buttonGroup =  new HorizontalLayout();
 		buttonGroup.setDefaultComponentAlignment(Alignment.MIDDLE_RIGHT);
+		buttonGroup.addStyleName("system-ButtonLayout");
 		buttonGroup.addComponent(addNewDevice);
 		buttonGroup.addComponent(editDevice);
 		buttonGroup.addComponent(deleteDevice);
@@ -501,6 +507,7 @@ public class DevicesView extends VerticalLayout implements Serializable, View{
 			}
 		});
 		VerticalLayout deviceGridLayout = new VerticalLayout();
+		deviceGridLayout.addStyleName("system-GridAlignment");
 		deviceGridLayout.setDefaultComponentAlignment(Alignment.MIDDLE_RIGHT);
 		deviceGridLayout.addComponent(buttonGroup);
 		deviceGridLayout.addComponent(devicesGrid);

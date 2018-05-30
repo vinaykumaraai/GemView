@@ -46,9 +46,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.dialogs.ConfirmDialog;
 
-import com.luretechnologies.client.restlib.common.ApiException;
-import com.luretechnologies.client.restlib.service.RestClientService;
-import com.luretechnologies.client.restlib.service.model.UserSession;
 import com.luretechnologies.tms.backend.data.entity.App;
 import com.luretechnologies.tms.backend.data.entity.AppDefaultParam;
 import com.luretechnologies.tms.backend.data.entity.ApplicationFile;
@@ -57,6 +54,7 @@ import com.luretechnologies.tms.backend.data.entity.ParameterType;
 import com.luretechnologies.tms.backend.data.entity.Profile;
 import com.luretechnologies.tms.backend.data.entity.ProfileType;
 import com.luretechnologies.tms.backend.data.entity.User;
+import com.luretechnologies.tms.backend.rest.util.TestRestService;
 import com.luretechnologies.tms.backend.service.AppDefaultParamService;
 import com.luretechnologies.tms.backend.service.AppService;
 import com.luretechnologies.tms.backend.service.MockUserService;
@@ -108,7 +106,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 	private static final long serialVersionUID = -1714335680383962006L;
 	public static final String VIEW_NAME = "applicationstore";
 	private FormLayout applicationDetailsForm;
-	private HorizontalLayout buttonLayout;
+	private HorizontalLayout buttonLayout,  appButtonsLayout;
 	private HorizontalLayout applicationDetailsLabel;
 	private HorizontalLayout applicationParamLabelLayout;
 	private Grid<AppDefaultParam> appDefaultParamGrid;
@@ -121,14 +119,20 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 	private ComboBox<Devices> devices;
 	private CheckBox activeApplication;
 	private TextField packageName;
-
+	private Button  saveForm;
+	private Button cancelForm;
+	//private TestRestService testService = new TestRestService();
+	
 	@Autowired
 	public ApplicationStoreView() {
 
 	}
-
+	
 	@Autowired
 	private AppService appService;
+	
+//	@Autowired
+//	private TestRestService testService;
 
 	@Autowired
 	private OdometerDeviceService deviceService;
@@ -158,6 +162,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			System.out.println("Height " + r.getHeight() + "Width:  " + r.getWidth() + " in pixel");
 			if (r.getWidth() <= 1300 && r.getWidth() >= 700) {
 				phoneAndTabMode();
+				
 			} else if (r.getWidth() <= 699 && r.getWidth() > 0) {
 				phoneAndTabMode();
 			} else {
@@ -186,6 +191,8 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		appStoreGridLayout.setColumns(1);
 		appStoreGridLayout.setRows(4);
 		appStoreGridLayout.addComponents(getAppStoreComponents());
+		buttonLayout.removeAllComponents();
+		appButtonsLayout.addComponents(cancelForm, saveForm);
 	}
 
 	private void desktopMode() {
@@ -234,6 +241,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		applicationSearch.setWidth("100%");
 		applicationSearch.setIcon(VaadinIcons.SEARCH);
 		applicationSearch.setStyleName("small inline-icon search");
+		applicationSearch.addStyleNames("role-textbox", "v-textfield-font", ValoTheme.TEXTFIELD_BORDERLESS);
 		applicationSearch.setPlaceholder("Search");
 		applicationSearch.setResponsive(true);
 		applicationSearch.addShortcutListener(new ShortcutListener("Clear", KeyCode.ESCAPE, null) {
@@ -265,9 +273,9 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		});
 		createAppGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		createAppGridRow.setResponsive(true);
-		Button editAppGridRow = new Button(VaadinIcons.PENCIL, click -> {
+		Button editAppGridRow = new Button(VaadinIcons.EDIT, click -> {
 			if (appGrid.getSelectedItems().isEmpty()) {
-				Notification.show("Please select any app to delete", Notification.Type.WARNING_MESSAGE);
+				Notification.show("Please select any app to Edit", Notification.Type.WARNING_MESSAGE);
 			} else {
 				setApplicationFormComponentsEnable(true);
 			}
@@ -283,24 +291,14 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			} else {
 				confirmDeleteApp(applicationSearch);
 			}
+			//testService.test();
 
 		});
 		deleteAppGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		deleteAppGridRow.setResponsive(true);
-		Button callRestServiceTest = new Button("CallRest",click -> {
-			RestClientService service = new RestClientService("http://mia.lure68.net:54061/admin/api", "");
-			try {
-				UserSession session = service.getAuthApi().login("wro", "wro");
-				session.isPerformTwoFactor();
-			} catch (Exception e) {
-				// TODO Auto-generated catch blocks
-				e.printStackTrace();
-			}
-		});
-		callRestServiceTest.setVisible(false);
-		HorizontalLayout appSearchLayout = new HorizontalLayout(applicationSearch,callRestServiceTest);
+		HorizontalLayout appSearchLayout = new HorizontalLayout(applicationSearch);
 		appSearchLayout.setWidth("100%");
-		HorizontalLayout appButtonsLayout = new HorizontalLayout(createAppGridRow, editAppGridRow, deleteAppGridRow);
+		appButtonsLayout = new HorizontalLayout(createAppGridRow, editAppGridRow, deleteAppGridRow);
 		// appButtonsLayout.setWidth("100%");
 		HorizontalLayout appGridMenuLayout = new HorizontalLayout(appSearchLayout, appButtonsLayout);
 		appGridMenuLayout.setWidth("100%");
@@ -365,8 +363,8 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 				checkbox.setEnabled(flag);
 			}
 		}
-		buttonLayout.getComponent(0).setEnabled(flag);
-		buttonLayout.getComponent(1).setEnabled(flag);
+		//buttonLayout.getComponent(0).setEnabled(flag);
+		//buttonLayout.getComponent(1).setEnabled(flag);
 
 		int defaultParamCount = ((VerticalLayout) appDefaultParamGrid.getParent()).getComponentCount();
 		for (int i = 0; i < defaultParamCount; i++) {
@@ -392,12 +390,12 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 	private VerticalLayout getAppicationDetailsLayout() {
 
 		packageName = new TextField("Application Package Name");
-		packageName.addStyleNames("role-textbox", "v-grid-cell", ValoTheme.TEXTFIELD_BORDERLESS);
+		packageName.addStyleNames("role-textbox", "v-textfield-font", ValoTheme.TEXTFIELD_BORDERLESS);
 		packageName.setCaptionAsHtml(true);
 		packageName.setEnabled(false);
 		packageName.setWidth("80%");
 		TextField packageFile = new TextField("Package File");
-		packageFile.addStyleNames("role-textbox", "v-grid-cell", ValoTheme.TEXTFIELD_BORDERLESS);
+		packageFile.addStyleNames("role-textbox", "v-textfield-font", ValoTheme.TEXTFIELD_BORDERLESS);
 		packageFile.setEnabled(false);
 		packageFile.setId(PACKAGE_FILE);
 		packageFile.setWidth("80%");
@@ -410,7 +408,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 				UI.getCurrent().addWindow(fileListWindow);
 		});
 		TextField packageVersion = new TextField("Version");
-		packageVersion.addStyleNames("role-textbox", "v-grid-cell", ValoTheme.TEXTFIELD_BORDERLESS);
+		packageVersion.addStyleNames("role-textbox", "v-textfield-font", ValoTheme.TEXTFIELD_BORDERLESS);
 		packageVersion.setEnabled(false);
 		packageVersion.setWidth("80%");
 		// FIXME: put the list of organization
@@ -418,12 +416,12 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		applicationOwner.setEnabled(false);
 		applicationOwner.setCaptionAsHtml(true);
 		applicationOwner.setDataProvider(new ListDataProvider<>(userService.getUsers()));
+		applicationOwner.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size");
 		devices = new ComboBox<Devices>("Device");
 		devices.setDataProvider(deviceService.getListDataProvider());
 		devices.setEnabled(false);
-		// devices.addSelectionListener(selection -> {
-		//
-		// });
+		devices.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size");
+		
 		HorizontalLayout activeBoxLayout = new HorizontalLayout();
 		activeBoxLayout.setId(ACTIVE_LAYOUT);
 		Label active = new Label("Active");
@@ -435,7 +433,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		activeBoxLayout.addComponents(active, activeApplication);
 		activeBoxLayout.setStyleName("role-activeLable");
 		activeBoxLayout.addStyleName("assetAlert-activeCheckBox");
-		Button saveForm = new Button("Save");
+		saveForm = new Button("Save");
 		saveForm.addClickListener(click -> {
 			App app;
 			if (appGrid.getSelectedItems().size() > 0) {
@@ -460,9 +458,9 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			appGrid.deselectAll();
 
 		});
-		saveForm.setEnabled(false);
+		saveForm.setEnabled(true);
 		saveForm.addStyleNames("v-button-customstyle", ValoTheme.BUTTON_FRIENDLY);
-		Button cancelForm = new Button("Cancel", click -> {
+		cancelForm = new Button("Cancel", click -> {
 			packageName.clear();
 			//packageName.setEnabled(false);
 			packageFile.clear();
@@ -483,7 +481,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 					.getComponent(2)).clear();
 
 		});
-		cancelForm.setEnabled(false);
+		cancelForm.setEnabled(true);
 		cancelForm.addStyleNames("v-button-customstyle", ValoTheme.BUTTON_FRIENDLY);
 		HorizontalLayout appDetailsSaveCancleAndLabelLayout = new HorizontalLayout();
 		appDetailsSaveCancleAndLabelLayout.setWidth("100%");
@@ -535,6 +533,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		appDefaultParamSearch.setWidth("100%");
 		appDefaultParamSearch.setIcon(VaadinIcons.SEARCH);
 		appDefaultParamSearch.setStyleName("small inline-icon search");
+		appDefaultParamSearch.addStyleNames("role-textbox", "v-textfield-font", ValoTheme.TEXTFIELD_BORDERLESS);
 		appDefaultParamSearch.setPlaceholder("Search");
 		appDefaultParamSearch.setResponsive(true);
 		appDefaultParamSearch.addShortcutListener(new ShortcutListener("Clear", KeyCode.ESCAPE, null) {
@@ -590,8 +589,11 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		Button clearAllParams = new Button("Clear All", click -> {
 			appDefaultParamGrid.setDataProvider(new ListDataProvider<>(Arrays.asList()));
 		});
-		Button profileDropDown = new Button("Profile", VaadinIcons.CARET_DOWN);
+		clearAllParams.addStyleNames("v-button-customstyle", ValoTheme.BUTTON_FRIENDLY);
+		Button profileDropDown = new Button("Profile", VaadinIcons.PLUS_CIRCLE);
+		profileDropDown.addStyleNames("v-button-customstyle", ValoTheme.BUTTON_FRIENDLY);
 		TextField profileField = new TextField();
+		profileField.addStyleNames("role-textbox", "v-textfield-font", ValoTheme.TEXTFIELD_BORDERLESS);
 		profileField.setEnabled(false);
 		Window openProfileWindow = getSmallListWindow(false, profileField);
 		profileDropDown.addClickListener(click -> {
@@ -606,7 +608,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 
 		HorizontalLayout appParamHeaderButtonLayout = new HorizontalLayout(clearAllParams, profileDropDown,
 				profileField);
-		appParamHeaderButtonLayout.setWidth("50%");
+		//appParamHeaderButtonLayout.setWidth("100%");
 		appParamHeaderButtonLayout.setEnabled(false);
 		HorizontalLayout appParamSearchLayout = new HorizontalLayout(appDefaultParamSearch);
 		appParamSearchLayout.setWidth("100%");
@@ -730,6 +732,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		} else {
 			optionList.setDataProvider(profileService.getListDataProvider());
 			Window createProfileWindow = openProfileWindow(optionList);
+			createProfileWindow.setCaption("Upload Files");
 			addNewButton = new Button("Add New Profile", click -> {
 				if (createProfileWindow.getParent() == null)
 					UI.getCurrent().addWindow(createProfileWindow);

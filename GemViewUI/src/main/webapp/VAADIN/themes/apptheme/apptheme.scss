@@ -34,6 +34,10 @@ $v-focus-color: #145A32;
 $app-background-gradient: unquote("linear-gradient(145deg, #145A32 30%, #145A32 100%)");
 $app-background-color: #145A32;
 
+.v-Notification.error{
+	background: #216c2A !important;
+}
+
 .apptheme .app-shell[width-range~="601px-"] .navigation-bar {
 	background-color: #216C2A !important;
 	overflow-y:auto;
@@ -66,8 +70,8 @@ $app-background-color: #145A32;
 }
 
 .app-shell .navigation {
-	border-top: 1px solid #5a5a79 !important;
-	border-bottom: 1px solid #5a5a79 !important;
+// 	border-top: 1px solid #5a5a79 !important;
+// 	border-bottom: 1px solid #5a5a79 !important;
 	background: #216C2A !important;
 }
 
@@ -82,6 +86,21 @@ $app-background-color: #145A32;
 	color: white !important;
 }
 
+.app-shell .navigation .v-icon {
+	color: #fff !important;
+}
+
+.apptheme .v-caption-inline-icon.v-caption-small span.v-icon{
+	line-height:36px !important;
+}
+
+.search-Height{
+	height:37px !important;
+}
+.v-textfield-lineHeight{
+	height: 28px !important;
+}
+
 .role-textbox{
 	border:0;
 	border-bottom: 1px solid black !important;
@@ -92,7 +111,8 @@ $app-background-color: #145A32;
 }
 
 .role-description-layout{
-	margin-left:15px !important;
+	margin-left:30px !important;
+	margin-top:15px;
 }
 
 .role-activeLable{
@@ -103,13 +123,22 @@ $app-background-color: #145A32;
 	padding-top:20px !important;
 }
 
+.role-gridLayout{
+	padding: 20px 0px 0px 0px !important;
+}
+
+.role-createdeleteButtonLayout{
+	margin-right:20px;
+}
+
+
 .form-layout{
 	margin-left:50px !important;
 }
 
-.assertAlert-formLayout{
+.device-formLayout{
 	margin-left:50px !important;
-	margin-top: -50px !important;
+	margin-top:-10px
 }
 
 .device-name-layout{
@@ -120,12 +149,35 @@ $app-background-color: #145A32;
 	padding-left:47px;
 }
 
+.device-activeButton{
+	margin-left:8px;
+}
+
+.device-rkiLabel{
+	margin-left:5px;
+}
+
+.device-osLabel{
+	margin-left:6px;
+}
+
+.device-checkboxAlignment{
+	margin-left:5px;
+}
+
 .odometer-verticalLayout{
 	overflow:auto !important;
 }
 
+
+
 .save-cancelButtonsAlignment{
-	padding-right:10px !important;
+	padding-right:19px !important;
+// 	padding-top:5px !important;
+}
+
+.save-cancelButtonAlignmentRoles{
+	padding-right:35px !important;
 // 	padding-top:5px !important;
 }
 
@@ -134,12 +186,9 @@ $app-background-color: #145A32;
 	margin-left:-68px;
 }
 
-.assetDebug-label{
-	margin-top:-44px;
-}
-
 .applicatioStore-GridLayout{
 	padding: 0px 0px 0px 0px !important;
+	background-color: #fff;
 }
 
 .applicatioStore-VerticalLayout{
@@ -167,9 +216,9 @@ $app-background-color: #145A32;
 }
 
 
-.v-caption{
-	white-space:normal !important;
-}
+// .v-caption{
+// 	white-space:normal !important;
+// }
 
 
 
@@ -221,6 +270,57 @@ $app-background-color: #145A32;
 		background-repeat: no-repeat;
 }
 
+.heartbeat-SearchLayout{
+		padding:0px 20px 20px 20px !important;
+}
+
+.heartbeat-verticalLayout{
+	padding: 0px 0px 0px 0px !important;
+}
+
+.heartbeat-horizontalLayout-DeviceLabel{
+	margin-bottom:-40px;
+	margin-top:18px;
+}
+
+.heartbeat-verticalFormLayout{
+	padding: 0px 37px 0px 37px !important;
+}
+
+.heartbeat-checkbox{
+	margin-right:-5px;
+	font-weight:400;
+}
+
+.heartbeat-activeLayout{
+	float:left;
+	margin-left:-61px;
+	margin-top:12px;
+}
+
+.heartbeat-heartBeatLayout{
+	float:left;
+	margin-left:-91px;
+	margin-top:12px;
+}
+
+.heartbeat-frequency{
+	margin-top: -35px;
+    margin-left: 25px;
+}
+
+.heartbeat-historyLabel{
+	margin-top: -20px !important;
+}
+
+.heartbeat-historySearchLayout{
+	margin-left: 14px;
+}
+
+.heartbeat-historySearchVerticalLayout{
+	padding: 0px 14px 0px 0px !important;
+}
+
 
 .split-height{
 		background-color: white;
@@ -231,24 +331,39 @@ $app-background-color: #145A32;
 .split-height{
 		background-color: white;
 		overflow:auto !important;
-		padding: 37px 0px 37px 0px !important;
+		padding: 22px 0px 22px 0px !important;
 	}
 
 .split-Height-ButtonLayout{
 		background-color: white;
 		padding: 0px 20px 0px 20px !important;
 	}
-	
-.heartbeat-verticalLayout{
-	padding: 0px 0px 0px 0px !important;
+
+.personlization-verticalFormLayout{
+	padding:0px 0px 0px 0px !important;
 }
 
-.heartbeat-horizontalLayout-DeviceLabel{
-	margin-bottom:-40px;
+.personlization-formLayout{
+	margin-top:-45px;
+	margin-left:45px;
 }
 
-.heartbeat-verticalFormLayout{
-	padding: 0px 37px 0px 37px !important;
+.personlization-paramButtonLayout{
+	margin-left:12px;
+	margin-top:-10px;
+}
+
+.personlization-overRideParamLabelLayout{
+	margin-top:-35px;
+}
+
+.dashboard-gridCaption{
+	font-size:26px !important;
+	margin-bottom:10px !important;
+	margin-left: 245px !important;
+	color:#197DE1 !important;
+	font-weight:bold !important;
+// 	<h2 style=margin-bottom:10px;margin-left:245px;color:#197DE1></h2>
 }
 
 .app-shell[width-range~="1001px-"] {
@@ -265,7 +380,7 @@ $app-background-color: #145A32;
     color: #191919;
     font-weight: 400;
     border-radius: 4px;
-    border: 1px solid #c5c5c5;
+    border: none;
     border-top-color: #c5c5c5;
     border-bottom-color: #bcbcbc;
     background-color: #fafafa;
@@ -303,8 +418,12 @@ $app-background-color: #145A32;
 	font-size: 36px !important;
 		color:#216C2A !important;
  		font-weight:bold !important;
- 		line-height:65px !important;
+ 		line-height:69px !important;
 	
+	}
+	
+	.v-caption{
+		font-size:16px !important;
 	}
 	.label-style{
 		font-size: 28px !important;
@@ -319,11 +438,22 @@ $app-background-color: #145A32;
 		font-weight:400 !important;
 	}
 	.v-grid-cell{
-	font-size:16px !important
+	font-size:16px !important;
 	}
 
 	.v-textfield-font{
-		font-size:16px !important
+		font-size:16px !important;
+	}
+	.role-activeLayout{
+		margin-left:-64px;
+	}
+	.role-activeLabel{
+		margin-right:10px;
+		font-weight:400;
+	}
+
+	.role-RoleNameLabel{
+		margin-left:4px;
 	}
 }
 
@@ -349,12 +479,16 @@ $app-background-color: #145A32;
 		font-weight:400 !important;
 	}
 	.v-grid-cell{
-		font-size:14px !important
+		font-size:14px !important;
 	}
 
 	.v-textfield-font{
-		font-size:14px !important
+		font-size:14px !important;
 	}	
+
+	.v-caption{
+		font-size:14px !important;
+	}
 	
 	.v-combobox-size{
 		width:135px;
@@ -366,6 +500,68 @@ $app-background-color: #145A32;
 	}
 	.v-tree8-cell{
 		font-size:14px;
+	}
+	.device-rkiLabel{
+		margin-left:8.5px;
+	}
+
+	.device-osLabel{
+	margin-left:9px;
+	}
+
+	.role-activeLayout{
+		margin-left:-58px;
+	}
+	.role-activeLabel{
+		margin-right:8px;
+		font-weight:400;
+	}
+	.role-RoleNameLabel{
+		margin-left:4px;
+	}
+
+	.heartbeat-checkbox{
+		margin-right:-3px;
+	}
+
+	.heartbeat-activeLayout{
+		float:left;
+		margin-left:-56px;
+		margin-top:12px;
+	}
+
+	.heartbeat-heartBeatLayout{
+		float:left;
+		margin-left:-84px;
+		margin-top:12px;
+	}
+
+	.asset-alertActiveLayout{
+		float:left;
+		margin-left:-58px;
+		margin-top:12px;
+	}
+
+	.asset-alertCheckbox{
+		margin-right:-4px;
+		font-weight:400;
+	}
+
+	.asset-debugCheckboxLayout{
+		float:left;
+		margin-left:-58px;
+		margin-top:12px;
+	}
+	
+	.asset-debugCheckbox{
+		margin-right:-6px;
+		font-weight:400;
+	}
+}
+
+.app-shell[width-range~="601px-700px"]{
+	.v-caption-small span.v-icon{
+		line-height:26px !important;
 	}
 }
 
@@ -391,12 +587,15 @@ $app-background-color: #145A32;
 		font-weight:400 !important;
 	}
 	.v-grid-cell{
-	font-size:12px !important
+	font-size:12px !important;
 	}
 
 	.v-textfield-font{
-		font-size:12px !important
+		font-size:12px !important;
 	}	
+	.v-caption{
+		font-size:12px !important;
+	}
 	.v-combobox-size{
 		width:120px;
 		height:24px;
@@ -407,6 +606,62 @@ $app-background-color: #145A32;
 	}
 	.v-tree8-cell{
 		font-size:12px;
+	}
+	.device-rkiLabel{
+		margin-left:14px;
+	}
+	.device-osLabel{
+		margin-left:14.5px;
+	}
+ 	.v-caption-small span.v-icon{
+		line-height:26px !important;
+	}
+	.role-activeLayout{
+		margin-left:-53px;
+	}
+	.role-activeLabel{
+		margin-right:10px;
+		font-weight:400;
+	}
+	.role-RoleNameLabel{
+		margin-left:4px;
+	}
+	.heartbeat-checkbox{
+		margin-right:-5px;
+	}
+
+	.heartbeat-activeLayout{
+		float:left;
+		margin-left:-50px;
+		margin-top:12px;
+	}
+	
+	.heartbeat-heartBeatLayout{
+		float:left;
+		margin-left:-74px;
+		margin-top:12px;
+	}
+
+	.asset-alertActiveLayout{
+		float:left;
+		margin-left:-53px;
+		margin-top:12px;
+	}
+
+	.asset-alertCheckbox{
+		margin-right:-3px;
+		font-weight:400;
+	}
+
+	.asset-debugCheckboxLayout{
+		float:left;
+		margin-left:-63px;
+		margin-top:12px;
+	}
+
+	.asset-debugCheckbox{
+		margin-right:3px;
+		font-weight:400;
 	}
 }
 
@@ -448,23 +703,127 @@ $app-background-color: #145A32;
 // 	}
 }
 
-.heartbeat-activeLayout{
-	margin-left: -93px;
+.label-SaveCancelAlignment{
+	margin-top: 10px;
+}
+.system-SaveCancelAlignment{
+	margin-right: 8px;
 }
 
-.heartbeat-heartBeatLayout{
-	margin-left: -93px;
-    margin-bottom: -30px;
-    margin-top: 15px;
+.system-LabelAlignment{
+	text-align:right !important;
 }
 
-.heartbeat-frequency{
-	margin-top: -35px;
-    margin-left: 25px;
+.system-TypeAlignment{
+	float:left;
+	margin-top:10px;
 }
 
-.heartbeat-historyLabel{
-	margin-top: -30px !important;
+.system-GridAlignment{
+	padding:0px 0px 0px 0px !important;
+}
+
+.system-ButtonLayout{
+	margin-right: 20px;
+}
+
+.audit-DeviceVerticalAlignment{
+	padding:0px 0px 0px 0px !important;
+}
+
+.audit-DeviceSearch{
+	margin:10px 0px -10px 15px !important;
+}
+
+.audit-buttonlayoutAlignment1{
+	margin-left:-25px !important;
+}
+
+.audit-buttonlayoutAlignment2{
+	margin-left:-12px !important;
+}
+
+.audit-tabAlignment{
+	padding: 0px 30px 0px 0px !important;
+}
+
+.audit-phoneAlignment{
+	padding: 0px 15px 0px 0px !important;
+}
+
+.audit-scroll{
+	overflow:visible !important;
+}
+
+.grid-AuditOdometerAlignment{
+	margin-top:10px !important;
+}
+
+.asset-historyTreeLayout{
+	margin-top: 32px;
+}
+
+.asset-historyDebugLayout{
+	overflow:scroll !important;
+	overflow-x:hidden !important;
+}
+
+.asset-alertActiveLayout{
+	float:left;
+	margin-left:-64px;
+	margin-top:12px;
+}
+
+.asset-alertCheckbox{
+	margin-right:-3px;
+	font-weight:400;
+}
+
+.assetDebug-label{
+	margin-top:-30px;
+	margin-bottom:-15px;
+}
+
+.asset-alertformLayout{
+	margin-left:30px !important;
+	margin-top: -50px !important;
+}
+
+.asset-alertDeleteLayout{
+	margin-right:20px;
+}
+
+.asset-debugSFormLayout{
+	margin-top:-50px;
+	margin-left: 30px;
+}
+
+.asset-debugCheckboxLayout{
+	float:left;
+	margin-left:-68px;
+	margin-top:12px;
+}
+
+.asset-debugComboBox{
+		float:left;
+	}
+
+.asset-debugSearch{
+	
+	padding: 0px 0px 0px 15px !important;
+
+}
+
+.user-buttonsLayout{
+	padding-right:15px !important;
+}
+
+.user-searchLayout{
+	padding-left: 15px !important;
+}
+
+.user-treeLayout{
+	padding:8px 15px 37px 15px !important;
 }
 
 .apptheme .error{

@@ -48,6 +48,7 @@ import org.vaadin.grid.cellrenderers.editoraware.CheckboxRenderer;
 import com.luretechnologies.tms.backend.data.entity.Permission;
 import com.luretechnologies.tms.backend.data.entity.Roles;
 import com.luretechnologies.tms.backend.service.UserFriendlyDataException;
+import com.luretechnologies.tms.ui.NotificationUtil;
 import com.luretechnologies.tms.ui.components.ConfirmDialogFactory;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
@@ -191,6 +192,7 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 		setHeight("100%");
 		Panel panel = getAndLoadRolesPanel();	
 		VerticalLayout verticalLayout = new VerticalLayout();
+		//verticalLayout.setSizeFull();
 		panel.setContent(verticalLayout);
 		verticalLayout.setSpacing(false);
 		verticalLayout.setMargin(false);
@@ -247,7 +249,7 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 				selectedRole.setRoleName(rolename);
 				selectedRole.setActive(activeValue);
 				if(description.isEmpty() || description== null|| rolename.isEmpty() || rolename== null) {
-					Notification.show("Fill all details", Notification.Type.WARNING_MESSAGE).setDelayMsec(3000);
+					Notification.show(NotificationUtil.SAVE, Notification.Type.ERROR_MESSAGE);
 				} else {
 					Random rand = new Random();
 					int  n = rand.nextInt(50) + 1;
@@ -268,11 +270,12 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 		layout2.setComponentAlignment(save, Alignment.MIDDLE_RIGHT);
 		layout2.setResponsive(true);
 		layout2.setSizeUndefined();
-		layout2.setStyleName("save-cancelButtonsAlignment");
+		layout2.setStyleName("role-createdeleteButtonLayout");
 		
 		//fill data to grid
 		layout.addComponents(layout1, layout2);
 		layout.setComponentAlignment(layout2, Alignment.MIDDLE_RIGHT);
+		layout.addStyleName("grid-AuditOdometerAlignment");
 		getAndLoadRolesGrid(verticalLayout, dynamicVerticalLayout);
 	}
 
@@ -301,18 +304,21 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 		roleName = new TextField("Role Name", role);
 		roleName.setValue(role);
 		roleName.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
-		roleName.setWidth("109%");
+		roleName.setWidth("50%");
 		roleName.setStyleName("role-textbox");
 		roleName.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
-		roleName.addStyleName("v-textfield-font");
+		roleName.addStyleNames("v-textfield-font", "v-textfield-lineHeight");
 		selectedRole.setRoleName(roleName.getValue());
 		roleName.setEnabled(isEditableOnly);
-		activeBox = new CheckBox("Allow Access");
+		boolean active = selectedRole.getActive();
+		activeBox = new CheckBox("Allow Access", active);
 		activeBox.addStyleName("v-textfield-font");
 		activeBox.setEnabled(isEditableOnly);
+		//selectedRole.setActive(activeBox.getValue());
+		//activeBox.setValue(selectedRole.getActive());
 		label = new Label("Active");
 		label.setStyleName("role-activeLable");
-		label.addStyleName("v-textfield-font");
+		label.addStyleNames("v-textfield-font", "role-activeLabel");
 
 		permissionGrid = new Grid<Permission>();
 		permissionGrid.setEnabled(isEditableOnly);
@@ -333,33 +339,36 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 		activeCheck.addComponent(label);
 		activeCheck.addComponent(activeBox);
 		activeCheck.setSizeUndefined();
+		activeCheck.addStyleName("role-activeLayout");
 		horizontalLayout.addComponent(roleNameFL);
 		horizontalLayout.addComponent(activeCheck);
 		horizontalLayout.setComponentAlignment(roleNameFL, Alignment.MIDDLE_LEFT);
 		horizontalLayout.setComponentAlignment(activeCheck, Alignment.MIDDLE_LEFT);
-		formLayout.addComponent(horizontalLayout);
+		//formLayout.addComponent(horizontalLayout);
+		formLayout.addComponent(roleName);
 		String description = selectedRole.getDescription() != null ? selectedRole.getDescription(): "";
 		descriptions = new TextField("Description", description);
 		selectedRole.setDescription(descriptions.getValue());
 		descriptions.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
-		descriptions.setWidth("48%");
+		descriptions.setWidth("50%");
 		descriptions.setStyleName("role-textbox");
 		descriptions.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
-		descriptions.addStyleName("v-textfield-font");
+		descriptions.addStyleNames("v-textfield-font", "v-textfield-lineHeight");
 		descriptions.setEnabled(isEditableOnly);
 		formLayout.addComponent(descriptions);
+		formLayout.addComponent(activeCheck);
 		formLayout.setStyleName("role-description-layout");
 		formLayout.setSpacing(false);
 		formLayout.setMargin(false);
 		verticalLayout.addComponent(formLayout);
 		List<Permission> beanList = new ArrayList<>(selectedRole.getPermissionMap().values());
-		permissionGrid.setHeightByRows(11);
+		//permissionGrid.setHeightByRows(11);
 		permissionGrid.addStyleName(ValoTheme.TABLE_BORDERLESS);
 		permissionGrid.addStyleName(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
 		permissionGrid.addStyleName(ValoTheme.TABLE_NO_VERTICAL_LINES);
 		permissionGrid.addStyleName(ValoTheme.TABLE_NO_STRIPES);
 		permissionGrid.setHeaderVisible(false);
-		permissionGrid.setWidth("50%");
+		//permissionGrid.setWidth("50%");
 		permissionGrid.setItems(beanList);
 		
 		CheckBox access = new CheckBox();
@@ -422,7 +431,7 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 			public void buttonClick(ClickEvent event) {
 				if(descriptions.getValue()==null || descriptions.getValue().isEmpty() || 
 						roleName.getValue()==null ||  roleName.getValue().isEmpty()) {
-					Notification.show("Select any Role to Modify", Notification.Type.WARNING_MESSAGE).setDelayMsec(3000);;
+					Notification.show(NotificationUtil.ROLES_EDIT, Notification.Type.ERROR_MESSAGE);
 				}else {
 				dynamicVerticalLayout.removeAllComponents();
 				getAndLoadPermissionGrid(dynamicVerticalLayout, true);		
@@ -439,7 +448,7 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 			public void buttonClick(ClickEvent event) {
 				if(descriptions.getValue()==null || descriptions.getValue().isEmpty() || 
 						roleName.getValue()==null ||  roleName.getValue().isEmpty()) {
-					Notification.show("Select role to delete", Notification.Type.ERROR_MESSAGE);
+					Notification.show(NotificationUtil.ROLES_DELETE, Notification.Type.ERROR_MESSAGE);
 				}else {
 				
 				confirmDialog( dynamicVerticalLayout);
@@ -447,6 +456,7 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 			}
 		});
 		HorizontalLayout buttonGroup =  new HorizontalLayout();
+		buttonGroup.addStyleName("role-createdeleteButtonLayout");
 		buttonGroup.setDefaultComponentAlignment(Alignment.MIDDLE_RIGHT);
 		buttonGroup.addComponent(addNewRole);
 		buttonGroup.addComponent(editRole);
@@ -460,7 +470,8 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 		roleGrid.setHeightByRows(4);
 		roleGrid.setItems(rolesRepo.values());
 		roleGrid.setWidth("100%");
-		roleGrid.setHeightByRows(6);;
+		//roleGrid.setHeightByRows(6);;
+		//roleGrid.setHeight("100%");
 		roleGrid.setResponsive(true);
 		
 		roleGrid.addSelectionListener(e -> {
@@ -479,10 +490,14 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 			}
 		});
 		VerticalLayout roleGridLayout = new VerticalLayout();
+		roleGridLayout.addStyleName("role-gridLayout");
+		roleGridLayout.setSizeFull();
 		roleGridLayout.setDefaultComponentAlignment(Alignment.MIDDLE_RIGHT);
 		roleGridLayout.addComponent(buttonGroup);
 		roleGridLayout.addComponent(roleGrid);
+		//roleGridLayout.setExpandRatio(roleGrid, 1);
 		verticalLayout.addComponent(roleGridLayout);
+		//verticalLayout.setExpandRatio(roleGridLayout, 3);
 	}
 	
 	

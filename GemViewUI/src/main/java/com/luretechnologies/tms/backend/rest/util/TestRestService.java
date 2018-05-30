@@ -29,53 +29,29 @@
  * Inquiries should be made to legal@luretechnologies.com
  *
  */
-package com.luretechnologies.tms.ui.view.dashboard;
+package com.luretechnologies.tms.backend.rest.util;
 
-import com.vaadin.shared.ui.ContentMode;
-import com.vaadin.ui.Label;
+import org.springframework.stereotype.Service;
 
-public class BoardLabel extends Label {
+//import com.luretechnologies.client.restlib.service.RestClientService;
+//import com.luretechnologies.client.restlib.service.model.UserSession;
 
-	private String header;
-	private String content;
+//import com.luretechnologies.client.restlib.service.RestClientService;
+//import com.luretechnologies.client.restlib.service.model.UserSession;
 
-	public BoardLabel(String header, String content) {
-		super("", ContentMode.HTML);
-		addStyleName("board-box-label");
-		setSizeFull();
-		setHeader(header);
-		setContentSucess(content);
-		setContentFaliure(content);
-	}
+public class TestRestService {
+	//public void test(){
+//		try {
+//		RestClientService client = new RestClientService("http://mia.lure68.net:54061/admin/api","");
+//		System.out.println("Login Sucess");
+//		UserSession session = client.getAuthApi().login("vinay_standard", "TestPassword123!");
+//		System.out.println("Login Sucess");
+//		client.getUserApi().getUsers();
+//		}catch (Exception e) {
+//			System.out.println("Error while logging in" +e);
+//		}
+//	}
 
-	public BoardLabel(String header, String content, String styleName) {
-		this(header, content);
-		addStyleName(styleName);
-	}
-
-	private void setHeader(String header) {
-		this.header = header;
-		updateValueFailure();
-	}
-
-	public void setContentSucess(String content) {
-		this.content = content;
-		updateValueSucesss();
-	}
 	
-	public void setContentFaliure(String content) {
-		this.content = content;
-		updateValueFailure();
-	}
-
-	private void updateValueSucesss() {
-		setValue("<h1 style=color:green;>" + content + "</h1>" //
-				+ "<h4>" + header + "</h4>");
-	}
-	
-	private void updateValueFailure() {
-		setValue("<h1>" + content + "</h1>" //
-				+ "<h4>" + header + "</h4>");
-	}
 
 }

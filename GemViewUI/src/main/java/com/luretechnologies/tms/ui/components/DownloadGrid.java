@@ -54,7 +54,7 @@ public class DownloadGrid extends Grid<Downloads>{
 	private List<Downloads> getDownloadsList() {
 		
 		List<Downloads> downloadsList = new ArrayList<>();
-		for(int index = 0; index <10; index++) {
+		for(int index = 0; index <6; index++) {
 			
 			Downloads dl = new Downloads();
 			dl.setSerialNumber("123"+index);

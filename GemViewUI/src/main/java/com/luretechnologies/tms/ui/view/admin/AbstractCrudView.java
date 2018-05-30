@@ -47,8 +47,8 @@ import com.vaadin.data.TreeData;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.data.provider.TreeDataProvider;
-import com.vaadin.event.ShortcutListener;
 import com.vaadin.event.ShortcutAction.KeyCode;
+import com.vaadin.event.ShortcutListener;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewBeforeLeaveEvent;
@@ -76,6 +76,7 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.components.grid.SingleSelectionModel;
+import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * Base class for a CRUD (Create, read, update, delete) view.
@@ -109,7 +110,7 @@ import com.vaadin.ui.components.grid.SingleSelectionModel;
  *            the type of entity which can be edited in the view
  */
 @Secured(Role.ADMIN)
-public abstract class AbstractCrudView<T extends AbstractEntity> implements Serializable, View, HasLogger {
+public abstract class AbstractCrudView<T extends AbstractEntity> extends VerticalLayout implements Serializable, View, HasLogger {
 
 	public static final String CAPTION_DISCARD = "Cancel";
 	public static final String CAPTION_CANCEL = "Cancel";
@@ -117,6 +118,7 @@ public abstract class AbstractCrudView<T extends AbstractEntity> implements Seri
 	public static final String CAPTION_ADD = "Save";
 	public PasswordEncoder passwordEncoder;
 	public static Button addTreeNode, deleteTreeNode;
+	public static TextField treeNodeInputLabel;
 	public static TextField treeNodeSearch;
 
 	@Autowired
@@ -175,25 +177,50 @@ public abstract class AbstractCrudView<T extends AbstractEntity> implements Seri
 	@SuppressWarnings("unchecked")
 	@PostConstruct
 	private void initLogic() {
+		Page.getCurrent().addBrowserWindowResizeListener(r->{
+			if(r.getWidth()>=1000) {
+				treeNodeSearch.setHeight(37, Unit.PIXELS);
+				getSearch().setHeight(37, Unit.PIXELS);
+			} else {
+				treeNodeSearch.setHeight(28, Unit.PIXELS);
+				getSearch().setHeight(28, Unit.PIXELS);
+			}
+		});
+		
+		setHeight("100%");
 		//treeNodeInputLabel = new TextField();
 		//addTreeNode = new Button("Add");
 		//deleteTreeNode = new Button("Delete");
 		//HorizontalLayout treeButtonLayout = new HorizontalLayout();
 		//treeButtonLayout.addComponent(addTreeNode);
 		//treeButtonLayout.addComponent(deleteTreeNode);
+		VerticalLayout verticalPanelLayout = new VerticalLayout();
+		verticalPanelLayout.setHeight("100%");
+		verticalPanelLayout.setStyleName("split-height");
 		VerticalLayout treePanelLayout = new VerticalLayout();
+		
+		//treePanelLayout.addComponentAsFirst(treeNodeInputLabel);
 		//treePanelLayout.addComponent(treeButtonLayout);
 		treeNodeSearch = new TextField();
+		treeNodeSearch.setWidth("100%");
+		treeNodeSearch.setIcon(VaadinIcons.SEARCH);
+		treeNodeSearch.setStyleName("small inline-icon search");
+		treeNodeSearch.addStyleName("v-textfield-font");
+		treeNodeSearch.setPlaceholder("Search");
 		configureTreeNodeSearch();
 		treePanelLayout.addComponentAsFirst(treeNodeSearch);
 		Tree<Node> treeComponent = getUserTree(treeDataService.getTreeDataForUser());
 		treePanelLayout.addComponent(treeComponent);
-		//treePanelLayout.setMargin(true);
 		treePanelLayout.setComponentAlignment(treeComponent, Alignment.BOTTOM_LEFT);
-		
-		getSplitScreen().setFirstComponent(treePanelLayout);
-		getSplitScreen().setSplitPosition(20);
-		getSplitScreen().addComponent(userDataLayout());
+		treePanelLayout.setStyleName("split-Height-ButtonLayout");
+		treePanelLayout.addStyleName("user-treeLayout");
+		verticalPanelLayout.addComponent(treePanelLayout);
+		//treePanelLayout.addComponent(treeComponent);
+		//treePanelLayout.setMargin(true);
+		//treePanelLayout.setComponentAlignment(treeComponent, Alignment.BOTTOM_LEFT);
+		getSplitScreen().setFirstComponent(verticalPanelLayout);
+		getSplitScreen().setSplitPosition(30);
+		//getSplitScreen().addComponent(userDataLayout());
 //		addTreeNode.addClickListener(click -> {
 //			if (getTree().getSelectedItems().size() == 1) {
 //				Node selectedNode = getTree().getSelectedItems().iterator().next();
@@ -305,7 +332,35 @@ public abstract class AbstractCrudView<T extends AbstractEntity> implements Seri
 
 		// Search functionality
 		getSearch().addValueChangeListener(event -> getPresenter().filterGrid(event.getValue(),getGrid()));
-
+		
+		getButtonsLayout().addStyleName("user-buttonsLayout");
+		getSearchlayout().addStyleName("user-searchLayout");
+		
+		getUserName().setStyleName("role-textbox");
+		getUserName().addStyleNames(ValoTheme.TEXTFIELD_INLINE_ICON, ValoTheme.TEXTFIELD_BORDERLESS,
+				"v-grid-cell");
+		
+		getFirstName().setStyleName("role-textbox");
+		getFirstName().addStyleNames(ValoTheme.TEXTFIELD_INLINE_ICON, ValoTheme.TEXTFIELD_BORDERLESS,
+				"v-grid-cell");
+		
+		getLastName().setStyleName("role-textbox");
+		getLastName().addStyleNames(ValoTheme.TEXTFIELD_INLINE_ICON, ValoTheme.TEXTFIELD_BORDERLESS,
+				"v-grid-cell");
+		
+		getEmail().setStyleName("role-textbox");
+		getEmail().addStyleNames(ValoTheme.TEXTFIELD_INLINE_ICON, ValoTheme.TEXTFIELD_BORDERLESS,
+				"v-grid-cell");
+		
+		int width = Page.getCurrent().getBrowserWindowWidth();
+		if(width >=1000) {
+			treeNodeSearch.setHeight(37, Unit.PIXELS);
+			getSearch().setHeight(37, Unit.PIXELS);
+		}
+		else {
+			treeNodeSearch.setHeight(28, Unit.PIXELS);
+			getSearch().setHeight(28, Unit.PIXELS);
+		}
 	}
 
 	public void loadGridData() {
@@ -390,5 +445,15 @@ public abstract class AbstractCrudView<T extends AbstractEntity> implements Seri
 	protected abstract Tree<Node> getTree();
 
 	protected abstract TextField getUserName();
+	
+	protected abstract HorizontalLayout getButtonsLayout();
+	
+	protected abstract HorizontalLayout getSearchlayout();
+	
+	protected abstract TextField getLastName();
+	
+	protected abstract TextField getFirstName();
+	
+	protected abstract TextField getEmail();
 
 }

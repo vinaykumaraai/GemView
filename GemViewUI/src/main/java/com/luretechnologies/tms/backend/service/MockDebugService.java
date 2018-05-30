@@ -89,6 +89,11 @@ public class MockDebugService extends CrudService<Debug>{
 		debug = new Debug(DebugType.ERROR,"Again is an error 3",dateFormatter.parse(currentLocalDate.minusDays(3).toString()),dateFormatter1.format(currentLocalDateTime.minusDays(3)),"Error",true,true);
 		debug.setId(debug.getId()+9);
 		debugDirectory.put(debug.getId(), debug);
+		for(int index=0; index<40; index++) {
+			debug = new Debug(DebugType.ERROR,"Again is an error"+index, dateFormatter.parse(currentLocalDate.minusDays(3).toString()),dateFormatter1.format(currentLocalDateTime.minusDays(3)),"Error",true,true);
+			debug.setId(debug.getId()+index+10);
+			debugDirectory.put(debug.getId(), debug);
+		}
 	}
 	
 	public void addDebug(Debug debug)

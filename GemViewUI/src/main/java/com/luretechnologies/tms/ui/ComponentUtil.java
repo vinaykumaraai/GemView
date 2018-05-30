@@ -58,7 +58,7 @@ public class ComponentUtil {
 			TextField textField = new TextField(labelName, "");
 			textField.setWidth("60%");
 			textField.addStyleNames("role-textbox", "v-grid-cell",
-					ValoTheme.TEXTFIELD_BORDERLESS);
+					ValoTheme.TEXTFIELD_BORDERLESS, "v-textfield-lineHeight");
 			textField.setResponsive(true);
 			textField.setEnabled(false);
 			component = textField;
@@ -68,34 +68,40 @@ public class ComponentUtil {
 			if(labelName.equals("Entity Active")) {
 				Label active = new Label("Active");
 				active.setStyleName("role-activeLable");
-				active.addStyleName("v-textfield-font");
+				active.addStyleNames("v-textfield-font");
+				active.addStyleName("asset-alertCheckbox");
 				CheckBox activeCheckBox = new CheckBox();
 				activeCheckBox.setCaption(labelName);
 				activeCheckBox.addStyleName("v-textfield-font");
 				activeBoxLayout.addComponents(active, activeCheckBox);
-				activeBoxLayout.setStyleName("role-activeLable");
-				activeBoxLayout.addStyleName("assetAlert-activeCheckBox");
+				//activeBoxLayout.setStyleName("role-activeLable");
+				activeBoxLayout.addStyleName("asset-alertActiveLayout");
+				activeBoxLayout.setEnabled(false);
 				component =activeBoxLayout;
 			} else if(labelName.equals("Receive Debug")) {
 				Label active = new Label("Debug");
 				active.setStyleName("role-activeLable");
-				active.addStyleName("v-textfield-font");
+				active.addStyleNames("v-textfield-font");
+				active.addStyleName("asset-debugCheckbox");
 				CheckBox activeCheckBox = new CheckBox();
 				activeCheckBox.setCaption(labelName);
 				activeCheckBox.addStyleName("v-textfield-font");
 				activeBoxLayout.addComponents(active, activeCheckBox);
-				activeBoxLayout.setStyleName("role-activeLable");
-				activeBoxLayout.addStyleName("assetAlert-activeCheckBox");
+				//activeBoxLayout.setStyleName("role-activeLable");
+				activeBoxLayout.addStyleName("asset-debugCheckboxLayout");
+				activeBoxLayout.setEnabled(false);
 				component =activeBoxLayout;
 			}else if(labelName.isEmpty()){
 				Label active = new Label("Active");
 				active.setStyleName("role-activeLable");
-				active.addStyleName("v-textfield-font");
+				active.addStyleNames("v-textfield-font");
+				active.addStyleName("asset-alertCheckbox");
 				CheckBox activeCheckBox = new CheckBox();
 				activeCheckBox.addStyleName("v-textfield-font");
 				activeBoxLayout.addComponents(active, activeCheckBox);
-				activeBoxLayout.setStyleName("role-activeLable");
-				activeBoxLayout.addStyleName("assetAlert-activeCheckBox");
+				//activeBoxLayout.setStyleName("role-activeLable");
+				activeBoxLayout.addStyleName("asset-alertActiveLayout");
+				activeBoxLayout.setEnabled(false);
 				component =activeBoxLayout;
 			}
 			break;
@@ -108,6 +114,7 @@ public class ComponentUtil {
 		case COMBOBOX:
 			ComboBox<String> combobox = new ComboBox<String>(labelName);
 			combobox.setEnabled(false);
+			combobox.addStyleName("asset-debugComboBox");
 			component = combobox;
 		default:
 			break;

@@ -42,6 +42,8 @@ import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
 
+import com.luretechnologies.tms.backend.data.entity.Debug;
+import com.luretechnologies.tms.backend.data.entity.DebugType;
 import com.luretechnologies.tms.backend.data.entity.Devices;
 import com.luretechnologies.tms.backend.data.entity.StatusType;
 import com.vaadin.data.provider.Query;
@@ -97,6 +99,12 @@ public class MockOdometerDeviceService  extends CrudService<Devices>{
 		device.setDeviceDate(dateFormatter.parse(currentLocalDate.minusDays(3).toString()));
 		device.setId(System.currentTimeMillis()+9);
 		deviceDirectory.put(device.getId(), device);
+		for(int index=0; index<40; index++) {
+			device = new Devices(StatusType.TRANSACTIONS, "Transactions performed from the unit "+index, 566+index,"Trans");
+			device.setDeviceDate(dateFormatter.parse(currentLocalDate.minusDays(3).toString()));
+			device.setId(System.currentTimeMillis()+index+10);
+			deviceDirectory.put(device.getId(), device);
+		}
 		
 	}
 	

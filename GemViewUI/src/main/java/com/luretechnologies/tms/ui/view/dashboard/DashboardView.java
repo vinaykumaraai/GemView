@@ -72,8 +72,14 @@ import com.vaadin.addon.charts.model.style.SolidColor;
 import com.vaadin.board.Row;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.server.Page;
+import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Grid;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.RichTextArea;
+import com.vaadin.ui.Grid.SelectionMode;
+import com.vaadin.ui.components.grid.HeaderRow;
 
 /**
  * The dashboard view showing statistics about sales and deliveries.
@@ -92,10 +98,11 @@ public class DashboardView extends DashboardViewDesign implements View {
 	private static final String CALLS = "Calls";
 	
 	private final BoardLabel currentConnectionsLabel = new BoardLabel("CURRENT CONNECTIONS", "3/7", "current connections");
-	private final BoardLabel successfulDownloadsLabel = new BoardLabel("SUCCESSFUL DOWNLOADS(24 HOURS)", "1", "sucessful connections(24 hours)");
+	private final BoardLabel successfulDownloadsLabel = new BoardLabel("SUCCESSFUL DOWNLOADS (24 HOURS)", "1", "sucessful connections (24 hours)");
 	private final BoardLabel requestPerSecondLabel = new BoardLabel("REQUESTS PER SECOND", "2", "request per second");
-	private final BoardLabel downloadFailuresLabel = new BoardLabel("DOWNLOAD FAILURES(24 HOURS)", "4", "download failures(24 hours)");
+	private final BoardLabel downloadFailuresLabel = new BoardLabel("DOWNLOAD FAILURES (24 HOURS)", "4", "download failures (24 hours)");
 	private final BoardBox downloadFailuresBox = new BoardBox(downloadFailuresLabel);
+	private final Label currentDownloadsLabel = new Label("CURRENT DOWNLOADS");
 	
 	private final Chart incomingServiceCalls = new Chart(ChartType.COLUMN);
 	private final Chart incomingServiceCallsArea = new Chart(ChartType.AREA);
@@ -118,7 +125,26 @@ public class DashboardView extends DashboardViewDesign implements View {
 		setResponsive(true);
 		//grid.addColumn(hashmap -> )
 		
+//		Page.getCurrent().addBrowserWindowResizeListener(r->{
+//			System.out.println("Height "+ r.getHeight() + "Width:  " + r.getWidth()+ " in pixel");
+//			grid.setCaptionAsHtml(true);
+//			int width = 245+1700-r.getWidth();
+//			grid.setCaption("<h2 style=margin-bottom:10px;margin-left:"+width+"px;color:#197DE1;"
+//					+ "font-weight:400;>CURRENT DOWNLOADS"
+//					+ "</h2>");
+//		});
+		grid.setWidth("100%");
+		grid.setHeight("100%");
+		//grid.addStyleName("asset-historyDebugLayout");
+		grid.setResponsive(true);
+		grid.setSelectionMode(SelectionMode.SINGLE);
 		grid.setItems((new DownloadGrid().getFakeData()));
+		grid.setCaptionAsHtml(true);
+		//RichTextArea  text = new RichTextArea("CURRENT DOWNLOADS");
+		//text.addStyleName("dashboard-gridCaption");
+		grid.setCaption("<h2 style=margin-bottom:10px;margin-left:245px;color:#197DE1;font-weight:400;>CURRENT DOWNLOADS"
+				+ "</h2>");
+		
 		
 		HashMap<String, String> s = new DownloadGrid().getFakeData().get(0);
 		
@@ -231,17 +257,17 @@ public class DashboardView extends DashboardViewDesign implements View {
 		callsPerPeriod[0].setData(Arrays.asList(5,16, 7,19,9));
 		callsPerPeriod[1].setData(Arrays.asList(7,19,9,19,9));
 		
-		incomingCallsSeries.add(new DataSeriesItem("Admin", 22));
-		incomingCallsSeries.add(new DataSeriesItem("Admin1", 23));
-		incomingCallsSeries.add(new DataSeriesItem("Admin2", 24));
-		incomingCallsSeries.add(new DataSeriesItem("Admin3", 25));
-		incomingCallsSeries.add(new DataSeriesItem("Admin4", 26));
+		incomingCallsSeries.add(new DataSeriesItem("User", 22));
+		incomingCallsSeries.add(new DataSeriesItem("User1", 23));
+		incomingCallsSeries.add(new DataSeriesItem("User2", 24));
+		incomingCallsSeries.add(new DataSeriesItem("User3", 25));
+		incomingCallsSeries.add(new DataSeriesItem("User4", 26));
 	}
 	private void updateLabels(ConnectionStats deliveryStats) {
-		currentConnectionsLabel.setContent(Integer.toString(deliveryStats.getCurrentConnections()));
-		successfulDownloadsLabel.setContent(Integer.toString(deliveryStats.getSuccessfulDownloads()));
-		requestPerSecondLabel.setContent(Double.toString(deliveryStats.getRequestPerSeconds()));
-		downloadFailuresLabel.setContent(Integer.toString(deliveryStats.getDownloadFaliures()));
+		currentConnectionsLabel.setContentSucess(Integer.toString(deliveryStats.getCurrentConnections()));
+		successfulDownloadsLabel.setContentSucess(Integer.toString(deliveryStats.getSuccessfulDownloads()));
+		requestPerSecondLabel.setContentSucess(Double.toString(deliveryStats.getRequestPerSeconds()));
+		downloadFailuresLabel.setContentFaliure(Integer.toString(deliveryStats.getDownloadFaliures()));
 		downloadFailuresBox.setNeedsAttention((deliveryStats.getDownloadFaliures() > 0));
 	}
 	
@@ -283,8 +309,9 @@ public class DashboardView extends DashboardViewDesign implements View {
 		
 		XAxis xaxis = series.getConfiguration().getxAxis();
 		xaxis.setGridLineWidth(0);
-		xaxis.setLabels(new Labels(false));
+		//xaxis.setLabels(new Labels(false));
 		xaxis.setTitle("HeartBeat");
+		//xaxis.set
 	}
 }
 

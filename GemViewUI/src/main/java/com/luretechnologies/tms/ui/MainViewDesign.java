@@ -28,10 +28,10 @@ public class MainViewDesign extends HorizontalLayout {
 	protected Button applicationstore;
 	protected Button personalization;
 	protected Button heartbeat;
+	protected Button assetcontrol;
 	protected Button deviceodometer;
 	protected Button security;
 	protected Button audit;
-	protected Button assetcontrol;
 	protected Button administrationButton;
 	protected CssLayout menubar;
 	protected Button users;

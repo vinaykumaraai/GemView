@@ -41,6 +41,7 @@ import com.vaadin.ui.Label;
  *
  */
 public class Node {
+	
 	public String id;
 
 	public NodeLevel level;
@@ -69,6 +70,17 @@ public class Node {
 	
 	public List<? extends AbstractEntity> entityList;
 	
+	public List<OverRideParameters> overRideParamList;
+	
+	
+	public List<OverRideParameters> getOverRideParamList() {
+		return overRideParamList;
+	}
+
+	public void setOverRideParamList(List<OverRideParameters> overRideParamList) {
+		this.overRideParamList = overRideParamList;
+	}
+
 	public NodeLevel getLevel() {
 		return level;
 	}
@@ -174,7 +186,7 @@ public class Node {
 	public void setProfile(Profile profile) {
 		this.profile = profile;
 	}
-
+	
 	public String getId() {
 		return id;
 	}
@@ -182,39 +194,35 @@ public class Node {
 	@Override
 	public String toString() {
 		return label.toString();
+	}	
+	
+	public Node() {
+		this.id = UUID.randomUUID().toString();
+	}
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		return result;
 	}
 
-	
-public Node() {
-	this.id = UUID.randomUUID().toString();
-}
-
-@Override
-public int hashCode() {
-	final int prime = 31;
-	int result = 1;
-	result = prime * result + ((id == null) ? 0 : id.hashCode());
-	return result;
-}
-
-@Override
-public boolean equals(Object obj) {
-	if (this == obj)
-		return true;
-	if (obj == null)
-		return false;
-	if (!(obj instanceof Node))
-		return false;
-	Node other = (Node) obj;
-	if (id == null) {
-		if (other.id != null)
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
 			return false;
-	} else if (!id.equals(other.id))
-		return false;
-	return true;
-}
-
-
-
-	
+		if (!(obj instanceof Node))
+			return false;
+		Node other = (Node) obj;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		return true;
+	}
+	 
 }

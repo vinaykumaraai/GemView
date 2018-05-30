@@ -29,53 +29,27 @@
  * Inquiries should be made to legal@luretechnologies.com
  *
  */
-package com.luretechnologies.tms.ui.view.dashboard;
+package com.luretechnologies.tms.ui;
 
-import com.vaadin.shared.ui.ContentMode;
-import com.vaadin.ui.Label;
+public class NotificationUtil {
 
-public class BoardLabel extends Label {
-
-	private String header;
-	private String content;
-
-	public BoardLabel(String header, String content) {
-		super("", ContentMode.HTML);
-		addStyleName("board-box-label");
-		setSizeFull();
-		setHeader(header);
-		setContentSucess(content);
-		setContentFaliure(content);
-	}
-
-	public BoardLabel(String header, String content, String styleName) {
-		this(header, content);
-		addStyleName(styleName);
-	}
-
-	private void setHeader(String header) {
-		this.header = header;
-		updateValueFailure();
-	}
-
-	public void setContentSucess(String content) {
-		this.content = content;
-		updateValueSucesss();
-	}
+	public static final String SAVE = "Please fill all the details to SAVE";
 	
-	public void setContentFaliure(String content) {
-		this.content = content;
-		updateValueFailure();
-	}
-
-	private void updateValueSucesss() {
-		setValue("<h1 style=color:green;>" + content + "</h1>" //
-				+ "<h4>" + header + "</h4>");
-	}
+	public static final String SYSTEM_EDIT = "Please select any parameter to EDIT";
 	
-	private void updateValueFailure() {
-		setValue("<h1>" + content + "</h1>" //
-				+ "<h4>" + header + "</h4>");
-	}
-
+	public static final String SYSTEM_DELETE = "Please select any parameter to DELETE";
+	
+	public static final String DEVICES_EDIT = "Please select any device to EDIT";
+	
+	public static final String DEVICES_DELETE = "Please select any device to DELETE";
+	
+	public static final String ROLES_EDIT = "Please select any role to EDIT";
+	
+	public static final String ROLES_DELETE = "Please select any role to DELETE";
+	
+	public static final String AUDIT_STARTDATE = "Please select start date to filter the data";
+	
+	public static final String AUDIT_SELECTNODE = "Please select any entity to filter the data";
+	
+	public static final String AUDIT_DELETE = "Please select any debug type to DELETE";
 }

@@ -92,11 +92,14 @@ public class AlertTab {
 //	public TreeDataService treeDataService;
 
 	@Autowired
-	public AssetControlView assetView ;
+	public AssetcontrolView assetView ;
 	
 	public VerticalLayout getAlert() {
 		
 		VerticalLayout alertLayout = new VerticalLayout();
+		alertLayout.setWidth("100%");
+		//alertLayout.addStyleName(ValoTheme.LAYOUT_CARD);
+		alertLayout.addStyleName("audit-DeviceVerticalAlignment");
 		VerticalLayout alertVerticalButtonLayout = new VerticalLayout();
 		HorizontalLayout alertCommandLabel = new HorizontalLayout();
 		HorizontalLayout saveCancelLayout = new HorizontalLayout();
@@ -109,7 +112,7 @@ public class AlertTab {
 		alertVerticalButtonLayout.setDefaultComponentAlignment(Alignment.MIDDLE_RIGHT);
 		alertVerticalButtonLayout.addStyleName("heartbeat-verticalLayout");
 		VerticalLayout formLayout = new VerticalLayout();
-		formLayout.addStyleNames("heartbeat-verticalLayout", "assertAlert-formLayout");
+		formLayout.addStyleNames("heartbeat-verticalLayout", "asset-alertformLayout");
 		alertLayout.addStyleName("heartbeat-verticalLayout");
 		Label alertCommands = new Label("Alert Commands");
 		alertCommands.addStyleName("label-style");
@@ -129,11 +132,14 @@ public class AlertTab {
 		
 		alertLayout.addComponent(alertSaveCancleAndLabelLayout);
 		
-		HorizontalLayout activeBoxLayout = new HorizontalLayout();
-		Label active = new Label("Active");
-		alertCommands.addStyleName("label-style");
-		CheckBox activeCheckBox = new CheckBox();
-		activeBoxLayout.addComponents(active, activeCheckBox);
+//		HorizontalLayout activeBoxLayout = new HorizontalLayout();
+//		//activeBoxLayout.addStyleName("heartbeat-activeLayout");
+//		Label active = new Label("Active");
+//		active.setStyleName("role-activeLable");
+//		active.addStyleNames("v-textfield-font");
+//		active.addStyleName("heartbeat-checkbox");
+//		CheckBox activeCheckBox = new CheckBox();
+//		activeBoxLayout.addComponents(active, activeCheckBox);
 		Component[] alertFormComponentArray = {
 				ComponentUtil.getFormFieldWithLabel("Alert Type", FormFieldType.TEXTBOX),
 				ComponentUtil.getFormFieldWithLabel("Name", FormFieldType.TEXTBOX),
@@ -142,6 +148,7 @@ public class AlertTab {
 				ComponentUtil.getFormFieldWithLabel("Email to:", FormFieldType.TEXTBOX) };
 
 		FormLayout alertFormLayout = new FormLayout(alertFormComponentArray);
+		alertFormLayout.addStyleName("system-LabelAlignment");
 		formLayout.addComponent(alertFormLayout);
 		alertLayout.addComponent(formLayout);
 		// Add,Delete,Edit Button Layout
@@ -183,12 +190,13 @@ public class AlertTab {
 					}
 				}
 				createAlertGridRow.setEnabled(true);
-				editAlertGridRow.setEnabled(false);
-				deleteAlertGridRow.setEnabled(false);
-				cancelAlertForm.setEnabled(false);
-				saveAlertForm.setEnabled(false);
+				editAlertGridRow.setEnabled(true);
+				deleteAlertGridRow.setEnabled(true);
+				cancelAlertForm.setEnabled(true);
+				saveAlertForm.setEnabled(true);
 			}
 		});
+		//alertLayout.setExpandRatio(alertGrid, 1);
 		return alertLayout;
 
 	}
@@ -227,6 +235,8 @@ public class AlertTab {
 	private Grid<Alert> getAlertGrid() {
 		//alertGrid = new Grid<>(Alert.class);
 		alertGrid.setWidth("100%");
+		alertGrid.setHeight("100%");
+		alertGrid.addStyleName("grid-AuditOdometerAlignment");
 		alertGrid.setResponsive(true);
 		alertGrid.setSelectionMode(SelectionMode.SINGLE);
 		alertGrid.setColumns("type", "description", "active", "email");
@@ -238,6 +248,7 @@ public class AlertTab {
 
 	private HorizontalLayout getAlertGridButtonLayout(Component[] componentArray) {
 		HorizontalLayout alertGridButtonLayout = new HorizontalLayout();
+		alertGridButtonLayout.addStyleName("asset-alertDeleteLayout");
 		alertGridButtonLayout.setDefaultComponentAlignment(Alignment.MIDDLE_RIGHT);
 		createAlertGridRow = new Button(VaadinIcons.FOLDER_ADD, click -> {
 			TextField type = (TextField) componentArray[0];
@@ -259,22 +270,26 @@ public class AlertTab {
 		});
 		createAlertGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY);
 		createAlertGridRow.addStyleName("v-button-customstyle");
-		editAlertGridRow = new Button(VaadinIcons.PENCIL, click -> {
+		editAlertGridRow = new Button(VaadinIcons.EDIT, click -> {
+			if(alertGrid.getSelectedItems().isEmpty()) {
+				Notification.show("Select any Debug type to edit", Notification.Type.WARNING_MESSAGE).setDelayMsec(3000);;
+			}else {
 			if (alertGrid.getSelectedItems().size() > 0) {
 				for (Component component : componentArray) {
 					if (!component.isEnabled())
 						component.setEnabled(true);
 				}
 
-				deleteAlertGridRow.setEnabled(false);
-				editAlertGridRow.setEnabled(false);
-				createAlertGridRow.setEnabled(false);
+				deleteAlertGridRow.setEnabled(true);
+				editAlertGridRow.setEnabled(true);
+				createAlertGridRow.setEnabled(true);
+			}
 			}
 
 		});
 		editAlertGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY);
 		editAlertGridRow.addStyleName("v-button-customstyle");
-		editAlertGridRow.setEnabled(false);
+		editAlertGridRow.setEnabled(true);
 		deleteAlertGridRow = new Button(VaadinIcons.TRASH, click -> {
 			if(alertGrid.getSelectedItems().isEmpty()) {
 				Notification.show("Select any Debug type to delete", Notification.Type.WARNING_MESSAGE).setDelayMsec(3000);;
@@ -301,9 +316,23 @@ public class AlertTab {
 		});
 		deleteAlertGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY);
 		deleteAlertGridRow.addStyleName("v-button-customstyle");
-		deleteAlertGridRow.setEnabled(false);
+		deleteAlertGridRow.setEnabled(true);
 		saveAlertForm.addClickListener(new ClickListener() {
 			public void buttonClick(ClickEvent event) {	
+				HorizontalLayout HL= (HorizontalLayout)componentArray[3];
+				if (nodeTree.getSelectedItems().size() <= 0) {
+					Notification.show("Please select any entity on Tree", Notification.Type.WARNING_MESSAGE).setDelayMsec(3000);
+				} else if(((TextField) componentArray[0]).getValue()==null ||
+						((TextField) componentArray[0]).getValue().isEmpty() || 
+						((TextField) componentArray[1]).getValue()==null ||
+						((TextField) componentArray[1]).getValue().isEmpty() ||
+						((TextField) componentArray[2]).getValue()==null ||
+						((TextField) componentArray[2]).getValue().isEmpty() ||
+						((CheckBox) HL.getComponent(1)).getValue() == null ||
+						((TextField) componentArray[4]).getValue()==null ||
+						((TextField) componentArray[4]).getValue().isEmpty()) {
+					Notification.show("Please Fill All the Deatils to Save", Notification.Type.WARNING_MESSAGE).setDelayMsec(3000);
+				}else {
 			for (Component component : componentArray) {
 				if (component.isEnabled())
 					component.setEnabled(false);
@@ -319,30 +348,24 @@ public class AlertTab {
 			alert.setType(((TextField) componentArray[0]).getValue());
 			alert.setName(((TextField) componentArray[1]).getValue());
 			alert.setDescription(((TextField) componentArray[2]).getValue());
-			HorizontalLayout HL= (HorizontalLayout)componentArray[3];
 			CheckBox checkbox = (CheckBox) HL.getComponent(1);
 			alert.setActive(checkbox.getValue());
 			alert.setEmail(((TextField) componentArray[4]).getValue());
-			cancelAlertForm.setEnabled(false);
-			editAlertGridRow.setEnabled(false);
-			deleteAlertGridRow.setEnabled(false);
-			saveAlertForm.setEnabled(false);
+			cancelAlertForm.setEnabled(true);
+			editAlertGridRow.setEnabled(true);
+			deleteAlertGridRow.setEnabled(true);
+			saveAlertForm.setEnabled(true);
 			alertService.saveAlert(alert);
-			if (nodeTree.getSelectedItems().size() <= 0) {
-				Notification.show("Please select any entity on Tree");
-			} else {
-				//alertGrid.setData(alertService.getListDataProvider());
-				loadAlertGrid();
-				//alertGrid.setData(nodeTree.getSelectedItems().iterator().next().getExtendedList());
+			loadAlertGrid();
 	
-			}
 			alertGrid.getDataProvider().refreshAll();
 			alertGrid.deselectAll();
+			}
 			}
 		});
 		saveAlertForm.addStyleName(ValoTheme.BUTTON_FRIENDLY);
 		saveAlertForm.addStyleName("v-button-customstyle");
-		saveAlertForm.setEnabled(false);
+		saveAlertForm.setEnabled(true);
 		cancelAlertForm.addClickListener(new ClickListener() {
 			public void buttonClick(ClickEvent event) {	
 			for (Component component : componentArray) {
@@ -360,18 +383,19 @@ public class AlertTab {
 			if (alertGrid.getSelectedItems().size() > 0) {
 				alertGrid.deselectAll();
 			}
-			cancelAlertForm.setEnabled(false);
-			editAlertGridRow.setEnabled(false);
-			deleteAlertGridRow.setEnabled(false);
-			saveAlertForm.setEnabled(false);
+			cancelAlertForm.setEnabled(true);
+			editAlertGridRow.setEnabled(true);
+			deleteAlertGridRow.setEnabled(true);
+			saveAlertForm.setEnabled(true);
 			}
 		});
 		cancelAlertForm.addStyleName(ValoTheme.BUTTON_FRIENDLY);
 		cancelAlertForm.addStyleName("v-button-customstyle");
-		cancelAlertForm.setEnabled(false);
+		cancelAlertForm.setEnabled(true);
 		alertGridButtonLayout.addComponent(createAlertGridRow);
 		alertGridButtonLayout.addComponent(editAlertGridRow);
 		alertGridButtonLayout.addComponent(deleteAlertGridRow);
+		
 
 		return alertGridButtonLayout;
 	}

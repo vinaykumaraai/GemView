@@ -54,6 +54,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.Component.Focusable;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Grid.SelectionMode;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.renderers.HtmlRenderer;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.TextField;
@@ -228,6 +229,31 @@ public class UserAdminView extends AbstractCrudView<User> {
 	@Override
 	protected Tree<Node> getTree() {
 		return this.tree;
+	}
+	
+	@Override
+	protected HorizontalLayout getButtonsLayout() {
+		return getViewComponent().buttonsLayout;
+	}
+	
+	@Override
+	protected HorizontalLayout getSearchlayout() {
+		return getViewComponent().searchBarLayout;
+	}
+	
+	@Override
+	protected TextField getLastName() {
+		return getViewComponent().lastname;
+	}
+	
+	@Override
+	protected TextField getFirstName() {
+		return getViewComponent().firstname;
+	}
+	
+	@Override
+	protected TextField getEmail() {
+		return getViewComponent().email;
 	}
 
 	@SuppressWarnings("unchecked")

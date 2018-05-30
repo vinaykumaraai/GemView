@@ -83,25 +83,33 @@
  	margin-left:20% !important;
  	}
  	.submenuIconDown{
- 		background-image:url(down2.jpg);
+ 		background-image:url(arrowdown.png);
  		background-size: contain;
 		background-repeat: no-repeat;
-		background-position:140px;
+		background-position:160px;
 		background-position-y:3px;
+		height:15px;
 		
  	}
  
  	.submenuIconUp{
- 		background-image:url(up.jpg);
+ 		background-image:url(arrowup.png);
  		background-size: contain;
 		background-repeat: no-repeat;
-		background-position:140px;
-		background-position-y:3px;
+		background-position:160px;
+		background-position-y:5px;
+		height:15px;
 		
  	}
  
  .navigation .v-button.borderless-disabled:hover {
 	background: #0e3d22;
+}
+.logo{
+	font-size:22px !important;
+	margin-bottom:10px !important;
+	margin-left: 43px !important;
+	color: white !important;
 }
   }
 }

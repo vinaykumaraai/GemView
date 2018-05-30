@@ -53,10 +53,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	public UserDetailsServiceImpl(MockUserService userService) {
 		this.userService = userService;
 	}
-
+	
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		User user = userService.getUserByEmail(username);
+		//FIXME: use rest service for geting user. convert response JSON using GSON api
 		if (null == user) {
 			throw new UsernameNotFoundException("No user present with username: " + username);
 		} else {

@@ -53,7 +53,7 @@ html {
 @media ( min-width : 1000px) {
 	/* load on wide screens */
 	body {
-		background-color: lightgrey;
+		background-color: #f2f2f2;
 		/* background-image: url(VAADIN/themes/apptheme/logo1.PNG); */
 		background-size: cover;
 	}
@@ -70,9 +70,9 @@ button {
 #logo {
 	display: inline-block;
 	float: center;
-	width: 335px;
-	height: 217px;
-	background-image: url(VAADIN/themes/apptheme/logo1.PNG);
+	width: 300px;
+	height: 300px;
+	background-image: url(VAADIN/themes/apptheme/company_logo.png);
 	background-size: contain;
 	background-repeat: no-repeat;
 	background-color: #FFFFFF;
@@ -97,7 +97,7 @@ html, body {
 #info {
        color: #26B838;
        text-align: center;
-       padding-top: 130px;
+       padding-top: 15px;
 		}
 
 #form {
@@ -126,7 +126,15 @@ html, body {
 #info {
         background-color: #ffffff;
         }
-        
+
+.error form1::after{
+	content: "*";
+	display: block;
+	color:red;
+    margin-top: -60px !important;
+    margin-left:83px !important;
+}
+
 .error form:after {
 			content: "Username or Password is incorrect.";
 			display: block;
@@ -135,9 +143,9 @@ html, body {
 /*			width: 100%;
 			margin-top: -3px;
 			font-size: 14px;*/
-                        color:red;
+            color:red;
 			padding: 32px;
-                        margin-top: -35px !important;
+            margin-top: -35px !important;
 		}
 	
 }
@@ -155,10 +163,10 @@ html, body {
 		width: inherit;
 	}
 	#logo {
-		width: 284px;
-		height: 117px;
+		width: 300px;
+		height: 300px;
 		position: relative;
-		bottom: -30px;
+		bottom: -55px;
 		/* right: -2px; */ 
 	}
 	#info, #form {
@@ -202,7 +210,7 @@ form {
 label {
 	font-size: 16px;
 	color: #fffff;
-	padding: 13px 0 13px 0;
+	padding: 13px 0 13px 8px;
 	display: inline-block;
 	/* font-weight:bold; */
 }
@@ -215,7 +223,7 @@ label1 {
 	/* font-weight:bold; */
 }
 
-input[type='text'], input[type='password'] {
+input[type='text' ], input[type='password'] {
 	width: 70%;
 	-webkit-appearance: none;
 	-moz-appearance: none;
@@ -223,16 +231,19 @@ input[type='text'], input[type='password'] {
 	-o-appearance: none;
 	appearance: none;
 	font: inherit;
-	font-size: 14px;
+	font-size: 16px;
 	color: white;
 	height: 30px;
 	border-radius: 2px;
-	padding: 19px 9px;
+	padding: 24px 9px 15px;
 	border: 0;
   	outline: 0;
   	background: transparent;
   	border-bottom: 1.4px solid lightslategrey;
   	float :right;
+  	-webkit-box-shadow: 255px 255px 255px 255px #216C2A inset;
+  	-webkit-text-fill-color: white !important;
+  	caret-color:#ffff;
 }
 
 button {
@@ -270,9 +281,21 @@ button {
     bottom: -147px;
     right: -215px; 
 }
+
+.error label1::after {
+	content:" "attr(href)" ";
+	color:red;
+}
+
+.error label::after {
+	content:" "attr(href)" ";
+	color:red;
+}
+
+
 .error input {
 	display: block;
-	border-color: red;
+	/* border-color: red; */
 }
 
 /* .error form:after {
@@ -287,17 +310,26 @@ button {
 	padding: 8px;
 } */
 
+.error form1:after {
+	content: "*";
+	display: block;
+	color:red;
+    margin-top: -56px;
+    margin-left:270px;
+}
+
 .error form:after {
-			content: "Username or Password is incorrect.";
+			content: "Username or Password is incorrect";
 			display: block;
 /*			border: 1px solid red;
 			border-radius: 4px;*/
 /*			width: 100%;
 			margin-top: -3px;
 			font-size: 14px;*/
-                        color:red;
+                        color:white;
 			padding: 32px;
                         margin-top: 55px;
+                        margin-left:-15px;
 		}
 
 
@@ -309,17 +341,19 @@ button {
 		<!-- <h1>Your Company Logo</h1> -->
 	</div>
 	<div id="form">
+	<form1>
 		<form method="post" action="login" id="theform">
 			<h1 style="color:#ffff; border-bottom:1px solid">Welcome</h1>
-			<h3 style="color:#ffff">Please Sign in</h3>
+			<h3 style="color:#ffff">Please Sign In</h3>
 			
-			<label id="login-label" for="login" ><font color="white">User Name</font></label>
-			<input type="text" id="login" name="username" aria-labelledby="login-label" autofocus>
-			<label1 id="password-label" for="password"><font color="white">Password</font></label1>
+			<label id="login-label" for="login" style="background-color:#216C2A" href="*"><font color="white">Username</font></label>
+			<input type="text" autocomplete="off" spellcheck="false" id="login" name="username" aria-labelledby="login-label" autofocus>
+			<label1 id="password-label" for="password" href="*"><font color="white">Password</font></label1>
 			<input type="password" id="password" name="password" aria-labelledby="password-label">
 			<button id="button-submit" type="submit">Sign In</button>
 		<a id="fixedbutton" href="forgotPassword.html" style="color:#666666" target="_blank">Forgot Password ?</a>
 		</form>
+		</form1>
 	</div>
 </body>
 </html>

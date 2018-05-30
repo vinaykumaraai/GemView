@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.luretechnologies.tms.backend.data.entity.Alert;
+import com.luretechnologies.tms.backend.data.entity.Debug;
 import com.vaadin.data.provider.ListDataProvider;
 
 @Service
@@ -21,6 +22,7 @@ public class AlertService {
 	private final MockAlertService mockAlertService;
 	//private PasswordEncoder passwordEncoder;
 	//DataGenerator db = new DataGenerator();
+	
 	@Autowired
 	public AlertService(MockAlertService mockRepository) {
 		this.mockAlertService = mockRepository;

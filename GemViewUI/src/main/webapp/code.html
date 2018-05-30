@@ -53,7 +53,7 @@ html {
 @media ( min-width : 1000px) {
 	/* load on wide screens */
 	body {
-		background-color: lightgrey;
+		background-color: #f2f2f2;
 		/* background-image: url(VAADIN/themes/apptheme/bg.jpg); */
 		background-size: cover;
 	}
@@ -70,9 +70,9 @@ button {
 #logo {
 	display: inline-block;
 	float: center;
-	width: 335px;
-	height: 217px;
-	background-image: url(VAADIN/themes/apptheme/logo1.PNG);
+	width: 300px;
+	height: 300px;
+	background-image: url(VAADIN/themes/apptheme/company_logo.png);
 	background-size: contain;
 	background-repeat: no-repeat;
 	background-color: #FFFFFF;
@@ -97,8 +97,8 @@ html, body {
 #info {
        color: #26B838;
        text-align: center;
-       padding: 70px;
-       padding-top:100px
+       /* padding: 70px; */
+       padding-top:15px;
 		}
 
 #form {
@@ -121,7 +121,7 @@ html, body {
 	#fixedbutton {
 	position: relative;
 	bottom: -23px !important;
-	right: -180px !important;
+	right: -215px !important;
 }
 	
 }
@@ -144,14 +144,13 @@ html, body {
 		position: relative;
 		bottom: -150px;
 		right: -2px; */
-		width: 284px;
-		height: 117px;
+		width: 300px;
+		height: 300px;
 		position: relative;
-		bottom: -30px;
-		left:-60px;
+		bottom: -55px;
 	}
 	#info, #form {
-		height: 380px;
+		height: 420px;
 		box-shadow: 0 2px 3px rgba(0, 0, 0, .2);
 	}
 	#info {
@@ -161,7 +160,7 @@ html, body {
 		justify-content: center;
 	}
 	#form {
-		width: 370px;
+		width: 400px;
 		padding: 10px;
 		border-radius: 0 5px 5px 0;
 	}
@@ -180,7 +179,7 @@ h2 {
 }
 
 form {
-	max-width: 320px;
+	max-width: 342px;
 }
 
 label {
@@ -191,7 +190,7 @@ label {
 }
 
 input[type='text'], input[type='password'] {
-	width: 61%;
+	width: 58%;
 	-webkit-appearance: none;
 	-moz-appearance: none;
 	-ms-appearance: none;
@@ -202,16 +201,17 @@ input[type='text'], input[type='password'] {
 	color: white;
 	height: 30px;
 	border-radius: 2px;
-	padding: 19px 9px;
+	padding: 13px 9px;
 	border: 0;
   	outline: 0;
   	background: transparent;
   	border-bottom: 1.4px solid lightslategrey;
+  	margin-left:10px;
 }
 
 button {
 	width: 45%;
-	margin-top: 37px;
+	margin-top: 90px;
 	height: 37px;
 	border: 1px solid #666;
 	border-radius: 4px;
@@ -237,8 +237,8 @@ button {
 
 #fixedbutton {
 	position: relative;
-	bottom: -28px;
-	right: -200px;
+	bottom: -30px;
+	right: -235px;
 }
 
 .error input {
@@ -269,12 +269,12 @@ button {
 	<div id="form">
 		<form method="post" action="home" id="tfauthform">
 			<h1 style="color:#ffff; border-bottom:1px solid">Welcome</h1>
-			<h3 style="color:#ffff;font-weight:100;">Two factor authentication</h3>
-			<h4 style="color:#ffff; font-weight:100;"> A verification code has been sent to your email at j****@gmail.com</h4>
-			<label id="label" style="color:#ffff">Verification code</label>
-			<input type="text" id="code" name="code" aria-labelledby="label" autofocus></input> 
-			<button id="button-auth" type="submit" style = "float: left">Authenticate</button>
-			<button id="button-email" type="submit" style = "float: right">Resend Email</button>
+			<h3 style="color:#ffff;font-weight:100; font-size:22px">Two Factor Authentication</h3>
+			<h4 style="color:#ffff; font-weight:100;margin-top:-12px;margin-bottom:28px;font-size:14px;"> A verification code has been sent to your email at j****@gmail.com</h4>
+			<label id="label" style="color:#ffff"><b>Verification code</b></label>
+			<input type="text" id="code" autocomplete="off" spellcheck="false" name="code" aria-labelledby="label" autofocus></input> 
+			<button id="button-auth" type="submit" style = "float: right">Authenticate</button>
+			<button id="button-email" type="submit" style = "float: left">Resend Email</button>
 			<a id="fixedbutton" href="forgotPassword.html" style="color:#666666" target="_blank">Forgot Password ?</a>
 		</form>
 	</div>

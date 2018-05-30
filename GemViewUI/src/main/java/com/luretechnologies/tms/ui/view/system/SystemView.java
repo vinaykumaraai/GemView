@@ -46,6 +46,7 @@ import org.vaadin.dialogs.ConfirmDialog;
 import com.luretechnologies.tms.backend.data.entity.Devices;
 import com.luretechnologies.tms.backend.data.entity.Systems;
 import com.luretechnologies.tms.ui.ComponentUtil;
+import com.luretechnologies.tms.ui.NotificationUtil;
 import com.luretechnologies.tms.ui.components.ConfirmDialogFactory;
 import com.luretechnologies.tms.ui.components.FormFieldType;
 import com.vaadin.data.provider.ListDataProvider;
@@ -213,7 +214,7 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 				selectedSystem.setSystemValue(value);
 				if(description.isEmpty() || description== null|| parametername.isEmpty() || parametername== null 
 						|| type.isEmpty() || type== null || value.isEmpty() || value== null) {
-					Notification.show("Fill all details", Notification.Type.WARNING_MESSAGE).setDelayMsec(3000);
+					Notification.show(NotificationUtil.SAVE, Notification.Type.ERROR_MESSAGE);
 				} else {
 					//systemRepo.co
 					Random rand = new Random();
@@ -234,9 +235,10 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		layout2.setComponentAlignment(cancel, Alignment.MIDDLE_RIGHT);
 		layout2.setComponentAlignment(save, Alignment.MIDDLE_RIGHT);
 		layout2.setResponsive(true);
-		layout2.setStyleName("save-cancelButtonsAlignment");
+		layout2.addStyleNames("save-cancelButtonsAlignment");
 		
 		horizontalLayout.addComponents(layout1, layout2);
+		horizontalLayout.addStyleName("label-SaveCancelAlignment");
 		horizontalLayout.setComponentAlignment(layout2, Alignment.MIDDLE_RIGHT);
 		
 		getSystemGrid(verticalLayout, systemInfoLayout);
@@ -257,6 +259,7 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 	
 	private void getAndLoadSystemForm(VerticalLayout verticalLayout , boolean isEditableOnly) {
 		FormLayout formLayout = new FormLayout();
+		formLayout.addStyleName("system-LabelAlignment");
 		
 		getSystemParameterName(formLayout, isEditableOnly);
 		
@@ -278,7 +281,7 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		parameterName.setWidth("48%");
 		parameterName.setStyleName("role-textbox");
 		parameterName.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
-		parameterName.addStyleName("v-grid-cell");
+		parameterName.addStyleNames("v-textfield-font", "v-grid-cell");
 		parameterName.setEnabled(isEditableOnly);
 		formLayout.addComponent(parameterName);
 	}
@@ -312,7 +315,7 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		comboBoxType.setCaptionAsHtml(true);
 		comboBoxType.setCaption("Type"); 
 		//combobox.addStyleName();
-		comboBoxType.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size");
+		comboBoxType.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size","system-TypeAlignment");
 		comboBoxType.setDataProvider(new ListDataProvider<>(Arrays.asList("Text", "Numeric","Boolean")));
 		comboBoxType.setValue(type);
 		formLayout.addComponent(comboBoxType);
@@ -359,7 +362,7 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 						parameterName.getValue()==null ||  parameterName.getValue().isEmpty() ||
 								comboBoxType.getValue()==null ||  comboBoxType.getValue().isEmpty() ||
 								systemValue.getValue()==null ||  systemValue.getValue().isEmpty()) {
-					Notification.show("Select any Role to Modify", Notification.Type.WARNING_MESSAGE).setDelayMsec(3000);;
+					Notification.show(NotificationUtil.SYSTEM_EDIT, Notification.Type.ERROR_MESSAGE);
 				}else {
 					systemInfoLayout.removeAllComponents();
 					getAndLoadSystemForm(systemInfoLayout, true);	
@@ -379,7 +382,7 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 						parameterName.getValue()==null ||  parameterName.getValue().isEmpty() ||
 								comboBoxType.getValue()==null ||  comboBoxType.getValue().isEmpty() ||
 						systemValue.getValue()==null ||  systemValue.getValue().isEmpty()) {
-					Notification.show("Select particular parameter to delete", Notification.Type.ERROR_MESSAGE);
+					Notification.show(NotificationUtil.SYSTEM_DELETE, Notification.Type.ERROR_MESSAGE);
 				}else {
 				
 				confirmDialog( systemInfoLayout);
@@ -388,6 +391,7 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		});
 		
 		HorizontalLayout buttonGroup =  new HorizontalLayout();
+		buttonGroup.addStyleName("system-ButtonLayout");
 		buttonGroup.setDefaultComponentAlignment(Alignment.MIDDLE_RIGHT);
 		buttonGroup.addComponent(addNewDevice);
 		buttonGroup.addComponent(editDevice);
@@ -421,6 +425,7 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 			}
 		});
 		VerticalLayout systemGridLayout = new VerticalLayout();
+		systemGridLayout.addStyleName("system-GridAlignment");
 		systemGridLayout.setDefaultComponentAlignment(Alignment.MIDDLE_RIGHT);
 		systemGridLayout.addComponent(buttonGroup);
 		systemGridLayout.addComponent(systemGrid);

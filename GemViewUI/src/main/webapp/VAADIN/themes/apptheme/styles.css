@@ -8,6 +8,10 @@
 	font-family: "Vaadin-Icons";
 }
 
+.v-Notification.error {
+	background: #216c2A !important;
+}
+
 .apptheme .app-shell[width-range~="601px-"] .navigation-bar {
 	background-color: #216C2A !important;
 	overflow-y: auto;
@@ -40,8 +44,6 @@
 }
 
 .app-shell .navigation {
-	border-top: 1px solid #5a5a79 !important;
-	border-bottom: 1px solid #5a5a79 !important;
 	background: #216C2A !important;
 }
 
@@ -56,6 +58,22 @@
 	color: white !important;
 }
 
+.app-shell .navigation .v-icon {
+	color: #fff !important;
+}
+
+.apptheme .v-caption-inline-icon.v-caption-small span.v-icon {
+	line-height: 36px !important;
+}
+
+.search-Height {
+	height: 37px !important;
+}
+
+.v-textfield-lineHeight {
+	height: 28px !important;
+}
+
 .role-textbox {
 	border: 0;
 	border-bottom: 1px solid black !important;
@@ -66,7 +84,8 @@
 }
 
 .role-description-layout {
-	margin-left: 15px !important;
+	margin-left: 30px !important;
+	margin-top: 15px;
 }
 
 .role-activeLable {
@@ -77,13 +96,21 @@
 	padding-top: 20px !important;
 }
 
+.role-gridLayout {
+	padding: 20px 0px 0px 0px !important;
+}
+
+.role-createdeleteButtonLayout {
+	margin-right: 20px;
+}
+
 .form-layout {
 	margin-left: 50px !important;
 }
 
-.assertAlert-formLayout {
+.device-formLayout {
 	margin-left: 50px !important;
-	margin-top: -50px !important;
+	margin-top: -10px;
 }
 
 .device-name-layout {
@@ -94,12 +121,32 @@
 	padding-left: 47px;
 }
 
+.device-activeButton {
+	margin-left: 8px;
+}
+
+.device-rkiLabel {
+	margin-left: 5px;
+}
+
+.device-osLabel {
+	margin-left: 6px;
+}
+
+.device-checkboxAlignment {
+	margin-left: 5px;
+}
+
 .odometer-verticalLayout {
 	overflow: auto !important;
 }
 
 .save-cancelButtonsAlignment {
-	padding-right: 10px !important;
+	padding-right: 19px !important;
+}
+
+.save-cancelButtonAlignmentRoles {
+	padding-right: 35px !important;
 }
 
 .assetAlert-activeCheckBox {
@@ -107,12 +154,9 @@
 	margin-left: -68px;
 }
 
-.assetDebug-label {
-	margin-top: -44px;
-}
-
 .applicatioStore-GridLayout {
 	padding: 0px 0px 0px 0px !important;
+	background-color: #fff;
 }
 
 .applicatioStore-VerticalLayout {
@@ -137,10 +181,6 @@
 
 .applicatioStore-UploadButton {
 	top: 0px !important;
-}
-
-.v-caption {
-	white-space: normal !important;
 }
 
 .apptheme .v-panel-caption {
@@ -191,21 +231,8 @@
 	background-repeat: no-repeat;
 }
 
-.split-height {
-	background-color: white;
-	overflow: auto !important;
-	padding: 0px 0px 0px 0px !important;
-}
-
-.split-height {
-	background-color: white;
-	overflow: auto !important;
-	padding: 37px 0px 37px 0px !important;
-}
-
-.split-Height-ButtonLayout {
-	background-color: white;
-	padding: 0px 20px 0px 20px !important;
+.heartbeat-SearchLayout {
+	padding: 0px 20px 20px 20px !important;
 }
 
 .heartbeat-verticalLayout {
@@ -214,10 +241,88 @@
 
 .heartbeat-horizontalLayout-DeviceLabel {
 	margin-bottom: -40px;
+	margin-top: 18px;
 }
 
 .heartbeat-verticalFormLayout {
 	padding: 0px 37px 0px 37px !important;
+}
+
+.heartbeat-checkbox {
+	margin-right: -5px;
+	font-weight: 400;
+}
+
+.heartbeat-activeLayout {
+	float: left;
+	margin-left: -61px;
+	margin-top: 12px;
+}
+
+.heartbeat-heartBeatLayout {
+	float: left;
+	margin-left: -91px;
+	margin-top: 12px;
+}
+
+.heartbeat-frequency {
+	margin-top: -35px;
+	margin-left: 25px;
+}
+
+.heartbeat-historyLabel {
+	margin-top: -20px !important;
+}
+
+.heartbeat-historySearchLayout {
+	margin-left: 14px;
+}
+
+.heartbeat-historySearchVerticalLayout {
+	padding: 0px 14px 0px 0px !important;
+}
+
+.split-height {
+	background-color: white;
+	overflow: auto !important;
+	padding: 0px 0px 0px 0px !important;
+}
+
+.split-height {
+	background-color: white;
+	overflow: auto !important;
+	padding: 22px 0px 22px 0px !important;
+}
+
+.split-Height-ButtonLayout {
+	background-color: white;
+	padding: 0px 20px 0px 20px !important;
+}
+
+.personlization-verticalFormLayout {
+	padding: 0px 0px 0px 0px !important;
+}
+
+.personlization-formLayout {
+	margin-top: -45px;
+	margin-left: 45px;
+}
+
+.personlization-paramButtonLayout {
+	margin-left: 12px;
+	margin-top: -10px;
+}
+
+.personlization-overRideParamLabelLayout {
+	margin-top: -35px;
+}
+
+.dashboard-gridCaption {
+	font-size: 26px !important;
+	margin-bottom: 10px !important;
+	margin-left: 245px !important;
+	color: #197DE1 !important;
+	font-weight: bold !important;
 }
 
 .app-shell[width-range~="1001px-"] .v-heartbeat-Button {
@@ -233,7 +338,7 @@
 	color: #191919;
 	font-weight: 400;
 	border-radius: 4px;
-	border: 1px solid #c5c5c5;
+	border: none;
 	border-top-color: #c5c5c5;
 	border-bottom-color: #bcbcbc;
 	background-color: #fafafa;
@@ -266,7 +371,11 @@
 	font-size: 36px !important;
 	color: #216C2A !important;
 	font-weight: bold !important;
-	line-height: 65px !important;
+	line-height: 69px !important;
+}
+
+.app-shell[width-range~="1001px-"] .v-caption {
+	font-size: 16px !important;
 }
 
 .app-shell[width-range~="1001px-"] .label-style {
@@ -287,6 +396,19 @@
 
 .app-shell[width-range~="1001px-"] .v-textfield-font {
 	font-size: 16px !important;
+}
+
+.app-shell[width-range~="1001px-"] .role-activeLayout {
+	margin-left: -64px;
+}
+
+.app-shell[width-range~="1001px-"] .role-activeLabel {
+	margin-right: 10px;
+	font-weight: 400;
+}
+
+.app-shell[width-range~="1001px-"] .role-RoleNameLabel {
+	margin-left: 4px;
 }
 
 .app-shell[width-range~="601px-1000px"] .v-panel-caption {
@@ -317,6 +439,10 @@
 	font-size: 14px !important;
 }
 
+.app-shell[width-range~="601px-1000px"] .v-caption {
+	font-size: 14px !important;
+}
+
 .app-shell[width-range~="601px-1000px"] .v-combobox-size {
 	width: 135px;
 	height: 27px;
@@ -329,6 +455,69 @@
 
 .app-shell[width-range~="601px-1000px"] .v-tree8-cell {
 	font-size: 14px;
+}
+
+.app-shell[width-range~="601px-1000px"] .device-rkiLabel {
+	margin-left: 8.5px;
+}
+
+.app-shell[width-range~="601px-1000px"] .device-osLabel {
+	margin-left: 9px;
+}
+
+.app-shell[width-range~="601px-1000px"] .role-activeLayout {
+	margin-left: -58px;
+}
+
+.app-shell[width-range~="601px-1000px"] .role-activeLabel {
+	margin-right: 8px;
+	font-weight: 400;
+}
+
+.app-shell[width-range~="601px-1000px"] .role-RoleNameLabel {
+	margin-left: 4px;
+}
+
+.app-shell[width-range~="601px-1000px"] .heartbeat-checkbox {
+	margin-right: -3px;
+}
+
+.app-shell[width-range~="601px-1000px"] .heartbeat-activeLayout {
+	float: left;
+	margin-left: -56px;
+	margin-top: 12px;
+}
+
+.app-shell[width-range~="601px-1000px"] .heartbeat-heartBeatLayout {
+	float: left;
+	margin-left: -84px;
+	margin-top: 12px;
+}
+
+.app-shell[width-range~="601px-1000px"] .asset-alertActiveLayout {
+	float: left;
+	margin-left: -58px;
+	margin-top: 12px;
+}
+
+.app-shell[width-range~="601px-1000px"] .asset-alertCheckbox {
+	margin-right: -4px;
+	font-weight: 400;
+}
+
+.app-shell[width-range~="601px-1000px"] .asset-debugCheckboxLayout {
+	float: left;
+	margin-left: -58px;
+	margin-top: 12px;
+}
+
+.app-shell[width-range~="601px-1000px"] .asset-debugCheckbox {
+	margin-right: -6px;
+	font-weight: 400;
+}
+
+.app-shell[width-range~="601px-700px"] .v-caption-small span.v-icon {
+	line-height: 26px !important;
 }
 
 .app-shell[width-range~="-600px"] .v-panel-caption {
@@ -359,6 +548,10 @@
 	font-size: 12px !important;
 }
 
+.app-shell[width-range~="-600px"] .v-caption {
+	font-size: 12px !important;
+}
+
 .app-shell[width-range~="-600px"] .v-combobox-size {
 	width: 120px;
 	height: 24px;
@@ -371,6 +564,69 @@
 
 .app-shell[width-range~="-600px"] .v-tree8-cell {
 	font-size: 12px;
+}
+
+.app-shell[width-range~="-600px"] .device-rkiLabel {
+	margin-left: 14px;
+}
+
+.app-shell[width-range~="-600px"] .device-osLabel {
+	margin-left: 14.5px;
+}
+
+.app-shell[width-range~="-600px"] .v-caption-small span.v-icon {
+	line-height: 26px !important;
+}
+
+.app-shell[width-range~="-600px"] .role-activeLayout {
+	margin-left: -53px;
+}
+
+.app-shell[width-range~="-600px"] .role-activeLabel {
+	margin-right: 10px;
+	font-weight: 400;
+}
+
+.app-shell[width-range~="-600px"] .role-RoleNameLabel {
+	margin-left: 4px;
+}
+
+.app-shell[width-range~="-600px"] .heartbeat-checkbox {
+	margin-right: -5px;
+}
+
+.app-shell[width-range~="-600px"] .heartbeat-activeLayout {
+	float: left;
+	margin-left: -50px;
+	margin-top: 12px;
+}
+
+.app-shell[width-range~="-600px"] .heartbeat-heartBeatLayout {
+	float: left;
+	margin-left: -74px;
+	margin-top: 12px;
+}
+
+.app-shell[width-range~="-600px"] .asset-alertActiveLayout {
+	float: left;
+	margin-left: -53px;
+	margin-top: 12px;
+}
+
+.app-shell[width-range~="-600px"] .asset-alertCheckbox {
+	margin-right: -3px;
+	font-weight: 400;
+}
+
+.app-shell[width-range~="-600px"] .asset-debugCheckboxLayout {
+	float: left;
+	margin-left: -63px;
+	margin-top: 12px;
+}
+
+.app-shell[width-range~="-600px"] .asset-debugCheckbox {
+	margin-right: 3px;
+	font-weight: 400;
 }
 
 .app-shell[width-range~="-1000px"] .v-heartbeat-Button {
@@ -395,23 +651,126 @@
 	padding-left: 25px;
 }
 
-.heartbeat-activeLayout {
-	margin-left: -93px;
+.label-SaveCancelAlignment {
+	margin-top: 10px;
 }
 
-.heartbeat-heartBeatLayout {
-	margin-left: -93px;
-	margin-bottom: -30px;
-	margin-top: 15px;
+.system-SaveCancelAlignment {
+	margin-right: 8px;
 }
 
-.heartbeat-frequency {
-	margin-top: -35px;
-	margin-left: 25px;
+.system-LabelAlignment {
+	text-align: right !important;
 }
 
-.heartbeat-historyLabel {
-	margin-top: -30px !important;
+.system-TypeAlignment {
+	float: left;
+	margin-top: 10px;
+}
+
+.system-GridAlignment {
+	padding: 0px 0px 0px 0px !important;
+}
+
+.system-ButtonLayout {
+	margin-right: 20px;
+}
+
+.audit-DeviceVerticalAlignment {
+	padding: 0px 0px 0px 0px !important;
+}
+
+.audit-DeviceSearch {
+	margin: 10px 0px -10px 15px !important;
+}
+
+.audit-buttonlayoutAlignment1 {
+	margin-left: -25px !important;
+}
+
+.audit-buttonlayoutAlignment2 {
+	margin-left: -12px !important;
+}
+
+.audit-tabAlignment {
+	padding: 0px 30px 0px 0px !important;
+}
+
+.audit-phoneAlignment {
+	padding: 0px 15px 0px 0px !important;
+}
+
+.audit-scroll {
+	overflow: visible !important;
+}
+
+.grid-AuditOdometerAlignment {
+	margin-top: 10px !important;
+}
+
+.asset-historyTreeLayout {
+	margin-top: 32px;
+}
+
+.asset-historyDebugLayout {
+	overflow: scroll !important;
+	overflow-x: hidden !important;
+}
+
+.asset-alertActiveLayout {
+	float: left;
+	margin-left: -64px;
+	margin-top: 12px;
+}
+
+.asset-alertCheckbox {
+	margin-right: -3px;
+	font-weight: 400;
+}
+
+.assetDebug-label {
+	margin-top: -30px;
+	margin-bottom: -15px;
+}
+
+.asset-alertformLayout {
+	margin-left: 30px !important;
+	margin-top: -50px !important;
+}
+
+.asset-alertDeleteLayout {
+	margin-right: 20px;
+}
+
+.asset-debugSFormLayout {
+	margin-top: -50px;
+	margin-left: 30px;
+}
+
+.asset-debugCheckboxLayout {
+	float: left;
+	margin-left: -68px;
+	margin-top: 12px;
+}
+
+.asset-debugComboBox {
+	float: left;
+}
+
+.asset-debugSearch {
+	padding: 0px 0px 0px 15px !important;
+}
+
+.user-buttonsLayout {
+	padding-right: 15px !important;
+}
+
+.user-searchLayout {
+	padding-left: 15px !important;
+}
+
+.user-treeLayout {
+	padding: 8px 15px 37px 15px !important;
 }
 
 .apptheme .error {
@@ -15876,23 +16235,32 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .apptheme .app-shell[width-range~="1001px-"] .submenuIconDown {
-	background-image: url(down2.jpg);
+	background-image: url(arrowdown.png);
 	background-size: contain;
 	background-repeat: no-repeat;
-	background-position: 140px;
+	background-position: 160px;
 	background-position-y: 3px;
+	height: 15px;
 }
 
 .apptheme .app-shell[width-range~="1001px-"] .submenuIconUp {
-	background-image: url(up.jpg);
+	background-image: url(arrowup.png);
 	background-size: contain;
 	background-repeat: no-repeat;
-	background-position: 140px;
-	background-position-y: 3px;
+	background-position: 160px;
+	background-position-y: 5px;
+	height: 15px;
 }
 
 .apptheme .app-shell[width-range~="1001px-"] .navigation .v-button.borderless-disabled:hover {
 	background: #0e3d22;
+}
+
+.apptheme .app-shell[width-range~="1001px-"] .logo, .apptheme .app-shell[width-range~="1001px-"]  .v-caption-logo {
+	font-size: 22px !important;
+	margin-bottom: 10px !important;
+	margin-left: 43px !important;
+	color: white !important;
 }
 
 .apptheme .v-errorindicator {
