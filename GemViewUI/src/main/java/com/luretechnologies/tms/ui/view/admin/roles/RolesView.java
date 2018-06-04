@@ -47,7 +47,7 @@ import org.vaadin.grid.cellrenderers.editoraware.CheckboxRenderer;
 
 import com.luretechnologies.tms.backend.data.entity.Permission;
 import com.luretechnologies.tms.backend.data.entity.Roles;
-import com.luretechnologies.tms.backend.service.UserFriendlyDataException;
+import com.luretechnologies.tms.backend.exceptions.UserFriendlyDataException;
 import com.luretechnologies.tms.ui.NotificationUtil;
 import com.luretechnologies.tms.ui.components.ConfirmDialogFactory;
 import com.vaadin.icons.VaadinIcons;

@@ -73,6 +73,7 @@ public class MockUserService extends CrudService<User>{
 		user.setLocked(true);
 		users.add(user);
 		userDirectory.put(user.getId(), user);
+		
 		for(int j=1; j<=10;j++) {
 			user = new User("Mock"+j+"@gmail.com", "Mock"+j, passwordEncoder.encode("admin"), Role.HR, "Vinay", "Raai", true);
 			users.add(user);

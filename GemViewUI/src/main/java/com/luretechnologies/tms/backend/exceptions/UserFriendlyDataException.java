@@ -30,7 +30,7 @@
  *
  */
 
-package com.luretechnologies.tms.backend.service;
+package com.luretechnologies.tms.backend.exceptions;
 
 
 /**

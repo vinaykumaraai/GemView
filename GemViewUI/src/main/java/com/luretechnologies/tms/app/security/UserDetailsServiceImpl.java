@@ -33,6 +33,7 @@
 package com.luretechnologies.tms.app.security;
 
 import java.util.Collections;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -41,7 +42,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.tms.backend.data.entity.User;
+import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
 import com.luretechnologies.tms.backend.service.MockUserService;
 
 @Service
@@ -56,8 +59,26 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		System.out.println(RestServiceUtil.getInstance().login("vinay_standard", "TestPassword123!").getMaskedEmailAddress());
+		try {
+			//FIXME: getting a missing content-type error. Check this with your backend teams
+			//List<com.luretechnologies.client.restlib.service.model.User> restUserList = RestServiceUtil.getInstance().getClient().getUserApi().getUsers();
+			com.luretechnologies.client.restlib.service.model.User restUser = RestServiceUtil.getInstance().getClient().getUserApi().getUserByUserName(username);
+			//System.out.println("User Found "+ restUserList);
+			
+//			if(restUserList.isEmpty()) {
+//				//throw exception
+//			}
+			if(restUser == null) {
+				//throw exception
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		User user = userService.getUserByEmail(username);
 		//FIXME: use rest service for geting user. convert response JSON using GSON api
+		
 		if (null == user) {
 			throw new UsernameNotFoundException("No user present with username: " + username);
 		} else {
