@@ -9,8 +9,8 @@ import java.util.Objects;
  *
  */
 public class App extends AbstractEntity {
-	private String packageName, file, packageVersion;
-	private boolean active;
+	private String packageName, description, packageVersion;
+	private boolean available;
 	private List<AppDefaultParam> appDefaultParamList;
 	private Devices device;
 	private Profile profile;
@@ -21,20 +21,20 @@ public class App extends AbstractEntity {
 		super(false);
 	}
 //Add the device and owner to it App
-	public App(String packageName, String file, String packageVersion, boolean active,
+	public App(String packageName, String description, String packageVersion, boolean available,
 			List<AppDefaultParam> appDefaultParamList,Devices device,User owner, Profile profile) {
 		super(false);
 		Objects.requireNonNull(packageName);
-		Objects.requireNonNull(file);
+		Objects.requireNonNull(description);
 		Objects.requireNonNull(packageVersion);
-		Objects.requireNonNull(active);
+		Objects.requireNonNull(available);
 		Objects.requireNonNull(appDefaultParamList);
 		Objects.requireNonNull(device);
 		Objects.requireNonNull(owner);
 		this.packageName = packageName;
-		this.file = file;
+		this.description = description;
 		this.packageVersion = packageVersion;
-		this.active = active;
+		this.available = available;
 		this.appDefaultParamList = appDefaultParamList;
 		this.device = device;
 		this.owner = owner;
@@ -50,12 +50,12 @@ public class App extends AbstractEntity {
 		this.packageName = packageName;
 	}
 
-	public String getFile() {
-		return file;
+	public String getDescription() {
+		return description;
 	}
 
-	public void setFile(String file) {
-		this.file = file;
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	public String getPackageVersion() {
@@ -66,12 +66,12 @@ public class App extends AbstractEntity {
 		this.packageVersion = packageVersion;
 	}
 
-	public boolean isActive() {
-		return active;
+	public boolean isAvailable() {
+		return available;
 	}
 
-	public void setActive(boolean active) {
-		this.active = active;
+	public void setAvailable(boolean available) {
+		this.available = available;
 	}
 
 	public List<AppDefaultParam> getAppDefaultParamList() {
@@ -104,8 +104,8 @@ public class App extends AbstractEntity {
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + (active ? 1231 : 1237);
-		result = prime * result + ((file == null) ? 0 : file.hashCode());
+		result = prime * result + (available ? 1231 : 1237);
+		result = prime * result + ((description == null) ? 0 : description.hashCode());
 		result = prime * result + ((packageName == null) ? 0 : packageName.hashCode());
 		result = prime * result + ((packageVersion == null) ? 0 : packageVersion.hashCode());
 		return result;
@@ -120,12 +120,12 @@ public class App extends AbstractEntity {
 		if (getClass() != obj.getClass())
 			return false;
 		App other = (App) obj;
-		if (active != other.active)
+		if (available != other.available)
 			return false;
-		if (file == null) {
-			if (other.file != null)
+		if (description == null) {
+			if (other.description != null)
 				return false;
-		} else if (!file.equals(other.file))
+		} else if (!description.equals(other.description))
 			return false;
 		if (packageName == null) {
 			if (other.packageName != null)

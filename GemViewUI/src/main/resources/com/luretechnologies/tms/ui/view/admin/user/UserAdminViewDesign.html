@@ -8,7 +8,7 @@
   <meta name="package-mapping" content="com_vaadin:com.vaadin">
  </head>
  <body>
-  <vaadin-panel caption="Users" responsive>
+  <vaadin-panel caption="Users" responsive size-full>
    <vaadin-horizontal-split-panel caption="SplitScreen" id="splitscreen" _id="splitscreen">
     <vaadin-vertical-layout caption="User Data Layout" style-name="crud-template" spacing="false" responsive id="userdatalayout" margin="false" _id="userdatalayout" :second>
      <vaadin-horizontal-layout width-full>
@@ -17,8 +17,8 @@
          User Information 
        </vaadin-label>
       </vaadin-horizontal-layout>
-      <vaadin-horizontal-layout style-name="buttons border-top" height="50px" :middle :right>
-       <vaadin-button style-name="small primary" id="update" plain-text _id="update" :middle :center>
+      <vaadin-horizontal-layout style-name="buttons border-top" height="50px" _id="saveCancelLayout" :middle :right>
+       <vaadin-button style-name="small primary" id="update" plain-text _id="save" :middle :center>
          Save 
        </vaadin-button>
        <vaadin-button style-name="small" id="cancel" plain-text _id="cancel" :middle :center>
@@ -26,42 +26,44 @@
        </vaadin-button>
       </vaadin-horizontal-layout>
      </vaadin-horizontal-layout>
-     <vaadin-form-layout enabled="false" style-name="inspect" spacing="false" id="form" size-full margin="false" _id="form" :bottom>
-      <vaadin-text-field required-indicator-visible caption="User Name" style-name="small" id="name" width-full height="31px" _id="name"></vaadin-text-field>
-      <com_vaadin_template_orders_ui_view_admin-role-select caption="Roles" style-name="small" id="role" _id="role"></com_vaadin_template_orders_ui_view_admin-role-select>
-      <vaadin-text-field required-indicator-visible caption="First Name" style-name="small" id="firstname" width-full _id="firstname"></vaadin-text-field>
-      <vaadin-text-field required-indicator-visible caption="Last Name" style-name="small" id="lastname" width-full _id="lastname"></vaadin-text-field>
-      <vaadin-text-field caption="Email" style-name="small" id="email" width-full height="31px" _id="email"></vaadin-text-field>
-      <vaadin-button style-name="small primary" id="anuthentication" width="162px" plain-text _id="anuthentication" :bottom>
-        Send Authentication 
-      </vaadin-button>
-      <vaadin-horizontal-layout style-name="section half" responsive>
+     <vaadin-form-layout enabled="false" spacing="false" id="form" size-full margin="false" _id="form" :bottom>
+      <vaadin-text-field required-indicator-visible caption="User Name" style-name="small" id="name" width="60%" _id="name"></vaadin-text-field>
+      <vaadin-combo-box scroll-to-selected-item caption="Roles" style-name="small" responsive data-item-type="java.lang.String" _id="roles"></vaadin-combo-box>
+      <vaadin-text-field required-indicator-visible caption="First Name" style-name="small" id="firstname" width="60%" _id="firstname"></vaadin-text-field>
+      <vaadin-text-field required-indicator-visible caption="Last Name" style-name="small" id="lastname" width="60%" _id="lastname"></vaadin-text-field>
+      <vaadin-text-field caption="Email" style-name="small" id="email" width="60%" _id="email"></vaadin-text-field>
+      <vaadin-horizontal-layout style-name="section half" height="40px" _id="authenticationLayout">
+       <vaadin-label caption-as-html caption="Authentication" responsive plain-text _id="authenticationLabel"></vaadin-label>
+       <vaadin-button style-name="small primary" responsive id="anuthentication" _id="anuthenticationButton">
+         Send 
+       </vaadin-button>
+      </vaadin-horizontal-layout>
+      <vaadin-horizontal-layout style-name="section half" responsive _id="activeLayout">
        <vaadin-label caption="Active" responsive id="activelabel" plain-text _id="activelabel" :middle></vaadin-label>
        <vaadin-check-box caption="Allow Access" id="active" _id="active" :middle></vaadin-check-box>
       </vaadin-horizontal-layout>
-      <vaadin-horizontal-layout style-name="section half" responsive>
+      <vaadin-horizontal-layout style-name="section half" responsive _id="fixedIPLayout">
        <vaadin-label caption="Fixed IP" responsive id="fixediplabel" plain-text _id="fixediplabel" :bottom></vaadin-label>
        <vaadin-check-box caption="Allow Access" id="fixedip" _id="fixedip" :middle></vaadin-check-box>
-       <vaadin-text-field caption="IP" height="26px"></vaadin-text-field>
       </vaadin-horizontal-layout>
-      <vaadin-horizontal-layout style-name="section half" height="40px">
-       <vaadin-label caption="Password Frequency" responsive id="passfrequencyLabel" plain-text _id="passfrequencyLabel"></vaadin-label>
-       <vaadin-native-select style-name="small" id="passfrequency" width-full height="80%" data-item-type="java.lang.String" _id="passfrequency">
+      <vaadin-text-field caption="IP" style-name="small" width="60%" _id="ipField"></vaadin-text-field>
+      <vaadin-horizontal-layout style-name="section half" height="40px" _id="passfrequencyLayout">
+       <vaadin-label caption="Password" responsive id="passfrequencyLabel" plain-text _id="passfrequencyLabel"></vaadin-label>
+       <vaadin-combo-box caption-as-html scroll-to-selected-item style-name="small" responsive data-item-type="java.lang.String" _id="passwordFrequency">
         <option item="Option1">20</option>
         <option item="Option2">30</option>
         <option item="Option3">40</option>
-       </vaadin-native-select>
-       <vaadin-button style-name="small primary" id="temppassowrd" width="97.7%" plain-text _id="temppassowrd">
-         Send Temp Password 
+       </vaadin-combo-box>
+       <vaadin-button style-name="small primary" id="temppassowrd" plain-text _id="temppassowrd">
+         Send 
        </vaadin-button>
       </vaadin-horizontal-layout>
-      <vaadin-label caption="Verification Frequency" responsive id="verificationfrequencylabel" plain-text _id="verificationfrequencylabel"></vaadin-label>
-      <vaadin-native-select style-name="small" id="verificationfrequency" width-full height="142.31%" data-item-type="java.lang.String" _id="verificationfrequency1" :middle>
+      <vaadin-combo-box caption-as-html scroll-to-selected-item style-name="small" responsive data-item-type="java.lang.String" _id="verificationFrequency">
        <option item="Option1">New Computer</option>
        <option item="Option2">Old Computer</option>
        <option item="Option3">Verified</option>
-      </vaadin-native-select>
-      <vaadin-text-field caption="Password" style-name="small" id="password" width-full _id="password"></vaadin-text-field>
+      </vaadin-combo-box>
+      <vaadin-text-field required-indicator-visible caption="Password" style-name="small" id="password" width="60%" _id="password"></vaadin-text-field>
      </vaadin-form-layout>
      <vaadin-horizontal-layout style-name="top-bar" width-full height="50px" _id="buttonsLayout">
       <vaadin-horizontal-layout spacing="false" width-full _id="searchBarLayout" :middle :expand>

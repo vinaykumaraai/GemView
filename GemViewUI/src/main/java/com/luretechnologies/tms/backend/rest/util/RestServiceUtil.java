@@ -14,11 +14,16 @@ public class RestServiceUtil {
 	private static final RestServiceUtil INSTANCE = new RestServiceUtil();
 
 
+	private static UserSession SESSION;
 	private static RestClientService client;
 	private RestServiceUtil() {
 		client = new RestClientService("http://mia.lure68.net:54061/admin/api","");
 	}
 	
+	public static UserSession getSESSION() {
+		return SESSION;
+	}
+
 	public static RestServiceUtil getInstance() {
 		return INSTANCE;
 	}
@@ -29,7 +34,8 @@ public class RestServiceUtil {
 	
 	
 	public UserSession login(String username,String password) throws ApiException {
-				return client.getAuthApi().login(username, password);
+		SESSION = client.getAuthApi().login(username, password);
+		 return SESSION;
 	}
 	
 }

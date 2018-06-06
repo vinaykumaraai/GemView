@@ -60,6 +60,7 @@ import com.luretechnologies.tms.backend.service.AppService;
 import com.luretechnologies.tms.backend.service.MockUserService;
 import com.luretechnologies.tms.backend.service.OdometerDeviceService;
 import com.luretechnologies.tms.backend.service.ProfileService;
+import com.luretechnologies.tms.ui.NotificationUtil;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.data.provider.Query;
 import com.vaadin.event.ShortcutAction.KeyCode;
@@ -67,6 +68,7 @@ import com.vaadin.event.ShortcutListener;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.server.Page;
+import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -76,6 +78,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Grid.SelectionMode;
+import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
@@ -97,7 +100,7 @@ import com.vaadin.ui.themes.ValoTheme;
 
 @SpringView(name = ApplicationStoreView.VIEW_NAME)
 public class ApplicationStoreView extends VerticalLayout implements Serializable, View {
-	private static final String PACKAGE_FILE = "packageFile";
+	private static final String DESCRIPTION = "description";
 	private static final String ACTIVE_LAYOUT = "ActiveLayout";
 	private static final String FILE_CHOOSE_LIST = "fileChooseList";
 	/**
@@ -121,6 +124,12 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 	private TextField packageName;
 	private Button  saveForm;
 	private Button cancelForm;
+	private Button fileButton;
+	private TextField applicationSearch, appDefaultParamSearch;
+	private HorizontalLayout appGridMenuHorizontalLayout;
+	private VerticalLayout appGridMenuVerticalLayout;
+	private VerticalLayout applicationListLayout;
+	private HorizontalLayout appSearchLayout ;
 	//private TestRestService testService = new TestRestService();
 	
 	@Autowired
@@ -148,14 +157,16 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 
 	@PostConstruct
 	private void init() {
+		setHeight("100%");
 		setSpacing(false);
 		setMargin(false);
 		setResponsive(true);
 		Panel panel = getAndLoadApplicationStorePanel();
 		appStoreGridLayout = new GridLayout(2, 2, getAppStoreComponents());
 		appStoreGridLayout.setWidth("100%");
+		appStoreGridLayout.setHeight("100%");
 		appStoreGridLayout.setMargin(true);
-		appStoreGridLayout.addStyleName("applicatioStore-GridLayout");
+		appStoreGridLayout.addStyleNames("applicationStore-GridLayout", "applicationStore-GridLayoutOverflow");
 		panel.setContent(appStoreGridLayout);
 
 		Page.getCurrent().addBrowserWindowResizeListener(r -> {
@@ -168,6 +179,26 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			} else {
 				desktopMode();
 
+			}
+			
+			if(r.getWidth()<=600) {
+				applicationSearch.setHeight("28px");
+				appDefaultParamSearch.setHeight("28px");
+			} else if(r.getWidth()>600 && r.getWidth()<=1000){
+				applicationSearch.setHeight("32px");
+				appDefaultParamSearch.setHeight("32px");
+			}else {
+				applicationSearch.setHeight(37, Unit.PIXELS);
+				appDefaultParamSearch.setHeight("37px");
+			}
+			
+			if(r.getWidth()<=730) {
+				appGridMenuVerticalLayout = new VerticalLayout();
+				appGridMenuVerticalLayout.addStyleName("heartbeat-verticalLayout");
+				appGridMenuVerticalLayout.addComponents(appSearchLayout, appButtonsLayout);
+				applicationListLayout.removeComponent(appGridMenuHorizontalLayout);
+				applicationListLayout.removeComponent(appGrid);
+				applicationListLayout.addComponents(appGridMenuVerticalLayout, appGrid);
 			}
 		});
 		differentModesLoad();
@@ -184,6 +215,26 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		} else {
 			desktopMode();
 		}
+		
+		if(width<=600) {
+			applicationSearch.setHeight("28px");
+			appDefaultParamSearch.setHeight("28px");
+		} else if(width>600 && width<=1000){
+			applicationSearch.setHeight("32px");
+			appDefaultParamSearch.setHeight("32px");
+		}else {
+			applicationSearch.setHeight(37, Unit.PIXELS);
+			appDefaultParamSearch.setHeight("37px");
+		}
+		
+		if(width<=730) {
+			appGridMenuVerticalLayout = new VerticalLayout();
+			appGridMenuVerticalLayout.addStyleName("heartbeat-verticalLayout");
+			appGridMenuVerticalLayout.addComponents(appSearchLayout, appButtonsLayout);
+			applicationListLayout.removeComponent(appGridMenuHorizontalLayout);
+			applicationListLayout.removeComponent(appGrid);
+			applicationListLayout.addComponents(appGridMenuVerticalLayout, appGrid);
+		}
 	}
 
 	private void phoneAndTabMode() {
@@ -193,6 +244,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		appStoreGridLayout.addComponents(getAppStoreComponents());
 		buttonLayout.removeAllComponents();
 		appButtonsLayout.addComponents(cancelForm, saveForm);
+		//appGridMenuLayout = new VerticalLayout()
 	}
 
 	private void desktopMode() {
@@ -222,7 +274,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 
 	private VerticalLayout getEmptyLayout() {
 		VerticalLayout vl = new VerticalLayout();
-		vl.addStyleName("applicatioStore-GridLayout");
+		vl.addStyleName("applicationStore-GridLayout");
 		return vl;
 	}
 
@@ -230,18 +282,19 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		appGrid = new Grid<>(App.class);
 		appGrid.setWidth("100%");
 		appGrid.setDataProvider(appService.getListDataProvider());
-		appGrid.setColumns("packageName", "file", "packageVersion");
+		appGrid.setColumns("packageName", "description", "packageVersion");
 		appGrid.getColumn("packageName").setCaption("Name");
-		appGrid.getColumn("file").setCaption("File");
+		appGrid.getColumn("description").setCaption("Description");
 		appGrid.getColumn("packageVersion").setCaption("Version");
-		appGrid.addColumn("active").setCaption("Active");
+		appGrid.addColumn("available").setCaption("Available");
 		appGrid.setSelectionMode(SelectionMode.SINGLE);
 		
-		TextField applicationSearch = new TextField();
+		applicationSearch = new TextField();
 		applicationSearch.setWidth("100%");
 		applicationSearch.setIcon(VaadinIcons.SEARCH);
 		applicationSearch.setStyleName("small inline-icon search");
-		applicationSearch.addStyleNames("role-textbox", "v-textfield-font", ValoTheme.TEXTFIELD_BORDERLESS);
+		applicationSearch.addStyleNames("v-textfield-font");
+		applicationSearch.setHeight("37px");
 		applicationSearch.setPlaceholder("Search");
 		applicationSearch.setResponsive(true);
 		applicationSearch.addShortcutListener(new ShortcutListener("Clear", KeyCode.ESCAPE, null) {
@@ -260,7 +313,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			appDataProvider.setFilter(filter -> {
 				String packageNameInLower = filter.getPackageName().toLowerCase();
 				String packageVersionInLower = filter.getPackageVersion().toLowerCase();
-				String fileInLower = filter.getFile().toLowerCase();
+				String fileInLower = filter.getDescription().toLowerCase();
 				return packageVersionInLower.equals(valueInLower) || packageNameInLower.contains(valueInLower)
 						|| fileInLower.contains(valueInLower);
 			});
@@ -269,15 +322,17 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			setApplicationFormComponentsEnable(true);
 			appGrid.deselectAll();
 			packageName.focus();
+			fileButton.setEnabled(true);
 			
 		});
 		createAppGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		createAppGridRow.setResponsive(true);
 		Button editAppGridRow = new Button(VaadinIcons.EDIT, click -> {
 			if (appGrid.getSelectedItems().isEmpty()) {
-				Notification.show("Please select any app to Edit", Notification.Type.WARNING_MESSAGE);
+				Notification.show(NotificationUtil.APPLICATIONSTORE_EDIT, Notification.Type.ERROR_MESSAGE);
 			} else {
 				setApplicationFormComponentsEnable(true);
+				fileButton.setEnabled(true);
 			}
 
 		});
@@ -286,8 +341,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 
 		Button deleteAppGridRow = new Button(VaadinIcons.TRASH, clicked -> {
 			if (appGrid.getSelectedItems().isEmpty()) {
-				Notification.show("Select any App type to delete", Notification.Type.WARNING_MESSAGE)
-						.setDelayMsec(3000);
+				Notification.show(NotificationUtil.APPLICATIONSTORE_DELETE, Notification.Type.ERROR_MESSAGE);
 			} else {
 				confirmDeleteApp(applicationSearch);
 			}
@@ -296,25 +350,25 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		});
 		deleteAppGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		deleteAppGridRow.setResponsive(true);
-		HorizontalLayout appSearchLayout = new HorizontalLayout(applicationSearch);
+		appSearchLayout = new HorizontalLayout(applicationSearch);
 		appSearchLayout.setWidth("100%");
 		appButtonsLayout = new HorizontalLayout(createAppGridRow, editAppGridRow, deleteAppGridRow);
 		// appButtonsLayout.setWidth("100%");
-		HorizontalLayout appGridMenuLayout = new HorizontalLayout(appSearchLayout, appButtonsLayout);
-		appGridMenuLayout.setWidth("100%");
-		VerticalLayout applicationListLayout = new VerticalLayout(appGridMenuLayout, appGrid);
-		applicationListLayout.addStyleName("applicatioStore-VerticalLayout");
+		appGridMenuHorizontalLayout = new HorizontalLayout(appSearchLayout, appButtonsLayout);
+		appGridMenuHorizontalLayout.setWidth("100%");
+		applicationListLayout = new VerticalLayout(appGridMenuHorizontalLayout, appGrid);
+		applicationListLayout.addStyleName("applicationStore-ApplicationStoreLayout");
 		appGrid.addSelectionListener(selection -> {
 			if (selection.getFirstSelectedItem().isPresent()) {
 				selectedApp = selection.getFirstSelectedItem().get();
 				((TextField) applicationDetailsForm.getComponent(0)).setValue(selectedApp.getPackageName());
-				((TextField) applicationDetailsForm.getComponent(1)).setValue(selectedApp.getFile());
-				((TextField) applicationDetailsForm.getComponent(3)).setValue(selectedApp.getPackageVersion());
-				((ComboBox) applicationDetailsForm.getComponent(4)).setValue(selectedApp.getOwner());
-				((ComboBox) applicationDetailsForm.getComponent(5)).setValue(selectedApp.getDevice());
-				HorizontalLayout HL = (HorizontalLayout) applicationDetailsForm.getComponent(6);
+				((TextField) applicationDetailsForm.getComponent(1)).setValue(selectedApp.getDescription());
+				((TextField) applicationDetailsForm.getComponent(2)).setValue(selectedApp.getPackageVersion());
+				((ComboBox) applicationDetailsForm.getComponent(3)).setValue(selectedApp.getOwner());
+				/*((ComboBox) applicationDetailsForm.getComponent(5)).setValue(selectedApp.getDevice());*/
+				HorizontalLayout HL = (HorizontalLayout) applicationDetailsForm.getComponent(4);
 				CheckBox checkbox = (CheckBox) HL.getComponent(1);
-				checkbox.setValue(selectedApp.isActive());
+				checkbox.setValue(selectedApp.isAvailable());
 				// ((CheckBox)
 				// applicationDetailsForm.getComponent(6)).setValue(selectedItem.isActive());
 				appDefaultParamGrid.setDataProvider(new ListDataProvider<>(selectedApp.getAppDefaultParamList()));
@@ -328,10 +382,10 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			} else {
 				((TextField) applicationDetailsForm.getComponent(0)).clear();
 				((TextField) applicationDetailsForm.getComponent(1)).clear();
-				((TextField) applicationDetailsForm.getComponent(3)).clear();
-				((ComboBox) applicationDetailsForm.getComponent(4)).clear();
-				((ComboBox) applicationDetailsForm.getComponent(5)).clear();
-				HorizontalLayout HL = (HorizontalLayout) applicationDetailsForm.getComponent(6);
+				((TextField) applicationDetailsForm.getComponent(2)).clear();
+				((ComboBox) applicationDetailsForm.getComponent(3)).clear();
+				//((ComboBox) applicationDetailsForm.getComponent(5)).clear();
+				HorizontalLayout HL = (HorizontalLayout) applicationDetailsForm.getComponent(4);
 				CheckBox checkbox = (CheckBox) HL.getComponent(1);
 				checkbox.clear();
 				// ((CheckBox) applicationDetailsForm.getComponent(6)).clear();
@@ -354,8 +408,8 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			if (component.getId() == null) {
 				component.setEnabled(flag);
 
-			} else if (component.getId().equalsIgnoreCase(PACKAGE_FILE)) {
-				component.setEnabled(false);
+			} else if (component.getId().equalsIgnoreCase(DESCRIPTION)) {
+				component.setEnabled(true);
 
 			} else if (component.getId().equalsIgnoreCase(ACTIVE_LAYOUT)) {
 				HorizontalLayout HL = (HorizontalLayout) component;
@@ -390,17 +444,19 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 	private VerticalLayout getAppicationDetailsLayout() {
 
 		packageName = new TextField("Application Package Name");
-		packageName.addStyleNames("role-textbox", "v-textfield-font", ValoTheme.TEXTFIELD_BORDERLESS);
+		packageName.addStyleNames("role-textbox", "v-textfield-font", ValoTheme.TEXTFIELD_BORDERLESS, 
+				"asset-debugComboBox", "v-textfield-lineHeight");
 		packageName.setCaptionAsHtml(true);
 		packageName.setEnabled(false);
-		packageName.setWidth("80%");
-		TextField packageFile = new TextField("Package File");
-		packageFile.addStyleNames("role-textbox", "v-textfield-font", ValoTheme.TEXTFIELD_BORDERLESS);
-		packageFile.setEnabled(false);
-		packageFile.setId(PACKAGE_FILE);
-		packageFile.setWidth("80%");
-		Window fileListWindow = getSmallListWindow(true, packageFile);
-		Button fileButton = new Button("Files", VaadinIcons.UPLOAD);
+		packageName.setWidth("96%");
+		TextField description = new TextField("Description");
+		description.addStyleNames("role-textbox", "v-textfield-font", ValoTheme.TEXTFIELD_BORDERLESS,
+				"asset-debugComboBox", "v-textfield-lineHeight");
+		description.setEnabled(false);
+		description.setId(DESCRIPTION);
+		description.setWidth("96%");
+		Window fileListWindow = getSmallListWindow(true, description);
+		fileButton = new Button("Files", VaadinIcons.UPLOAD);
 		fileButton.addStyleNames("v-button-customstyle", ValoTheme.BUTTON_FRIENDLY);
 		fileButton.setEnabled(false);
 		fileButton.addClickListener(click -> {
@@ -408,15 +464,17 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 				UI.getCurrent().addWindow(fileListWindow);
 		});
 		TextField packageVersion = new TextField("Version");
-		packageVersion.addStyleNames("role-textbox", "v-textfield-font", ValoTheme.TEXTFIELD_BORDERLESS);
+		packageVersion.addStyleNames("role-textbox", "v-textfield-font", ValoTheme.TEXTFIELD_BORDERLESS,
+				"asset-debugComboBox", "v-textfield-lineHeight");
 		packageVersion.setEnabled(false);
-		packageVersion.setWidth("80%");
+		packageVersion.setWidth("96%");
 		// FIXME: put the list of organization
 		applicationOwner = new ComboBox<User>("Application Owner");
 		applicationOwner.setEnabled(false);
 		applicationOwner.setCaptionAsHtml(true);
 		applicationOwner.setDataProvider(new ListDataProvider<>(userService.getUsers()));
-		applicationOwner.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size");
+		applicationOwner.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", 
+				"asset-debugComboBox", "small");
 		devices = new ComboBox<Devices>("Device");
 		devices.setDataProvider(deviceService.getListDataProvider());
 		devices.setEnabled(false);
@@ -424,46 +482,49 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		
 		HorizontalLayout activeBoxLayout = new HorizontalLayout();
 		activeBoxLayout.setId(ACTIVE_LAYOUT);
-		Label active = new Label("Active");
+		Label active = new Label("");
 		active.setStyleName("role-activeLable");
-		active.addStyleName("v-textfield-font");
+		active.addStyleNames("v-textfield-font");
 		activeApplication = new CheckBox("Application Available", false);
 		activeApplication.setEnabled(false);
-		activeApplication.addStyleName("v-textfield-font");
+		activeApplication.addStyleNames("v-textfield-font");
 		activeBoxLayout.addComponents(active, activeApplication);
 		activeBoxLayout.setStyleName("role-activeLable");
-		activeBoxLayout.addStyleName("assetAlert-activeCheckBox");
+		activeBoxLayout.addStyleNames("applicationStore-activeCheckBox", "asset-debugComboBox");
 		saveForm = new Button("Save");
 		saveForm.addClickListener(click -> {
-			App app;
+			if(applicationOwner.getValue()==null) {
+				Notification.show(NotificationUtil.SAVE, Type.ERROR_MESSAGE);
+			}
+			else {App app;
 			if (appGrid.getSelectedItems().size() > 0) {
 				app = appGrid.getSelectedItems().iterator().next();
 			} else {
 				app = new App();
+				app.setPackageName(packageName.getValue());
+				app.setDescription(description.getValue());
+				app.setPackageVersion(packageVersion.getValue());
+				app.setOwner(applicationOwner.getValue());
+				app.setDevice(devices.getValue());
+				app.setAvailable(activeApplication.getValue());
+				// Check if Profile is set and get all Default Params to be set
+				app.setAppDefaultParamList(
+						appDefaultParamGrid.getDataProvider().fetch(new Query<>()).collect(Collectors.toList()));
+				if (selectedProfile != null)
+					app.setProfile(selectedProfile);
+				appService.saveApp(app);
+				appGrid.setDataProvider(appService.getListDataProvider());
+				appGrid.getDataProvider().refreshAll();
+				appGrid.deselectAll();
 			}
-			app.setPackageName(packageName.getValue());
-			app.setFile(packageFile.getValue());
-			app.setPackageVersion(packageVersion.getValue());
-			app.setOwner(applicationOwner.getValue());
-			app.setDevice(devices.getValue());
-			app.setActive(activeApplication.getValue());
-			// Check if Profile is set and get all Default Params to be set
-			app.setAppDefaultParamList(
-					appDefaultParamGrid.getDataProvider().fetch(new Query<>()).collect(Collectors.toList()));
-			if (selectedProfile != null)
-				app.setProfile(selectedProfile);
-			appService.saveApp(app);
-			appGrid.setDataProvider(appService.getListDataProvider());
-			appGrid.getDataProvider().refreshAll();
-			appGrid.deselectAll();
 
-		});
-		saveForm.setEnabled(true);
+			}});
+		saveForm.setEnabled(true );
 		saveForm.addStyleNames("v-button-customstyle", ValoTheme.BUTTON_FRIENDLY);
 		cancelForm = new Button("Cancel", click -> {
 			packageName.clear();
 			//packageName.setEnabled(false);
-			packageFile.clear();
+			description.clear();
 			//packageFile.setEnabled(false);
 			packageVersion.clear();
 			//packageVersion.setEnabled(false);
@@ -475,6 +536,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			//activeApplication.setEnabled(false);
 			
 			setApplicationFormComponentsEnable(false);
+			description.setEnabled(false);
 			
 			appDefaultParamGrid.setDataProvider(new ListDataProvider<>(Arrays.asList()));
 			((TextField) ((HorizontalLayout) ((VerticalLayout) appDefaultParamGrid.getParent()).getComponent(1))
@@ -484,12 +546,17 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		cancelForm.setEnabled(true);
 		cancelForm.addStyleNames("v-button-customstyle", ValoTheme.BUTTON_FRIENDLY);
 		HorizontalLayout appDetailsSaveCancleAndLabelLayout = new HorizontalLayout();
+		appDetailsSaveCancleAndLabelLayout.addStyleName("applicationStore-cancelsaveApplicationLabelLayout");
+		HorizontalLayout fileButtonLayout = new HorizontalLayout();
+		fileButtonLayout.setCaption("Upload Files");
+		fileButtonLayout.addStyleName("asset-debugComboBox");
+		fileButtonLayout.addComponent(fileButton);
 		appDetailsSaveCancleAndLabelLayout.setWidth("100%");
-		applicationDetailsForm = new FormLayout(packageName, packageFile, fileButton, packageVersion, applicationOwner,
-				devices, activeBoxLayout);
-		applicationDetailsForm.addStyleName("applicatioStore-FormLayout");
+		applicationDetailsForm = new FormLayout(packageName, description, packageVersion, applicationOwner,
+				 activeBoxLayout, fileButtonLayout);
+		applicationDetailsForm.addStyleNames("applicationStore-FormLayout", "system-LabelAlignment");
 		applicationDetailsForm.setCaptionAsHtml(true);
-		applicationDetailsForm.setComponentAlignment(fileButton, Alignment.BOTTOM_RIGHT);
+		//applicationDetailsForm.setComponentAlignment(fileButton, Alignment.BOTTOM_RIGHT);
 		applicationDetailsLabel = new HorizontalLayout();
 		applicationDetailsLabel.setWidth("100%");
 		Label appDetailsLabel = new Label("Application Details");
@@ -500,28 +567,30 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		buttonLayout.setDefaultComponentAlignment(Alignment.MIDDLE_RIGHT);
 		buttonLayout.addComponents(cancelForm, saveForm);
 		buttonLayout.setResponsive(true);
-		buttonLayout.setStyleName("save-cancelButtonsAlignment");
+		//buttonLayout.setStyleName("save-cancelButtonsAlignment");
+		//buttonLayout.addStyleName("applicationStore-cancelsaveLayout");
 
 		appDetailsSaveCancleAndLabelLayout.addComponents(applicationDetailsLabel, buttonLayout);
 		appDetailsSaveCancleAndLabelLayout.setComponentAlignment(buttonLayout, Alignment.MIDDLE_RIGHT);
 		VerticalLayout applicationDetailsLayout = new VerticalLayout(appDetailsSaveCancleAndLabelLayout,
 				applicationDetailsForm);
-		applicationDetailsLayout.addStyleName("applicatioStore-VerticalLayout");
+		applicationDetailsLayout.addStyleName("applicationStore-ApplicationDetailsLayout");
 		applicationDetailsLayout.setComponentAlignment(appDetailsSaveCancleAndLabelLayout, Alignment.TOP_RIGHT);
 		return applicationDetailsLayout;
 	}
 
 	private VerticalLayout getApplicationDefaulParametersLayout() {
 		appDefaultParamGrid = new Grid<>(AppDefaultParam.class);
-		appDefaultParamGrid.setColumns("parameter", "description", "type", "active");
+		appDefaultParamGrid.addStyleName("applicationStore-horizontalAlignment");
+		appDefaultParamGrid.setColumns("parameter", "description", "type", "value");
 		appDefaultParamGrid.setWidth("100%");
-		appDefaultParamGrid.setHeightByRows(5);
+		appDefaultParamGrid.setHeightByRows(7);;
 		appDefaultParamGrid.getColumn("parameter").setEditorComponent(new TextField());
 		appDefaultParamGrid.getColumn("description").setEditorComponent(new TextField());
 		ComboBox<ParameterType> paramComboBox = new ComboBox<>();
 		paramComboBox.setDataProvider(new ListDataProvider<>(Arrays.asList(ParameterType.values())));
 		appDefaultParamGrid.getColumn("type").setEditorComponent(paramComboBox);
-		appDefaultParamGrid.getColumn("active").setEditorComponent(new CheckBox());
+		appDefaultParamGrid.getColumn("value").setEditorComponent(new CheckBox());
 		appDefaultParamGrid.getEditor().setEnabled(true).addSaveListener(save -> {
 			// Save listner. Typically value is set to selected App
 			// If not happening then get the Object from list of Selected App and set the
@@ -529,11 +598,12 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 
 		});
 
-		TextField appDefaultParamSearch = new TextField();
+		appDefaultParamSearch = new TextField();
 		appDefaultParamSearch.setWidth("100%");
 		appDefaultParamSearch.setIcon(VaadinIcons.SEARCH);
 		appDefaultParamSearch.setStyleName("small inline-icon search");
-		appDefaultParamSearch.addStyleNames("role-textbox", "v-textfield-font", ValoTheme.TEXTFIELD_BORDERLESS);
+		appDefaultParamSearch.addStyleNames("v-textfield-font");
+		appDefaultParamSearch.setHeight("37px");
 		appDefaultParamSearch.setPlaceholder("Search");
 		appDefaultParamSearch.setResponsive(true);
 		appDefaultParamSearch.addShortcutListener(new ShortcutListener("Clear", KeyCode.ESCAPE, null) {
@@ -560,9 +630,13 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		});
 		Window createParamGridWindow = openAppDefaultParamWindow(appDefaultParamGrid);
 		Button createAppDefaultParamGridRow = new Button(VaadinIcons.FOLDER_ADD, click -> {
+			if(appGrid.getSelectedItems().size()==0) {
+				Notification.show(NotificationUtil.APPLICATIONSTORE_PARAM_ADD, Type.ERROR_MESSAGE);
+			}else {
 			appDefaultParamGrid.deselectAll();
 			if (createParamGridWindow.getParent() == null)
 				UI.getCurrent().addWindow(createParamGridWindow);
+			}
 
 		});
 		createAppDefaultParamGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
@@ -576,13 +650,15 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		editAppDefaultParamGridRow.setResponsive(true);
 
 		Button deleteAppDefaultParamGridRow = new Button(VaadinIcons.TRASH, clicked -> {
+			if(appGrid.getSelectedItems().size()==0) {
+				Notification.show(NotificationUtil.APPLICATIONSTORE_PARAM_DELETE_APPGRID, Type.ERROR_MESSAGE);
+			}else {
 			if (appDefaultParamGrid.getSelectedItems().isEmpty()) {
-				Notification.show("Select any App Default Parameter type to delete", Notification.Type.WARNING_MESSAGE)
-						.setDelayMsec(3000);
+				Notification.show(NotificationUtil.APPLICATIONSTORE_PARAM_DELETE_PARAMGRID, Type.ERROR_MESSAGE);
 			} else {
 				confirmDeleteAppDefaultParam(appDefaultParamGrid, appDefaultParamSearch);
 			}
-
+			}
 		});
 		deleteAppDefaultParamGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		deleteAppDefaultParamGridRow.setResponsive(true);
@@ -608,6 +684,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 
 		HorizontalLayout appParamHeaderButtonLayout = new HorizontalLayout(clearAllParams, profileDropDown,
 				profileField);
+		appParamHeaderButtonLayout.addStyleName("applicationStore-horizontalAlignment");
 		//appParamHeaderButtonLayout.setWidth("100%");
 		appParamHeaderButtonLayout.setEnabled(false);
 		HorizontalLayout appParamSearchLayout = new HorizontalLayout(appDefaultParamSearch);
@@ -621,6 +698,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		// HorizontalLayout(appDefaultParamSearch,
 		// createAppDefaultParamGridRow, editAppDefaultParamGridRow,
 		// deleteAppDefaultParamGridRow);
+		appParamGridMenuLayout.addStyleName("applicationStore-horizontalAlignment");
 
 		applicationParamLabelLayout = new HorizontalLayout();
 		applicationParamLabelLayout.setWidth("100%");
@@ -633,7 +711,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		VerticalLayout applicationDefaultParametersLayout = new VerticalLayout(applicationParamLabelLayout,
 				appParamHeaderButtonLayout, appParamGridMenuLayout, appDefaultParamGrid);
 		applicationDefaultParametersLayout.setCaptionAsHtml(true);
-		applicationDefaultParametersLayout.addStyleName("applicatioStore-VerticalLayout");
+		applicationDefaultParametersLayout.addStyleName("applicationStore-VerticalLayout");
 		return applicationDefaultParametersLayout;
 	}
 
@@ -697,7 +775,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 				// FIXME: selection of value
 				if (field != null) {
 					String value = selection.getValue().toString();
-					field.setValue(value.substring(1, value.length() - 1));
+					//field.setValue(value.substring(1, value.length() - 1));
 				}
 				if (selection.getValue() instanceof Profile) {
 					selectedProfile = (Profile) selection.getValue();
@@ -754,7 +832,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		deleteButton.addStyleNames(ValoTheme.BUTTON_SMALL, "v-button-customstyle", ValoTheme.BUTTON_FRIENDLY);
 
 		VerticalLayout listLayout = new VerticalLayout(optionList, addNewButton, deleteButton);
-		listLayout.addStyleName("applicatioStore-ListLayout");
+		listLayout.addStyleName("applicationStore-ListLayout");
 		Window smaillListWindow = new Window("", listLayout);
 		smaillListWindow.setWidth(250, Unit.PIXELS);
 		smaillListWindow.setHeight(220, Unit.PIXELS);
@@ -772,7 +850,10 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 	private Window openProfileWindow(ListSelect optionList) {
 		Window profileWindow = new Window("Add Profile");
 		TextField profileName = new TextField("Name");
+		profileName.addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS, "role-textbox","v-textfield-font", "v-grid-cell");
 		ComboBox<ProfileType> profileType = new ComboBox<>("Type");
+		profileType.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font","v-combobox-size", "small");
+		
 		profileType.setDataProvider(new ListDataProvider<>(Arrays.asList(ProfileType.values())));
 
 		Button saveProfile = new Button("Save", click -> {
@@ -783,10 +864,12 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 				profileWindow.close();
 			}
 		});
+		saveProfile.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		Button cancelProfile = new Button("Reset", click -> {
 			profileName.clear();
 			profileType.clear();
 		});
+		cancelProfile.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		HorizontalLayout buttonLayout = new HorizontalLayout(saveProfile, cancelProfile);
 		FormLayout profileFormLayout = new FormLayout(profileName, profileType);
 
@@ -802,8 +885,11 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 	private Window openAppDefaultParamWindow(Grid<AppDefaultParam> appDefaultParamGrid) {
 		Window appDefaultWindow = new Window("Add Default Parameter");
 		TextField parameterName = new TextField("Name");
+		parameterName.addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS, "role-textbox","v-textfield-font", "v-grid-cell");
 		TextField parameterDescription = new TextField("Description");
+		parameterDescription.addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS, "role-textbox","v-textfield-font", "v-grid-cell");
 		ComboBox<ParameterType> parameterType = new ComboBox<>("Type");
+		parameterType.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font","v-combobox-size", "small");
 		parameterType.setDataProvider(new ListDataProvider<>(Arrays.asList(ParameterType.values())));
 		CheckBox parameterActive = new CheckBox("Active");
 		Button saveParameter = new Button("Save", click -> {
@@ -818,12 +904,14 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 				appDefaultWindow.close();
 			}
 		});
+		saveParameter.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		Button cancelParameter = new Button("Reset", click -> {
 			parameterName.clear();
 			parameterActive.clear();
 			parameterDescription.clear();
 			parameterType.clear();
 		});
+		cancelParameter.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		HorizontalLayout buttonLayout = new HorizontalLayout(saveParameter, cancelParameter);
 		FormLayout profileFormLayout = new FormLayout(parameterName, parameterType, parameterDescription,
 				parameterActive);
@@ -847,7 +935,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		Upload uploadFile = new Upload("Upload File here", lineBreakCounter);
 		uploadFile.setImmediateMode(false);
 		uploadFile.setButtonCaption("Upload File");
-		uploadFile.addStyleName("applicatioStore-UploadButton");
+		uploadFile.addStyleName("applicationStore-UploadButton");
 		uploadFile.setReceiver(fileUploadReceiver);
 
 		Window fileUploadWindow = new Window("File Upload", uploadFile);
@@ -862,7 +950,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			uploadInfoWindow.setClosable(false);
 		});
 		uploadFile.addFinishedListener(event -> uploadInfoWindow.setClosable(true));
-		fileUploadWindow.addStyleName("applicatioStore-UploadWindow");
+		fileUploadWindow.addStyleName("applicationStore-UploadWindow");
 		// fileUploadWindow.setCaption("<h3 style=color:216C2A;>File Upload</h3>");
 		fileUploadWindow.setWidth(30, Unit.PERCENTAGE);
 		fileUploadWindow.setHeight(10, Unit.PERCENTAGE);

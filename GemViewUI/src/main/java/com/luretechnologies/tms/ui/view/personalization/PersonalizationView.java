@@ -60,6 +60,7 @@ import com.luretechnologies.tms.backend.service.OdometerDeviceService;
 import com.luretechnologies.tms.backend.service.OverRideParamService;
 import com.luretechnologies.tms.backend.service.ProfileService;
 import com.luretechnologies.tms.backend.service.TreeDataService;
+import com.luretechnologies.tms.ui.NotificationUtil;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.data.provider.Query;
@@ -67,6 +68,7 @@ import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.event.ShortcutListener;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
+import com.vaadin.server.Page;
 import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.spring.annotation.SpringView;
@@ -82,6 +84,8 @@ import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.CloseEvent;
+import com.vaadin.ui.Notification.CloseListener;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
@@ -120,7 +124,13 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 	private static ComboBox<NodeLevel> entityType;
 	private static FormLayout entityFormLayout;
 	private static HorizontalLayout treeButtonLayout;
+	private static HorizontalLayout treeSearchLayout;
 	private static Tree<Node> modifiedTree = new Tree<>();
+	private static TextField parameterName;
+	private static TextField parameterDescription;
+	private static ComboBox<ParameterType> parameterType;
+	private static TextField parameterValue;
+	private static Window overRideParamWindow;
 	
 	@Autowired
 	public TreeDataService treeDataService;
@@ -154,6 +164,20 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 	
 	@PostConstruct
 	private void inti() {
+		
+		Page.getCurrent().addBrowserWindowResizeListener(r->{
+			if(r.getWidth()<=600) {
+				treeNodeSearch.setHeight(28, Unit.PIXELS);
+				overRideParamSearch.setHeight(28, Unit.PIXELS);
+			} else if(r.getWidth()>600 && r.getWidth()<=1000){
+				treeNodeSearch.setHeight(32, Unit.PIXELS);
+				overRideParamSearch.setHeight(32, Unit.PIXELS);
+			}else {
+				treeNodeSearch.setHeight(37, Unit.PIXELS);
+				overRideParamSearch.setHeight(37, Unit.PIXELS);
+			}
+		});
+		
 		setSpacing(false);
 		setMargin(false);
 		setResponsive(true);
@@ -164,15 +188,20 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		treeNodeSearch.addStyleName("v-textfield-font");
 		treeNodeSearch.setPlaceholder("Search");
 		treeNodeSearch.setVisible(true);
+		treeNodeSearch.setHeight(37, Unit.PIXELS);
+		treeNodeSearch.setWidth("100%");
 		configureTreeNodeSearch();
 		
 		Panel panel = getAndLoadPersonlizationPanel();
 		treeButtonLayout = new HorizontalLayout();
-		getEntityButtonsList(treeButtonLayout);
+		treeButtonLayout.setWidth("100%");
+		treeSearchLayout = new HorizontalLayout();
+		getEntityButtonsList(treeButtonLayout, treeSearchLayout);
 		VerticalLayout treeLayoutWithButtons = new VerticalLayout();
+		treeLayoutWithButtons.setWidth("100%");
 		VerticalLayout treePanelLayout = new VerticalLayout();
 		
-		treeLayoutWithButtons.addComponent(treeButtonLayout);
+		treeLayoutWithButtons.addComponents(treeButtonLayout, treeSearchLayout);
 		nodeTree = new Tree<Node>();
 		nodeTree.setTreeData(treeDataService.getTreeDataForPersonlization());
 		modifiedTree.setTreeData(treeDataService.getTreeDataForDeviceOdometer());
@@ -250,7 +279,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		//treePanelLayout.setComponentAlignment(nodeTree, Alignment.TOP_LEFT);
 		splitScreen = new HorizontalSplitPanel();
 		splitScreen.setFirstComponent(treePanelLayout);
-		splitScreen.setSplitPosition(32);
+		splitScreen.setSplitPosition(20);
 		//splitScreen.addComponent(getTabSheet());
 		splitScreen.setHeight("100%");
 		
@@ -266,6 +295,19 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 			ClearAllComponents();
 			ClearGrid();
 		}
+		
+		int width = Page.getCurrent().getBrowserWindowWidth();
+		if(width<=600) {
+			treeNodeSearch.setHeight(28, Unit.PIXELS);
+			overRideParamSearch.setHeight(28, Unit.PIXELS);
+		} else if(width>600 && width<=1000){
+			treeNodeSearch.setHeight(32, Unit.PIXELS);
+			overRideParamSearch.setHeight(32, Unit.PIXELS);
+		}else {
+			treeNodeSearch.setHeight(37, Unit.PIXELS);
+			overRideParamSearch.setHeight(37, Unit.PIXELS);
+		}
+	
 	}
 	
 	private void configureTreeNodeSearch() {
@@ -311,11 +353,11 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		return panel;
 	}
 
-	private void getEntityButtonsList(HorizontalLayout treeButtonLayout) {
+	private void getEntityButtonsList(HorizontalLayout treeButtonLayout, HorizontalLayout treeSearchLayout) {
 		createEntity = new Button(VaadinIcons.FOLDER_ADD, click -> {
 			Window createProfileWindow = openEntityWindow();
 			if(nodeTree.getSelectedItems().size()==0) {
-				Notification.show("Select any entity to delete", Notification.Type.WARNING_MESSAGE).setDelayMsec(3000);
+				Notification.show(NotificationUtil.PERSONALIZATION_CREATE_ENTITY, Notification.Type.ERROR_MESSAGE);
 			}else {
 				if (createProfileWindow.getParent() == null)
 				UI.getCurrent().addWindow(createProfileWindow);
@@ -330,13 +372,13 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 			if (nodeTree.getSelectionModel().getFirstSelectedItem().isPresent()) {
 				selectedNodeForCopy = nodeTree.getSelectionModel().getFirstSelectedItem().get();
 				if (selectedNodeForCopy.getLevel().equals(NodeLevel.ENTITY)) {
-					Notification.show("This Node can't be copied", Type.WARNING_MESSAGE);
+					Notification.show(NotificationUtil.PERSONALIZATION_ENTERPRISE_COPY, Type.ERROR_MESSAGE);
 					selectedNodeForCopy = null;
 				} else {
 						pasteEntity.setEnabled(true);
 					}
 				}else {
-						Notification.show("Select any entity to Copy", Notification.Type.WARNING_MESSAGE).setDelayMsec(3000);
+						Notification.show(NotificationUtil.PERSONALIZATION_COPTY_ENTITY, Notification.Type.ERROR_MESSAGE);
 				}
 		});
 		copyEntity.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
@@ -348,12 +390,12 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 				if (selectedNodeForCopy != null) {
 					Node toPasteNode = nodeTree.getSelectionModel().getFirstSelectedItem().get();
 					if (toPasteNode.getLevel().equals(selectedNodeForCopy.getLevel())) {
-						Notification.show("Node can't be pasted on level", Type.WARNING_MESSAGE);
+						Notification.show(NotificationUtil.PERSONALIZATION_PASTE, Type.ERROR_MESSAGE);
 					} else {
 						// FIXME: add the REST code copy and paste tree node.
 						Node copyPasteNode = new Node();
 						copyPasteNode.setLevel(selectedNodeForCopy.getLevel());
-						copyPasteNode.setLabel(selectedNodeForCopy.getLabel());
+						copyPasteNode.setLabel(selectedNodeForCopy.getLabel()+" - Copy");
 						copyPasteNode.setEntityList(selectedNodeForCopy.getEntityList());
 						if (toPasteNode.getLevel().equals(NodeLevel.ENTITY)
 								&& copyPasteNode.getLevel().equals(NodeLevel.REGION)) {
@@ -361,27 +403,27 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 							for (Node childRegionNode : nodeTree.getTreeData().getChildren(selectedNodeForCopy)) {
 								Node newChildRegionNode = new Node();
 								newChildRegionNode.setLevel(childRegionNode.getLevel());
-								newChildRegionNode.setLabel(childRegionNode.getLabel());
+								newChildRegionNode.setLabel(childRegionNode.getLabel()+" - Copy");
 								newChildRegionNode.setEntityList(childRegionNode.getEntityList());
 								nodeTree.getTreeData().addItem(copyPasteNode, newChildRegionNode);
 								for (Node childMerchantNode : nodeTree.getTreeData().getChildren(childRegionNode)) {
 									Node newChildMerchantNode = new Node();
 									newChildMerchantNode.setLevel(childMerchantNode.getLevel());
-									newChildMerchantNode.setLabel(childMerchantNode.getLabel());
+									newChildMerchantNode.setLabel(childMerchantNode.getLabel()+" - Copy");
 									newChildMerchantNode.setEntityList(childMerchantNode.getEntityList());
 									nodeTree.getTreeData().addItem(newChildRegionNode, newChildMerchantNode);
 									for (Node childTerminalNode : nodeTree.getTreeData()
 											.getChildren(childMerchantNode)) {
 										Node newChildTerminalNode = new Node();
 										newChildTerminalNode.setLevel(childTerminalNode.getLevel());
-										newChildTerminalNode.setLabel(childTerminalNode.getLabel());
+										newChildTerminalNode.setLabel(childTerminalNode.getLabel()+" - Copy");
 										newChildTerminalNode.setEntityList(childTerminalNode.getEntityList());
 										nodeTree.getTreeData().addItem(newChildMerchantNode, newChildTerminalNode);
 										for (Node childDeviceNode : nodeTree.getTreeData()
 												.getChildren(childTerminalNode)) {
 											Node newChildDeviceNode = new Node();
 											newChildDeviceNode.setLevel(childDeviceNode.getLevel());
-											newChildDeviceNode.setLabel(childDeviceNode.getLabel());
+											newChildDeviceNode.setLabel(childDeviceNode.getLabel()+" - Copy");
 											newChildDeviceNode.setEntityList(childDeviceNode.getEntityList());
 											nodeTree.getTreeData().addItem(newChildTerminalNode, newChildDeviceNode);
 										}
@@ -394,19 +436,19 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 							for (Node childMerchantNode : nodeTree.getTreeData().getChildren(selectedNodeForCopy)) {
 								Node newChildMerchantNode = new Node();
 								newChildMerchantNode.setLevel(childMerchantNode.getLevel());
-								newChildMerchantNode.setLabel(childMerchantNode.getLabel());
+								newChildMerchantNode.setLabel(childMerchantNode.getLabel()+" - Copy");
 								newChildMerchantNode.setEntityList(childMerchantNode.getEntityList());
 								nodeTree.getTreeData().addItem(copyPasteNode, newChildMerchantNode);
 								for (Node childTerminalNode : nodeTree.getTreeData().getChildren(childMerchantNode)) {
 									Node newChildTerminalNode = new Node();
 									newChildTerminalNode.setLevel(childTerminalNode.getLevel());
-									newChildTerminalNode.setLabel(childTerminalNode.getLabel());
+									newChildTerminalNode.setLabel(childTerminalNode.getLabel()+" - Copy");
 									newChildTerminalNode.setEntityList(childTerminalNode.getEntityList());
 									nodeTree.getTreeData().addItem(newChildMerchantNode, newChildTerminalNode);
 									for (Node childDeviceNode : nodeTree.getTreeData().getChildren(childTerminalNode)) {
 										Node newChildDeviceNode = new Node();
 										newChildDeviceNode.setLevel(childDeviceNode.getLevel());
-										newChildDeviceNode.setLabel(childDeviceNode.getLabel());
+										newChildDeviceNode.setLabel(childDeviceNode.getLabel()+" - Copy");
 										newChildDeviceNode.setEntityList(childDeviceNode.getEntityList());
 										nodeTree.getTreeData().addItem(newChildTerminalNode, newChildDeviceNode);
 									}
@@ -418,7 +460,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 							for (Node childNode : nodeTree.getTreeData().getChildren(selectedNodeForCopy)) {
 								// FIXME: provide a common log of copy constructor
 								Node newChildNode = new Node();
-								newChildNode.setLabel(childNode.getLabel());
+								newChildNode.setLabel(childNode.getLabel()+" - Copy");
 								newChildNode.setLevel(childNode.getLevel());
 								newChildNode.setEntityList(childNode.getEntityList());
 								nodeTree.getTreeData().addItem(copyPasteNode, newChildNode);
@@ -428,8 +470,8 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 								&& copyPasteNode.getLevel().equals(NodeLevel.DEVICE))
 							nodeTree.getTreeData().addItem(toPasteNode, copyPasteNode);
 						else
-							Notification.show("The Node " + selectedNodeForCopy.getLabel() + " can't be copied under "
-									+ toPasteNode.getLabel());
+							Notification.show("The entity " + selectedNodeForCopy.getLabel() + " can't be copied under "
+									+ toPasteNode.getLabel(), Type.ERROR_MESSAGE);
 
 						nodeTree.getDataProvider().refreshAll();
 					}
@@ -444,7 +486,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		
 		editEntity = new Button(VaadinIcons.EDIT, click -> {
 			if(nodeTree.getSelectedItems().size()==0) {
-				Notification.show("Select any entity to Edit", Notification.Type.WARNING_MESSAGE).setDelayMsec(3000);
+				Notification.show(NotificationUtil.PERSONALIZATION_EDIT, Notification.Type.ERROR_MESSAGE);
 			}else {
 			entityFormLayout.setEnabled(true);
 			overRideParamGrid.setEnabled(true);
@@ -457,7 +499,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		
 		deleteEntity = new Button(VaadinIcons.TRASH, click -> {
 			if(nodeTree.getSelectedItems().size()==0) {
-				Notification.show("Select any entity to delete", Notification.Type.WARNING_MESSAGE).setDelayMsec(3000);
+				Notification.show(NotificationUtil.PERSONALIZATION_DELETE, Notification.Type.ERROR_MESSAGE);
 			}else {
 			confirmDeleteEntity();
 			}
@@ -465,7 +507,8 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		deleteEntity.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		deleteEntity.setDescription("Delete Entities", ContentMode.HTML);
 		
-		treeButtonLayout.addComponents(treeNodeSearch,createEntity,copyEntity,pasteEntity,editEntity,deleteEntity);
+		treeButtonLayout.addComponents(treeNodeSearch);
+		treeSearchLayout.addComponents(createEntity,copyEntity,pasteEntity,editEntity,deleteEntity);
 	}
 	
 	private void getEntityInformation(HorizontalSplitPanel splitScreen) {
@@ -478,7 +521,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		saveCancelEntityInfoLabelLayout.setSizeFull();
 		entityFormLayout = new FormLayout();
 		entityFormLayout.setWidth("100%");
-		entityFormLayout.addStyleName("personlization-formLayout");
+		entityFormLayout.addStyleNames("personlization-formLayout", "system-LabelAlignment");
 		
 		Label entityInformationLabel = new Label("Entity Information");
 		entityInformationLabel.addStyleName("label-style");
@@ -512,7 +555,12 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 			
 			node.setLevel(entityType.getValue());
 			node.setLabel(entityName.getValue());
-			node.setDevice(deviceDropDown.getValue());
+			if(deviceDropDown.getValue() != null) {
+				node.setDevice(deviceDropDown.getValue());
+			}else {
+				Notification.show(NotificationUtil.SAVE, Type.ERROR_MESSAGE);
+			}
+			
 			node.setDescription(entityDescription.getValue());
 			node.setActive(activeCheckbox.getValue());
 			node.setSerialNum(entitySerialNum.getValue());
@@ -557,6 +605,8 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		
 		getEntityName(entityFormLayout);
 		
+		getDeviceDropdown(entityFormLayout);
+		
 		getEntityDescription(entityFormLayout);
 		
 		getEntityActive(entityFormLayout);
@@ -577,7 +627,8 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		entityType.setCaption("Entity Type");
 		entityType.setDataProvider(new ListDataProvider<>(Arrays.asList(NodeLevel.ENTITY,NodeLevel.REGION,
 				NodeLevel.MERCHANT,NodeLevel.TERMINAL,NodeLevel.DEVICE)));
-		entityType.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size");
+		entityType.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", 
+				"personlization-formAlignment", "small");
 //		entityType.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
 //		entityType.setWidth("48%");
 //		entityType.setStyleName("role-textbox");
@@ -590,26 +641,29 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 	}
 	
 	private void getEntityName(FormLayout entityFormLayout) {
-		HorizontalLayout entityNameDeviceDropDown = new HorizontalLayout();
-		entityNameDeviceDropDown.setCaption("Name");
-		entityNameDeviceDropDown.setWidth("100%");
-		entityName = new TextField();
+		
+		entityName = new TextField("Name");
 		entityName.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
 		entityName.setWidth("48%");
 		entityName.setStyleName("role-textbox");
-		entityName.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
+		entityName.addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS, 
+				"personlization-formAlignment", "v-textfield-lineHeight");
 		//entityName.addStyleName("v-grid-cell");
 		
+		entityFormLayout.addComponent(entityName);
+	}
+	
+	private void getDeviceDropdown(FormLayout entityFormLayout) {
+		
 		deviceDropDown = new ComboBox<Devices>();
-		deviceDropDown.setCaption("");
-		deviceDropDown.setPlaceholder("Device");
+		deviceDropDown.setCaption("Devices");
+		deviceDropDown.setPlaceholder("Select Device");
 		deviceDropDown.setDataProvider(deviceService.getListDataProvider());
-		deviceDropDown.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size");
+		deviceDropDown.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", 
+				"personlization-formAlignment", "small");
 		//do Necessary operations for popping data
 		
-		entityNameDeviceDropDown.addComponents(entityName, deviceDropDown);
-		
-		entityFormLayout.addComponent(entityNameDeviceDropDown);
+		entityFormLayout.addComponent(deviceDropDown);
 	}
 	
 	private void getEntityDescription(FormLayout entityFormLayout) {
@@ -618,7 +672,8 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		entityDescription.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
 		entityDescription.setWidth("48%");
 		entityDescription.setStyleName("role-textbox");
-		entityDescription.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
+		entityDescription.addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS, 
+				"personlization-formAlignment", "v-textfield-lineHeight");
 		
 		//do Necessary operations for popping data
 		
@@ -629,27 +684,30 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 	private void getEntityActive(FormLayout entityFormLayout) {
 		
 		HorizontalLayout entityActiveLayout = new HorizontalLayout();
+		//entityActiveLayout.addStyleNames("personlization-formAlignment");
 		Label active = new Label("Active");
 		active.setStyleName("role-activeLable");
-		active.addStyleName("v-textfield-font");
+		active.addStyleNames("v-textfield-font", "role-activeLabel");
 		activeCheckbox = new CheckBox();
 		activeCheckbox.setCaption("Entity Active");
-		activeCheckbox.addStyleName("v-textfield-font");
+		activeCheckbox.addStyleNames("v-textfield-font", "personlization-activeCheckbox");
 		//do Necessary operations for popping data
 		
 		entityActiveLayout.addComponents(active, activeCheckbox);
 		entityActiveLayout.setStyleName("role-activeLable");
-		entityActiveLayout.addStyleName("assetAlert-activeCheckBox");
+		entityActiveLayout.addStyleNames("assetAlert-activeCheckBox", "personlization-formAlignment", 
+				"personlization-activeLayout");
 		
 		entityFormLayout.addComponent(entityActiveLayout);
 	}
 	
 	private void getEntitySerialNum(FormLayout entityFormLayout) {
-		entitySerialNum = new TextField("Serial Num.");
+		entitySerialNum = new TextField("Serial Number");
 		entitySerialNum.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
 		entitySerialNum.setWidth("48%");
 		entitySerialNum.setStyleName("role-textbox");
-		entitySerialNum.addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS, "v-textfield-font");
+		entitySerialNum.addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS, "v-textfield-font", 
+				"personlization-formAlignment", "v-textfield-lineHeight");
 		
 		
 		//do Necessary operations for popping data
@@ -660,17 +718,19 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 	private void getEntityHeartBeat(FormLayout entityFormLayout) {
 		
 		HorizontalLayout entityHeartbeatLayout = new HorizontalLayout();
-		Label heartbeat = new Label("HeartBeat");
+		//entityHeartbeatLayout.addStyleNames("personlization-formAlignment");
+		Label heartbeat = new Label("Heartbeat");
 		heartbeat.setStyleName("role-activeLable");
-		heartbeat.addStyleName("v-textfield-font");
+		heartbeat.addStyleNames("v-textfield-font", "role-activeLabel");
 		activateHeartbeat = new CheckBox();
 		activateHeartbeat.setCaption("Entity Active");
-		activateHeartbeat.addStyleName("v-textfield-font");
+		activateHeartbeat.addStyleNames("v-textfield-font", "personlization-heartbeatCheckbox");
 		//do Necessary operations for popping data
 		
 		entityHeartbeatLayout.addComponents(heartbeat, activateHeartbeat);
 		entityHeartbeatLayout.setStyleName("role-activeLable");
-		entityHeartbeatLayout.addStyleName("assetAlert-activeCheckBox");
+		entityHeartbeatLayout.addStyleNames("assetAlert-activeCheckBox", 
+				"personlization-formAlignment", "personlization-heartbeatLayout");
 		
 		entityFormLayout.addComponent(entityHeartbeatLayout);
 	}
@@ -682,7 +742,8 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 				Arrays.asList("120 Seconds", "90 Seconds", " 30 Seconds","Daily", "Monthly","Never")));
 		frequencyDropDown.setCaption("Frequency");
 		frequencyDropDown.setPlaceholder("Frequency");
-		frequencyDropDown.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size");
+		frequencyDropDown.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", 
+				"personlization-formAlignment", "small");
 		//do Necessary operations for popping data
 		
 		entityFormLayout.addComponent(frequencyDropDown);
@@ -691,13 +752,14 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 	private void getApplicationSelection(FormLayout entityFormLayout) {
 		
 		HorizontalLayout entityApplicationSelection = new HorizontalLayout();
+		entityApplicationSelection.addStyleNames("personlization-formAlignment", "personlization-applicationSelectionLayout");
 		entityApplicationSelection.setCaption("Application Selection");
 		appDropDown = new ComboBox<App>();
 		//frequencyDropDown.setDataProvider(new ListDataProvider<>(Arrays.asList("24 Hours", "1 Hour", " 30 Minutes")));
 		appDropDown.setCaption("");
 		appDropDown.setPlaceholder("Application");
 		appDropDown.setDataProvider(appService.getListDataProvider());
-		appDropDown.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size");
+		appDropDown.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", "small");
 		
 		//do Necessary operations for popping data
 		
@@ -706,7 +768,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 				Arrays.asList("Entity Files", "Region Files", "Merchant Files", "Terminal Files", "Device Files")));
 		addtnlFilesDropDown.setCaption("");
 		addtnlFilesDropDown.setPlaceholder("Additional Files");
-		addtnlFilesDropDown.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size");
+		addtnlFilesDropDown.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", "small");
 		
 		//do Necessary operations for popping data
 		
@@ -715,7 +777,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		profileDropDown.setCaption("");
 		profileDropDown.setPlaceholder("Default Profile");
 		profileDropDown.setDataProvider(profileService.getListDataProvider());
-		profileDropDown.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size");
+		profileDropDown.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", "small");
 		
 		//do Necessary operations for popping data
 		
@@ -731,7 +793,8 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 				"Update 3", "Update 4", "Update 5")));
 		updateDropDown.setCaption("Schedule Update");
 		updateDropDown.setPlaceholder("Update");
-		updateDropDown.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size");
+		updateDropDown.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", 
+				"personlization-formAlignment", "small");
 		
 		//do Necessary operations for popping data
 	
@@ -756,6 +819,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		
 		overRideParamSearch = new TextField();
 		overRideParamSearch.setWidth("100%");
+		overRideParamSearch.setHeight(37, Unit.PIXELS);
 		overRideParamSearch.setIcon(VaadinIcons.SEARCH);
 		overRideParamSearch.setStyleName("small inline-icon search");
 		overRideParamSearch.addStyleName("v-textfield-font");
@@ -777,9 +841,11 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 //		editParam.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		
 		deleteParam = new Button(VaadinIcons.TRASH, click -> {
-			if (overRideParamGrid.getSelectedItems().isEmpty()) {
-				Notification.show("Select any App Default Parameter type to delete", Notification.Type.WARNING_MESSAGE)
-						.setDelayMsec(3000);
+			if (nodeTree.getSelectedItems().size()==0) {
+				Notification.show(NotificationUtil.PERSONALIZATION_DELETE, Notification.Type.ERROR_MESSAGE);
+			} 
+			else if (overRideParamGrid.getSelectedItems().isEmpty()) {
+				Notification.show(NotificationUtil.PERSONALIZATION_PARAM_DELETE, Notification.Type.ERROR_MESSAGE);
 			} else {
 				confirmDeleteOverRideParam(overRideParamGrid, overRideParamSearch);
 			}
@@ -791,6 +857,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		overRideParamSearchButtonLayout.addComponents(overRideParamSearchLayout, overRideParamButtonLayout);
 		
 		overRideParamGrid = new Grid<>(OverRideParameters.class);
+		overRideParamGrid.addStyleNames("personlization-gridHeight");
 		overRideParamGrid.setWidth("100%");
 		overRideParamGrid.setHeightByRows(5);
 		overRideParamGrid.setResponsive(true);
@@ -803,9 +870,12 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		paramComboBox.setDataProvider(new ListDataProvider<>(Arrays.asList(ParameterType.values())));
 		overRideParamGrid.getColumn("type").setEditorComponent(paramComboBox);
 		overRideParamGrid.getEditor().setEnabled(true).addSaveListener(save -> {
-			// Save listner. Typically value is set to selected App
-			// If not happening then get the Object from list of Selected App and set the
-			// edited value
+			/*OverRideParameters param = overRideParamGrid.getSelectedItems().iterator().next();
+			if(param.getParameter().isEmpty() || 
+					param.getDescription().isEmpty() || param.getType()==null ||
+							param.getValue().isEmpty()) {
+				Notification.show("Data cannot be empty in a selected row");
+			}*/
 
 		});
 		
@@ -829,7 +899,9 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 	
 	private Window openTreeNodeEditWindow(Node nodeToEdit) {
 		Window nodeEditWindow = new Window("Edit Node");
+		String label = nodeToEdit.getLabel();
 		TextField nodeName = new TextField("Name",nodeToEdit.getLabel());
+		nodeName.addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS, "role-textbox","v-textfield-font", "v-grid-cell");
 		Button saveNode = new Button("Save",click->{
 			if(StringUtils.isNotEmpty(nodeName.getValue())){
 				nodeToEdit.setLabel(nodeName.getValue());
@@ -838,13 +910,23 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 				nodeEditWindow.close();
 				
 			}else {
-				Notification.show("Empty text cant be saved.",Type.ERROR_MESSAGE);
+				Notification notification = Notification.show(NotificationUtil.PERSONALIZATION_EDIT_ENTITY_NAME,Type.ERROR_MESSAGE);
+				notification.addCloseListener(new CloseListener() {
+
+					@Override
+					public void notificationClose(CloseEvent e) {
+						nodeName.setValue(label);
+						
+					}});
 			}
 		});
+		
+		saveNode.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		
 		Button cancelNode = new Button("Cancel", click -> {
 			nodeEditWindow.close();
 		});
+		cancelNode.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		HorizontalLayout buttonLayout = new HorizontalLayout(saveNode, cancelNode);
 		FormLayout profileFormLayout = new FormLayout(nodeName);
 		
@@ -860,6 +942,9 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 	private Window openEntityWindow() {
 		Window entityWindow = new Window("Add Entity");
 		TextField entityName = new TextField("Name");
+		entityName.setStyleName("role-textbox");
+		entityName.addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS, "v-textfield-font");
+		entityName.focus();
 
 		Button saveProfile = new Button("Save", click -> {
 			if (StringUtils.isNotEmpty(entityName.getValue()) && nodeTree.getSelectedItems().size() == 1) {
@@ -897,23 +982,28 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 					break;
 				case DEVICE:
 					entityWindow.close();
-					Notification.show("Not allowed to add node under Device", Type.ERROR_MESSAGE);
+					Notification.show(NotificationUtil.PERSONALIZATION_CREATE_ENTITY_UNDER_DEVICE, Type.ERROR_MESSAGE);
 					return;
 				default:
 					break;
 				}
 				nodeTree.getTreeData().addItem(selectedNode, newNode);
 				nodeTree.getDataProvider().refreshAll();
+				entityWindow.close();
 
+			}else {
+			Notification.show(NotificationUtil.PERSONALIZATION_NEW_ENTITY_NAME, Type.ERROR_MESSAGE);
 			}
-			entityWindow.close();
+			//entityWindow.close();
 		});
 		
+		saveProfile.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		//nodeTree.getTreeData().addItem(selectedNode, newNode);
 		
 		Button cancelProfile = new Button("Reset", click -> {
 			entityName.clear();
 		});
+		cancelProfile.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		HorizontalLayout buttonLayout = new HorizontalLayout(saveProfile, cancelProfile);
 		FormLayout profileFormLayout = new FormLayout(entityName);
 
@@ -991,15 +1081,33 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 	}
 	
 	private Window openOverRideParamWindow(Grid<OverRideParameters> overRideParamGrid) {
-		Window overRideParamWindow = new Window("Add Over Ride Parameter");
-		TextField parameterName = new TextField("Parameter");
-		TextField parameterDescription = new TextField("Description");
-		ComboBox<ParameterType> parameterType = new ComboBox<>("Type");
+		
+		if(nodeTree.getSelectedItems().size()==0) {
+			Notification.show(NotificationUtil.PERSONALIZATION_CREATE_PARAM, Type.ERROR_MESSAGE);
+		}else {
+		overRideParamWindow = new Window("Add Over Ride Parameter");
+		parameterName = new TextField("Parameter");
+		parameterName.setStyleName("role-textbox");
+		parameterName.addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS, "v-textfield-font", "v-grid-cell");
+		parameterName.focus();
+		
+		parameterDescription = new TextField("Description");
+		parameterDescription.setStyleName("role-textbox");
+		parameterDescription.addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS, "v-textfield-font", "v-grid-cell");
+		
+		parameterType = new ComboBox<>("Type");
+		parameterType.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", "small");
 		parameterType.setDataProvider(new ListDataProvider<>(Arrays.asList(ParameterType.values())));
-		TextField parameterValue = new TextField("Value");
+		
+		parameterValue = new TextField("Value");
+		parameterValue.setStyleName("role-textbox");
+		parameterValue.addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS, "v-textfield-font", "v-grid-cell");
+		
 		Button saveParameter = new Button("Save", click -> {
-			if (StringUtils.isNotEmpty(parameterType.getValue().name())
-					&& StringUtils.isNotEmpty(parameterName.getValue())) {
+			if (parameterType.getValue()!=null
+					&& StringUtils.isNotEmpty(parameterName.getValue()) &&
+					StringUtils.isNotEmpty(parameterValue.getValue()) &&
+					StringUtils.isNotEmpty(parameterDescription.getValue())) {
 				OverRideParameters overRideParam = new OverRideParameters(parameterName.getValue(),
 						parameterDescription.getValue(), parameterType.getValue(), parameterValue.getValue());
 //				overRideParamService.saveOverRideParam(overRideParam);
@@ -1041,14 +1149,20 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 //				DataProvider data = new ListDataProvider(list);
 //				overRideParamGrid.setDataProvider(data);
 				overRideParamWindow.close();
+			} else {
+				Notification.show(NotificationUtil.SAVE, Type.ERROR_MESSAGE);
 			}
 		});
+		saveParameter.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
+		
 		Button cancelParameter = new Button("Reset", click -> {
 			parameterName.clear();
 			parameterValue.clear();
 			parameterDescription.clear();
 			parameterType.clear();
 		});
+		cancelParameter.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
+		
 		HorizontalLayout buttonLayout = new HorizontalLayout(saveParameter, cancelParameter);
 		FormLayout profileFormLayout = new FormLayout(parameterName, parameterType, parameterDescription,
 				parameterValue);
@@ -1059,6 +1173,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		overRideParamWindow.setModal(true);
 		overRideParamWindow.setClosable(true);
 		overRideParamWindow.setWidth(30, Unit.PERCENTAGE);
-		return overRideParamWindow;
+		}
+		return overRideParamWindow;	
 	}
 }

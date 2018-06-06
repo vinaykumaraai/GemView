@@ -49,7 +49,10 @@ import com.luretechnologies.tms.backend.data.entity.User;
 import com.luretechnologies.tms.backend.service.MockUserService;
 import com.luretechnologies.tms.backend.service.TreeDataService;
 import com.luretechnologies.tms.ui.view.admin.AbstractCrudView;
+import com.luretechnologies.tms.ui.view.admin.RoleSelect;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Component.Focusable;
 import com.vaadin.ui.Grid;
@@ -57,6 +60,8 @@ import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.renderers.HtmlRenderer;
 import com.vaadin.ui.HorizontalSplitPanel;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.NativeSelect;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
@@ -176,7 +181,7 @@ public class UserAdminView extends AbstractCrudView<User> {
 	@Override
 	protected Button getCancel() {
 		Button btn = getViewComponent().cancel;
-		btn.addStyleName("v-button-customstyle");
+		//btn.addStyleName("v-button-customstyle");
 		return btn;
 	}
 
@@ -189,8 +194,8 @@ public class UserAdminView extends AbstractCrudView<User> {
 
 	@Override
 	protected Button getUpdate() {
-		Button btn = getViewComponent().update;
-		btn.addStyleName("v-button-customstyle");
+		Button btn = getViewComponent().save;
+		//btn.addStyleName("v-button-customstyle");
 		return btn;
 	}
 
@@ -255,7 +260,82 @@ public class UserAdminView extends AbstractCrudView<User> {
 	protected TextField getEmail() {
 		return getViewComponent().email;
 	}
-
+	
+	@Override
+	protected TextField getIP() {
+		return getViewComponent().ipField;
+	}
+	
+	@Override
+	protected TextField getPassword() {
+		return getViewComponent().password;
+	}
+	
+	@Override
+	protected ComboBox<String> getVerification() {
+		return getViewComponent().verificationFrequency;
+	}
+	
+	@Override
+	protected ComboBox<String> getPassFreqncy() {
+		return getViewComponent().passwordFrequency;
+	}
+	
+	@Override
+	protected ComboBox<String> getRole() {
+		return getViewComponent().roles;
+	}
+	
+	@Override
+	protected HorizontalLayout getActiveLayout() {
+		return getViewComponent().activeLayout;
+	}
+	
+	@Override
+	protected HorizontalLayout getFixedIPLayout() {
+		return getViewComponent().fixedIPLayout;
+	}
+	
+	@Override
+	protected HorizontalLayout getPassFreqnyLayout() {
+		return getViewComponent().passfrequencyLayout;
+	}
+	
+	@Override
+	protected Button getAuthentication() {
+		return getViewComponent().anuthenticationButton;
+	}
+	
+	@Override
+	protected Button getTempPassword() {
+		return getViewComponent().temppassowrd;
+	}
+	
+	@Override
+	protected CheckBox getActiveBox() {
+		return getViewComponent().active;
+	}
+	
+	@Override
+	protected CheckBox getFixedIPBox() {
+		return getViewComponent().fixedip;
+	}
+	
+	@Override
+	protected HorizontalLayout getSaveCancelLayout() {
+		return getViewComponent().saveCancelLayout;
+	}
+	
+	@Override
+	protected HorizontalLayout getAuthenticationLayout() {
+		return getViewComponent().authenticationLayout;
+	}
+	
+	@Override
+	protected Label getAuthenticationLabel() {
+		return getViewComponent().authenticationLabel;
+	}
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	protected Tree<Node> getUserTree(TreeData<Node> treeData) {

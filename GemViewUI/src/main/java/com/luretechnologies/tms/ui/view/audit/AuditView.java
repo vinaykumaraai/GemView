@@ -128,21 +128,38 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 			if(r.getWidth()<=1400 && r.getWidth()>=700) {
 				tabMode();
 				splitScreen.setSplitPosition(30);
-				debugStartDateField.setHeight("100%");
+				/*debugStartDateField.setHeight("100%");
 				debugEndDateField.setHeight("100%");
 				treeNodeSearch.setHeight(37, Unit.PIXELS);
-				debugSearch.setHeight(37, Unit.PIXELS);
+				debugSearch.setHeight(37, Unit.PIXELS);*/
 			}else if(r.getWidth()<=699 && r.getWidth()> 0){
 				phoneMode();
 				splitScreen.setSplitPosition(35);
-				debugStartDateField.setHeight(28,Unit.PIXELS);
+				/*debugStartDateField.setHeight(28,Unit.PIXELS);
 				debugEndDateField.setHeight(28,Unit.PIXELS);
 				treeNodeSearch.setHeight(28,Unit.PIXELS);
-				debugSearch.setHeight(28, Unit.PIXELS);
+				debugSearch.setHeight(28, Unit.PIXELS);*/
 				
 			} else {
 				desktopMode();
 				splitScreen.setSplitPosition(20);
+				/*debugStartDateField.setHeight("100%");
+				debugEndDateField.setHeight("100%");
+				treeNodeSearch.setHeight(37, Unit.PIXELS);
+				debugSearch.setHeight(37, Unit.PIXELS);*/
+			}
+			
+			if(r.getWidth()<=600) {
+				debugStartDateField.setHeight("28px");
+				debugEndDateField.setHeight("28px");
+				treeNodeSearch.setHeight(28, Unit.PIXELS);
+				debugSearch.setHeight(28, Unit.PIXELS);
+			} else if(r.getWidth()>600 && r.getWidth()<=1000){
+				debugStartDateField.setHeight("32px");
+				debugEndDateField.setHeight("32px");
+				treeNodeSearch.setHeight(32, Unit.PIXELS);
+				debugSearch.setHeight(32, Unit.PIXELS);
+			}else {
 				debugStartDateField.setHeight("100%");
 				debugEndDateField.setHeight("100%");
 				treeNodeSearch.setHeight(37, Unit.PIXELS);
@@ -201,25 +218,42 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		if(width >0 && width <=699) {
 			phoneMode();
 			splitScreen.setSplitPosition(35);
-			treeNodeSearch.setHeight(28,Unit.PIXELS);
+			/*treeNodeSearch.setHeight(28,Unit.PIXELS);
 			debugSearch.setHeight(28, Unit.PIXELS);
 			debugStartDateField.setHeight(28,Unit.PIXELS);
-			debugEndDateField.setHeight(28,Unit.PIXELS);
+			debugEndDateField.setHeight(28,Unit.PIXELS);*/
 		} else if(width>=700 && width<=1400) {
 			tabMode();
 			splitScreen.setSplitPosition(30);
-			treeNodeSearch.setHeight(37, Unit.PIXELS);
+			/*treeNodeSearch.setHeight(37, Unit.PIXELS);
 			debugSearch.setHeight(37, Unit.PIXELS);
 			debugStartDateField.setHeight("100%");
-			debugEndDateField.setHeight("100%");
+			debugEndDateField.setHeight("100%");*/
 		}
 		else {
 			desktopMode();
 			splitScreen.setSplitPosition(20);
-			treeNodeSearch.setHeight(37, Unit.PIXELS);
+			/*treeNodeSearch.setHeight(37, Unit.PIXELS);
 			debugSearch.setHeight(37, Unit.PIXELS);
 			debugStartDateField.setHeight("100%");
+			debugEndDateField.setHeight("100%");*/
+		}
+		
+		if(width<=600) {
+			debugStartDateField.setHeight("28px");
+			debugEndDateField.setHeight("28px");
+			treeNodeSearch.setHeight(28, Unit.PIXELS);
+			debugSearch.setHeight(28, Unit.PIXELS);
+		} else if(width>600 && width<=1000){
+			debugStartDateField.setHeight("32px");
+			debugEndDateField.setHeight("32px");
+			treeNodeSearch.setHeight(32, Unit.PIXELS);
+			debugSearch.setHeight(32, Unit.PIXELS);
+		}else {
+			debugStartDateField.setHeight("100%");
 			debugEndDateField.setHeight("100%");
+			treeNodeSearch.setHeight(37, Unit.PIXELS);
+			debugSearch.setHeight(37, Unit.PIXELS);
 		}
 	}
 	
@@ -349,7 +383,7 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		debugLayoutFull.setResponsive(true);
 		debugGrid = new Grid<>(Debug.class);
 		debugGrid.setWidth("100%");
-		debugGrid.setHeight("100%");
+		debugGrid.setHeight("97%");
 		debugGrid.addStyleName("grid-AuditOdometerAlignment");
 		debugGrid.setResponsive(true);
 		debugGrid.setSelectionMode(SelectionMode.SINGLE);
@@ -396,7 +430,7 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		});
 
 			deleteGridRow = new Button(VaadinIcons.TRASH);
-			deleteGridRow.addStyleName(ValoTheme.BUTTON_FRIENDLY);
+			deleteGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 			//deleteGridRow.addStyleName("v-button-customstyle");
 			deleteGridRow.setResponsive(true);
 			//deleteGridRow.setWidth("100%");

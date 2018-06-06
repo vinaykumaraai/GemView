@@ -315,7 +315,7 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		comboBoxType.setCaptionAsHtml(true);
 		comboBoxType.setCaption("Type"); 
 		//combobox.addStyleName();
-		comboBoxType.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size","system-TypeAlignment");
+		comboBoxType.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size","system-TypeAlignment", "small");
 		comboBoxType.setDataProvider(new ListDataProvider<>(Arrays.asList("Text", "Numeric","Boolean")));
 		comboBoxType.setValue(type);
 		formLayout.addComponent(comboBoxType);

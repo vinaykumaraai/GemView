@@ -62,19 +62,26 @@ import com.luretechnologies.tms.backend.data.entity.Node;
 import com.luretechnologies.tms.backend.data.entity.NodeLevel;
 import com.luretechnologies.tms.backend.data.entity.User;
 import com.luretechnologies.tms.backend.service.TreeDataService;
+import com.luretechnologies.tms.ui.NotificationUtil;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Component.Focusable;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.NativeSelect;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.components.grid.SingleSelectionModel;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -135,10 +142,10 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 	}
 
 	public void showInitialState() {
-		getForm().setEnabled(false);
+		getForm().setEnabled(true);
 		//getForm().re
 		getGrid().deselectAll();
-		getGrid().setHeightByRows(7);
+		getGrid().setHeightByRows(5);
 		getUpdate().setCaption(CAPTION_UPDATE);
 		getCancel().setCaption(CAPTION_DISCARD);
 		getTree().setItemIconGenerator(item -> {
@@ -166,26 +173,31 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 			getCancel().setCaption(CAPTION_CANCEL);
 			getFirstFormField().focus();
 			getForm().setEnabled(true);
+//			getRole().d
 		} else {
 			getUpdate().setCaption(CAPTION_UPDATE);
 			getCancel().setCaption(CAPTION_DISCARD);
 			getForm().setEnabled(false);
 		}
-		getDelete().setEnabled(!isNew);
+		getDelete().setEnabled(true);
 	}
 
 	@SuppressWarnings("unchecked")
 	@PostConstruct
 	private void initLogic() {
 		Page.getCurrent().addBrowserWindowResizeListener(r->{
-			if(r.getWidth()>=1000) {
-				treeNodeSearch.setHeight(37, Unit.PIXELS);
-				getSearch().setHeight(37, Unit.PIXELS);
-			} else {
+			if(r.getWidth()<=600) {
 				treeNodeSearch.setHeight(28, Unit.PIXELS);
 				getSearch().setHeight(28, Unit.PIXELS);
+			} else if(r.getWidth()>600 && r.getWidth()<=1000){
+				treeNodeSearch.setHeight(32, Unit.PIXELS);
+				getSearch().setHeight(32, Unit.PIXELS);
+			}else {
+				treeNodeSearch.setHeight(37, Unit.PIXELS);
+				getSearch().setHeight(37, Unit.PIXELS);
 			}
 		});
+		
 		
 		setHeight("100%");
 		//treeNodeInputLabel = new TextField();
@@ -219,7 +231,7 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 		//treePanelLayout.setMargin(true);
 		//treePanelLayout.setComponentAlignment(treeComponent, Alignment.BOTTOM_LEFT);
 		getSplitScreen().setFirstComponent(verticalPanelLayout);
-		getSplitScreen().setSplitPosition(30);
+		getSplitScreen().setSplitPosition(20);
 		//getSplitScreen().addComponent(userDataLayout());
 //		addTreeNode.addClickListener(click -> {
 //			if (getTree().getSelectedItems().size() == 1) {
@@ -274,8 +286,8 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 		//getTree().getTreeData().addItem(selectedNode, newNode);
 		getTree().getDataProvider().refreshAll();
 		getEdit().addClickListener(event -> {
-		if(getUserName().getValue()==null || getUserName().getValue().isEmpty()) {
-			Notification.show("Please select User to edit", Type.WARNING_MESSAGE).setDelayMsec(3000);
+		if(getGrid().getSelectedItems().isEmpty()) {
+			Notification.show(NotificationUtil.USER_EDIT, Type.ERROR_MESSAGE);
 		}else {
 			getForm().setEnabled(true);
 		}
@@ -298,14 +310,21 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 
 		// Button logic
 		getUpdate().addClickListener(event -> {
-			Node selectedNode = getTree().getSelectedItems().iterator().next();
-			getPresenter().updateClicked();
-			DataProvider data = new TreeDataProvider(treeDataService.getTreeDataForUser());
-			getTree().setDataProvider(data);
-			T selectedUser = getGrid().getSelectedItems().iterator().next();
-			loadGridData();
-			getTree().select(selectedNode);
-			getGrid().select(selectedUser);
+			if(getUserName().getValue()==null || getUserName().getValue().isEmpty() ||
+					getFirstName().getValue()==null || getFirstName().isEmpty() ||
+					getLastName().getValue()==null || getLastName().getValue().isEmpty() ||
+					getPassword().getValue()==null || getPassword().isEmpty()) {
+				Notification.show(NotificationUtil.SAVE, Notification.Type.ERROR_MESSAGE);
+			}else {
+				Node selectedNode = getTree().getSelectedItems().iterator().next();
+				getPresenter().updateClicked();
+				DataProvider data = new TreeDataProvider(treeDataService.getTreeDataForUser());
+				getTree().setDataProvider(data);
+				T selectedUser = getGrid().getSelectedItems().iterator().next();
+				loadGridData();
+				getTree().select(selectedNode);
+				getGrid().select(selectedUser);
+			}
 
 		});
 
@@ -327,7 +346,18 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 		});
 
 		getCancel().addClickListener(event -> getPresenter().cancelClicked());
-		getDelete().addClickListener(event -> getPresenter().deleteClicked());
+		getDelete().addClickListener(new ClickListener() {
+			
+			@Override
+			public void buttonClick(ClickEvent event) {
+				if(getGrid().getSelectedItems().isEmpty()) {
+					Notification.show(NotificationUtil.USER_DELETE, Notification.Type.ERROR_MESSAGE);
+				}else {
+				
+					getPresenter().deleteClicked();
+				}
+			}
+		});
 		getAdd().addClickListener(event -> getPresenter().addNewClicked());
 
 		// Search functionality
@@ -337,29 +367,99 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 		getSearchlayout().addStyleName("user-searchLayout");
 		
 		getUserName().setStyleName("role-textbox");
-		getUserName().addStyleNames(ValoTheme.TEXTFIELD_INLINE_ICON, ValoTheme.TEXTFIELD_BORDERLESS,
-				"v-grid-cell");
+		getUserName().addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS,
+				"v-grid-cell", "v-textfield-lineHeight");
 		
 		getFirstName().setStyleName("role-textbox");
-		getFirstName().addStyleNames(ValoTheme.TEXTFIELD_INLINE_ICON, ValoTheme.TEXTFIELD_BORDERLESS,
-				"v-grid-cell");
+		getFirstName().addStyleNames( ValoTheme.TEXTFIELD_BORDERLESS,
+				"v-grid-cell", "v-textfield-lineHeight");
 		
 		getLastName().setStyleName("role-textbox");
-		getLastName().addStyleNames(ValoTheme.TEXTFIELD_INLINE_ICON, ValoTheme.TEXTFIELD_BORDERLESS,
-				"v-grid-cell");
+		getLastName().addStyleNames( ValoTheme.TEXTFIELD_BORDERLESS,
+				"v-grid-cell", "v-textfield-lineHeight");
 		
 		getEmail().setStyleName("role-textbox");
-		getEmail().addStyleNames(ValoTheme.TEXTFIELD_INLINE_ICON, ValoTheme.TEXTFIELD_BORDERLESS,
-				"v-grid-cell");
+		getEmail().addStyleNames( ValoTheme.TEXTFIELD_BORDERLESS,
+				"v-grid-cell", "v-textfield-lineHeight");
+		
+		getIP().setStyleName("role-textbox");
+		getIP().addStyleNames( ValoTheme.TEXTFIELD_BORDERLESS,
+				"v-grid-cell", "v-textfield-lineHeight");
+		
+		getPassword().setStyleName("role-textbox");
+		getPassword().addStyleNames( ValoTheme.TEXTFIELD_BORDERLESS,
+				"v-grid-cell", "v-textfield-lineHeight");
+		
+		getForm().addStyleNames("system-LabelAlignment", "user-formLayout");
+		
+		getVerification().setCaptionAsHtml(true);
+		getVerification().setCaption("Verification");
+		getVerification().addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size"
+				, "asset-debugComboBox");
+		getVerification().setPlaceholder("Frequency");
+		
+        getPassFreqncy().addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size",
+        		"user-passFRqncyComboBox");
+        getPassFreqncy().setPlaceholder("Frequency");
+		
+//		getRole().addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size"
+//				, "asset-debugComboBox", "user-roles");
+        getRole().addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size",
+        		"user-rolesComboBox");
+        getRole().setPlaceholder("Select Role");
+        getRole().setItems(Role.getAllRoles());
+        //getRole().setValue();
+        
+		getUpdate().addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
+		
+		getCancel().addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
+		
+		getActiveLayout().addStyleNames("asset-debugComboBox", "user-activeLayout");
+		
+		getActiveBox().addStyleNames("user-activeBox", "v-textfield-font");
+		
+		getFixedIPLayout().addStyleNames("asset-debugComboBox", "user-fixedIPLayout");
+		
+		getFixedIPBox().addStyleNames("user-fixIPBox", "v-textfield-font");
+		
+		getPassFreqnyLayout().addStyleNames("asset-debugComboBox", "user-passFreqncyLayout");
+		
+		//getAuthentication().addStyleNames("asset-debugComboBox", "user-roles");
+		
+		getSaveCancelLayout().addStyleName("user-saveCancelLayout");
+		
+		getAuthentication().addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
+		
+		getTempPassword().addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
+		
+		getAuthenticationLayout().addStyleName("user-autheticationLayout");
+		
+		getAuthenticationLabel().addStyleName("user-autheticationLabel");
+		
+		getAuthentication().addStyleName("user-autheticationButton");
+		
+		
 		
 		int width = Page.getCurrent().getBrowserWindowWidth();
-		if(width >=1000) {
-			treeNodeSearch.setHeight(37, Unit.PIXELS);
-			getSearch().setHeight(37, Unit.PIXELS);
-		}
-		else {
+//		if(width >=1000) {
+//			treeNodeSearch.setHeight(37, Unit.PIXELS);
+//			getSearch().setHeight(37, Unit.PIXELS);
+//		}
+//		else {
+//			treeNodeSearch.setHeight(28, Unit.PIXELS);
+//			getSearch().setHeight(28, Unit.PIXELS);
+//		}
+		
+		//int width = Page.getCurrent().getBrowserWindowWidth();
+		if(width<=600) {
 			treeNodeSearch.setHeight(28, Unit.PIXELS);
 			getSearch().setHeight(28, Unit.PIXELS);
+		} else if(width>600 && width<=1000){
+			treeNodeSearch.setHeight(32, Unit.PIXELS);
+			getSearch().setHeight(32, Unit.PIXELS);
+		}else {
+			treeNodeSearch.setHeight(37, Unit.PIXELS);
+			getSearch().setHeight(37, Unit.PIXELS);
 		}
 	}
 
@@ -374,13 +474,13 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 		getGrid().setDataProvider(dataProvider);
 	}
 
-	public void setUpdateEnabled(boolean enabled) {
+	/*public void setUpdateEnabled(boolean enabled) {
 		getUpdate().setEnabled(enabled);
 	}
 
 	public void setCancelEnabled(boolean enabled) {
 		getCancel().setEnabled(enabled);
-	}
+	}*/
 
 	public void focusField(HasValue<?> field) {
 		if (field instanceof Focusable) {
@@ -455,5 +555,35 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 	protected abstract TextField getFirstName();
 	
 	protected abstract TextField getEmail();
+	
+	protected abstract TextField getIP();
+	
+	protected abstract TextField getPassword();
+	
+	protected abstract ComboBox<String> getVerification();
+	
+	protected abstract ComboBox<String> getRole(); 
+	
+	protected abstract HorizontalLayout getActiveLayout();
+	
+	protected abstract HorizontalLayout getFixedIPLayout();
+	
+	protected abstract HorizontalLayout getPassFreqnyLayout();
+	
+	protected abstract Button getAuthentication();
+	
+	protected abstract Button getTempPassword();
+	
+	protected abstract com.vaadin.ui.CheckBox getActiveBox();
+	
+	protected abstract CheckBox getFixedIPBox();
+	
+	protected abstract ComboBox<String> getPassFreqncy();
+	
+	protected abstract HorizontalLayout getSaveCancelLayout();
+	
+	protected abstract HorizontalLayout getAuthenticationLayout();
+	
+	protected abstract Label getAuthenticationLabel();
 
 }

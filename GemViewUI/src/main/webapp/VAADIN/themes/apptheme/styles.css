@@ -154,33 +154,64 @@
 	margin-left: -68px;
 }
 
-.applicatioStore-GridLayout {
+.applicationStore-GridLayout {
 	padding: 0px 0px 0px 0px !important;
 	background-color: #fff;
 }
 
-.applicatioStore-VerticalLayout {
-	padding: 20px 37px 0px 37px !important;
+.applicationStore-activeCheckBox {
+	padding-top: 12px;
+	margin-left: -23px;
 }
 
-.applicatioStore-FormLayout {
+.applicationStore-VerticalLayout {
+	padding: 0px 37px 0px 15px !important;
+	margin-top: -60px !important;
+}
+
+.applicationStore-ApplicationDetailsLayout {
+	padding: 20px 37px 0px 15px !important;
+}
+
+.applicationStore-ApplicationStoreLayout {
+	padding: 20px 15px 0px 37px !important;
+}
+
+.applicationStore-cancelsaveApplicationLabelLayout {
+	margin-bottom: -10px;
+}
+
+.applicationStore-cancelsaveLayout {
+	margin-left: 20px;
+}
+
+.applicationStore-FormLayout {
 	margin-top: -35px;
 	margin-left: 20px;
 }
 
-.applicatioStore-ListLayout {
+.applicationStore-ListLayout {
 	padding-left: 12px !important;
 	padding-right: 12px !important;
 	padding-bottom: 12px !important;
 	padding-top: 38px !important;
 }
 
-.applicatioStore-UploadWindow {
+.applicationStore-UploadWindow {
 	padding-top: 0px !important;
 }
 
-.applicatioStore-UploadButton {
+.applicationStore-UploadButton {
 	top: 0px !important;
+}
+
+.applicationStore-GridLayoutOverflow {
+	overflow: auto !important;
+	overflow-x: hidden !important;
+}
+
+.applicationStore-horizontalAlignment {
+	margin-left: 12px !important;
 }
 
 .apptheme .v-panel-caption {
@@ -217,6 +248,15 @@
 	box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.05), inset 0 2px 3px rgba(0, 0, 0, 0.05);
 	border-radius: 0px !important;
 	border: 1px solid #c5c5c5;
+}
+
+.apptheme .v-verticallayout-card, .apptheme .v-horizontallayout-card {
+	background: white;
+	color: #474747;
+	border-radius: 0px !important;
+	border: 1px solid #d5d5d5;
+	-webkit-box-shadow: 0 2px 3px rgba(0, 0, 0, 0.05);
+	box-shadow: 0 2px 3px rgba(0, 0, 0, 0.05);
 }
 
 .heartbeat-bad-terminal {
@@ -305,16 +345,44 @@
 
 .personlization-formLayout {
 	margin-top: -45px;
-	margin-left: 45px;
+	margin-left: 15px;
 }
 
 .personlization-paramButtonLayout {
 	margin-left: 12px;
-	margin-top: -10px;
+	margin-top: -23px;
 }
 
 .personlization-overRideParamLabelLayout {
-	margin-top: -35px;
+	margin-top: -44px;
+}
+
+.personlization-formAlignment {
+	float: left;
+}
+
+.personlization-activeLayout {
+	margin-left: -61px;
+}
+
+.personlization-activeCheckbox {
+	margin-left: -5px;
+}
+
+.personlization-heartbeatLayout {
+	margin-left: -93px;
+}
+
+.personlization-heartbeatCheckbox {
+	margin-left: -3px;
+}
+
+.personlization-gridHeight {
+	margin-top: -8px;
+}
+
+.personlization-applicationSelectionLayout {
+	margin-top: -28px;
 }
 
 .dashboard-gridCaption {
@@ -323,6 +391,11 @@
 	margin-left: 245px !important;
 	color: #197DE1 !important;
 	font-weight: bold !important;
+}
+
+.app-shell[width-range~="-1300px"] .applicationStore-VerticalLayout {
+	padding: 20px 37px 0px 15px !important;
+	margin-top: -40px !important;
 }
 
 .app-shell[width-range~="1001px-"] .v-heartbeat-Button {
@@ -426,7 +499,7 @@
 
 .app-shell[width-range~="601px-1000px"] .v-button-customstyle {
 	font-size: 14px !important;
-	height: 27px !important;
+	height: 32px !important;
 	padding: 0px 10px !important;
 	font-weight: 400 !important;
 }
@@ -516,8 +589,32 @@
 	font-weight: 400;
 }
 
-.app-shell[width-range~="601px-700px"] .v-caption-small span.v-icon {
-	line-height: 26px !important;
+.app-shell[width-range~="601px-1000px"] .user-activeLayout {
+	height: 15px !important;
+	margin-left: -60px !important;
+}
+
+.app-shell[width-range~="601px-1000px"] .user-fixedIPLayout {
+	height: 15px !important;
+	margin-left: -70px !important;
+	margin-bottom: 25px !important;
+	margin-top: 10px !important;
+}
+
+.app-shell[width-range~="601px-1000px"] .user-passFreqncyLayout {
+	margin-top: 15px !important;
+	margin-left: -82px !important;
+}
+
+.app-shell[width-range~="601px-1000px"] .user-autheticationLayout {
+	float: left;
+	margin-bottom: -6px !important;
+	margin-top: 20px !important;
+	margin-left: -115px !important;
+}
+
+.app-shell[width-range~="601px-1000px"] .v-caption-small span.v-icon {
+	line-height: 32px !important;
 }
 
 .app-shell[width-range~="-600px"] .v-panel-caption {
@@ -535,7 +632,7 @@
 
 .app-shell[width-range~="-600px"] .v-button-customstyle {
 	font-size: 12px !important;
-	height: 20px !important;
+	height: 28px !important;
 	padding: 0px 8px !important;
 	font-weight: 400 !important;
 }
@@ -627,6 +724,30 @@
 .app-shell[width-range~="-600px"] .asset-debugCheckbox {
 	margin-right: 3px;
 	font-weight: 400;
+}
+
+.app-shell[width-range~="-600px"] .user-activeLayout {
+	height: 15px !important;
+	margin-left: -53px !important;
+}
+
+.app-shell[width-range~="-600px"] .user-fixedIPLayout {
+	height: 15px !important;
+	margin-left: -62px !important;
+	margin-bottom: 25px !important;
+	margin-top: 10px !important;
+}
+
+.app-shell[width-range~="-600px"] .user-passFreqncyLayout {
+	margin-top: 15px !important;
+	margin-left: -73px !important;
+}
+
+.app-shell[width-range~="-600px"] .user-autheticationLayout {
+	float: left;
+	margin-bottom: -6px !important;
+	margin-top: 20px !important;
+	margin-left: -102px !important;
 }
 
 .app-shell[width-range~="-1000px"] .v-heartbeat-Button {
@@ -763,6 +884,7 @@
 
 .user-buttonsLayout {
 	padding-right: 15px !important;
+	margin-bottom: 10px !important;
 }
 
 .user-searchLayout {
@@ -773,6 +895,70 @@
 	padding: 8px 15px 37px 15px !important;
 }
 
+.user-formLayout {
+	margin-top: 15px !important;
+	margin-left: 30px !important;
+	margin-bottom: 20px !important;
+}
+
+.user-activeLayout {
+	height: 15px !important;
+	margin-left: -65px !important;
+}
+
+.user-autheticationLayout {
+	float: left;
+	margin-bottom: -6px !important;
+	margin-top: 20px !important;
+	margin-left: -128px !important;
+}
+
+.user-autheticationLabel {
+	margin-left: -127px !important;
+	margin-top: 20px !important;
+}
+
+.user-autheticationButton {
+	margin-left: 5px !important;
+}
+
+.user-fixedIPLayout {
+	height: 15px !important;
+	margin-left: -76px !important;
+	margin-bottom: 25px !important;
+	margin-top: 10px !important;
+}
+
+.user-rolesComboBox {
+	float: left;
+	margin-top: 12px;
+}
+
+.user-fixIPBox {
+	margin-left: 6px !important;
+}
+
+.user-activeBox {
+	margin-left: 7px !important;
+}
+
+.user-passFreqncyLayout {
+	margin-top: 15px !important;
+	margin-left: -90px !important;
+}
+
+.user-passFRqncyComboBox {
+	margin-left: 5px !important;
+}
+
+.user-roles {
+	margin-top: 12px !important;
+}
+
+.user-saveCancelLayout {
+	padding-right: 15px;
+}
+
 .apptheme .error {
 	font-weight: bolder;
 	color: red;
@@ -781,6 +967,20 @@
 .apptheme .warn {
 	font-weight: bolder;
 	color: orange;
+}
+
+.apptheme .v-window-header {
+	color: #fff !important;
+	background: #216c2a !important;
+}
+
+.apptheme .v-window-closebox, .apptheme .v-window-maximizebox, .apptheme .v-window-restorebox {
+	color: #fff !important;
+	background: #216c2a !important;
+}
+
+.apptheme .v-window-outerheader {
+	background: #216c2a !important;
 }
 
 /**
@@ -16235,12 +16435,12 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .apptheme .app-shell[width-range~="1001px-"] .submenuIconDown {
-	background-image: url(arrowdown.png);
+	background-image: url(arrowdownnew.jpg);
 	background-size: contain;
 	background-repeat: no-repeat;
 	background-position: 160px;
 	background-position-y: 3px;
-	height: 15px;
+	height: 14px;
 }
 
 .apptheme .app-shell[width-range~="1001px-"] .submenuIconUp {
@@ -16249,7 +16449,7 @@ div.v-layout.v-horizontal.v-widget {
 	background-repeat: no-repeat;
 	background-position: 160px;
 	background-position-y: 5px;
-	height: 15px;
+	height: 16px;
 }
 
 .apptheme .app-shell[width-range~="1001px-"] .navigation .v-button.borderless-disabled:hover {

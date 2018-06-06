@@ -54,8 +54,8 @@ import com.luretechnologies.tms.app.HasLogger;
 import com.luretechnologies.tms.backend.data.entity.AbstractEntity;
 import com.luretechnologies.tms.backend.data.entity.Roles;
 import com.luretechnologies.tms.backend.data.entity.User;
-import com.luretechnologies.tms.backend.exceptions.UserFriendlyDataException;
 import com.luretechnologies.tms.backend.service.CrudService;
+import com.luretechnologies.tms.backend.exceptions.UserFriendlyDataException;
 import com.luretechnologies.tms.ui.components.ConfirmPopup;
 import com.luretechnologies.tms.ui.navigation.NavigationManager;
 import com.vaadin.ui.Grid;
@@ -109,7 +109,7 @@ public abstract class AbstractCrudPresenter<T extends AbstractEntity, S extends 
 
 	protected void createBinder() {
 		binder = new BeanValidationBinder<>(getEntityType());
-		binder.addStatusChangeListener(this::onFormStatusChange);
+		//binder.addStatusChangeListener(this::onFormStatusChange);
 	}
 
 	public BeanValidationBinder<T> getBinder() {
@@ -365,11 +365,11 @@ public abstract class AbstractCrudPresenter<T extends AbstractEntity, S extends 
 				});
 	}
 
-	public void onFormStatusChange(StatusChangeEvent event) {
+	/*public void onFormStatusChange(StatusChangeEvent event) {
 		boolean hasChanges = event.getBinder().hasChanges();
 		boolean hasValidationErrors = event.hasValidationErrors();
 		getView().setUpdateEnabled(hasChanges && !hasValidationErrors);
 		getView().setCancelEnabled(hasChanges);
-	}
+	}*/
 
 }

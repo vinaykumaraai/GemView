@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.Vector;
 
 import javax.annotation.PostConstruct;
 
@@ -21,10 +22,12 @@ import org.vaadin.dialogs.ConfirmDialog;
 import com.luretechnologies.tms.backend.data.entity.Alert;
 import com.luretechnologies.tms.backend.data.entity.Debug;
 import com.luretechnologies.tms.backend.data.entity.ExtendedNode;
+import com.luretechnologies.tms.backend.data.entity.Node;
 import com.luretechnologies.tms.backend.service.AlertService;
 import com.luretechnologies.tms.backend.service.DebugService;
 import com.luretechnologies.tms.backend.service.TreeDataService;
 import com.luretechnologies.tms.ui.ComponentUtil;
+import com.luretechnologies.tms.ui.NotificationUtil;
 import com.luretechnologies.tms.ui.components.FormFieldType;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
@@ -33,11 +36,13 @@ import com.vaadin.event.ShortcutListener;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.server.Page;
+import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.DateField;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Grid;
@@ -115,16 +120,36 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 			if(r.getWidth()<=1450 && r.getWidth()>=700) {
 				tabMode();
 				splitScreen.setSplitPosition(30);
-				treeNodeSearch.setHeight(37, Unit.PIXELS);
-				historySearch.setHeight("37px");
-				deviceDebugGridSearch.setHeight("37px");
-				debugStartDateField.setHeight("37px");
-				debugEndDateField.setHeight("37px");
-				deviceDebugStartDateField.setHeight("37px");
-				deviceDebugEndDateField.setHeight("37px");
+//				treeNodeSearch.setHeight(37, Unit.PIXELS);
+//				historySearch.setHeight("37px");
+//				deviceDebugGridSearch.setHeight("37px");
+//				debugStartDateField.setHeight("37px");
+//				debugEndDateField.setHeight("37px");
+//				deviceDebugStartDateField.setHeight("37px");
+//				deviceDebugEndDateField.setHeight("37px");
 			}else if(r.getWidth()<=699 && r.getWidth()> 0){
 				phoneMode();
 				splitScreen.setSplitPosition(35);
+//				treeNodeSearch.setHeight(28, Unit.PIXELS);
+//				historySearch.setHeight("28px");
+//				deviceDebugGridSearch.setHeight("28px");
+//				debugStartDateField.setHeight("28px");
+//				debugEndDateField.setHeight("28px");
+//				deviceDebugStartDateField.setHeight("28px");
+//				deviceDebugEndDateField.setHeight("28px");
+			} else {
+				desktopMode();
+				splitScreen.setSplitPosition(20);
+//				treeNodeSearch.setHeight(37, Unit.PIXELS);
+//				historySearch.setHeight("37px");
+//				deviceDebugGridSearch.setHeight("37px");
+//				debugStartDateField.setHeight("37px");
+//				debugEndDateField.setHeight("37px");
+//				deviceDebugStartDateField.setHeight("37px");
+//				deviceDebugEndDateField.setHeight("37px");
+			}
+			
+			if(r.getWidth()<=600) {
 				treeNodeSearch.setHeight(28, Unit.PIXELS);
 				historySearch.setHeight("28px");
 				deviceDebugGridSearch.setHeight("28px");
@@ -132,9 +157,15 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 				debugEndDateField.setHeight("28px");
 				deviceDebugStartDateField.setHeight("28px");
 				deviceDebugEndDateField.setHeight("28px");
-			} else {
-				desktopMode();
-				splitScreen.setSplitPosition(20);
+			} else if(r.getWidth()>600 && r.getWidth()<=1000){
+				treeNodeSearch.setHeight(32, Unit.PIXELS);
+				historySearch.setHeight("32px");
+				deviceDebugGridSearch.setHeight("32px");
+				debugStartDateField.setHeight("32px");
+				debugEndDateField.setHeight("32px");
+				deviceDebugStartDateField.setHeight("32px");
+				deviceDebugEndDateField.setHeight("32px");
+			}else {
 				treeNodeSearch.setHeight(37, Unit.PIXELS);
 				historySearch.setHeight("37px");
 				deviceDebugGridSearch.setHeight("37px");
@@ -198,6 +229,37 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		if(width >0 && width <=699) {
 			phoneMode();
 			splitScreen.setSplitPosition(35);
+//			treeNodeSearch.setHeight(28, Unit.PIXELS);
+//			historySearch.setHeight("28px");
+//			deviceDebugGridSearch.setHeight("28px");
+//			debugStartDateField.setHeight("28px");
+//			debugEndDateField.setHeight("28px");
+//			deviceDebugStartDateField.setHeight("28px");
+//			deviceDebugEndDateField.setHeight("28px");
+		} else if(width>=700 && width<=1400) {
+			tabMode();
+			splitScreen.setSplitPosition(30);
+//			treeNodeSearch.setHeight(37, Unit.PIXELS);
+//			historySearch.setHeight("37px");
+//			deviceDebugGridSearch.setHeight("37px");
+//			debugStartDateField.setHeight("37px");
+//			debugEndDateField.setHeight("37px");
+//			deviceDebugStartDateField.setHeight("37px");
+//			deviceDebugEndDateField.setHeight("37px");
+		}
+		else {
+			desktopMode();
+			splitScreen.setSplitPosition(20);
+//			treeNodeSearch.setHeight(37, Unit.PIXELS);
+//			historySearch.setHeight("37px");
+//			deviceDebugGridSearch.setHeight("37px");
+//			debugStartDateField.setHeight("37px");
+//			debugEndDateField.setHeight("37px");
+//			deviceDebugStartDateField.setHeight("37px");
+//			deviceDebugEndDateField.setHeight("37px");
+		}
+		
+		if(width<=600) {
 			treeNodeSearch.setHeight(28, Unit.PIXELS);
 			historySearch.setHeight("28px");
 			deviceDebugGridSearch.setHeight("28px");
@@ -205,20 +267,15 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 			debugEndDateField.setHeight("28px");
 			deviceDebugStartDateField.setHeight("28px");
 			deviceDebugEndDateField.setHeight("28px");
-		} else if(width>=700 && width<=1400) {
-			tabMode();
-			splitScreen.setSplitPosition(30);
-			treeNodeSearch.setHeight(37, Unit.PIXELS);
-			historySearch.setHeight("37px");
-			deviceDebugGridSearch.setHeight("37px");
-			debugStartDateField.setHeight("37px");
-			debugEndDateField.setHeight("37px");
-			deviceDebugStartDateField.setHeight("37px");
-			deviceDebugEndDateField.setHeight("37px");
-		}
-		else {
-			desktopMode();
-			splitScreen.setSplitPosition(20);
+		} else if(width>600 && width<=1000){
+			treeNodeSearch.setHeight(32, Unit.PIXELS);
+			historySearch.setHeight("32px");
+			deviceDebugGridSearch.setHeight("32px");
+			debugStartDateField.setHeight("32px");
+			debugEndDateField.setHeight("32px");
+			deviceDebugStartDateField.setHeight("32px");
+			deviceDebugEndDateField.setHeight("32px");
+		}else {
 			treeNodeSearch.setHeight(37, Unit.PIXELS);
 			historySearch.setHeight("37px");
 			deviceDebugGridSearch.setHeight("37px");
@@ -508,7 +565,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		historyLayoutFull.addStyleNames("audit-DeviceVerticalAlignment", "asset-historyDebugLayout");
 		debugGrid = new Grid<>(Debug.class);
 		debugGrid.setWidth("100%");
-		debugGrid.setHeight("100%");
+		debugGrid.setHeight("97%");
 		//debugGrid.setHeightByRows(20);
 		debugGrid.setResponsive(true);
 		debugGrid.addStyleName("grid-AuditOdometerAlignment");
@@ -556,7 +613,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		});
 
 		deleteHistoryGridRow = new Button(VaadinIcons.TRASH);
-		deleteHistoryGridRow.addStyleName(ValoTheme.BUTTON_FRIENDLY);
+		deleteHistoryGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		deleteHistoryGridRow.setResponsive(true);
 		deleteHistoryGridRow.addClickListener(clicked -> {
 //			debugService.removeDebug(debugGrid.getSelectedItems().iterator().next());
@@ -573,7 +630,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 //			debugSearch.clear();
 			
 			if(debugGrid.getSelectedItems().isEmpty()) {
-				Notification.show("Select any Debug type to delete", Notification.Type.ASSISTIVE_NOTIFICATION).setDelayMsec(3000);;
+				Notification.show(NotificationUtil.ASSET_HISTORY_DELETE, Notification.Type.ERROR_MESSAGE);
 			}else {
 				confirmDialog();
 			}
@@ -583,7 +640,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		 optionsLayoutHistoryHorizontalDesktop = new HorizontalLayout();
 		// optionsLayout.setComponentAlignment(childComponent, alignment);
 		optionsLayoutHistoryHorizontalDesktop.setWidth("100%");
-		//optionsLayoutHistoryHorizontalDesktop.setHeight("50%");
+		//optionsLayoutHistoryHorizontalDesktop.svinayetHeight("50%");
 		// optionsLayout.setSizeUndefined();
 		optionsLayoutHistoryHorizontalDesktop.setResponsive(true);
 		optionsLayoutHistoryHorizontalDesktop.addStyleName("audit-DeviceSearch");
@@ -680,11 +737,11 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 					});
 				} 
 	        		 	}else {
-	        		 		Notification.show("Select Start Date to filter the data", Notification.Type.TRAY_NOTIFICATION).setDelayMsec(3000);
+	        		 		Notification.show(NotificationUtil.ASSET_HISTORY_STARTDATE, Notification.Type.ERROR_MESSAGE);
 	        		 		debugEndDateField.clear();
 	        		 	}
 	        }else {
-	        	Notification.show("Please Select any Node to filter the data", Notification.Type.HUMANIZED_MESSAGE).setDelayMsec(3000);
+	        	Notification.show(NotificationUtil.ASSET_HISTORY_SELECTNODE, Notification.Type.ERROR_MESSAGE);
 	        	clearCalenderDates();
 	        }
 		}
@@ -914,11 +971,11 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		deviceDebugEndDateField.setHeight("37px");
 
 		deleteDeviceDebugGridRow = new Button(VaadinIcons.TRASH);
-		deleteDeviceDebugGridRow.addStyleName(ValoTheme.BUTTON_FRIENDLY);
+		deleteDeviceDebugGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		deleteDeviceDebugGridRow.setResponsive(true);
 		deleteDeviceDebugGridRow.addClickListener(clicked -> {
 			if(deviceDebugGrid.getSelectedItems().isEmpty()) {
-				Notification.show("Select any Debug type to delete", Notification.Type.WARNING_MESSAGE).setDelayMsec(3000);
+				Notification.show(NotificationUtil.ASSET_DEBUG_DELETE, Notification.Type.ERROR_MESSAGE);
 			}else {
 				confirmDialogDebug();
 			}
@@ -1028,11 +1085,11 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 					});
 				} 
 	        		 	}else {
-	        		 		Notification.show("Select Start Date to filter the data", Notification.Type.WARNING_MESSAGE).setDelayMsec(3000);
+	        		 		Notification.show(NotificationUtil.ASSET_DEBUG_STARTDATE, Notification.Type.ERROR_MESSAGE);
 	        		 		deviceDebugEndDateField.clear();
 	        		 	}
 	        }else {
-	        	Notification.show("Please Select any Node to filter the data", Notification.Type.WARNING_MESSAGE).setDelayMsec(3000);
+	        	Notification.show(NotificationUtil.ASSET_DEBUG_SELECTNODE, Notification.Type.ERROR_MESSAGE);
 	        	clearCalenderDates();
 	        }
 		}

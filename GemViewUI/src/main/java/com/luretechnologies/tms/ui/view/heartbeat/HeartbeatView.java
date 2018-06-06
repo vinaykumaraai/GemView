@@ -36,41 +36,50 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.dialogs.ConfirmDialog;
 
 import com.luretechnologies.tms.backend.data.DevicesData;
+import com.luretechnologies.tms.backend.data.entity.Debug;
 import com.luretechnologies.tms.backend.data.entity.Devices;
 import com.luretechnologies.tms.backend.data.entity.HeartBeatHistory;
+import com.luretechnologies.tms.backend.data.entity.Node;
 import com.luretechnologies.tms.backend.service.HeartBeatDeviceService;
 import com.luretechnologies.tms.backend.service.HeartBeatHistoryService;
 import com.luretechnologies.tms.backend.service.MockHeartBeatHistory;
+import com.luretechnologies.tms.ui.NotificationUtil;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
-import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.event.ShortcutListener;
+import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.server.Page;
+import com.vaadin.server.Resource;
 import com.vaadin.server.ThemeResource;
+import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.DateField;
+import com.vaadin.ui.DateTimeField;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Grid;
-import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
@@ -78,6 +87,9 @@ import com.vaadin.ui.Notification;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.themes.ValoTheme;
 
 @SpringView(name = HeartbeatView.VIEW_NAME)
@@ -100,7 +112,6 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 	private static CheckBox activeBox;
 	private static CheckBox activateHeartBeatBox;
 	private  List<Devices> deviceList = new LinkedList<Devices>();
-	private List<Button> terminalList;
 	private static Devices emptyDevice = new Devices();
 	private static TextField search, deviceSearch;
 	private static DateField startDateField, endDateField;
@@ -112,17 +123,20 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 	private static VerticalLayout VL = new VerticalLayout();
 	private static Panel panel;
 	private static HorizontalLayout searchAndDeleteLayoutHorizontal;
-	private static VerticalLayout searchAndDeleteLayoutVertical,verticalDeviceFormLayout,secondPanelLayout;
+	private static VerticalLayout searchAndDeleteLayoutVertical;
 	private static HorizontalLayout searchLayout;
 	private static HorizontalLayout deleteLayoutHorizontal;
 	private static VerticalLayout deleteLayoutVertical;
-	private static VerticalLayout searchAndDeleteLayoutVerticalPhomeMode;
-	
+	private static VerticalLayout searchAndDeleteLayoutVerticalPhomeMode, verticalDeviceFormLayout,secondPanelLayout;;
+	private List<Button> terminalList;
+
 	
 	@Autowired
 	private HeartBeatHistoryService hbHistoryService;
+	
 	@Autowired
 	private HeartBeatDeviceService heartBeatDeviceService;
+	
 	@Autowired
 	public HeartbeatView() {
 		//selectedDevice = new Devices();
@@ -138,6 +152,7 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 	@PostConstruct
 	private void inti() {
 		
+		//getDeviceData();
 		deviceList = heartBeatDeviceService.getDeviceData();
 		setSpacing(false);
 		setMargin(false);
@@ -164,7 +179,9 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 		deviceSearch.setStyleName("small inline-icon search");
 		deviceSearch.addStyleName("v-textfield-font");
 		deviceSearch.setPlaceholder("Search");
-		configureDeviceSearchForFilter(deviceSearch);
+		
+		//configureDeviceSearchForFilter(deviceSearch);
+		
 		addDeviceLabel(secondPanelLayout);
 		getDeviceFromLayout(verticalDeviceFormLayout,emptyDevice, false );
 		secondPanelLayout.addComponent(verticalDeviceFormLayout);
@@ -173,70 +190,88 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 		getHBHistoryGrid(secondPanelLayout);
 		
 		horizontalPanel.setHeight("100%");
+		//List<Button> terminalList = getTerminals(verticalDeviceFormLayout);
 		terminalList = getTerminals(verticalDeviceFormLayout,deviceList);
 		
 		Page.getCurrent().addBrowserWindowResizeListener(r->{
 			System.out.println("Height "+ r.getHeight() + "Width:  " + r.getWidth()+ " in pixel");
 			if(r.getWidth()< 1600 && r.getWidth() > 1150) {
 				List<HorizontalLayout> HLList = getButtonsLayout(terminalList,2);
-				desktopMode2(HLList, secondPanelLayout);
+				desktopMode(HLList, secondPanelLayout);
 				deletCalendarTabMode();
-				deviceSearch.setHeight(37, Unit.PIXELS);
+				/*deviceSearch.setHeight(37, Unit.PIXELS);
 				search.setHeight("37px");
 				startDateField.setHeight("37px");
-				endDateField.setHeight("37px");
+				endDateField.setHeight("37px");*/
 			}else if(r.getWidth()<=1150 && r.getWidth()> 1000){
-				List<HorizontalLayout> HLList = getButtonsLayout(terminalList,1);
-				desktopMode1(HLList, secondPanelLayout);
+				List<HorizontalLayout> HLList = getButtonsLayout(terminalList, 1);
+				desktopMode(HLList, secondPanelLayout);
 				deletCalendarPhoneMode();
-				search.setHeight("37px");
+				/*search.setHeight("37px");
 				deviceSearch.setHeight(37, Unit.PIXELS);
 				startDateField.setHeight("37px");
-				endDateField.setHeight("37px");
+				endDateField.setHeight("37px");*/
 			} else if(r.getWidth()<=1000 && r.getWidth()> 900) {
 				deletCalendarPhoneMode();
-				search.setHeight("37px");
+				/*search.setHeight("37px");
 				deviceSearch.setHeight(37, Unit.PIXELS);
 				startDateField.setHeight("37px");
-				endDateField.setHeight("37px");
+				endDateField.setHeight("37px");*/
 				VL.addStyleName("heartbeat-SearchLayout");
 			} else if(r.getWidth()<=900 && r.getWidth()>600){
-				List<HorizontalLayout> HLList = getButtonsLayout(terminalList,2);
-				desktopMode2(HLList, secondPanelLayout);
+				List<HorizontalLayout> HLList = getButtonsLayout(terminalList, 2);
+				desktopMode(HLList, secondPanelLayout);
 				deletCalendarPhoneMode();
-				search.setHeight("37px");
+				/*search.setHeight("37px");
 				deviceSearch.setHeight(37, Unit.PIXELS);
 				startDateField.setHeight("37px");
-				endDateField.setHeight("37px");
+				endDateField.setHeight("37px");*/
 				
 			}else if(r.getWidth()<=600 && r.getWidth()>0) {
-				List<HorizontalLayout> HLList = getButtonsLayout(terminalList,1);
-				desktopMode1(HLList, secondPanelLayout);
+				List<HorizontalLayout> HLList = getButtonsLayout(terminalList, 1);
+				desktopMode(HLList, secondPanelLayout);
 				deletCalendarPhoneMode();
 				//deviceSearch.setWidth("100%");
-				deviceSearch.setHeight(28, Unit.PIXELS);
+				/*deviceSearch.setHeight(28, Unit.PIXELS);
 				search.setHeight("28px");
 				startDateField.setHeight("28px");
-				endDateField.setHeight("28px");
+				endDateField.setHeight("28px");*/
 			}else {
 				List<HorizontalLayout> HLList = getButtonsLayout(terminalList,3);
 				desktopMode(HLList, secondPanelLayout);
 				deleteCalendarDesktopMode();
+				/*deviceSearch.setHeight(37, Unit.PIXELS);
+				search.setHeight("37px");
+				startDateField.setHeight("37px");
+				endDateField.setHeight("37px");*/
+			}
+			
+//			if(r.getWidth()<=700 && r.getWidth()>600) {
+//				deviceSearch.setHeight(28, Unit.PIXELS);
+//				search.setHeight("28px");
+//				startDateField.setHeight("28px");
+//				endDateField.setHeight("28px");
+//			}
+			
+			if(r.getWidth()<=600) {
+				deviceSearch.setHeight(28, Unit.PIXELS);
+				search.setHeight("28px");
+				startDateField.setHeight("28px");
+				endDateField.setHeight("28px");
+			} else if(r.getWidth()>600 && r.getWidth()<=1000) {
+				deviceSearch.setHeight(32, Unit.PIXELS);
+				search.setHeight("32px");
+				startDateField.setHeight("32px");
+				endDateField.setHeight("32px");
+			}else {
 				deviceSearch.setHeight(37, Unit.PIXELS);
 				search.setHeight("37px");
 				startDateField.setHeight("37px");
 				endDateField.setHeight("37px");
 			}
-			
-			if(r.getWidth()<=700 && r.getWidth()>600) {
-				deviceSearch.setHeight(28, Unit.PIXELS);
-				search.setHeight("28px");
-				startDateField.setHeight("28px");
-				endDateField.setHeight("28px");
-			}
 		});
 		
-		List<HorizontalLayout> HLList = getButtonsLayout(terminalList,3);
+		List<HorizontalLayout> HLList = getButtonsLayout(terminalList, 2);
 		for(HorizontalLayout hL:HLList) {
 			hL.setHeight("60px");
 			hL.setResponsive(true);
@@ -252,11 +287,37 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 		horizontalPanel.getFirstComponent().setStyleName("split-height");
 		horizontalPanel.addComponent(secondPanelLayout);
 		horizontalPanel.setSplitPosition(40, Unit.PERCENTAGE);
-		configureDeviceSearchForFilter(deviceSearch);
+		
+		//configureDeviceSearchForFilter(deviceSearch);
+		
 		panel.setContent(horizontalPanel);
 		
 		differentModesLoad(secondPanelLayout, terminalList);
 	}
+	
+	/*private void configureDeviceSearchForFilter(TextField deviceSearch) {
+		deviceSearch.addValueChangeListener(changed -> {
+			deviceSearch.setWidth("100%");
+			String valueInLower = changed.getValue().toLowerCase();
+			//FIXME: if required to be filtered based on Device name and Descriptions
+			//terminalList = getTerminals(verticalDeviceFormLayout, heartBeatDeviceService.getFilteredHeartBeatDevicesByNameOrDescription(valueInLower, deviceList));
+			List<Button> filteredButtons = terminalList.stream().filter(button -> {
+					return button.getCaption().toLowerCase().contains(valueInLower);
+			}).collect(Collectors.toList());
+//			differentModesLoad(secondPanelLayout, terminalList);
+			differentModesLoad(secondPanelLayout, filteredButtons);
+		});
+		
+		deviceSearch.addShortcutListener(new ShortcutListener("Clear",KeyCode.ESCAPE,null) {
+			
+			@Override
+			public void handleAction(Object sender, Object target) {
+				if (target == deviceSearch) {
+					deviceSearch.clear();
+				}
+			}
+		});
+	}*/
 	
 	private void deleteCalendarDesktopMode() {
 		deleteLayoutHorizontal.addComponents(startDateField,endDateField,delete);
@@ -291,31 +352,32 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 		int width = Page.getCurrent().getBrowserWindowWidth();
 		if(width< 1600 && width > 1150) {
 			List<HorizontalLayout> HLList1 = getButtonsLayout(terminalList,2);
-			desktopMode2(HLList1, secondPanelLayout);
+			desktopMode(HLList1, secondPanelLayout);
 			deletCalendarTabMode();
 			deviceSearch.setHeight(37, Unit.PIXELS);
+			deviceSearch.setWidth("100%");
 			search.setHeight("37px");
 			startDateField.setHeight("37px");
 			endDateField.setHeight("37px");
 		}else if(width<=1150 && width> 1000){
-			List<HorizontalLayout> HLList1 = getButtonsLayout(terminalList,1);
-			desktopMode1(HLList1, secondPanelLayout);
+			List<HorizontalLayout> HLList1 = getButtonsLayout(terminalList, 1);
+			desktopMode(HLList1, secondPanelLayout);
 			deletCalendarPhoneMode();
 			deviceSearch.setHeight(37, Unit.PIXELS);
 			search.setHeight("37px");
 			startDateField.setHeight("37px");
 			endDateField.setHeight("37px");
 		} else if(width<=900 && width>600){
-			List<HorizontalLayout> HLList1 = getButtonsLayout(terminalList,1);
-			desktopMode2(HLList1, secondPanelLayout);
+			List<HorizontalLayout> HLList1 = getButtonsLayout(terminalList, 1);
+			desktopMode(HLList1, secondPanelLayout);
 			deletCalendarPhoneMode();
 			deviceSearch.setHeight(37, Unit.PIXELS);
 			search.setHeight("37px");
 			startDateField.setHeight("37px");
 			endDateField.setHeight("37px");
 		}else if(width<=600 && width>0) {
-			List<HorizontalLayout> HLList1 = getButtonsLayout(terminalList,1);
-			desktopMode1(HLList1, secondPanelLayout);
+			List<HorizontalLayout> HLList1 = getButtonsLayout(terminalList, 1);
+			desktopMode(HLList1, secondPanelLayout);
 			deletCalendarPhoneMode();
 			deviceSearch.setHeight(28, Unit.PIXELS);
 			search.setHeight("28px");
@@ -330,11 +392,28 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 			startDateField.setHeight("37px");
 			endDateField.setHeight("37px");
 		}
-		if(width<=700 && width>600) {
+		/*if(width<=700 && width>600) {
 			deviceSearch.setHeight(28, Unit.PIXELS);
 			search.setHeight("28px");
 			startDateField.setHeight("28px");
 			endDateField.setHeight("28px");
+		}*/
+		
+		if(width<=600) {
+			deviceSearch.setHeight(28, Unit.PIXELS);
+			search.setHeight("28px");
+			startDateField.setHeight("28px");
+			endDateField.setHeight("28px");
+		} else if(width>600 && width<=1000){
+			deviceSearch.setHeight(32, Unit.PIXELS);
+			search.setHeight("32px");
+			startDateField.setHeight("32px");
+			endDateField.setHeight("32px");
+		}else {
+			deviceSearch.setHeight(37, Unit.PIXELS);
+			search.setHeight("37px");
+			startDateField.setHeight("37px");
+			endDateField.setHeight("37px");
 		}
 	}
 	
@@ -344,15 +423,19 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 		VL = new VerticalLayout();
 		VL.setWidth("100%");
 		VL.addStyleName("heartbeat-SearchLayout");
+		HorizontalLayout searchLayout = new HorizontalLayout();
+		searchLayout.setWidth("100%");
 		
-//		deviceSearch = new TextField();
+		deviceSearch = new TextField();
 		deviceSearch.setWidth("100%");
 		deviceSearch.setIcon(VaadinIcons.SEARCH);
 		deviceSearch.setStyleName("small inline-icon search");
 		deviceSearch.addStyleName("v-textfield-font");
 		deviceSearch.setPlaceholder("Search");
-//		configureDeviceSearchForFilter(deviceSearch);
-		VL.addComponent(deviceSearch);
+		//deviceSearch.setValue(deviceSearch.getValue());
+		
+		searchLayout.addComponent(deviceSearch);
+		VL.addComponent(searchLayout);
 		
 		for(HorizontalLayout hL:HLList) {
 			hL.setHeight("60px");
@@ -369,92 +452,110 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 		horizontalPanel.setSplitPosition(40, Unit.PERCENTAGE);
 		
 		panel.setContent(horizontalPanel);
-	}
-	private void configureDeviceSearchForFilter(TextField deviceSearch) {
-		deviceSearch.addValueChangeListener(changed -> {
-			String valueInLower = changed.getValue().toLowerCase();
-			//FIXME: if required to be filtered based on Device name and Descriptions
-			//terminalList = getTerminals(verticalDeviceFormLayout, heartBeatDeviceService.getFilteredHeartBeatDevicesByNameOrDescription(valueInLower, deviceList));
-			List<Button> filteredButtons = terminalList.stream().filter(button -> {
-					return button.getCaption().toLowerCase().contains(valueInLower);
-			}).collect(Collectors.toList());
-//			differentModesLoad(secondPanelLayout, terminalList);
-			differentModesLoad(secondPanelLayout, filteredButtons);
-		});
 		
-		deviceSearch.addShortcutListener(new ShortcutListener("Clear",KeyCode.ESCAPE,null) {
-			
-			@Override
-			public void handleAction(Object sender, Object target) {
-				if (target == deviceSearch) {
-					deviceSearch.clear();
-				}
-			}
-		});
-	}
-	private void desktopMode1(List<HorizontalLayout> HLList, VerticalLayout secondPanelLayout) {
-		HL = new VerticalLayout();
-		horizontalPanel  =  new HorizontalSplitPanel();
-		VL = new VerticalLayout();
-		VL.setWidth("100%");
-		VL.addStyleName("heartbeat-SearchLayout");
-		
-//		deviceSearch = new TextField();
-		deviceSearch.setWidth("100%");
-		deviceSearch.setIcon(VaadinIcons.SEARCH);
-		deviceSearch.setStyleName("small inline-icon search");
-		deviceSearch.addStyleName("v-textfield-font");
-		deviceSearch.setPlaceholder("Search");
-//		configureDeviceSearchForFilter(deviceSearch);
-		VL.addComponent(deviceSearch);
-		
-		for(HorizontalLayout hL:HLList) {
-			hL.setHeight("60px");
-			hL.setResponsive(true);
-			VL.addComponents(hL);
-		}
-		HL.setHeight("100%");
-		VL.setResponsive(true);
-		HL.setResponsive(true);
-		HL.addComponent(VL);
-		horizontalPanel.setFirstComponent(HL);
-		horizontalPanel.getFirstComponent().setStyleName("split-height");
-		horizontalPanel.addComponent(secondPanelLayout);
-		horizontalPanel.setSplitPosition(40, Unit.PERCENTAGE);
-		
-		panel.setContent(horizontalPanel);
+		//configureDeviceSearchForFilter(deviceSearch);
 	}
 	
-	private void desktopMode2(List<HorizontalLayout> HLList, VerticalLayout secondPanelLayout) {
-		HL = new VerticalLayout();
-		horizontalPanel  =  new HorizontalSplitPanel();
-		VL = new VerticalLayout();
-		VL.setWidth("100%");
-		VL.addStyleName("heartbeat-SearchLayout");
-		
+//	private void desktopMode1(List<HorizontalLayout> HLList, VerticalLayout secondPanelLayout) {
+//		HL = new VerticalLayout();
+//		horizontalPanel  =  new HorizontalSplitPanel();
+//		VL = new VerticalLayout();
+//		VL.setWidth("100%");
+//		VL.addStyleName("heartbeat-SearchLayout");
+//		
 //		deviceSearch = new TextField();
-		deviceSearch.setWidth("100%");
-		deviceSearch.setIcon(VaadinIcons.SEARCH);
-		deviceSearch.setStyleName("small inline-icon search");
-		deviceSearch.addStyleName("v-textfield-font");
-		deviceSearch.setPlaceholder("Search");
+//		deviceSearch.setWidth("100%");
+//		deviceSearch.setIcon(VaadinIcons.SEARCH);
+//		deviceSearch.setStyleName("small inline-icon search");
+//		deviceSearch.addStyleName("v-textfield-font");
+//		deviceSearch.setPlaceholder("Search");
 //		configureDeviceSearchForFilter(deviceSearch);
-		VL.addComponent(deviceSearch);
-		
-		for(HorizontalLayout hL:HLList) {
-			hL.setHeight("60px");
-			hL.setResponsive(true);
-			VL.addComponents(hL);
+//
+//		VL.addComponent(deviceSearch);
+//		
+//		for(HorizontalLayout hL:HLList) {
+//			hL.setHeight("60px");
+//			hL.setResponsive(true);
+//			VL.addComponents(hL);
+//		}
+//		HL.setHeight("100%");
+//		VL.setResponsive(true);
+//		HL.setResponsive(true);
+//		HL.addComponent(VL);
+//		horizontalPanel.setFirstComponent(HL);
+//		horizontalPanel.getFirstComponent().setStyleName("split-height");
+//		horizontalPanel.addComponent(secondPanelLayout);
+//		horizontalPanel.setSplitPosition(40, Unit.PERCENTAGE);
+//		
+//		panel.setContent(horizontalPanel);
+//	}
+//	
+//	private void desktopMode2(List<HorizontalLayout> HLList, VerticalLayout secondPanelLayout) {
+//		HL = new VerticalLayout();
+//		horizontalPanel  =  new HorizontalSplitPanel();
+//		VL = new VerticalLayout();
+//		VL.setWidth("100%");
+//		VL.addStyleName("heartbeat-SearchLayout");
+//		
+//		deviceSearch = new TextField();
+//		deviceSearch.setWidth("100%");
+//		deviceSearch.setIcon(VaadinIcons.SEARCH);
+//		deviceSearch.setStyleName("small inline-icon search");
+//		deviceSearch.addStyleName("v-textfield-font");
+//		deviceSearch.setPlaceholder("Search");
+//		
+//		configureDeviceSearchForFilter(deviceSearch);
+//		VL.addComponent(deviceSearch);
+//		
+//		for(HorizontalLayout hL:HLList) {
+//			hL.setHeight("60px");
+//			hL.setResponsive(true);
+//			VL.addComponents(hL);
+//		}
+//		HL.setHeight("100%");
+//		VL.setResponsive(true);
+//		HL.setResponsive(true);
+//		HL.addComponent(VL);
+//		horizontalPanel.setFirstComponent(HL);
+//		horizontalPanel.getFirstComponent().setStyleName("split-height");
+//		horizontalPanel.addComponent(secondPanelLayout);
+//		horizontalPanel.setSplitPosition(40, Unit.PERCENTAGE);
+//		panel.setContent(horizontalPanel);
+//	}
+	
+	private void getDeviceData() {
+		List<HeartBeatHistory> hbHistoryListActive = hbHistoryService.getHBHistoryList();
+		List<HeartBeatHistory> hbHistoryListFail = hbHistoryService.getHBHistoryList();
+		Collections.reverse(hbHistoryListFail);
+		Date date = new Date();
+		for (int index=1; index <=15; index++) {
+			if(index % 2 == 0) {
+				Devices device = new Devices();
+				device.setActive(true);
+				device.setHeartBeat(true);
+				device.setDescription("Device Terminal "+index);
+				device.setDeviceName("Device "+index);
+				device.setManufacturer("Device Entity "+index );
+				device.setSerialNumber(RandomStringUtils.random(10, true, true));
+				device.setFrequency("12"+index+" seconds");
+				device.setLastSeen(date.toString());
+				device.setHbHistoryList(hbHistoryListActive);
+				deviceList.add(device);
+				} else {
+					Devices device1 = new Devices();
+					device1.setActive(false);
+					device1.setHeartBeat(false);
+					device1.setDescription("Device Terminal "+index);
+					device1.setDeviceName("Device "+index);
+					device1.setManufacturer("Device Entity "+index );
+					device1.setSerialNumber(RandomStringUtils.random(10, true, true));
+					device1.setFrequency("12"+index+" seconds");
+					device1.setLastSeen(date.toString());
+					device1.setHbHistoryList( hbHistoryListFail);
+					deviceList.add(device1);
+					
+				}
 		}
-		HL.setHeight("100%");
-		VL.setResponsive(true);
-		HL.setResponsive(true);
-		HL.addComponent(VL);
-		horizontalPanel.setFirstComponent(HL);
-		horizontalPanel.getFirstComponent().setStyleName("split-height");
-		horizontalPanel.addComponent(secondPanelLayout);
-		horizontalPanel.setSplitPosition(40, Unit.PERCENTAGE);
-		panel.setContent(horizontalPanel);
 	}
 	
 	public Panel getAndLoadSystemPanel() {
@@ -590,11 +691,11 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 		deleteLayoutHorizontal.setComponentAlignment(endDateField, Alignment.MIDDLE_CENTER);
 		
 		delete = new Button(VaadinIcons.TRASH);
-		delete.addStyleName(ValoTheme.BUTTON_FRIENDLY);
+		delete.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		delete.setResponsive(true);
 		delete.addClickListener(clicked -> {
 			if(hbHistoryGrid.getSelectedItems().isEmpty()) {
-				Notification.show("Select any row to delete the data", Notification.Type.WARNING_MESSAGE).setDelayMsec(3000);;
+				Notification.show(NotificationUtil.HEARTBEAT_DELETE, Notification.Type.ERROR_MESSAGE);
 			}else {
 				confirmDialog();
 			}
@@ -631,11 +732,11 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 					});
 				} 
 	        		 	}else {
-	        		 		Notification.show("Select Start Date to filter the data", Notification.Type.WARNING_MESSAGE).setDelayMsec(3000);
+	        		 		Notification.show(NotificationUtil.HEARTBEAT_STARTDATE, Notification.Type.ERROR_MESSAGE);
 	        		 		endDateField.clear();
 	        		 	}
 	        }else {
-	        	Notification.show("Please click on any device to filter the data", Notification.Type.WARNING_MESSAGE).setDelayMsec(3000);
+	        	Notification.show(NotificationUtil.HEARTBEAT_SELECTDEVICE, Notification.Type.ERROR_MESSAGE);
 	        	clearCalenderDates();
 	        }
 		}
@@ -740,14 +841,14 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 	}
 	
 
-	private List<HorizontalLayout> getButtonsLayout(List<Button> terminalButtons,int componentCount) {
+	private List<HorizontalLayout> getButtonsLayout(List<Button> terminalButtons, int component) {
 		
 		List<HorizontalLayout> hLList = new ArrayList<HorizontalLayout>();
 		HorizontalLayout hL = new HorizontalLayout();
 		for(Button button:terminalButtons) {
-			if(hL.getComponentCount()<componentCount) {
+			if(hL.getComponentCount()<component) {
 				hL.addComponents(button);
-			} else if(hL.getComponentCount()==componentCount) {
+			} else if(hL.getComponentCount()==component) {
 				hLList.add(hL);
 				hL=new HorizontalLayout();
 				hL.addComponents(button);
@@ -758,6 +859,42 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 		
 	}
 	
+
+	private List<HorizontalLayout> getButtonsLayoutSecondMode(List<Button> terminalButtons) {
+		
+		List<HorizontalLayout> hLList = new ArrayList<HorizontalLayout>();
+		HorizontalLayout hL = new HorizontalLayout();
+		for(Button button:terminalButtons) {
+			if(hL.getComponentCount()<2) {
+				hL.addComponents(button);
+			} else if(hL.getComponentCount()==2) {
+				hLList.add(hL);
+				hL=new HorizontalLayout();
+				hL.addComponents(button);
+			}
+		}
+		hLList.add(hL);
+		return hLList;
+		
+	}
+	
+private List<HorizontalLayout> getButtonsLayoutThirdMode(List<Button> terminalButtons) {
+		
+		List<HorizontalLayout> hLList = new ArrayList<HorizontalLayout>();
+		HorizontalLayout hL = new HorizontalLayout();
+		for(Button button:terminalButtons) {
+			if(hL.getComponentCount()<1) {
+				hL.addComponents(button);
+			} else if(hL.getComponentCount()==1) {
+				hLList.add(hL);
+				hL=new HorizontalLayout();
+				hL.addComponents(button);
+			}
+		}
+		hLList.add(hL);
+		return hLList;
+		
+	}
 	
 	private void getDeviceFromLayout(VerticalLayout layout,Devices device, boolean isEditableOnly) {
 		
@@ -843,7 +980,7 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 	
 	private void getSerailNumber(Devices device, FormLayout deviceFormLayout, boolean isEditableOnly) {
 		String serailNumber = device.getSerialNumber() != null ? device.getSerialNumber(): "";
-		deviceSerialNumber = new TextField("Serial Num.", serailNumber);
+		deviceSerialNumber = new TextField("Serial Number", serailNumber);
 		device.setSerialNumber(deviceSerialNumber.getValue());
 		deviceSerialNumber.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
 		deviceSerialNumber.setWidth("100%");

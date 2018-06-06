@@ -10,22 +10,22 @@ import java.util.Objects;
 public class AppDefaultParam extends AbstractEntity {
 	private String parameter, description;
 	private ParameterType type;
-	private boolean active;
+	private boolean value;
 	public AppDefaultParam() {
 		// TODO Auto-generated constructor stub
 		super(false);
 	}
 
-	public AppDefaultParam(String parameter, String description, ParameterType type, boolean active) {
+	public AppDefaultParam(String parameter, String description, ParameterType type, boolean value) {
 		super(false);
 		Objects.requireNonNull(parameter);
 		Objects.requireNonNull(description);
 		Objects.requireNonNull(type);
-		Objects.requireNonNull(active);
+		Objects.requireNonNull(value);
 		this.parameter = parameter;
 		this.description = description;
 		this.type = type;
-		this.active = active;
+		this.value = value;
 
 	}
 
@@ -53,18 +53,18 @@ public class AppDefaultParam extends AbstractEntity {
 		this.type = type;
 	}
 
-	public boolean isActive() {
-		return active;
+	public boolean isValue() {
+		return value;
 	}
 
-	public void setActive(boolean active) {
-		this.active = active;
+	public void setValue(boolean value) {
+		this.value = value;
 	}
 
 	@Override
 	public String toString() {
 		return "AppDefaultParam [parameter=" + parameter + ", description=" + description + ", type=" + type
-				+ ", active=" + active + "]";
+				+ ", active=" + value + "]";
 	}
 	 
 }

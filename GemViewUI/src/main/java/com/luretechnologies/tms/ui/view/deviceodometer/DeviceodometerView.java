@@ -51,6 +51,7 @@ import com.luretechnologies.tms.backend.data.entity.Node;
 import com.luretechnologies.tms.backend.service.DebugService;
 import com.luretechnologies.tms.backend.service.OdometerDeviceService;
 import com.luretechnologies.tms.backend.service.TreeDataService;
+import com.luretechnologies.tms.ui.NotificationUtil;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.event.ShortcutListener;
@@ -123,22 +124,39 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 			if(r.getWidth()<=1450 && r.getWidth()>=700) {
 				tabMode();
 				splitScreen.setSplitPosition(30);
-				odometerStartDateField.setHeight("100%");
-				odometerEndDateField.setHeight("100%");
-				treeNodeSearch.setHeight(37, Unit.PIXELS);
-				odometerDeviceSearch.setHeight(37, Unit.PIXELS);
+//				odometerStartDateField.setHeight("100%");
+//				odometerEndDateField.setHeight("100%");
+//				treeNodeSearch.setHeight(37, Unit.PIXELS);
+//				odometerDeviceSearch.setHeight(37, Unit.PIXELS);
 				
 			}else if(r.getWidth()<=699 && r.getWidth()> 0){
 				phoneMode();
 				splitScreen.setSplitPosition(35);
-				odometerStartDateField.setHeight(28,Unit.PIXELS);
-				odometerEndDateField.setHeight(28, Unit.PIXELS);
-				treeNodeSearch.setHeight(28,Unit.PIXELS);
-				odometerDeviceSearch.setHeight(28, Unit.PIXELS);
+//				odometerStartDateField.setHeight(28,Unit.PIXELS);
+//				odometerEndDateField.setHeight(28, Unit.PIXELS);
+//				treeNodeSearch.setHeight(28,Unit.PIXELS);
+//				odometerDeviceSearch.setHeight(28, Unit.PIXELS);
 				
 			} else {
 				desktopMode();
 				splitScreen.setSplitPosition(20);
+//				odometerStartDateField.setHeight("100%");
+//				odometerEndDateField.setHeight("100%");
+//				treeNodeSearch.setHeight(37, Unit.PIXELS);
+//				odometerDeviceSearch.setHeight(37, Unit.PIXELS);
+			}
+			
+			if(r.getWidth()<=600) {
+				odometerStartDateField.setHeight("28px");
+				odometerEndDateField.setHeight("28px");
+				treeNodeSearch.setHeight(28, Unit.PIXELS);
+				odometerDeviceSearch.setHeight(28, Unit.PIXELS);
+			} else if(r.getWidth()>600 && r.getWidth()<=1000){
+				odometerStartDateField.setHeight("32px");
+				odometerEndDateField.setHeight("32px");
+				treeNodeSearch.setHeight(32, Unit.PIXELS);
+				odometerDeviceSearch.setHeight(32, Unit.PIXELS);
+			}else {
 				odometerStartDateField.setHeight("100%");
 				odometerEndDateField.setHeight("100%");
 				treeNodeSearch.setHeight(37, Unit.PIXELS);
@@ -199,26 +217,42 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 		if(width >0 && width <=699) {
 			phoneMode();
 			splitScreen.setSplitPosition(35);
-			odometerStartDateField.setHeight(28,Unit.PIXELS);
+			/*odometerStartDateField.setHeight(28,Unit.PIXELS);
 			odometerEndDateField.setHeight(28, Unit.PIXELS);
 			treeNodeSearch.setHeight(28,Unit.PIXELS);
-			odometerDeviceSearch.setHeight(28, Unit.PIXELS);
+			odometerDeviceSearch.setHeight(28, Unit.PIXELS);*/
 		} else if(width>=700 && width<=1400) {
 			tabMode();
 			splitScreen.setSplitPosition(30);
-			odometerStartDateField.setHeight("100%");
+			/*odometerStartDateField.setHeight("100%");
 			odometerEndDateField.setHeight("100%");
 			treeNodeSearch.setHeight(37, Unit.PIXELS);
-			odometerDeviceSearch.setHeight(37, Unit.PIXELS);
+			odometerDeviceSearch.setHeight(37, Unit.PIXELS);*/
 		}
 		else {
 			desktopMode();
 			splitScreen.setSplitPosition(20);
+			/*odometerStartDateField.setHeight("100%");
+			odometerEndDateField.setHeight("100%");
+			treeNodeSearch.setHeight(37, Unit.PIXELS);
+			odometerDeviceSearch.setHeight(37, Unit.PIXELS);*/
+		}
+		
+		if(width<=600) {
+			odometerStartDateField.setHeight("28px");
+			odometerEndDateField.setHeight("28px");
+			treeNodeSearch.setHeight(28, Unit.PIXELS);
+			odometerDeviceSearch.setHeight(28, Unit.PIXELS);
+		} else if(width>600 && width<=1000){
+			odometerStartDateField.setHeight("32px");
+			odometerEndDateField.setHeight("32px");
+			treeNodeSearch.setHeight(32, Unit.PIXELS);
+			odometerDeviceSearch.setHeight(32, Unit.PIXELS);
+		}else {
 			odometerStartDateField.setHeight("100%");
 			odometerEndDateField.setHeight("100%");
 			treeNodeSearch.setHeight(37, Unit.PIXELS);
 			odometerDeviceSearch.setHeight(37, Unit.PIXELS);
-			
 		}
 	}
 	
@@ -359,7 +393,7 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 		odometerDeviceGrid = new Grid<>(Devices.class);
 		odometerDeviceGrid.setWidth("100%");
 		//odometerDeviceGrid.setHeightByRows(16);
-		odometerDeviceGrid.setHeight("100%");
+		odometerDeviceGrid.setHeight("97%");
 		odometerDeviceGrid.addStyleName("grid-AuditOdometerAlignment");
 		//odometerDeviceGrid.setSizeFull();
 		odometerDeviceGrid.setResponsive(true);
@@ -397,11 +431,11 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 
 			deleteGridRow = new Button(VaadinIcons.TRASH);
 			//deleteGridRow.setWidth("100%");
-			deleteGridRow.addStyleName(ValoTheme.BUTTON_FRIENDLY);
+			deleteGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 			deleteGridRow.setResponsive(true);
 			deleteGridRow.addClickListener(clicked -> {
 				if(odometerDeviceGrid.getSelectedItems().isEmpty()) {
-					Notification.show("Select any Statistic type to delete", Notification.Type.ERROR_MESSAGE).setDelayMsec(3000);;
+					Notification.show(NotificationUtil.ODOMETER_DELETE, Notification.Type.ERROR_MESSAGE);
 				}else {
 					confirmDialog();
 				}
@@ -504,11 +538,11 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 				});
 			} 
         		 	}else {
-        		 		Notification.show("Select Start Date to filter the data", Notification.Type.WARNING_MESSAGE).setDelayMsec(3000);
+        		 		Notification.show(NotificationUtil.ODOMETER_STARTDATE, Notification.Type.ERROR_MESSAGE);
         		 		odometerEndDateField.clear();
         		 	}
         }else {
-        	Notification.show("Please Select any Node to filter the data", Notification.Type.WARNING_MESSAGE).setDelayMsec(3000);
+        	Notification.show(NotificationUtil.ODOMETER_SELECTNODE, Notification.Type.ERROR_MESSAGE);
         	clearCalenderDates();
         }
 	}

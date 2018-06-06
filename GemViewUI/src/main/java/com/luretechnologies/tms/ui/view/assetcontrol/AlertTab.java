@@ -44,6 +44,7 @@ import com.luretechnologies.tms.backend.data.entity.Node;
 import com.luretechnologies.tms.backend.service.AlertService;
 import com.luretechnologies.tms.backend.service.TreeDataService;
 import com.luretechnologies.tms.ui.ComponentUtil;
+import com.luretechnologies.tms.ui.NotificationUtil;
 import com.luretechnologies.tms.ui.components.FormFieldType;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
@@ -272,7 +273,7 @@ public class AlertTab {
 		createAlertGridRow.addStyleName("v-button-customstyle");
 		editAlertGridRow = new Button(VaadinIcons.EDIT, click -> {
 			if(alertGrid.getSelectedItems().isEmpty()) {
-				Notification.show("Select any Debug type to edit", Notification.Type.WARNING_MESSAGE).setDelayMsec(3000);;
+				Notification.show(NotificationUtil.ASSET_ALERT_EDIT, Notification.Type.ERROR_MESSAGE);
 			}else {
 			if (alertGrid.getSelectedItems().size() > 0) {
 				for (Component component : componentArray) {
@@ -292,7 +293,7 @@ public class AlertTab {
 		editAlertGridRow.setEnabled(true);
 		deleteAlertGridRow = new Button(VaadinIcons.TRASH, click -> {
 			if(alertGrid.getSelectedItems().isEmpty()) {
-				Notification.show("Select any Debug type to delete", Notification.Type.WARNING_MESSAGE).setDelayMsec(3000);;
+				Notification.show(NotificationUtil.ASSET_ALERT_DELETE, Notification.Type.ERROR_MESSAGE);
 			}else {
 			ConfirmDialog.show(assetControlUI, "Please Confirm:", "Are you sure you want to delete?",
 			        "Ok", "Cancel", dialog -> 
@@ -314,14 +315,14 @@ public class AlertTab {
 		}
 
 		});
-		deleteAlertGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY);
+		deleteAlertGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		deleteAlertGridRow.addStyleName("v-button-customstyle");
 		deleteAlertGridRow.setEnabled(true);
 		saveAlertForm.addClickListener(new ClickListener() {
 			public void buttonClick(ClickEvent event) {	
 				HorizontalLayout HL= (HorizontalLayout)componentArray[3];
 				if (nodeTree.getSelectedItems().size() <= 0) {
-					Notification.show("Please select any entity on Tree", Notification.Type.WARNING_MESSAGE).setDelayMsec(3000);
+					Notification.show(NotificationUtil.ASSET_ALERT_SAVETONODE, Notification.Type.ERROR_MESSAGE);
 				} else if(((TextField) componentArray[0]).getValue()==null ||
 						((TextField) componentArray[0]).getValue().isEmpty() || 
 						((TextField) componentArray[1]).getValue()==null ||
@@ -331,7 +332,7 @@ public class AlertTab {
 						((CheckBox) HL.getComponent(1)).getValue() == null ||
 						((TextField) componentArray[4]).getValue()==null ||
 						((TextField) componentArray[4]).getValue().isEmpty()) {
-					Notification.show("Please Fill All the Deatils to Save", Notification.Type.WARNING_MESSAGE).setDelayMsec(3000);
+					Notification.show(NotificationUtil.SAVE, Notification.Type.ERROR_MESSAGE);
 				}else {
 			for (Component component : componentArray) {
 				if (component.isEnabled())
