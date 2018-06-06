@@ -29,14 +29,10 @@ public class RestServiceUtil {
 	}
 	
 	
-	public UserSession login(String username,String password) {
+	public UserSession login(String username,String password) throws ApiException {
 		if(SESSION == null) {
-			try {
 				SESSION = client.getAuthApi().login(username, password);
-			} catch (ApiException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 		}
 		return SESSION;
 	}

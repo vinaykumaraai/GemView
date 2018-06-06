@@ -50,16 +50,25 @@ import com.luretechnologies.tms.backend.data.Role;
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-	private final UserDetailsService userDetailsService;
+//	private final UserDetailsService userDetailsService;
 
 	private final PasswordEncoder passwordEncoder;
 
 	private final RedirectAuthenticationSuccessHandler successHandler;
-
+	
 	@Autowired
-	public SecurityConfig(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder,
+	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+//		auth.inMemoryAuthentication()
+//                   .withUser("test").password("123456").roles("ADMIN");
+		auth.authenticationProvider(new BackendAuthenticationProvider());
+	}
+
+
+	//FIXME: This config is not required anymore.
+	@Autowired
+	public SecurityConfig( PasswordEncoder passwordEncoder,
 			RedirectAuthenticationSuccessHandler successHandler) {
-		this.userDetailsService = userDetailsService;
+//		this.userDetailsService = userDetailsService;
 		this.passwordEncoder = passwordEncoder;
 		this.successHandler = successHandler;
 	}
@@ -67,7 +76,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 		super.configure(auth);
-		auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
+		auth.authenticationProvider(new BackendAuthenticationProvider());
+		//auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
 	}
 
 	@Override
@@ -75,7 +85,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		// Not using Spring CSRF here to be able to use plain HTML for the login
 		// page
 		http.csrf().disable();
-
 		ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry reg = http
 				.authorizeRequests();
 

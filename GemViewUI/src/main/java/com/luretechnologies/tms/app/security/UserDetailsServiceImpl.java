@@ -59,8 +59,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		System.out.println(RestServiceUtil.getInstance().login("vinay_standard", "TestPassword123!").getMaskedEmailAddress());
 		try {
+			System.out.println(RestServiceUtil.getInstance().login("vinay_standard", "TestPassword123!").getMaskedEmailAddress());
 			//FIXME: getting a missing content-type error. Check this with your backend teams
 			//List<com.luretechnologies.client.restlib.service.model.User> restUserList = RestServiceUtil.getInstance().getClient().getUserApi().getUsers();
 			com.luretechnologies.client.restlib.service.model.User restUser = RestServiceUtil.getInstance().getClient().getUserApi().getUserByUserName(username);
