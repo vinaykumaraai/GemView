@@ -13,6 +13,7 @@ import com.luretechnologies.tms.backend.data.Role;
 import com.luretechnologies.tms.backend.data.entity.User;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
 import com.luretechnologies.tms.backend.service.MockUserService;
+import com.vaadin.ui.Notification;
 
 /**
  * 
@@ -33,10 +34,12 @@ public class BackendAuthenticationProvider implements AuthenticationProvider {
 			//com.luretechnologies.client.restlib.service.model.User restUser = RestServiceUtil.getInstance().getClient().getUserApi().getUserByUserName(username);
 			//User user = new User(restUser.getEmail(),restUser.getUsername(),"",restUser.getRole().getName(),restUser.getFirstName(),restUser.getLastName(),restUser.getActive());
 			//FIXME: Using mocked up data due to backend service not working
-			User user = new User("test@test.com", "Admin", "", Role.ADMIN, "Test", "Test", true); 
+			User user = new User("test@test.com", "Admin", "Admin", Role.ADMIN, "Test", "Test", true); 
 			return new UsernamePasswordAuthenticationToken(user,null, Collections.singletonList(new SimpleGrantedAuthority(user.getRole())));
 		} catch (ApiException e) {
-			// TODO Auto-generated catch block
+			if(e.getMessage().contains("INVALID LOGIN CREDENTIALS")) {
+				System.out.println("Bad Credential for: "+username);
+			}
 			e.printStackTrace();
 			return null;
 		}
@@ -44,9 +47,9 @@ public class BackendAuthenticationProvider implements AuthenticationProvider {
 	}
 
 	@Override
-	public boolean supports(Class<?> arg0) {
+	public boolean supports(Class<? extends Object> authentication) {
 		// TODO Auto-generated method stub
-		return true;
+		return  (UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication));
 	}
 
 }
