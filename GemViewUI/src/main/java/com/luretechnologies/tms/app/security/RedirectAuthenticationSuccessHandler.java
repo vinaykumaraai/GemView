@@ -32,10 +32,15 @@
 
 package com.luretechnologies.tms.app.security;
 
+import com.luretechnologies.client.restlib.service.model.UserSession;
 import com.luretechnologies.tms.app.Application;
+import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
+import com.luretechnologies.tms.ui.MainView;
+import com.luretechnologies.tms.ui.view.dashboard.DashboardView;
 import com.vaadin.spring.annotation.SpringComponent;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.web.ServerProperties.Session.Cookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.web.context.annotation.ApplicationScope;
@@ -54,13 +59,24 @@ import javax.servlet.http.HttpServletResponse;
 @ApplicationScope
 public class RedirectAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
-	private final String location;
+	private  String location;
+	private RestServiceUtil restUtil;
 
 	@Autowired
 	private ServletContext servletContext;
+	
+	private MainView mainView;
 
 	public RedirectAuthenticationSuccessHandler() {
-		location = Application.APP_URL + Application.OTP_CODE_URL;
+		//mainView.attachNavigation(dashboard, DashboardView.class);
+		UserSession session = restUtil.getSESSION();
+		location = Application.APP_URL + "twofactorauthenticationhome";
+		/*if(session.isPerformTwoFactor()) {
+			location = Application.APP_URL + "twofactorauthenticationhome";
+		}else {*/
+			//location = Application.APP_URL + "home";
+		//}
+		//getUI()
 	}
 
 	private String getAbsoluteUrl(String url) {

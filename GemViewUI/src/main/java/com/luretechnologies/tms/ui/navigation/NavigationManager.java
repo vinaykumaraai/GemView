@@ -35,6 +35,8 @@ package com.luretechnologies.tms.ui.navigation;
 import org.springframework.stereotype.Component;
 
 import com.luretechnologies.tms.ui.view.dashboard.DashboardView;
+import com.luretechnologies.tms.ui.view.twofactor.authentication.TwoFactorAuthenticationView;
+import com.luretechnologies.tms.ui.view.twofactor.authentication.TwoFactorView;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.spring.annotation.SpringView;
@@ -90,6 +92,16 @@ public class NavigationManager extends SpringNavigator {
 			return;
 		}
 		navigateTo(DashboardView.class);
+	}
+	
+	public void navigateToTwoFactorView() {
+		// If the user wants a specific view, it's in the URL.
+		// Otherwise admin goes to DashboardView and everybody else to
+		// OrderListView
+		if (!getState().isEmpty()) {
+			return;
+		}
+		navigateTo(TwoFactorAuthenticationView.class);
 	}
 
 	/**

@@ -964,6 +964,96 @@
 	color: red;
 }
 
+.twofactor-splitpanel {
+	text-align: center;
+	box-shadow: 0 2px 3px rgba(0, 0, 0, 0.2);
+}
+
+.twofactor-verticalLayout {
+	background: #f2f2f2;
+	position: relative;
+	justify-content: center;
+	display: flex;
+}
+
+.twofactor-firstPanel {
+	background: #fff;
+	padding: 0px 0px 0px 0px !important;
+}
+
+.twofactor-logo {
+	background-position-y: 67px;
+	background-image: url(company_logo.png);
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-color: #FFFFFF;
+}
+
+.twofactor-secondPanel {
+	background: #216c2a;
+	padding: 0px 15px 0px 15px !important;
+}
+
+.twofactor-welcomelabel {
+	font-size: 36px;
+	font-weight: 100;
+	color: white;
+	margin-top: 20px;
+	border-bottom: 1px solid white;
+}
+
+.twofactor-authlabel {
+	font-size: 22px;
+	font-weight: bold;
+	color: white;
+}
+
+.twofactor-maillabel {
+	color: white;
+	font-size: 14px;
+}
+
+.twofactor-label {
+	border: 0;
+	border-bottom: 1px solid white !important;
+	caret-color: #fff;
+	width: 214px !important;
+}
+
+.twofactor-formLayout {
+	margin-top: 37px;
+}
+
+.twofactor-buttonsLayout {
+	padding-bottom: 30px;
+}
+
+.twofactor-buttons {
+	font: 400 14.3333px Arial;
+	font-style: normal;
+	width: 45%;
+	height: 37px;
+	border: 1px solid #666;
+	border-radius: 4px;
+	outline: none;
+	cursor: pointer;
+	color: #000;
+	text-align: center;
+	position: relative;
+	background-color: #f2f2f2;
+}
+
+.twofactor-buttons:focus:after {
+	box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.5);
+	content: "";
+	position: absolute;
+	top: -2px;
+	right: -2px;
+	bottom: -2px;
+	left: -2px;
+	border-radius: inherit;
+}
+
 .apptheme .warn {
 	font-weight: bolder;
 	color: orange;
