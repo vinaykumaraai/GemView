@@ -60,7 +60,6 @@ import javax.servlet.http.HttpServletResponse;
 public class RedirectAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
 	private  String location;
-	private RestServiceUtil restUtil;
 
 	@Autowired
 	private ServletContext servletContext;
@@ -69,7 +68,7 @@ public class RedirectAuthenticationSuccessHandler implements AuthenticationSucce
 
 	public RedirectAuthenticationSuccessHandler() {
 		//mainView.attachNavigation(dashboard, DashboardView.class);
-		UserSession session = restUtil.getSESSION();
+		UserSession session = RestServiceUtil.getSESSION();
 		location = Application.APP_URL + "twofactorauthenticationhome";
 		/*if(session.isPerformTwoFactor()) {
 			location = Application.APP_URL + "twofactorauthenticationhome";

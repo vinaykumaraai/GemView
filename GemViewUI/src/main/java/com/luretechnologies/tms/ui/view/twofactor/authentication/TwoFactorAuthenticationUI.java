@@ -31,13 +31,18 @@
  */
 package com.luretechnologies.tms.ui.view.twofactor.authentication;
 
+import java.io.IOException;
 import java.io.Serializable;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.client.restlib.service.model.UserSession;
+import com.luretechnologies.tms.app.Application;
 import com.luretechnologies.tms.app.HasLogger;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
 import com.luretechnologies.tms.ui.AppUI;
@@ -79,20 +84,23 @@ public class TwoFactorAuthenticationUI extends UI implements HasLogger{
 	 */
 	private static final long serialVersionUID = 1L;
 	public static final String VIEW_NAME = "twofactorauthenticationhome";
-	private final SpringViewProvider viewProvider;
-	//private final NavigationManager navigationManager;
+//	private final SpringViewProvider viewProvider;
+//	private final NavigationManager navigationManager;
 	//private final TwoFactorView twoFactorview;
+	
+	private HttpServletResponse response;
+	private ServletContext servletContext;
 	private VerticalLayout vl;
 	private Button resendEmail, authenticate;
 	private RestServiceUtil restUtil;
 	private HorizontalSplitPanel horizontalPanel;
 	private VerticalSplitPanel verticalPanel;
-	
 	@Autowired
-	public TwoFactorAuthenticationUI(SpringViewProvider viewProvider/*NavigationManager navigationManager*//*, TwoFactorView twoFactorview*/) {
-		//this.navigationManager = navigationManager;
+	public TwoFactorAuthenticationUI(ServletContext servletContext,SpringViewProvider viewProvider,NavigationManager navigationManager/*, TwoFactorView twoFactorview*/) {
+//		this.navigationManager = navigationManager;
 		//this.twoFactorview=twoFactorview;
-		this.viewProvider = viewProvider;
+//		this.viewProvider = viewProvider;
+		this.servletContext = servletContext;
 	}
 
 	@Override
@@ -118,7 +126,7 @@ public class TwoFactorAuthenticationUI extends UI implements HasLogger{
 			getLogger().error("Error during request", t);
 		});
 
-		viewProvider.setAccessDeniedViewClass(AccessDeniedView.class);
+//		viewProvider.setAccessDeniedViewClass(AccessDeniedView.class);
 		
 		//vl= new VerticalLayout();
 	} 
@@ -188,9 +196,15 @@ public class TwoFactorAuthenticationUI extends UI implements HasLogger{
 		authenticate = new Button("Authenticate");
 		authenticate.setWidth("100%");
 		authenticate.addStyleName("twofactor-buttons");
-		authenticate.addClickListener(new ClickListener() {
-		public void buttonClick(ClickEvent event) {
-			
+		authenticate.addClickListener(click -> {
+			//FIXME: Add Two Factor Code Check
+//			navigationManager.navigateToDefaultView();
+			try {
+				//RestServiceUtil.getInstance().getClient().getAuthApi().verifyCode(verificationCode.getValue());
+				Page.getCurrent().setLocation(getAbsoluteUrl(Application.APP_URL+"home"));
+			} catch (Exception e) {
+				//Dont Navigate.
+				e.printStackTrace();
 			}
 		});
 	
@@ -294,5 +308,13 @@ public class TwoFactorAuthenticationUI extends UI implements HasLogger{
 				}
 	}
 	  
-	
+	private String getAbsoluteUrl(String url) {
+		final String relativeUrl;
+		if (url.startsWith("/")) {
+			relativeUrl = url.substring(1);
+		} else {
+			relativeUrl = url;
+		}
+		return servletContext.getContextPath() + "/" + relativeUrl;
+	}	
 }
