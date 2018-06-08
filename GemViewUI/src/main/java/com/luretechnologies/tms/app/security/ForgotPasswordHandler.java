@@ -29,88 +29,36 @@
  * Inquiries should be made to legal@luretechnologies.com
  *
  */
-
 package com.luretechnologies.tms.app.security;
 
-import com.luretechnologies.client.restlib.service.model.UserSession;
-import com.luretechnologies.tms.app.Application;
-import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
-import com.luretechnologies.tms.ui.MainView;
-import com.luretechnologies.tms.ui.view.dashboard.DashboardView;
-import com.vaadin.spring.annotation.SpringComponent;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.web.ServerProperties.Session.Cookie;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.web.context.annotation.ApplicationScope;
-
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/**
- * Redirects to the application after successful authentication.
- */
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.web.context.annotation.ApplicationScope;
+
+import com.luretechnologies.tms.app.Application;
+import com.vaadin.spring.annotation.SpringComponent;
+
 @SpringComponent
 @ApplicationScope
-public class RedirectAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
-
-	private String location;
-	private final String TWO_FACTOR = "doTwoFactor";
-	private final String PASSWORD_REQUIRED = "doPasswordUpdate";
-	private final String TWOFACTOR_PASSWORD = "doTwoFactorAndPassword";
-	private List<String> authList = new ArrayList<>();
-
+public class ForgotPasswordHandler implements AuthenticationSuccessHandler{
+	
+	private final String location;
+	
 	@Autowired
 	private ServletContext servletContext;
 	
-	private MainView mainView;
-
-	public RedirectAuthenticationSuccessHandler() {
-		UserSession session = RestServiceUtil.getSESSION();
-		if(session!=null) {
-
-			if(!(session.isPerformTwoFactor() && session.isRequirePasswordUpdate())) {
-				  location = Application.APP_URL+"home";
-			}
-			
-			if(session.isPerformTwoFactor()) {
-				authList.add(TWO_FACTOR);
-			}
-			
-			if(session.isRequirePasswordUpdate()) {
-				authList.add(PASSWORD_REQUIRED);
-			}
-			
-			if(session.isPerformTwoFactor() && session.isRequirePasswordUpdate()) {
-				authList.add(TWOFACTOR_PASSWORD);
-			}
-		}
-		
-		  for(String operation:authList){
-			  switch(operation) {
-			  case TWO_FACTOR:
-				  location = Application.APP_URL + "twofactorauthenticationhome";
-				  break;
-			  case PASSWORD_REQUIRED:
-				  location = Application.APP_URL + "forgotPassword.html";
-				  break;
-			  case TWOFACTOR_PASSWORD:
-				  location = Application.APP_URL + "forgotPassword.html";
-				  break;
-			  default:
-				  break;
-			  }
-		  }
-		  
+	public ForgotPasswordHandler() {
+		location = Application.APP_URL+Application.FORGOT_PASSWORD_URL;
 	}
-
+	
 	private String getAbsoluteUrl(String url) {
 		final String relativeUrl;
 		if (url.startsWith("/")) {
@@ -120,12 +68,12 @@ public class RedirectAuthenticationSuccessHandler implements AuthenticationSucce
 		}
 		return servletContext.getContextPath() + "/" + relativeUrl;
 	}
-
+	
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
 			Authentication authentication) throws IOException, ServletException {
 		response.sendRedirect(getAbsoluteUrl(location));
-
+		
 	}
-
+	
 }

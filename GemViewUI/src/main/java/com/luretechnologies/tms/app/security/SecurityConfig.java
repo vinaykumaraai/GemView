@@ -56,6 +56,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	private final RedirectAuthenticationSuccessHandler successHandler;
 	
+	private final ForgotPasswordHandler forgotPasswordHandler;
+	
 	@Autowired
 	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 //		auth.inMemoryAuthentication()
@@ -67,10 +69,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	//FIXME: This config is not required anymore.
 	@Autowired
 	public SecurityConfig( PasswordEncoder passwordEncoder,
-			RedirectAuthenticationSuccessHandler successHandler) {
+			RedirectAuthenticationSuccessHandler successHandler, ForgotPasswordHandler forgotPasswordHandler) {
 //		this.userDetailsService = userDetailsService;
 		this.passwordEncoder = passwordEncoder;
 		this.successHandler = successHandler;
+		this.forgotPasswordHandler = forgotPasswordHandler;
 	}
 
 	@Override
@@ -99,6 +102,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		login = login.loginPage(Application.LOGIN_URL).loginProcessingUrl(Application.LOGIN_PROCESSING_URL)
 				.failureUrl(Application.LOGIN_FAILURE_URL).successHandler(successHandler);
 		login.and().logout().logoutSuccessUrl(Application.LOGOUT_URL);
+		
+		/*FormLoginConfigurer<HttpSecurity> forgotpasswordlink = sec.formLogin().permitAll();
+		forgotpasswordlink.and().formLogin().successHandler(forgotPasswordHandler);*/
 	}
 
 }

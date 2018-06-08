@@ -1062,6 +1062,11 @@ $app-background-color: #145A32;
 	padding: 0px 15px 0px 15px !important;
 }
 
+.twofactor-secondPanelVertical{
+	background : #216c2a;
+	padding: 0px 45px 0px 45px !important;
+}
+
 .twofactor-welcomelabel{
 	font-size: 36px;
 	font-weight: 100;
@@ -1076,11 +1081,25 @@ $app-background-color: #145A32;
 	color:white;
 }
 
+.twofactor-authlabelVertical{
+	font-size: 22px;
+	font-weight: bold;
+	color:white;
+	margin-top:10px;
+}
+
 .twofactor-maillabel{
 	color:white;
-	font=weight:100;
+	font-weight:100;
 	font-size:14px;
 	
+}
+
+.twofactor-maillabelVertical{
+	color:white;
+	font-weight:100;
+	font-size:14px;
+	margin-top:-10px;
 }
 
 .twofactor-label{
@@ -1088,10 +1107,23 @@ $app-background-color: #145A32;
 	border-bottom: 1px solid white !important;
 	caret-color: #fff;
 	width: 214px !important;
+	color:#fff !important;
+}
+
+.twofactor-labelVertical{
+	border:0;
+	border-bottom: 1px solid white !important;
+	caret-color: #fff;
+	width: 100% !important;
+	color:#fff !important;
 }
 
 .twofactor-formLayout{
 	margin-top:37px
+}
+
+.twofactor-formLayoutVertical{
+	margin-top:-45px
 }
 
 .twofactor-buttonsLayout{
@@ -1123,6 +1155,29 @@ $app-background-color: #145A32;
 	bottom: -2px;
 	left: -2px;
 	border-radius: inherit;
+}
+
+.twofactor-logoVertical{
+	background-position-x: center;
+	background-image: url(company_logo.png);
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-color: #FFFFFF;
+}
+
+.forgotpassword-labelHorizontal{
+	font-size: 22px;
+	font-weight: 500;
+	color:white;
+	margin-top:20px;
+}
+
+.forgotpassword-emaillabel{
+	border:0;
+	border-bottom: 1px solid white !important;
+	caret-color: #fff;
+	width: 100% !important;
+	color:#fff !important;
 }
 
 .apptheme .warn{

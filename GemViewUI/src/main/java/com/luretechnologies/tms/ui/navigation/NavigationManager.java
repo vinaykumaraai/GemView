@@ -36,6 +36,7 @@ import org.springframework.stereotype.Component;
 
 import com.luretechnologies.tms.ui.view.dashboard.DashboardView;
 import com.luretechnologies.tms.ui.view.twofactor.authentication.TwoFactorAuthenticationView;
+import com.luretechnologies.tms.ui.view.twofactor.authentication.TwoFactorView;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.spring.annotation.SpringView;

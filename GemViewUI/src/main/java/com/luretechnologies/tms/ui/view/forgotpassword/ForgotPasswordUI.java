@@ -29,11 +29,9 @@
  * Inquiries should be made to legal@luretechnologies.com
  *
  */
-package com.luretechnologies.tms.ui.view.twofactor.authentication;
+package com.luretechnologies.tms.ui.view.forgotpassword;
 
-import java.io.Serializable;
-
-import javax.annotation.PostConstruct;
+import javax.management.Attribute;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletResponse;
 
@@ -43,9 +41,9 @@ import com.luretechnologies.client.restlib.service.model.UserSession;
 import com.luretechnologies.tms.app.Application;
 import com.luretechnologies.tms.app.HasLogger;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
-import com.luretechnologies.tms.ui.AppUI;
 import com.luretechnologies.tms.ui.navigation.NavigationManager;
 import com.luretechnologies.tms.ui.view.AccessDeniedView;
+import com.luretechnologies.tms.ui.view.twofactor.authentication.TwoFactorAuthenticationUI;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Title;
 import com.vaadin.annotations.Viewport;
@@ -64,33 +62,35 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
-import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.VerticalSplitPanel;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.Notification.CloseEvent;
+import com.vaadin.ui.Notification.CloseListener;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.themes.ValoTheme;
 
 @Theme("apptheme")
-@SpringUI(path = TwoFactorAuthenticationUI.VIEW_NAME)
+@SpringUI(path = ForgotPasswordUI.VIEW_NAME)
 @Viewport("width=device-width,initial-scale=1.0,user-scalable=no")
 @Title("Gem View")
 @SpringView
-public class TwoFactorAuthenticationUI extends UI implements HasLogger, View{
-
+public class ForgotPasswordUI extends UI implements HasLogger, View{
+	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	public static final String VIEW_NAME = "twofactorauthenticationhome";
+	public static final String VIEW_NAME = "forgotpassword";
+	
 	private final SpringViewProvider viewProvider;
 	private final NavigationManager navigationManager;
 	//private final TwoFactorView twoFactorview;
 	private VerticalLayout vl;
-	private Button resendEmail, authenticate;
+	private Button cancel, sendTempPassword;
 	private RestServiceUtil restUtil;
 	private HorizontalSplitPanel horizontalPanel;
 	private VerticalSplitPanel verticalPanel;
@@ -98,7 +98,7 @@ public class TwoFactorAuthenticationUI extends UI implements HasLogger, View{
 	private HttpServletResponse response;
 	
 	@Autowired
-	public TwoFactorAuthenticationUI(ServletContext servletContext, SpringViewProvider viewProvider, NavigationManager navigationManager/*, TwoFactorView twoFactorview*/) {
+	public ForgotPasswordUI(ServletContext servletContext, SpringViewProvider viewProvider, NavigationManager navigationManager/*, TwoFactorView twoFactorview*/) {
 		this.navigationManager = navigationManager;
 		this.viewProvider = viewProvider;
 		this.servletContext = servletContext;
@@ -106,6 +106,8 @@ public class TwoFactorAuthenticationUI extends UI implements HasLogger, View{
 
 	@Override
 	protected void init(VaadinRequest request) {
+		// TODO Auto-generated method stub
+		
 		UserSession session = restUtil.getSESSION();
 		Page.getCurrent().addBrowserWindowResizeListener(r->{
 			if(r.getWidth()>=1000) {
@@ -129,17 +131,7 @@ public class TwoFactorAuthenticationUI extends UI implements HasLogger, View{
 
 		viewProvider.setAccessDeniedViewClass(AccessDeniedView.class);
 		
-		//vl= new VerticalLayout();
-		/*vl = new VerticalLayout();
-		vl.setSpacing(false);
-		vl.setMargin(false);
-		vl.setResponsive(true);
-		vl.setSizeFull();
-		vl.addStyleName("twofactor-verticalLayout");
-		setContent(vl);
-		
-		navigationManager.navigateToTwoFactorView();*/
-	} 
+	}
 	
 	public void getHorizontalPanel(HorizontalSplitPanel panel, UserSession session,
 			VerticalLayout vl) {
@@ -170,57 +162,68 @@ public class TwoFactorAuthenticationUI extends UI implements HasLogger, View{
 		welcome.setWidth("100%");
 		secondPanelLayout.addComponent(welcome);
 	
-		Label twofactorAuthentication = new Label("Two Factor Authentication");
+		/*Label twofactorAuthentication = new Label("Two Factor Authentication");
 		twofactorAuthentication.addStyleName("twofactor-authlabel");
 		twofactorAuthentication.setWidth("100%");
-		secondPanelLayout.addComponent(twofactorAuthentication);
+		secondPanelLayout.addComponent(twofactorAuthentication);*/
 	
-		Label twofactorMailText = new Label("A verification code has been sent to "
-			+ "your email at "+session.getMaskedEmailAddress());
-		twofactorMailText.addStyleName("twofactor-maillabel");
+		Label twofactorMailText = new Label("Please type your email address for Temporary Password");
+		twofactorMailText.addStyleName("forgotpassword-labelHorizontal");
 		twofactorMailText.setWidth("100%");
 		secondPanelLayout.addComponent(twofactorMailText);
 	
 		FormLayout verificationCodeLayout = new FormLayout();
 		verificationCodeLayout.addStyleName("twofactor-formLayout");
-		TextField verificationCode = new TextField();
-		verificationCode.focus();
-		verificationCode.setCaptionAsHtml(true);
-		verificationCode.setCaption("<h4 style=color:white;font-weight:bold !important;> Verification Code</h4>");
-		verificationCode.addStyleNames(ValoTheme.BUTTON_BORDERLESS, "twofactor-label", "v-textfield-lineHeight");
-		verificationCodeLayout.addComponent(verificationCode);
+		TextField emailId = new TextField();
+		/*Attribute attribute = new Attribute("spellcheck", "false");
+		attribute.e*/
+		emailId.focus();
+		emailId.setCaptionAsHtml(true);
+		emailId.setCaption("<h4 style=color:white;font-weight:bold !important;> Email ID</h4>");
+		emailId.addStyleNames(ValoTheme.BUTTON_BORDERLESS, "forgotpassword-emaillabel", "v-textfield-lineHeight");
+		verificationCodeLayout.addComponent(emailId);
 		secondPanelLayout.addComponent(verificationCodeLayout);
 	
 		HorizontalLayout buttonlayout = new HorizontalLayout();
 		buttonlayout.setWidth("100%");
 		buttonlayout.addStyleName("twofactor-buttonsLayout");
-		resendEmail = new Button("Resend Email");
-		resendEmail.setWidth("100%");
-		resendEmail.addStyleName("twofactor-buttons");
-		resendEmail.addClickListener(new ClickListener() {
-		public void buttonClick(ClickEvent event) {
-			
+		cancel = new Button("Cancel");
+		cancel.setWidth("100%");
+		cancel.addStyleName("twofactor-buttons");
+		cancel.addClickListener(click -> {
+			try {
+				Page.getCurrent().setLocation(getAbsoluteUrl(Application.LOGIN_URL));
+			} catch(Exception e) {
+				Notification.show(e.getMessage(), Type.ERROR_MESSAGE);
 			}
 		});
 	
-		authenticate = new Button("Authenticate");
-		authenticate.setWidth("100%");
-		authenticate.addStyleName("twofactor-buttons");
-		authenticate.addClickListener(click -> {
-			//FIXME: Add Two Factor Code Check
-//			navigationManager.navigateToDefaultView();
+		sendTempPassword = new Button("Continue");
+		sendTempPassword.setWidth("100%");
+		sendTempPassword.addStyleName("twofactor-buttons");
+		sendTempPassword.addClickListener(click -> {
 			try {
-				RestServiceUtil.getInstance().getClient().getAuthApi().verifyCode(verificationCode.getValue());
-				Page.getCurrent().setLocation(getAbsoluteUrl(Application.APP_URL+"home"));
+				RestServiceUtil.getInstance().getClient().getAuthApi().forgotPassword(emailId.getValue());
+				Notification tmpPassSentNotify = Notification.show("Temporary Password is sent", Type.ERROR_MESSAGE);
+				tmpPassSentNotify.setPosition(Position.TOP_CENTER);
+				tmpPassSentNotify.setDelayMsec(5000);
+				tmpPassSentNotify.addCloseListener(new CloseListener() {
+					
+					@Override
+					public void notificationClose(CloseEvent e) {
+						Page.getCurrent().setLocation(getAbsoluteUrl(Application.LOGIN_URL));
+						
+					}
+				});
 			} catch (Exception e) {
 				//Dont Navigate.
-				Notification.show("Entered Code is Wrong/Time out", Type.ERROR_MESSAGE).setPosition(Position.TOP_CENTER);
+				Notification.show("Given Email ID is wrong. Please check once again", Type.ERROR_MESSAGE).setPosition(Position.TOP_CENTER);
 				e.printStackTrace();
 			
 			}
 		});
 	
-		buttonlayout.addComponents(resendEmail, authenticate);
+		buttonlayout.addComponents(cancel, sendTempPassword);
 		secondPanelLayout.addComponent(buttonlayout);
 	
 		vl.addComponent(panel);
@@ -266,59 +269,66 @@ public class TwoFactorAuthenticationUI extends UI implements HasLogger, View{
 				welcome.setWidth("100%");
 				secondPanelLayout.addComponent(welcome);
 			
-				Label twofactorAuthentication = new Label("Two Factor Authentication");
+				/*Label twofactorAuthentication = new Label("Two Factor Authentication");
 				twofactorAuthentication.addStyleName("twofactor-authlabelVertical");
 				twofactorAuthentication.setWidth("100%");
-				secondPanelLayout.addComponent(twofactorAuthentication);
+				secondPanelLayout.addComponent(twofactorAuthentication);*/
 			
-				Label twofactorMailText = new Label("A verification code has been sent to "
-					+ "your email at "+session.getMaskedEmailAddress());
-				twofactorMailText.addStyleName("twofactor-maillabelVertical");
+				Label twofactorMailText = new Label("Please type your email address for Temporary Password");
+				twofactorMailText.addStyleName("forgotpassword-labelHorizontal");
 				twofactorMailText.setWidth("100%");
 				secondPanelLayout.addComponent(twofactorMailText);
 			
 				FormLayout verificationCodeLayout = new FormLayout();
 				verificationCodeLayout.addStyleName("twofactor-formLayoutVertical");
-				TextField verificationCode = new TextField();
-				verificationCode.focus();
-				verificationCode.setCaptionAsHtml(true);
-				verificationCode.setCaption("<h4 style=color:white;font-weight:bold !important;> Verification Code</h4>");
-				verificationCode.addStyleNames(ValoTheme.BUTTON_BORDERLESS, "twofactor-labelVertical", "v-textfield-lineHeight");
-				verificationCodeLayout.addComponent(verificationCode);
+				TextField emailID = new TextField();
+				emailID.focus();
+				emailID.setCaptionAsHtml(true);
+				emailID.setCaption("<h4 style=color:white;font-weight:bold !important;>Email ID</h4>");
+				emailID.addStyleNames(ValoTheme.BUTTON_BORDERLESS, "forgotpassword-emaillabel", "v-textfield-lineHeight");
+				verificationCodeLayout.addComponent(emailID);
 				secondPanelLayout.addComponent(verificationCodeLayout);
 			
 				HorizontalLayout buttonlayout = new HorizontalLayout();
 				buttonlayout.setWidth("100%");
 				buttonlayout.addStyleName("twofactor-buttonsLayout");
-				resendEmail = new Button("Resend Email");
-				resendEmail.setWidth("100%");
-				resendEmail.addStyleName("twofactor-buttons");
-				resendEmail.addClickListener(click -> {
+				cancel = new Button("Cancel");
+				cancel.setWidth("100%");
+				cancel.addStyleName("twofactor-buttons");
+				cancel.addClickListener(click -> {
 					try {
-						//RestServiceUtil.getInstance().getClient().getAuthApi().
+						Page.getCurrent().setLocation(getAbsoluteUrl(Application.LOGIN_URL));
 					} catch(Exception e) {
-						
+						Notification.show(e.getMessage(), Type.ERROR_MESSAGE);
 					}
 				});
 			
-				authenticate = new Button("Authenticate");
-				authenticate.setWidth("100%");
-				authenticate.addStyleName("twofactor-buttons");
-				authenticate.addClickListener(click -> {
-					//FIXME: Add Two Factor Code Check
-//					navigationManager.navigateToDefaultView();
+				sendTempPassword = new Button("Continue");
+				sendTempPassword.setWidth("100%");
+				sendTempPassword.addStyleName("twofactor-buttons");
+				sendTempPassword.addClickListener(click -> {
 					try {
-						RestServiceUtil.getInstance().getClient().getAuthApi().verifyCode(verificationCode.getValue());
-						Page.getCurrent().setLocation(getAbsoluteUrl(Application.APP_URL+"home"));
+						RestServiceUtil.getInstance().getClient().getAuthApi().forgotPassword(emailID.getValue());
+						Notification tmpPassSentNotify = Notification.show("Temporary Password is sent", Type.ERROR_MESSAGE);
+						tmpPassSentNotify.setPosition(Position.TOP_CENTER);
+						tmpPassSentNotify.setDelayMsec(5000);
+						tmpPassSentNotify.addCloseListener(new CloseListener() {
+							
+							@Override
+							public void notificationClose(CloseEvent e) {
+								Page.getCurrent().setLocation(getAbsoluteUrl(Application.LOGIN_URL));
+								
+							}
+						});
 					} catch (Exception e) {
 						//Dont Navigate.
-						Notification.show("Entered Code is Wrong/Time out", Type.ERROR_MESSAGE).setPosition(Position.TOP_CENTER);
+						Notification.show("Given Email ID is wrong. Please check once again", Type.ERROR_MESSAGE).setPosition(Position.TOP_CENTER);
 						e.printStackTrace();
 					
 					}
 				});
 			
-				buttonlayout.addComponents(resendEmail, authenticate);
+				buttonlayout.addComponents(cancel, sendTempPassword);
 				secondPanelLayout.addComponent(buttonlayout);
 			
 				vl.addComponent(panel);
@@ -341,6 +351,6 @@ public class TwoFactorAuthenticationUI extends UI implements HasLogger, View{
 		}
 		return servletContext.getContextPath() + "/" + relativeUrl;
 	}	
-	  
-	
+
+
 }
