@@ -135,7 +135,7 @@ public class ForgotPasswordUI extends UI implements HasLogger, View{
 	
 	public void getHorizontalPanel(HorizontalSplitPanel panel, UserSession session,
 			VerticalLayout vl) {
-	  if(session!=null) {
+//	  if(session!=null) {
 		vl = new VerticalLayout();
 		vl.setSpacing(false);
 		vl.setMargin(false);
@@ -230,17 +230,17 @@ public class ForgotPasswordUI extends UI implements HasLogger, View{
 		vl.setComponentAlignment(panel, Alignment.MIDDLE_CENTER);
 		setContent(vl);
 	//navigationManager.navigateToTwoFactorView();
-	  }
-		else {
-			throw new NullPointerException("Session is null");
-			
-		}
+	//  }
+//		else {
+//			throw new NullPointerException("Session is null");
+//			
+//	}
 	  
 	  }
 	
 	public void getVerticalPanel(VerticalSplitPanel panel, UserSession session,
 			VerticalLayout vl) {
-		 if(session!=null) {
+//		 if(session!=null) {
 			 	vl = new VerticalLayout();
 			 	vl.setSpacing(false);
 				vl.setMargin(false);
@@ -335,11 +335,11 @@ public class ForgotPasswordUI extends UI implements HasLogger, View{
 				vl.setComponentAlignment(panel, Alignment.MIDDLE_CENTER);
 				setContent(vl);
 			//navigationManager.navigateToTwoFactorView();
-			  }
-				else {
-					throw new NullPointerException("Session is null");
-					
-				}
+//			  }
+//				else {
+//					throw new NullPointerException("Session is null");
+//					
+//				}
 	}
 	
 	private String getAbsoluteUrl(String url) {

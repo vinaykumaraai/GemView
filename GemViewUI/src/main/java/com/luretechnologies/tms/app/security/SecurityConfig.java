@@ -93,7 +93,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 		// Allow access to static resources ("/VAADIN/**")
 		reg = reg.antMatchers("/VAADIN/**").permitAll();
-		reg = reg.antMatchers("/forgotPassword.html").permitAll();
+//		reg = reg.antMatchers("/gemview/forgotPassword").permitAll();
 		reg = reg.antMatchers("/**").hasAnyAuthority(Role.getAllRoles());
 		HttpSecurity sec = reg.and();
 
@@ -102,9 +102,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		login = login.loginPage(Application.LOGIN_URL).loginProcessingUrl(Application.LOGIN_PROCESSING_URL)
 				.failureUrl(Application.LOGIN_FAILURE_URL).successHandler(successHandler);
 		login.and().logout().logoutSuccessUrl(Application.LOGOUT_URL);
-		
-		/*FormLoginConfigurer<HttpSecurity> forgotpasswordlink = sec.formLogin().permitAll();
-		forgotpasswordlink.and().formLogin().successHandler(forgotPasswordHandler);*/
+		//Allow access to forgotpassword page without login
+		sec.antMatcher("/gemview/forgotpassowrd").anonymous();
+//		FormLoginConfigurer<HttpSecurity> forgotpasswordlink = sec.formLogin().permitAll();
+//		forgotpasswordlink.loginProcessingUrl(Application.FORGOT_PASSWORD_URL).successHandler(forgotPasswordHandler);
 	}
 
 }
