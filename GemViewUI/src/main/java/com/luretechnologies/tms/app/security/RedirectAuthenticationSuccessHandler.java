@@ -76,7 +76,7 @@ public class RedirectAuthenticationSuccessHandler implements AuthenticationSucce
 		UserSession session = RestServiceUtil.getSESSION();
 		if(session!=null) {
 
-			if(!(session.isPerformTwoFactor() && session.isRequirePasswordUpdate())) {
+			if(!(session.isPerformTwoFactor() || session.isRequirePasswordUpdate())) {
 				  location = Application.APP_URL+"home";
 			}
 			
@@ -99,10 +99,10 @@ public class RedirectAuthenticationSuccessHandler implements AuthenticationSucce
 				  location = Application.APP_URL + "twofactorauthenticationhome";
 				  break;
 			  case PASSWORD_REQUIRED:
-				  location = Application.APP_URL + "forgotPassword.html";
+				  location = Application.APP_URL + "updatepassword";
 				  break;
 			  case TWOFACTOR_PASSWORD:
-				  location = Application.APP_URL + "forgotPassword.html";
+				  location = Application.APP_URL + "updatepassword";
 				  break;
 			  default:
 				  break;

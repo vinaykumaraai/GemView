@@ -17,7 +17,7 @@ import com.luretechnologies.tms.backend.service.MockUserService;
 
 /**
  * 
- * @author sils
+ * @author Vinay
  *
  */
 public class BackendAuthenticationProvider implements AuthenticationProvider {
@@ -31,9 +31,11 @@ public class BackendAuthenticationProvider implements AuthenticationProvider {
 			  
 		  try {
 			UserSession session = RestServiceUtil.getInstance().login(username, password);
+			//RestServiceUtil.getInstance().getClient().getAuthApi().
 			//com.luretechnologies.client.restlib.service.model.User restUser = RestServiceUtil.getInstance().getClient().getUserApi().getUserByUserName(username);
 			//User user = new User(restUser.getEmail(),restUser.getUsername(),"",restUser.getRole().getName(),restUser.getFirstName(),restUser.getLastName(),restUser.getActive());
 			//FIXME: Using mocked up data due to backend service not working
+			
 			User user = new User("test@test.com", "Admin", "Admin", Role.ADMIN, "Test", "Test", true); 
 			return new UsernamePasswordAuthenticationToken(username,password, Collections.singletonList(new SimpleGrantedAuthority(user.getRole())));
 		} catch (ApiException e) {

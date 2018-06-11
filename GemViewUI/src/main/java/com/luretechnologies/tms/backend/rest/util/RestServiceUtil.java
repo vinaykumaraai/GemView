@@ -6,7 +6,7 @@ import com.luretechnologies.client.restlib.service.model.UserSession;
 
 /**
  * 
- * @author sils
+ * @author Vinay
  *
  */
 public class RestServiceUtil {
@@ -17,7 +17,7 @@ public class RestServiceUtil {
 	private static UserSession SESSION;
 	private static RestClientService client;
 	private RestServiceUtil() {
-		client = new RestClientService("http://mia.lure68.net:54061/admin/api","");
+		client = new RestClientService("http://mia.lure68.net:54071/admin/api", "");
 	}
 	
 	public static UserSession getSESSION() {

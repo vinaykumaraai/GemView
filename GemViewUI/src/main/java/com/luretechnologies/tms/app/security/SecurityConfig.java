@@ -32,6 +32,8 @@
 
 package com.luretechnologies.tms.app.security;
 
+import java.io.Serializable;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -48,7 +50,7 @@ import com.luretechnologies.tms.backend.data.Role;
 
 @EnableWebSecurity
 @Configuration
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serializable{
 
 //	private final UserDetailsService userDetailsService;
 
@@ -62,7 +64,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 //		auth.inMemoryAuthentication()
 //                   .withUser("test").password("123456").roles("ADMIN");
+		super.configure(auth);
 		auth.authenticationProvider(new BackendAuthenticationProvider());
+		//getHttp().antMatcher("/gemview/forgotpassowrd").anonymous();
+		
 	}
 
 
@@ -76,12 +81,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		this.forgotPasswordHandler = forgotPasswordHandler;
 	}
 
-	@Override
-	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-		super.configure(auth);
-		auth.authenticationProvider(new BackendAuthenticationProvider());
-		//auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
-	}
+//	@Override
+//	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+//		super.configure(auth);
+//		auth.authenticationProvider(new BackendAuthenticationProvider());
+//		//auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
+//	}
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
@@ -90,22 +95,25 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		http.csrf().disable();
 		ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry reg = http
 				.authorizeRequests();
+		
 
 		// Allow access to static resources ("/VAADIN/**")
 		reg = reg.antMatchers("/VAADIN/**").permitAll();
-//		reg = reg.antMatchers("/gemview/forgotPassword").permitAll();
+		//reg = reg.antMatchers("/forgotPassword.html").permitAll();
+		reg = reg.antMatchers("/gemview/forgotpassword").permitAll();
 		reg = reg.antMatchers("/**").hasAnyAuthority(Role.getAllRoles());
+		//reg= reg.antMatchers("/login*").anonymous().anyRequest().authenticated();
+		//reg = reg.antMatchers("/**").authenticated();
+		//reg = reg.antMatchers("/gemview/forgotpassword").permitAll();
 		HttpSecurity sec = reg.and();
 
 		// Allow access to login page without login
-		FormLoginConfigurer<HttpSecurity> login = sec.formLogin().permitAll();
-		login = login.loginPage(Application.LOGIN_URL).loginProcessingUrl(Application.LOGIN_PROCESSING_URL)
+			FormLoginConfigurer<HttpSecurity> login = sec.formLogin().permitAll();
+			login = login.loginPage(Application.LOGIN_URL).loginProcessingUrl(Application.LOGIN_PROCESSING_URL)
 				.failureUrl(Application.LOGIN_FAILURE_URL).successHandler(successHandler);
-		login.and().logout().logoutSuccessUrl(Application.LOGOUT_URL);
-		//Allow access to forgotpassword page without login
-		sec.antMatcher("/gemview/forgotpassowrd").anonymous();
-//		FormLoginConfigurer<HttpSecurity> forgotpasswordlink = sec.formLogin().permitAll();
-//		forgotpasswordlink.loginProcessingUrl(Application.FORGOT_PASSWORD_URL).successHandler(forgotPasswordHandler);
+			login.and().logout().logoutSuccessUrl(Application.LOGOUT_URL);
+		
+		//sec.antMatcher("/gemview/forgotpassowrd");
 	}
 
 }

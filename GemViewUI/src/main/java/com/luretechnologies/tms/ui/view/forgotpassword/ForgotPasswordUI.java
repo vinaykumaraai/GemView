@@ -31,7 +31,6 @@
  */
 package com.luretechnologies.tms.ui.view.forgotpassword;
 
-import javax.management.Attribute;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletResponse;
 
@@ -135,7 +134,7 @@ public class ForgotPasswordUI extends UI implements HasLogger, View{
 	
 	public void getHorizontalPanel(HorizontalSplitPanel panel, UserSession session,
 			VerticalLayout vl) {
-//	  if(session!=null) {
+	  /*if(session!=null) {*/
 		vl = new VerticalLayout();
 		vl.setSpacing(false);
 		vl.setMargin(false);
@@ -171,16 +170,16 @@ public class ForgotPasswordUI extends UI implements HasLogger, View{
 		twofactorMailText.addStyleName("forgotpassword-labelHorizontal");
 		twofactorMailText.setWidth("100%");
 		secondPanelLayout.addComponent(twofactorMailText);
-	
+		
 		FormLayout verificationCodeLayout = new FormLayout();
 		verificationCodeLayout.addStyleName("twofactor-formLayout");
 		TextField emailId = new TextField();
 		/*Attribute attribute = new Attribute("spellcheck", "false");
-		attribute.e*/
+		attribute.extend(emailId);*/
 		emailId.focus();
 		emailId.setCaptionAsHtml(true);
 		emailId.setCaption("<h4 style=color:white;font-weight:bold !important;> Email ID</h4>");
-		emailId.addStyleNames(ValoTheme.BUTTON_BORDERLESS, "forgotpassword-emaillabel", "v-textfield-lineHeight");
+		emailId.addStyleNames(ValoTheme.BUTTON_BORDERLESS, "forgotpassword-emaillabel", "verfication-password-lineheight");
 		verificationCodeLayout.addComponent(emailId);
 		secondPanelLayout.addComponent(verificationCodeLayout);
 	
@@ -230,17 +229,20 @@ public class ForgotPasswordUI extends UI implements HasLogger, View{
 		vl.setComponentAlignment(panel, Alignment.MIDDLE_CENTER);
 		setContent(vl);
 	//navigationManager.navigateToTwoFactorView();
-	//  }
-//		else {
-//			throw new NullPointerException("Session is null");
-//			
-//	}
+	  /*}
+		else {
+			throw new NullPointerException("Session is null");
+			
+		}*/
 	  
 	  }
 	
 	public void getVerticalPanel(VerticalSplitPanel panel, UserSession session,
 			VerticalLayout vl) {
-//		 if(session!=null) {
+		/* if(session!=null) {*/
+				VerticalLayout firstvl = new VerticalLayout();
+				firstvl.addStyleName("twofactor-firstverticalLayout");
+				firstvl.setSizeFull();
 			 	vl = new VerticalLayout();
 			 	vl.setSpacing(false);
 				vl.setMargin(false);
@@ -253,12 +255,17 @@ public class ForgotPasswordUI extends UI implements HasLogger, View{
 				//firstPanelLayout.setHeight("300px");
 				firstPanelLayout.setSizeFull();
 				VerticalLayout secondPanelLayout = new VerticalLayout();
-				secondPanelLayout.setSizeFull();
+				firstvl.addComponent(secondPanelLayout);
+				firstvl.setComponentAlignment(secondPanelLayout, Alignment.MIDDLE_CENTER);
+				secondPanelLayout.setWidth("350px");
+				secondPanelLayout.setHeight("100%");
+				secondPanelLayout.addStyleName("twofactor-secondPanelVertical");
+				//secondPanelLayout.setSizeFull();
 				//secondPanelLayout.setHeight("395px");
 				panel.setSizeFull();
 				panel.addStyleName("twofactor-splitpanel");
 				panel.setFirstComponent(firstPanelLayout);
-				panel.setSecondComponent(secondPanelLayout);
+				panel.setSecondComponent(firstvl);
 				firstPanelLayout.addStyleName("twofactor-logoVertical");
 				panel.getFirstComponent().addStyleName("twofactor-firstPanel");
 				panel.getSecondComponent().addStyleName("twofactor-secondPanelVertical");
@@ -275,17 +282,17 @@ public class ForgotPasswordUI extends UI implements HasLogger, View{
 				secondPanelLayout.addComponent(twofactorAuthentication);*/
 			
 				Label twofactorMailText = new Label("Please type your email address for Temporary Password");
-				twofactorMailText.addStyleName("forgotpassword-labelHorizontal");
+				twofactorMailText.addStyleName("forgotpassword-labelVertical");
 				twofactorMailText.setWidth("100%");
 				secondPanelLayout.addComponent(twofactorMailText);
 			
 				FormLayout verificationCodeLayout = new FormLayout();
-				verificationCodeLayout.addStyleName("twofactor-formLayoutVertical");
+				verificationCodeLayout.addStyleName("forgotpassword-formLayoutVertical");
 				TextField emailID = new TextField();
 				emailID.focus();
 				emailID.setCaptionAsHtml(true);
 				emailID.setCaption("<h4 style=color:white;font-weight:bold !important;>Email ID</h4>");
-				emailID.addStyleNames(ValoTheme.BUTTON_BORDERLESS, "forgotpassword-emaillabel", "v-textfield-lineHeight");
+				emailID.addStyleNames(ValoTheme.BUTTON_BORDERLESS, "forgotpassword-emaillabel", "verfication-password-lineheight");
 				verificationCodeLayout.addComponent(emailID);
 				secondPanelLayout.addComponent(verificationCodeLayout);
 			
@@ -335,11 +342,11 @@ public class ForgotPasswordUI extends UI implements HasLogger, View{
 				vl.setComponentAlignment(panel, Alignment.MIDDLE_CENTER);
 				setContent(vl);
 			//navigationManager.navigateToTwoFactorView();
-//			  }
-//				else {
-//					throw new NullPointerException("Session is null");
-//					
-//				}
+			  /*}
+				else {
+					throw new NullPointerException("Session is null");
+					
+				}*/
 	}
 	
 	private String getAbsoluteUrl(String url) {
