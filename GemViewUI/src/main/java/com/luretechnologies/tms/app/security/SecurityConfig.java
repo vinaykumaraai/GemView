@@ -34,16 +34,20 @@ package com.luretechnologies.tms.app.security;
 
 import java.io.Serializable;
 
+import javax.servlet.Filter;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 import org.springframework.security.config.annotation.web.configurers.FormLoginConfigurer;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 
 import com.luretechnologies.tms.app.Application;
 import com.luretechnologies.tms.backend.data.Role;
@@ -87,33 +91,52 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Seri
 //		auth.authenticationProvider(new BackendAuthenticationProvider());
 //		//auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
 //	}
-
+	
+	@Override
+	public void configure(WebSecurity web) throws Exception {
+	 web.ignoring().antMatchers("/gemview/forgotpassword");
+	 //web.
+	
+	}
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		// Not using Spring CSRF here to be able to use plain HTML for the login
 		// page
-		http.csrf().disable();
+		http.antMatcher("/login").anonymous();
+		http.csrf().disable().exceptionHandling()
+		.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login.html"));
+		
 		ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry reg = http
 				.authorizeRequests();
 		
 
 		// Allow access to static resources ("/VAADIN/**")
+		//http.co
 		reg = reg.antMatchers("/VAADIN/**").permitAll();
-		//reg = reg.antMatchers("/forgotPassword.html").permitAll();
-		reg = reg.antMatchers("/gemview/forgotpassword").permitAll();
+		reg = reg.antMatchers("/forgotPassword.html").permitAll();
+		//reg = reg.antMatchers("/gemview/forgotpassword")
 		reg = reg.antMatchers("/**").hasAnyAuthority(Role.getAllRoles());
+		//reg = reg.filterSecurityInterceptorOncePerRequest(true).antMatchers("/gemview/forgotpassword").anonymous();
 		//reg= reg.antMatchers("/login*").anonymous().anyRequest().authenticated();
 		//reg = reg.antMatchers("/**").authenticated();
 		//reg = reg.antMatchers("/gemview/forgotpassword").permitAll();
 		HttpSecurity sec = reg.and();
 
 		// Allow access to login page without login
-			FormLoginConfigurer<HttpSecurity> login = sec.formLogin().permitAll();
-			login = login.loginPage(Application.LOGIN_URL).loginProcessingUrl(Application.LOGIN_PROCESSING_URL)
-				.failureUrl(Application.LOGIN_FAILURE_URL).successHandler(successHandler);
-			login.and().logout().logoutSuccessUrl(Application.LOGOUT_URL);
+//			FormLoginConfigurer<HttpSecurity> login = sec.formLogin().permitAll();
+//			login = login.loginPage(Application.LOGIN_URL).loginProcessingUrl(Application.LOGIN_PROCESSING_URL)
+//				.failureUrl(Application.LOGIN_FAILURE_URL).successHandler(successHandler);
+//			login.and().logout().logoutSuccessUrl(Application.LOGOUT_URL);
+//		//Filter forgot = sec.antMatcher("/gemview/forgotpassword").;
+//		//	http.addFilter(forgot);
+		//sec.antMatcher("/gemview/forgotpassword").anonymous();
+//			
+//		sec.exceptionHandling().authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login.html"));
 		
-		//sec.antMatcher("/gemview/forgotpassowrd");
+		FormLoginConfigurer<HttpSecurity> login = sec.formLogin().permitAll().loginPage(Application.LOGIN_URL).loginProcessingUrl(Application.LOGIN_PROCESSING_URL).
+				failureUrl(Application.LOGIN_FAILURE_URL).successHandler(successHandler);
+		login.and().logout().logoutSuccessUrl(Application.LOGOUT_URL);
+		
 	}
 
 }

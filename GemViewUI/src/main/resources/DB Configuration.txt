@@ -1,0 +1,7 @@
+connect to db in mysql workbench
+
+1) host name : mia.lure68.net
+2) port : 13306
+3) user: serverx
+4) pass : serverxdb
+5) db: tms_dev3
