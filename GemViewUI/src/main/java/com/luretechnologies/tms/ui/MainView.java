@@ -39,6 +39,9 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.luretechnologies.client.restlib.common.ApiException;
+import com.luretechnologies.tms.app.Application;
+import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
 import com.luretechnologies.tms.ui.navigation.NavigationManager;
 import com.luretechnologies.tms.ui.view.admin.roles.RolesView;
 import com.luretechnologies.tms.ui.view.admin.user.UserAdminView;
@@ -119,7 +122,15 @@ public class MainView extends MainViewDesign implements ViewDisplay {
 			}
 		});
 		
-		logout.addClickListener(e -> logout());
+		logout.addClickListener(e -> {
+			try {
+				logout();
+				//Page.getCurrent().setLocation(Application.LOGOUT_API_URL);
+			} catch (ApiException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		});
 	}
 
 	/**
@@ -161,8 +172,9 @@ public class MainView extends MainViewDesign implements ViewDisplay {
 	/**
 	 * Logs the user out after ensuring the currently open view has no unsaved
 	 * changes.
+	 * @throws ApiException 
 	 */
-	public void logout() {
+	public void logout() throws ApiException {
 		ViewLeaveAction doLogout = () -> {
 			UI ui = getUI();
 			ui.getSession().getSession().invalidate();
@@ -170,6 +182,8 @@ public class MainView extends MainViewDesign implements ViewDisplay {
 		};
 
 		navigationManager.runAfterLeaveConfirmation(doLogout);
+		
+		RestServiceUtil.getInstance().getClient().getAuthApi().logout();
 	}
 
 }

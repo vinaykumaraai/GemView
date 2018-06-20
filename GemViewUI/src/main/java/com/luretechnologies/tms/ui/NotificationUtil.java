@@ -33,11 +33,15 @@ package com.luretechnologies.tms.ui;
 
 public class NotificationUtil {
 
+	public static final String TOKEN_EXPIRED = "EXPIRED HEADER TOKEN RECEIVED";
+	
 	public static final String SAVE = "Please fill all the details to SAVE";
 	
 	public static final String SYSTEM_EDIT = "Please select any parameter to EDIT";
 	
 	public static final String SYSTEM_DELETE = "Please select any parameter to DELETE";
+	
+	public static final String SYSTEM_ALREADY_SAVED = "This Parameter is already saved";
 	
 	public static final String DEVICES_EDIT = "Please select any device to EDIT";
 	
@@ -46,6 +50,8 @@ public class NotificationUtil {
 	public static final String ROLES_EDIT = "Please select any role to EDIT";
 	
 	public static final String ROLES_DELETE = "Please select any role to DELETE";
+	
+	public static final String AUDIT_SAMEDATE = "Same date cannot be selected";
 	
 	public static final String AUDIT_STARTDATE = "Please select start date to filter the data";
 	

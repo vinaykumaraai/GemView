@@ -23,6 +23,7 @@ import com.luretechnologies.tms.backend.data.entity.Alert;
 import com.luretechnologies.tms.backend.data.entity.Debug;
 import com.luretechnologies.tms.backend.data.entity.ExtendedNode;
 import com.luretechnologies.tms.backend.data.entity.Node;
+import com.luretechnologies.tms.backend.data.entity.TreeNode;
 import com.luretechnologies.tms.backend.service.AlertService;
 import com.luretechnologies.tms.backend.service.DebugService;
 import com.luretechnologies.tms.backend.service.TreeDataService;
@@ -120,33 +121,12 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 			if(r.getWidth()<=1450 && r.getWidth()>=700) {
 				tabMode();
 				splitScreen.setSplitPosition(30);
-//				treeNodeSearch.setHeight(37, Unit.PIXELS);
-//				historySearch.setHeight("37px");
-//				deviceDebugGridSearch.setHeight("37px");
-//				debugStartDateField.setHeight("37px");
-//				debugEndDateField.setHeight("37px");
-//				deviceDebugStartDateField.setHeight("37px");
-//				deviceDebugEndDateField.setHeight("37px");
 			}else if(r.getWidth()<=699 && r.getWidth()> 0){
 				phoneMode();
 				splitScreen.setSplitPosition(35);
-//				treeNodeSearch.setHeight(28, Unit.PIXELS);
-//				historySearch.setHeight("28px");
-//				deviceDebugGridSearch.setHeight("28px");
-//				debugStartDateField.setHeight("28px");
-//				debugEndDateField.setHeight("28px");
-//				deviceDebugStartDateField.setHeight("28px");
-//				deviceDebugEndDateField.setHeight("28px");
 			} else {
 				desktopMode();
 				splitScreen.setSplitPosition(20);
-//				treeNodeSearch.setHeight(37, Unit.PIXELS);
-//				historySearch.setHeight("37px");
-//				deviceDebugGridSearch.setHeight("37px");
-//				debugStartDateField.setHeight("37px");
-//				debugEndDateField.setHeight("37px");
-//				deviceDebugStartDateField.setHeight("37px");
-//				deviceDebugEndDateField.setHeight("37px");
 			}
 			
 			if(r.getWidth()<=600) {
@@ -229,34 +209,13 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		if(width >0 && width <=699) {
 			phoneMode();
 			splitScreen.setSplitPosition(35);
-//			treeNodeSearch.setHeight(28, Unit.PIXELS);
-//			historySearch.setHeight("28px");
-//			deviceDebugGridSearch.setHeight("28px");
-//			debugStartDateField.setHeight("28px");
-//			debugEndDateField.setHeight("28px");
-//			deviceDebugStartDateField.setHeight("28px");
-//			deviceDebugEndDateField.setHeight("28px");
 		} else if(width>=700 && width<=1400) {
 			tabMode();
 			splitScreen.setSplitPosition(30);
-//			treeNodeSearch.setHeight(37, Unit.PIXELS);
-//			historySearch.setHeight("37px");
-//			deviceDebugGridSearch.setHeight("37px");
-//			debugStartDateField.setHeight("37px");
-//			debugEndDateField.setHeight("37px");
-//			deviceDebugStartDateField.setHeight("37px");
-//			deviceDebugEndDateField.setHeight("37px");
 		}
 		else {
 			desktopMode();
 			splitScreen.setSplitPosition(20);
-//			treeNodeSearch.setHeight(37, Unit.PIXELS);
-//			historySearch.setHeight("37px");
-//			deviceDebugGridSearch.setHeight("37px");
-//			debugStartDateField.setHeight("37px");
-//			debugEndDateField.setHeight("37px");
-//			deviceDebugStartDateField.setHeight("37px");
-//			deviceDebugEndDateField.setHeight("37px");
 		}
 		
 		if(width<=600) {
@@ -284,10 +243,6 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 			deviceDebugStartDateField.setHeight("37px");
 			deviceDebugEndDateField.setHeight("37px");
 		}
-		
-//		if(height<=580) {
-//			historyLayoutFull.addStyleName("asset-historyDebugLayout");
-//		}
 		
 		assetTabSheet.addSelectedTabChangeListener(new SelectedTabChangeListener() {
 			@Override

@@ -56,6 +56,7 @@ public class Application extends SpringBootServletInitializer {
 	public static final String LOGOUT_URL = "/login.html?logout";
 	public static final String LOGIN_FAILURE_URL = "/login.html?error";
 	public static final String LOGIN_PROCESSING_URL = "/login";
+	public static final String LOGOUT_API_URL = "/gemview/login.html";
 	public static final String OTP_CODE_URL = "code.html";
 	public static final String FORGOT_PASSWORD_URL = "forgotpassword";
 	public static final Properties applicationProperties = new Properties();

@@ -32,8 +32,10 @@
 package com.luretechnologies.tms.ui.view.system;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -43,12 +45,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.dialogs.ConfirmDialog;
 
+import com.luretechnologies.client.restlib.common.ApiException;
+import com.luretechnologies.client.restlib.service.model.SystemParam;
 import com.luretechnologies.tms.backend.data.entity.Devices;
 import com.luretechnologies.tms.backend.data.entity.Systems;
+import com.luretechnologies.tms.backend.service.SystemService;
 import com.luretechnologies.tms.ui.ComponentUtil;
 import com.luretechnologies.tms.ui.NotificationUtil;
 import com.luretechnologies.tms.ui.components.ConfirmDialogFactory;
 import com.luretechnologies.tms.ui.components.FormFieldType;
+import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
@@ -70,6 +76,7 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component.Focusable;
+import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.themes.ValoTheme;
 
 @SpringView(name = SystemView.VIEW_NAME)
@@ -86,66 +93,23 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 	private volatile Systems selectedSystem;
 	private TextField systemDescription;
 	private TextField parameterName;
-	//private TextField systemType;
 	private TextField systemValue;
 	private ComboBox<String> comboBoxType;
 	
 	@Autowired
 	public ConfirmDialogFactory confirmDialogFactory;
 	
+	@Autowired
+	public SystemService systemService;
+	
 	
 	@Autowired
 	public SystemView() {
 		selectedSystem = new Systems();
-		
-		Systems system = new Systems();
-		system.setParameterName("SERVER1 IP");
-		system.setDescription("Server1 IP Address");
-		system.setType("Text");
-		system.setSystemValue("1.1.1.1");
-		system.setId(1);
-		
-		Systems system1 = new Systems();
-		system1.setParameterName("SERVER2 IP");
-		system1.setDescription("Server2 IP Address");
-		system1.setType("Text");
-		system1.setSystemValue("1.0.1.0");
-		system1.setId(2);
-		
-		Systems system2 = new Systems();
-		system2.setParameterName("AVAILABLE CON");
-		system2.setDescription("Available Connections");
-		system2.setType("Numeric");
-		system2.setSystemValue("23");
-		system2.setId(3);
-		
-		Systems system3 = new Systems();
-		system3.setParameterName("SYSTEM MESSAGE");
-		system3.setDescription("Welcome Message");
-		system3.setType("Boolean");
-		system3.setSystemValue("Welcome to GemView");
-		system3.setId(4);
-		
-		
-		systemRepo.put(system.getId(), system);
-		systemRepo.put(system1.getId(), system1);
-		systemRepo.put(system2.getId(), system2);
-		systemRepo.put(system3.getId(), system3);
-		
-		for(int index =5; index<=25; index++) {
-			Systems systemLoop = new Systems();
-			systemLoop.setParameterName("SYSTEM MESSAGE "+index);
-			systemLoop.setDescription("Welcome Message "+index);
-			systemLoop.setType("Text");
-			systemLoop.setSystemValue("Welcome to GemView "+index);
-			systemLoop.setId(index);
-			systemRepo.put(systemLoop.getId(), systemLoop);
-		}
-		
 	}
 	
 	@PostConstruct
-	private void inti() {
+	private void inti() throws ApiException {
 		setHeight("100%");
 		setSpacing(false);
 		setMargin(false);
@@ -208,25 +172,42 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 				String parametername = parameterName.getValue();
 				String type = comboBoxType.getValue();
 				String value = systemValue.getValue();
-				selectedSystem.setParameterName(parametername);
-				selectedSystem.setDescription(description);
-				selectedSystem.setType(type);
-				selectedSystem.setSystemValue(value);
+				//systemDescription.addv
 				if(description.isEmpty() || description== null|| parametername.isEmpty() || parametername== null 
 						|| type.isEmpty() || type== null || value.isEmpty() || value== null) {
 					Notification.show(NotificationUtil.SAVE, Notification.Type.ERROR_MESSAGE);
 				} else {
-					//systemRepo.co
-					Random rand = new Random();
-					int  n = rand.nextInt(50) + 1;
-					if(selectedSystem.getId()==null) {
-						selectedSystem.setId(n);
+					try {
+						if(systemGrid.getSelectedItems().size()>0) {
+							Systems system = systemGrid.getSelectedItems().iterator().next();
+							List<Systems> systemList = systemService.getAllSystemParam();
+							if(containsSystemInList(systemList, system)) {
+								selectedSystem = systemService.updateSystem(system, description, parametername, type, value);
+								DataProvider data = new ListDataProvider(systemService.getAllSystemParam());
+								systemGrid.setDataProvider(data);
+								systemInfoLayout.removeAllComponents();
+								clearParamComponents();
+								getAndLoadSystemForm(systemInfoLayout, false);
+								systemGrid.select(selectedSystem);
+							}
+						}else{
+							if(!checkParamNameInList( parametername)) {
+								selectedSystem = systemService.createSystemParam(parametername, description, type, value);
+								DataProvider data = new ListDataProvider(systemService.getAllSystemParam());
+								systemGrid.setDataProvider(data);
+								systemGrid.select(selectedSystem);
+								systemInfoLayout.removeAllComponents();
+								clearParamComponents();
+								getAndLoadSystemForm(systemInfoLayout, false);
+							} else {
+								Notification.show("Parameter Name already exists. Please create another", Type.ERROR_MESSAGE);
+								parameterName.focus();
+							}
+						}
+					} catch (ApiException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
-				systemRepo.put(selectedSystem.getId(), selectedSystem);
-				systemGrid.getDataProvider().refreshAll();
-				systemGrid.select(selectedSystem);
-				systemInfoLayout.removeAllComponents();
-				getAndLoadSystemForm(systemInfoLayout, false);
 				}
 			}
 		});
@@ -250,11 +231,40 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		panel.addStyleName(ValoTheme.PANEL_WELL);
 		panel.setCaptionAsHtml(true);
 		panel.setCaption("Systems");
-		//panel.setStyleName("h1");
 		panel.setResponsive(true);
 		panel.setSizeFull();
         addComponent(panel);
        return panel;
+	}
+	
+	private void clearParamComponents() {
+		parameterName.clear();
+		systemDescription.clear();
+		systemValue.clear();
+		comboBoxType.clear();
+	}
+	
+	private boolean checkParamNameInList(String parametername) {
+		ListDataProvider<Systems> provider = (ListDataProvider<Systems>)systemGrid.getDataProvider();
+		for(Systems systemParam : provider.getItems()) {
+			String paramName = systemParam.getParameterName();
+			if(paramName.equalsIgnoreCase(parametername)) {
+				return true;
+			}
+		}
+		return false;
+		
+	}
+	
+	private boolean containsSystemInList(List<Systems> systemList, Systems system) {
+		for(Systems subSystem : systemList)
+		{
+			if(subSystem.getId().equals(system.getId())) {
+				return true;
+			}
+		}
+		return false;
+		
 	}
 	
 	private void getAndLoadSystemForm(VerticalLayout verticalLayout , boolean isEditableOnly) {
@@ -275,8 +285,7 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 	private void getSystemParameterName(FormLayout formLayout , boolean isEditableOnly) {
 		
 		String parametername = selectedSystem.getParameterName() != null ? selectedSystem.getParameterName(): "";
-		parameterName = new TextField("Parameter Name", parametername);
-		selectedSystem.setParameterName(parameterName.getValue().toUpperCase());
+		parameterName = new TextField("Parameter Name", parametername.toUpperCase());
 		parameterName.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
 		parameterName.setWidth("48%");
 		parameterName.setStyleName("role-textbox");
@@ -338,7 +347,7 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		return parameterName;
 	}
 	
-	private void getSystemGrid(VerticalLayout verticalLayout, VerticalLayout systemInfoLayout) {
+	private void getSystemGrid(VerticalLayout verticalLayout, VerticalLayout systemInfoLayout) throws ApiException {
 		Button addNewDevice = new Button(VaadinIcons.FOLDER_ADD);
 		addNewDevice.addStyleName(ValoTheme.BUTTON_FRIENDLY);
 		addNewDevice.addStyleName("v-button-customstyle");
@@ -385,7 +394,7 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 					Notification.show(NotificationUtil.SYSTEM_DELETE, Notification.Type.ERROR_MESSAGE);
 				}else {
 				
-				confirmDialog( systemInfoLayout);
+				confirmDialog( systemInfoLayout, selectedSystem);
 				}
 			}
 		});
@@ -400,12 +409,13 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		systemGrid.setCaptionAsHtml(true);
 		systemGrid.addStyleName("v-grid-cell-fontSize");
 		systemGrid.setHeightByRows(12);
-		systemGrid.addColumn(Systems::getParameterName).setCaption("Paramater");
+		systemGrid.addColumn(Systems::getParameterName).setCaption("Parameter Name");
 		systemGrid.addColumn(Systems::getDescription).setCaption("Description");
-		systemGrid.addColumn(Systems:: getType).setCaption("Type");
-		systemGrid.addColumn(Systems:: getSystemValue).setCaption("Value");
+		systemGrid.addColumn(Systems::getType).setCaption("Type");
+		systemGrid.addColumn(Systems::getSystemValue).setCaption("Value");
 		
-		systemGrid.setItems(systemRepo.values());
+		DataProvider data = new ListDataProvider(systemService.getAllSystemParam());
+		systemGrid.setDataProvider(data);
 		systemGrid.setWidth("100%");
 		systemGrid.setResponsive(true);
 		
@@ -421,7 +431,7 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 				this.selectedSystem = selectedSystem;
 				getAndLoadSystemForm(systemInfoLayout, false);
 			} else {
-				throw new IllegalStateException("This should never happen as deselection is not allowed");
+				clearParamComponents();
 			}
 		});
 		VerticalLayout systemGridLayout = new VerticalLayout();
@@ -433,7 +443,7 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		
 	}
 	
-	private void confirmDialog(VerticalLayout systemInfoLayout) {
+	private void confirmDialog(VerticalLayout systemInfoLayout, Systems system) {
 		ConfirmDialog.show(this.getUI(), "Please Confirm:", "Are you sure you want to delete?",
 		        "Ok", "Cancel", new ConfirmDialog.Listener() {
 
@@ -441,10 +451,17 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		                if (dialog.isConfirmed()) {
 		                    // Confirmed to continue
 		                	systemInfoLayout.removeAllComponents();
-		                	systemRepo.remove(selectedSystem.getId());
-		                	systemGrid.getDataProvider().refreshAll();
-		                	selectedSystem = new Systems();
-		                	getAndLoadSystemForm(systemInfoLayout, false);
+		                	try {
+								systemService.deleteSystem(system);
+								DataProvider data = new ListDataProvider(systemService.getAllSystemParam());
+								systemGrid.setDataProvider(data);
+								selectedSystem = new Systems();
+								systemGrid.getDataProvider().refreshAll();
+			                	getAndLoadSystemForm(systemInfoLayout, false);
+							} catch (ApiException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
 		                } else {
 		                    // User did not confirm
 		                    

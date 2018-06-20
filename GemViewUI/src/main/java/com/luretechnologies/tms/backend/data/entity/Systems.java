@@ -32,6 +32,8 @@
 
 package com.luretechnologies.tms.backend.data.entity;
 
+import java.util.Objects;
+
 public class Systems {
 
 	private String parameterName;
@@ -41,14 +43,33 @@ public class Systems {
 	private String systemValue;
 	
 	private String type;
-
-	private Integer id;
 	
-	public Integer getId() {
+	private Long id;
+	
+	public Systems(Long id, String parameterName, String description,  String type, String systemValue) {
+		super();
+		Objects.requireNonNull(id);
+		Objects.requireNonNull(parameterName);
+		Objects.requireNonNull(description);
+		Objects.requireNonNull(type);
+		Objects.requireNonNull(systemValue);
+		
+		this.id = id;
+		this.parameterName = parameterName;
+		this.description = description;
+		this.type = type;
+		this.systemValue = systemValue;
+	}
+	
+	public Systems() {
+		
+	}
+
+	public Long getId() {
 		return id;
 	}
 
-	public void setId(Integer id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 

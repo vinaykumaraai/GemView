@@ -99,7 +99,6 @@ public class AlertTab {
 		
 		VerticalLayout alertLayout = new VerticalLayout();
 		alertLayout.setWidth("100%");
-		//alertLayout.addStyleName(ValoTheme.LAYOUT_CARD);
 		alertLayout.addStyleName("audit-DeviceVerticalAlignment");
 		VerticalLayout alertVerticalButtonLayout = new VerticalLayout();
 		HorizontalLayout alertCommandLabel = new HorizontalLayout();

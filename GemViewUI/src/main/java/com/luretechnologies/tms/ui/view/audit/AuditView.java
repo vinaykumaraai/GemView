@@ -39,6 +39,7 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -48,11 +49,20 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.dialogs.ConfirmDialog;
 
+import com.luretechnologies.client.restlib.common.ApiException;
+import com.luretechnologies.client.restlib.service.model.AuditUserLog;
+import com.luretechnologies.client.restlib.service.model.AuditUserLogType;
+import com.luretechnologies.client.restlib.service.model.Entity;
+import com.luretechnologies.tms.backend.data.entity.Audit;
 import com.luretechnologies.tms.backend.data.entity.Debug;
 import com.luretechnologies.tms.backend.data.entity.Node;
 import com.luretechnologies.tms.backend.data.entity.Systems;
+import com.luretechnologies.tms.backend.data.entity.TreeNode;
+import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
+import com.luretechnologies.tms.backend.service.AuditService;
 import com.luretechnologies.tms.backend.service.DebugService;
 import com.luretechnologies.tms.backend.service.TreeDataService;
+import com.luretechnologies.tms.ui.MainView;
 import com.luretechnologies.tms.ui.NotificationUtil;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
@@ -73,10 +83,12 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.ItemCaptionGenerator;
 import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.StyleGenerator;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
+import com.vaadin.ui.Tree.ItemClick;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -85,15 +97,15 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 
 	private static final String DATE_FORMAT = "MM/dd/yyyy";
 	private static final SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
-	private static final DateTimeFormatter  dateFormatter1 = DateTimeFormatter.ofPattern("MM-dd-YYYY");
+	private static final DateTimeFormatter  dateFormatter1 = DateTimeFormatter.ofPattern("yyMMdd");
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -7983511214106963682L;
 	public static final String VIEW_NAME = "audit";
 	private static final LocalDateTime localTimeNow = LocalDateTime.now();
-	private static Grid<Debug> debugGrid;
-	private static Tree<Node> nodeTree;
+	private static Grid<Audit> debugGrid;
+	private static Tree<TreeNode> nodeTree;
 	private static Button deleteGridRow;
 	private static Button search;
 	private static TextField treeNodeSearch, debugSearch;
@@ -106,8 +118,9 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 	private static HorizontalLayout debugSearchLayout;
 	private static HorizontalLayout dateDeleteLayout;
 	private static VerticalLayout dateDeleteLayoutPhone;
-	
-	
+	private static final String error = "error";
+	private static final String warn = "warn";
+	private static final String info="info";
 
 	@Autowired
 	public AuditView() {
@@ -116,37 +129,32 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 
 	@Autowired
 	public TreeDataService treeDataService;
+	
+	@Autowired
+	public AuditService auditService;
+	
+	@Autowired
+	public MainView mainView;
 
 	@Autowired
 	public DebugService debugService;
 
 	@PostConstruct
-	private void init() {
+	private void init() throws ApiException {
+		try {
 		//FIXME : Sample code for browser resizing .
 		Page.getCurrent().addBrowserWindowResizeListener(r->{
 			System.out.println("Height "+ r.getHeight() + "Width:  " + r.getWidth()+ " in pixel");
 			if(r.getWidth()<=1400 && r.getWidth()>=700) {
 				tabMode();
 				splitScreen.setSplitPosition(30);
-				/*debugStartDateField.setHeight("100%");
-				debugEndDateField.setHeight("100%");
-				treeNodeSearch.setHeight(37, Unit.PIXELS);
-				debugSearch.setHeight(37, Unit.PIXELS);*/
 			}else if(r.getWidth()<=699 && r.getWidth()> 0){
 				phoneMode();
 				splitScreen.setSplitPosition(35);
-				/*debugStartDateField.setHeight(28,Unit.PIXELS);
-				debugEndDateField.setHeight(28,Unit.PIXELS);
-				treeNodeSearch.setHeight(28,Unit.PIXELS);
-				debugSearch.setHeight(28, Unit.PIXELS);*/
 				
 			} else {
 				desktopMode();
 				splitScreen.setSplitPosition(20);
-				/*debugStartDateField.setHeight("100%");
-				debugEndDateField.setHeight("100%");
-				treeNodeSearch.setHeight(37, Unit.PIXELS);
-				debugSearch.setHeight(37, Unit.PIXELS);*/
 			}
 			
 			if(r.getWidth()<=600) {
@@ -184,11 +192,15 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		verticalPanelLayout.setStyleName("split-height");
 		VerticalLayout treeSearchPanelLayout = new VerticalLayout();
 		treeSearchPanelLayout.addComponent(treeNodeSearch);
-		nodeTree = new Tree<Node>();
-		nodeTree.setTreeData(treeDataService.getTreeDataForDebug());
+		nodeTree = new Tree<TreeNode>();
+		//nodeTree.setTreeData(treeDataService.getTreeDataForDebug());
+		nodeTree.setTreeData(auditService.auditTreeData());
+		//nodeTree.deselect(item);
 		nodeTree.setItemIconGenerator(item -> {
-			switch (item.getLevel()) {
-			case ENTITY:
+			switch (item.getType()) {
+			case ENTERPRISE:
+				return VaadinIcons.ORIENTATION;
+			case ORGANIZATION:
 				return VaadinIcons.BUILDING_O;
 			case MERCHANT:
 				return VaadinIcons.SHOP;
@@ -205,7 +217,6 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		
 		treeSearchPanelLayout.addComponent(nodeTree);
 		treeSearchPanelLayout.setMargin(true);
-		//treeSearchPanelLayout.setHeight("100%");
 		treeSearchPanelLayout.setStyleName("split-Height-ButtonLayout");
 		verticalPanelLayout.addComponent(treeSearchPanelLayout);
 		splitScreen = new HorizontalSplitPanel();
@@ -218,25 +229,13 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		if(width >0 && width <=699) {
 			phoneMode();
 			splitScreen.setSplitPosition(35);
-			/*treeNodeSearch.setHeight(28,Unit.PIXELS);
-			debugSearch.setHeight(28, Unit.PIXELS);
-			debugStartDateField.setHeight(28,Unit.PIXELS);
-			debugEndDateField.setHeight(28,Unit.PIXELS);*/
 		} else if(width>=700 && width<=1400) {
 			tabMode();
 			splitScreen.setSplitPosition(30);
-			/*treeNodeSearch.setHeight(37, Unit.PIXELS);
-			debugSearch.setHeight(37, Unit.PIXELS);
-			debugStartDateField.setHeight("100%");
-			debugEndDateField.setHeight("100%");*/
 		}
 		else {
 			desktopMode();
 			splitScreen.setSplitPosition(20);
-			/*treeNodeSearch.setHeight(37, Unit.PIXELS);
-			debugSearch.setHeight(37, Unit.PIXELS);
-			debugStartDateField.setHeight("100%");
-			debugEndDateField.setHeight("100%");*/
 		}
 		
 		if(width<=600) {
@@ -255,7 +254,13 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 			treeNodeSearch.setHeight(37, Unit.PIXELS);
 			debugSearch.setHeight(37, Unit.PIXELS);
 		}
+	}catch(Exception e){
+		if(e.getMessage().equals(NotificationUtil.TOKEN_EXPIRED)) {
+			mainView.logout();
+		}
+		e.printStackTrace();
 	}
+}
 	
 	
 	
@@ -315,7 +320,13 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 	private void configureTreeNodeSearch() {
 		treeNodeSearch.addValueChangeListener(changed -> {
 			String valueInLower = changed.getValue().toLowerCase();
-			nodeTree.setTreeData(treeDataService.getFilteredTreeByNodeName(treeDataService.getTreeDataForDebug(), valueInLower));
+			try {
+				List<AuditUserLog> filteredTreeData = auditService.searchTreeData(valueInLower);
+			} catch (ApiException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			//nodeTree.setTreeData(treeDataService.getFilteredTreeByNodeName(treeDataService.getTreeDataForDebug(), valueInLower));
 			//FIXME: only works for root node labels
 //			TreeDataProvider<Node> nodeDataProvider = (TreeDataProvider<Node>) nodeTree.getDataProvider();
 //			nodeDataProvider.setFilter(filter -> {
@@ -339,18 +350,26 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		debugEndDateField.clear();
 	}
 
-	private void confirmDialog() {
+	private void confirmDialog(Long id, TreeNode treeNode) {
 		ConfirmDialog.show(this.getUI(), "Please Confirm:", "Are you sure you want to delete?",
 		        "Ok", "Cancel", new ConfirmDialog.Listener() {
 
 		            public void onClose(ConfirmDialog dialog) {
 		                if (dialog.isConfirmed()) {
 		                    // Confirmed to continue
-		                	debugService.removeDebug(debugGrid.getSelectedItems().iterator().next());
-		    				nodeTree.getDataProvider().refreshAll();
-		    				debugSearch.clear();
-		    				loadGrid();
-		    				clearCalenderDates();
+		                	try {
+								auditService.deleteGridData(id);
+								List<Audit> auditListNew = auditService.auditGridData(treeNode.getId().toString());
+								DataProvider data = new ListDataProvider(auditListNew);
+								debugGrid.setDataProvider(data);
+								nodeTree.getDataProvider().refreshAll();
+			    				debugSearch.clear();
+			    				loadGrid();
+			    				clearCalenderDates();
+							} catch (ApiException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
 		                } else {
 		                    // User did not confirm
 		                    
@@ -360,40 +379,43 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 	}
 	
 	private void loadGrid() {
-		treeDataService.getTreeDataForDebug();
+		/*treeDataService.getTreeDataForDebug();
 		List<Node> nodeList = treeDataService.getDebugNodeList();
-		Set<Node> nodeSet = nodeTree.getSelectionModel().getSelectedItems();
+		//Set<Node> nodeSet = nodeTree.getSelectionModel().getSelectedItems();
 		Node nodeSelected = nodeSet.iterator().next();
 		for(Node node : nodeList) {
 			if(node.getLabel().equals(nodeSelected.getLabel())) {
 				DataProvider data = new ListDataProvider(node.getEntityList());
 				debugGrid.setDataProvider(data);
 			}
-		}
+		}*/
 		
 	}
 	
+	@SuppressWarnings("serial")
 	private VerticalLayout getDebugLayout() {
-		//debugLayoutFull.removeAllComponents();
 		debugLayoutFull =  new VerticalLayout();
 		debugLayoutFull.addStyleName(ValoTheme.LAYOUT_CARD);
 		debugLayoutFull.setWidth("100%");
 		debugLayoutFull.setHeight("100%");
 		debugLayoutFull.addStyleName("audit-DeviceVerticalAlignment");
 		debugLayoutFull.setResponsive(true);
-		debugGrid = new Grid<>(Debug.class);
+		debugGrid = new Grid<>(Audit.class);
 		debugGrid.setWidth("100%");
 		debugGrid.setHeight("97%");
 		debugGrid.addStyleName("grid-AuditOdometerAlignment");
 		debugGrid.setResponsive(true);
 		debugGrid.setSelectionMode(SelectionMode.SINGLE);
 		debugGrid.setColumns("type", "description", "dateTime");
+		debugGrid.getColumn("dateTime").setCaption("Date Time");
 		debugGrid.getColumn("type").setCaption("Debug Type").setStyleGenerator(style -> {
 			switch (style.getType()) {
-			case ERROR:
+			case error:
 				return "error";
-			case WARN:
+			case warn:
 				return "warn";
+			case info:
+				return "info";
 
 			default:
 				return "";
@@ -401,11 +423,9 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		});
 
 		debugSearch = new TextField();
-		//debugSearch
 		debugSearch.setWidth("100%");
 		debugSearch.setIcon(VaadinIcons.SEARCH);
 		debugSearch.setStyleName("small inline-icon search");
-		//debugSearch.addStyleName("v-caption-inline-icon.v-caption-small span.v-icon");
 		debugSearch.setPlaceholder("Search");
 		debugSearch.setResponsive(true);
 		debugSearch.addShortcutListener(new ShortcutListener("Clear",KeyCode.ESCAPE,null) {
@@ -419,26 +439,40 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 			}
 		}		);
 		debugSearch.addValueChangeListener(valueChange -> {
-			String valueInLower = valueChange.getValue().toLowerCase();
-			ListDataProvider<Debug> debugDataProvider = (ListDataProvider<Debug>) debugGrid.getDataProvider();
+			String filter = debugSearch.getValue();
+			try {
+				List<AuditUserLog> searchGridData = auditService.searchGridData(filter);
+				List<Audit> auditListSearch = new ArrayList<>();
+				for(AuditUserLog auditUserLog: searchGridData) {
+					Audit audit = new Audit(auditUserLog.getId(), auditUserLog.getAuditUserLogType().getName(), auditUserLog.getDescription(), auditUserLog.getDateAt().toString());
+					auditListSearch.add(audit);
+				}
+				DataProvider data = new ListDataProvider(auditListSearch);
+				debugGrid.setDataProvider(data);
+			} catch (ApiException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			 /*String valueInLower = valueChange.getValue().toLowerCase();
+			 ListDataProvider<Audit> debugDataProvider = (ListDataProvider<Audit>) debugGrid.getDataProvider();
 			debugDataProvider.setFilter(filter -> {
 				String descriptionInLower = filter.getDescription().toLowerCase();
-				String typeInLower = filter.getType().name().toLowerCase();
+				String typeInLower = filter.getType().toLowerCase();
 				String dateTime = filter.getDateTime().toLowerCase();
+				//RestServiceUtil.getInstance().getClient().getOrganizationApi().
 				return typeInLower.equals(valueInLower) || descriptionInLower.contains(valueInLower) || dateTime.contains(valueInLower);
-			});
+			});*/
 		});
 
 			deleteGridRow = new Button(VaadinIcons.TRASH);
 			deleteGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
-			//deleteGridRow.addStyleName("v-button-customstyle");
 			deleteGridRow.setResponsive(true);
-			//deleteGridRow.setWidth("100%");
 			deleteGridRow.addClickListener(clicked -> {
 				if(debugGrid.getSelectedItems().isEmpty()) {
 					Notification.show(NotificationUtil.AUDIT_DELETE, Notification.Type.ERROR_MESSAGE);
 				}else {
-					confirmDialog();
+					confirmDialog(debugGrid.getSelectedItems().iterator().next().getId(), nodeTree.getSelectedItems().iterator().next());
 				}
 			});
 		
@@ -446,7 +480,6 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		optionsLayoutHorizontalDesktop = new HorizontalLayout();
 		optionsLayoutHorizontalDesktop.setWidth("100%");
 		optionsLayoutHorizontalDesktop.addStyleName("audit-DeviceSearch");
-		//optionsLayoutHorizontalDesktop.setHeight("50%");
 		optionsLayoutHorizontalDesktop.setResponsive(true);
 		
 		debugSearchLayout = new HorizontalLayout();
@@ -455,13 +488,9 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		debugSearchLayout.addComponent(debugSearch);
 		debugSearchLayout.setComponentAlignment(debugSearch, Alignment.TOP_LEFT);
 		
-		
-		//dateDeleteLayout.setSizeUndefined();
-		
 		debugStartDateField = new DateField();
 		debugStartDateField.setWidth("100%");
 		debugStartDateField.setHeight("100%");
-		//debugStartDateField.setCaption("Start Date");
 		debugStartDateField.setPlaceholder("Start Date");
 		debugStartDateField.setResponsive(true);
 		debugStartDateField.setDateFormat(DATE_FORMAT);
@@ -472,18 +501,14 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		debugEndDateField = new DateField();
 		debugEndDateField.setWidth("100%");
 		debugEndDateField.setHeight("100%");
-		//debugEndDateField.setCaption("End Date");
 		debugEndDateField.setPlaceholder("End Date");
 		debugEndDateField.setResponsive(true);
 		debugEndDateField.setDateFormat(DATE_FORMAT);
-		//debugEndDateField.setRangeEnd(localTimeNow.toLocalDate().plusDays(1));
-		debugEndDateField.setDateOutOfRangeMessage("Same Date cannot be selected");
 		debugEndDateField.setDescription("End Date");
 		debugEndDateField.addStyleName("v-textfield-font");
 		
 		//Vertical Initialization
 		optionsLayoutVerticalTab = new VerticalLayout();
-//		optionsLayoutVertical.addComponent(debugSearchLayout);
 		optionsLayoutVerticalTab.setVisible(false);
 		optionsLayoutVerticalTab.addStyleName("audit-DeviceSearch");
 		
@@ -510,8 +535,6 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		optionsLayoutHorizontalDesktop.addComponent(dateDeleteLayout);
 		optionsLayoutHorizontalDesktop.setComponentAlignment(dateDeleteLayout, Alignment.TOP_RIGHT);
 		
-		
-		//optionsLayout.addComponents(debugSearch,debugStartDateField,debugEndDateField, deleteGridRow);
 		debugLayoutFull.addComponent(optionsLayoutHorizontalDesktop);
 		debugLayoutFull.setComponentAlignment(optionsLayoutHorizontalDesktop, Alignment.TOP_LEFT);
 		debugLayoutFull.addComponent(optionsLayoutVerticalTab);
@@ -527,11 +550,25 @@ public class AuditView extends VerticalLayout implements Serializable, View {
          if(!(change.getValue() == null)) {
         	 if(!nodeTree.getSelectedItems().isEmpty()) {
         		 	if(debugStartDateField.getValue()!=null) {
-        	 		if(change.getValue().compareTo(debugStartDateField.getValue()) >= 0 ) {
-        	 			String date = debugEndDateField.getValue().format(dateFormatter1);
-        	 			debugEndDateField.setDescription(date);
-        	 				ListDataProvider<Debug> debugDataProvider = (ListDataProvider<Debug>) debugGrid.getDataProvider();
-        	 				debugDataProvider.setFilter(filter -> {
+        	 		if(change.getValue().compareTo(debugStartDateField.getValue()) >0 ) {
+        	 			String endDate = debugEndDateField.getValue().format(dateFormatter1);
+        	 			String startDate = debugStartDateField.getValue().format(dateFormatter1);
+						try {
+							List<Audit> auditListFilterBydates = new ArrayList<>();
+	        	 			List<AuditUserLog> auditList;
+							auditList = auditService.searchByDates(startDate, endDate);
+							for(AuditUserLog auditUserLog: auditList) {
+	    						Audit audit = new Audit(auditUserLog.getId(), auditUserLog.getAuditUserLogType().getName(), auditUserLog.getDescription(), auditUserLog.getDateAt().toString());
+	    						auditListFilterBydates.add(audit);
+	    					}
+	    					DataProvider data = new ListDataProvider(auditListFilterBydates);
+	    					debugGrid.setDataProvider(data);
+	    					debugSearch.clear();
+						} catch (ApiException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+        	 				/*debugDataProvider.setFilter(filter -> {
         	 				Date debugDate = filter.getDateOfDebug();
         	 				try {
         	 					return debugDate.after(dateFormatter.parse(debugStartDateField.getValue().minusDays(1).toString())) && debugDate.before(dateFormatter.parse(change.getValue().plusDays(1).toString()));
@@ -540,8 +577,12 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 						
         	 					return false;
         	 				}
-				});
-			} 
+				});*/
+			} else {
+				Notification.show(NotificationUtil.AUDIT_SAMEDATE, Notification.Type.ERROR_MESSAGE);
+	 			debugStartDateField.clear();
+	 			debugEndDateField.clear();
+			}
         		 	}else {
         		 		Notification.show(NotificationUtil.AUDIT_STARTDATE, Notification.Type.ERROR_MESSAGE);
         		 		debugEndDateField.clear();
@@ -556,25 +597,32 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 			if(change.getValue()!=null) {
 				debugEndDateField.clear();
 				debugEndDateField.setRangeStart(change.getValue().plusDays(1));
-				//debugEndDateField.setRangeEnd(localTimeNow.toLocalDate().plusDays(1));
 				String date = debugStartDateField.getValue().format(dateFormatter1);
-				debugStartDateField.setDescription(date);
 			}
 	});
 		
-			nodeTree.addItemClickListener(selection ->{			
-			treeDataService.getTreeDataForDebug();
-			List<Node> nodeList = treeDataService.getDebugNodeList();
-			for(Node node : nodeList) {
-				if(node.getLabel().equals(selection.getItem().getLabel())) {
-					DataProvider data = new ListDataProvider(node.getEntityList());
-					debugGrid.setDataProvider(data);
-					debugSearch.clear();
+			nodeTree.addSelectionListener(selection ->{	
+				if(!selection.getFirstSelectedItem().isPresent()) {
+					List<Audit> auditListNew = new ArrayList<>();
+					DataProvider data = new ListDataProvider(auditListNew);
+					 debugGrid.setDataProvider(data);
+				} else {
+				try {
+					
+					List<Audit> auditListNew = auditService.auditGridData(selection.getFirstSelectedItem().get().getId().toString());
+						DataProvider data = new ListDataProvider(auditListNew);
+					 debugGrid.setDataProvider(data);
+					
+				} catch (ApiException e) {
+					Notification.show(e.getMessage(), Type.ERROR_MESSAGE);
+					e.printStackTrace();
 				}
-			}
-			clearCalenderDates();
+				}
+					debugSearch.clear();
+					clearCalenderDates();
 				
 		});
+			
 		return debugLayoutFull;
 	}
 }

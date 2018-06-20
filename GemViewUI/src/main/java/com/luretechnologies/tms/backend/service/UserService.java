@@ -47,6 +47,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.luretechnologies.client.restlib.common.ApiException;
+import com.luretechnologies.tms.app.security.BackendAuthenticationProvider;
 import com.luretechnologies.tms.backend.data.Role;
 import com.luretechnologies.tms.backend.data.entity.User;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
@@ -70,7 +71,7 @@ public class UserService extends CrudService<User>{
 			try {
 				List<com.luretechnologies.client.restlib.service.model.User> userList = RestServiceUtil.getInstance().getClient().getUserApi().getUsers();
 				for (com.luretechnologies.client.restlib.service.model.User user : userList) {
-					User clientUser = new User(user.getEmail(),user.getUsername(),"",user.getRole().getName(),user.getFirstName(),user.getLastName(),user.getActive());
+					User clientUser = new User(user.getEmail(),user.getUsername(),"",user.getRole().getName(),user.getFirstName(), user.getLastName(),user.getAvailable());
 					clientUser.setLocked(true);
 					users.add(clientUser);
 					userDirectory.put(clientUser.getId(), clientUser);
@@ -120,7 +121,7 @@ public class UserService extends CrudService<User>{
 			users.add(user);
 			userDirectory.put(user.getId(), user);
 			com.luretechnologies.client.restlib.service.model.User serverUser = new com.luretechnologies.client.restlib.service.model.User();
-			serverUser.setActive(user.isActive());
+			serverUser.setAvailable(user.isActive());
 			serverUser.setEmail(user.getEmail());
 			serverUser.setFirstName(user.getFirstname());
 			serverUser.setLastName(user.getLastname());
@@ -193,8 +194,13 @@ public class UserService extends CrudService<User>{
 		// TODO Auto-generated method stub
 		return users;
 	}
-
-
+	
+	public String getLoggedInUserName() {
+		BackendAuthenticationProvider provider = new BackendAuthenticationProvider();
+		String username = provider.loggedInUserName();
+		return username;
+				
+	}
 
 	
 

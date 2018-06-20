@@ -959,11 +959,6 @@
 	padding-right: 15px;
 }
 
-.apptheme .error {
-	font-weight: bolder;
-	color: red;
-}
-
 .twofactor-splitpanel {
 	text-align: center;
 	box-shadow: 0 2px 3px rgba(0, 0, 0, 0.2);
@@ -1152,9 +1147,19 @@
 	margin-top: -40px;
 }
 
+.apptheme .error {
+	font-weight: bolder;
+	color: red;
+}
+
 .apptheme .warn {
 	font-weight: bolder;
 	color: orange;
+}
+
+.apptheme .info {
+	font-weight: bolder;
+	color: green;
 }
 
 .apptheme .v-window-header {

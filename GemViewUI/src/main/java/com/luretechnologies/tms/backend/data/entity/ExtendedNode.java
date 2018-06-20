@@ -34,7 +34,7 @@ package com.luretechnologies.tms.backend.data.entity;
 import java.util.List;
 
 /**
- * @author sils
+ * @author Vinay
  *
  */
 public class ExtendedNode extends Node {

@@ -71,6 +71,8 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.VerticalSplitPanel;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.Notification.CloseEvent;
+import com.vaadin.ui.Notification.CloseListener;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -188,8 +190,26 @@ public class TwoFactorAuthenticationUI extends UI implements HasLogger, View{
 		resendEmail = new Button("Resend Email");
 		resendEmail.setWidth("100%");
 		resendEmail.addStyleName("twofactor-buttons");
-		resendEmail.addClickListener(new ClickListener() {
-		public void buttonClick(ClickEvent event) {
+		resendEmail.addClickListener(click -> {
+			try {
+				RestServiceUtil.getInstance().getClient().getAuthApi().resendCode();
+				Notification.show("Verification Code sent again", Type.ERROR_MESSAGE).setPosition(Position.TOP_CENTER);
+			} catch (Exception e) {
+				//Dont Navigate.
+				Notification somethingWrong = Notification.show("Something went wrong, Try to login again", Type.ERROR_MESSAGE);
+				somethingWrong.setPosition(Position.TOP_CENTER);
+				somethingWrong.setDelayMsec(3000);
+				somethingWrong.addCloseListener(new CloseListener() {
+					
+					@Override
+					public void notificationClose(CloseEvent e) {
+						Page.getCurrent().setLocation(getAbsoluteUrl(Application.LOGIN_URL));
+						
+					}
+				});
+				
+				e.printStackTrace();
+			
 			}
 		});
 	
@@ -203,8 +223,11 @@ public class TwoFactorAuthenticationUI extends UI implements HasLogger, View{
 				RestServiceUtil.getInstance().getClient().getAuthApi().verifyCode(verificationCode.getValue());
 				Page.getCurrent().setLocation(getAbsoluteUrl(Application.APP_URL+"home"));
 			} catch (Exception e) {
-				//Dont Navigate.
-				Notification.show("Entered Code is Wrong/Time out", Type.ERROR_MESSAGE).setPosition(Position.TOP_CENTER);
+				if(e.getMessage().equals("INVALID VERIFICATION CODE")) {
+				Notification codeNotification = Notification.show("Entered Code is Wrong/Time, Please request again", Type.ERROR_MESSAGE);
+				codeNotification.setPosition(Position.TOP_CENTER);
+				codeNotification.setDelayMsec(3000);
+				}
 				e.printStackTrace();
 			
 			}
@@ -293,9 +316,24 @@ public class TwoFactorAuthenticationUI extends UI implements HasLogger, View{
 				resendEmail.addStyleName("twofactor-buttons");
 				resendEmail.addClickListener(click -> {
 					try {
-						//RestServiceUtil.getInstance().getClient().getAuthApi().
-					} catch(Exception e) {
+						RestServiceUtil.getInstance().getClient().getAuthApi().resendCode();
+						Notification.show("Verification Code sent again", Type.ERROR_MESSAGE).setPosition(Position.TOP_CENTER);
+					} catch (Exception e) {
+						//Dont Navigate.
+						Notification somethingWrong = Notification.show("Something went wrong, Try to login again", Type.ERROR_MESSAGE);
+						somethingWrong.setPosition(Position.TOP_CENTER);
+						somethingWrong.setDelayMsec(3000);
+						somethingWrong.addCloseListener(new CloseListener() {
+							
+							@Override
+							public void notificationClose(CloseEvent e) {
+								Page.getCurrent().setLocation(getAbsoluteUrl(Application.LOGIN_URL));
+								
+							}
+						});
 						
+						e.printStackTrace();
+					
 					}
 				});
 			
@@ -309,8 +347,11 @@ public class TwoFactorAuthenticationUI extends UI implements HasLogger, View{
 						RestServiceUtil.getInstance().getClient().getAuthApi().verifyCode(verificationCode.getValue());
 						Page.getCurrent().setLocation(getAbsoluteUrl(Application.APP_URL+"home"));
 					} catch (Exception e) {
-						//Dont Navigate.
-						Notification.show("Entered Code is Wrong/Time out", Type.ERROR_MESSAGE).setPosition(Position.TOP_CENTER);
+						if(e.getMessage().equals("INVALID VERIFICATION CODE")) {
+						Notification codeNotification = Notification.show("Entered Code is Wrong/Time, Please request again", Type.ERROR_MESSAGE);
+						codeNotification.setPosition(Position.TOP_CENTER);
+						codeNotification.setDelayMsec(3000);
+						}
 						e.printStackTrace();
 					
 					}

@@ -22,11 +22,11 @@ import com.luretechnologies.tms.backend.service.MockUserService;
  */
 public class BackendAuthenticationProvider implements AuthenticationProvider {
 	
-
+	public static String username = null;
 	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException{
 		UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) authentication;
-		  String username = String.valueOf(auth.getPrincipal());
+		username = String.valueOf(auth.getPrincipal());
 		  String password = String.valueOf(auth.getCredentials());
 			  
 		  try {
@@ -53,6 +53,10 @@ public class BackendAuthenticationProvider implements AuthenticationProvider {
 	public boolean supports(Class<? extends Object> authentication) {
 		// TODO Auto-generated method stub
 		return  (UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication));
+	}
+	
+	public String loggedInUserName() {
+		return username;
 	}
 
 }

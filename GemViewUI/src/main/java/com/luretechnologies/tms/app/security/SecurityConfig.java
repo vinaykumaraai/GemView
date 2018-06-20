@@ -92,19 +92,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Seri
 //		//auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
 //	}
 	
-	@Override
+	/*@Override
 	public void configure(WebSecurity web) throws Exception {
 	 web.ignoring().antMatchers("/gemview/forgotpassword");
 	 //web.
 	
-	}
+	}*/
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		// Not using Spring CSRF here to be able to use plain HTML for the login
 		// page
-		http.antMatcher("/login").anonymous();
-		http.csrf().disable().exceptionHandling()
-		.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login.html"));
+		http.csrf().disable();
 		
 		ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry reg = http
 				.authorizeRequests();
@@ -114,6 +112,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Seri
 		//http.co
 		reg = reg.antMatchers("/VAADIN/**").permitAll();
 		reg = reg.antMatchers("/forgotPassword.html").permitAll();
+		reg = reg.antMatchers("/forgotUsername.html").permitAll();
 		//reg = reg.antMatchers("/gemview/forgotpassword")
 		reg = reg.antMatchers("/**").hasAnyAuthority(Role.getAllRoles());
 		//reg = reg.filterSecurityInterceptorOncePerRequest(true).antMatchers("/gemview/forgotpassword").anonymous();
