@@ -39,7 +39,6 @@ import com.luretechnologies.client.restlib.common.TypeRef;
 import com.luretechnologies.client.restlib.service.model.Address;
 import com.luretechnologies.client.restlib.service.model.Country;
 import com.luretechnologies.client.restlib.service.model.State;
-import com.luretechnologies.client.restlib.service.model.Transaction;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -59,7 +58,7 @@ public class AddressesApi extends BaseApi {
     public AddressesApi(ApiClient apiClient) {
         super(apiClient);
     }
-    
+
     /**
      * Creates a new Address
      *
@@ -123,10 +122,9 @@ public class AddressesApi extends BaseApi {
         };
         return apiClient.invokeAPI(path, CommonConstants.METHOD_GET, queryParams, postBody, postBinaryBody, headerParams, formParams, accept, contentType, returnType);
     }
-    
+
     /**
-     * List states by country id. 
-     * parameters defined
+     * List states by country id. parameters defined
      *
      * @param countryId
      * @return States list

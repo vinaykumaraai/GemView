@@ -34,12 +34,16 @@ package com.luretechnologies.server.data.dao.impl;
 
 import com.luretechnologies.server.data.dao.AppDAO;
 import com.luretechnologies.server.data.model.tms.App;
+import com.luretechnologies.server.data.model.tms.AppParam;
+import com.luretechnologies.server.data.model.tms.AppProfile;
 import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceException;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import org.slf4j.Logger;
@@ -54,6 +58,7 @@ import org.springframework.stereotype.Repository;
 public class AppDAOImpl extends BaseDAOImpl<App, Long> implements AppDAO{
     
     private static final Logger LOGGER = LoggerFactory.getLogger(AppDAO.class);
+    private static final long TYPE_FILE = 1; //type file on AppParamFormat
     
     @Override
     public List<App> getApps(List<Long> IDS)throws PersistenceException{
@@ -66,47 +71,52 @@ public class AppDAOImpl extends BaseDAOImpl<App, Long> implements AppDAO{
 
     @Override
     public App getAppByID(Long ID) throws PersistenceException{
-       App app = new App();
-       return  getEntityManager().find(App.class, ID);
+       /*App app = new App();
+       return  getEntityManager().find(App.class, ID);*/
+        try {
+            CriteriaQuery<App> cq = criteriaQuery();
+            Root<App> root = getRoot(cq);   
+            //root.fetch("appfileCollection", JoinType.LEFT);
+            root.fetch("appprofileCollection", JoinType.LEFT);
+            root.fetch("appparamCollection", JoinType.LEFT);
+            App app = (App) query(cq.where(criteriaBuilder().equal(root.get("id"), ID))).getSingleResult();
+            return app;
+        } catch (NoResultException e) {
+            LOGGER.info("App not found. id: " + ID, e);
+            return null;
+        }
         
     }
-    
+        
     @Override
-    public List<App> list(String name, Boolean active, int firstResult, int lastResult) throws PersistenceException {
+    public List<App> list(Long entityId) throws PersistenceException {
 
+        CriteriaBuilder critBuilder = criteriaBuilder();
         CriteriaQuery<App> q = criteriaQuery();
         Root<App> root = getRoot(q);
-        Predicate predicate = null;
+        
+        Predicate ownerIdPredicate = criteriaBuilder().equal(root.get("ownerId"), entityId);
+        Predicate activePredicate = criteriaBuilder().equal(root.get("active"), true);
+                
+        q.where(critBuilder.and(activePredicate, ownerIdPredicate));
 
-        if (name != null) {
-            Predicate namePredicate = criteriaBuilder().equal(root.get("name"), name);
-            predicate = criteriaBuilder().and(namePredicate);
-        }
-
-        if (active != null) {
-            short appAvailable = 0;
-            if(active) 
-                appAvailable = (short) 1;  
-            Predicate activePredicate = criteriaBuilder().equal(root.get("active"), appAvailable);
-            if (predicate != null) {
-                predicate.getExpressions().add(activePredicate);
-            } else {
-                predicate = activePredicate;
-            }
-        }
-
-        q.where(predicate);
-
-        return query(q).setFirstResult(firstResult).setMaxResults(lastResult).getResultList();
+        return query(q).getResultList();
     }
     
     @Override
     public List<App> list(int firstResult, int lastResult) throws PersistenceException {
-        return query(criteriaQueryComplex()).setFirstResult(firstResult).setMaxResults(lastResult).getResultList();
+        CriteriaBuilder critBuilder = criteriaBuilder();
+        CriteriaQuery<App> q = criteriaQuery();
+        Root<App> root = getRoot(q);
+        Predicate activePredicate = criteriaBuilder().equal(root.get("active"), true);
+        
+        q.where(critBuilder.and(activePredicate));
+        
+        return query(q).setFirstResult(firstResult).setMaxResults(lastResult).getResultList();
     }
 
     @Override
-    public List<App> search(String filter, Boolean active, int firstResult, int lastResult) throws PersistenceException {
+    public List<App> search(String filter, int firstResult, int lastResult) throws PersistenceException {
 
         CriteriaBuilder critBuilder = criteriaBuilder();
         CriteriaQuery<App> q = criteriaQuery();
@@ -114,24 +124,122 @@ public class AppDAOImpl extends BaseDAOImpl<App, Long> implements AppDAO{
 
         Expression<String> upperName = critBuilder.upper((Expression) root.get("name"));
         Expression<String> upperVersion = critBuilder.upper((Expression) root.get("version"));
+        Expression<String> upperDescription = critBuilder.upper((Expression) root.get("description"));
         
         Predicate namePredicate = critBuilder.like(upperName, "%" + filter.toUpperCase() + "%");
         Predicate versionPredicate = critBuilder.like(upperVersion, "%" + filter.toUpperCase() + "%");
-        Predicate activePredicate = null;
-        
-        if (active != null){
-            short appAvailable = 0;
-            if(active) 
-                appAvailable = (short) 1;            
-            activePredicate = criteriaBuilder().equal(root.get("active"), appAvailable);
-        }
-        
-        if(activePredicate != null)
-            q.where(critBuilder.or(namePredicate, versionPredicate, activePredicate));
-        else
-            q.where(critBuilder.or(namePredicate, versionPredicate));
+        Predicate descriptionPredicate = critBuilder.like(upperDescription, "%" + filter.toUpperCase() + "%");
+        Predicate activePredicate = criteriaBuilder().equal(root.get("active"), true);
+                
+        q.where(critBuilder.or(namePredicate, versionPredicate, descriptionPredicate), 
+                critBuilder.and(activePredicate));
 
         return query(q).setFirstResult(firstResult).setMaxResults(lastResult).getResultList();
+    }
+    
+    @Override
+    public List<AppParam> searchAppParam(Long appId, String filter, int firstResult, int lastResult) throws PersistenceException {
+        try{
+            CriteriaQuery<AppParam> cq = criteriaBuilder().createQuery(AppParam.class);
+            Root<AppParam> root = cq.from(AppParam.class);
+
+            Predicate filterPredicate = criteriaBuilder().conjunction();
+
+            if (filter != null && !filter.isEmpty()) {
+                filterPredicate.getExpressions().add(criteriaBuilder().or(
+                    criteriaBuilder().like(criteriaBuilder().upper((Expression) root.get("name")), "%" + filter.toUpperCase() + "%"),
+                    criteriaBuilder().like(criteriaBuilder().upper((Expression) root.get("description")), "%" + filter.toUpperCase() + "%")));
+            }
+
+            if(appId != null && appId > 0)
+                filterPredicate.getExpressions().add(criteriaBuilder().equal(root.get("appId"), appId));
+            
+            filterPredicate.getExpressions().add(criteriaBuilder().notEqual(root.<Long>get("appParamFormat"), TYPE_FILE));
+            
+            cq.where(filterPredicate);
+
+            return query(cq).setFirstResult(firstResult).setMaxResults(lastResult).getResultList();
+            
+        } catch (NoResultException e) {
+            LOGGER.info("Search Params return an empty list", e);
+            return null;
+        }
+    }
+    
+    @Override
+    public List<AppParam> searchAppFile(Long appId, String filter, int firstResult, int lastResult) throws PersistenceException {
+        try{
+            CriteriaQuery<AppParam> cq = criteriaBuilder().createQuery(AppParam.class);
+            Root<AppParam> root = cq.from(AppParam.class);
+
+            Predicate filterPredicate = criteriaBuilder().conjunction();
+
+            if (filter != null && !filter.isEmpty()) {
+                filterPredicate.getExpressions().add(criteriaBuilder().or(
+                    criteriaBuilder().like(criteriaBuilder().upper((Expression) root.get("name")), "%" + filter.toUpperCase() + "%"),
+                    criteriaBuilder().like(criteriaBuilder().upper((Expression) root.get("description")), "%" + filter.toUpperCase() + "%")));
+            }
+
+            if(appId != null && appId > 0)
+                filterPredicate.getExpressions().add(criteriaBuilder().equal(root.get("appId"), appId));
+            
+            filterPredicate.getExpressions().add(criteriaBuilder().equal(root.<Long>get("appParamFormat"), TYPE_FILE));
+            
+            cq.where(filterPredicate);
+
+            return query(cq).setFirstResult(firstResult).setMaxResults(lastResult).getResultList();
+            
+        } catch (NoResultException e) {
+            LOGGER.info("Search Files return an empty list", e);
+            return null;
+        }
+    }
+
+    @Override
+    public List<AppParam> listAppParam(Long id) throws PersistenceException {
+        try {
+            CriteriaQuery<AppParam> q = criteriaBuilder().createQuery(AppParam.class);
+            Root<AppParam> root = q.from(AppParam.class);
+
+            q.where(criteriaBuilder().and(criteriaBuilder().equal(root.get("appId"), id),
+                    criteriaBuilder().notEqual(root.get("appParamFormat").get("id"), TYPE_FILE)));
+
+            return query(q).getResultList();
+        } catch (NoResultException e) {
+            LOGGER.info("listAppParam return an empty list.", e);
+            return null;
+        }
+    }
+    
+    @Override
+    public List<AppProfile> listAppProfile(Long id) throws PersistenceException {
+        try {
+            CriteriaQuery<AppProfile> q = criteriaBuilder().createQuery(AppProfile.class);
+            Root<AppProfile> root = q.from(AppProfile.class);
+
+            q.where(criteriaBuilder().and(criteriaBuilder().equal(root.get("appId"), id)));
+
+            return query(q).getResultList();
+        } catch (NoResultException e) {
+            LOGGER.info("listAppProfile return an empty list.", e);
+            return null;
+        }
+    }
+    
+    @Override
+    public List<AppParam> listAppFile(Long id) throws PersistenceException {
+        try {
+            CriteriaQuery<AppParam> q = criteriaBuilder().createQuery(AppParam.class);
+            Root<AppParam> root = q.from(AppParam.class);
+
+            q.where(criteriaBuilder().and(criteriaBuilder().equal(root.get("appId"), id),
+                    criteriaBuilder().equal(root.get("appParamFormat").get("id"), TYPE_FILE)));
+
+            return query(q).getResultList();
+        } catch (NoResultException e) {
+            LOGGER.info("listAppFile return an empty list.", e);
+            return null;
+        }
     }
     
 }

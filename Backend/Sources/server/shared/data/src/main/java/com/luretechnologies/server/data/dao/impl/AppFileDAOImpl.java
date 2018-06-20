@@ -32,11 +32,15 @@
 package com.luretechnologies.server.data.dao.impl;
 
 import com.luretechnologies.server.data.model.tms.AppFile;
-import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.PersistenceException;
 import org.springframework.stereotype.Repository;
 import com.luretechnologies.server.data.dao.AppFileDAO;
+import javax.persistence.NoResultException;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -45,19 +49,25 @@ import com.luretechnologies.server.data.dao.AppFileDAO;
 @Repository
 public class AppFileDAOImpl extends BaseDAOImpl<AppFile, Long> implements AppFileDAO{
     
+    private static final Logger LOGGER = LoggerFactory.getLogger(AppFileDAO.class);
+    
     @Override
-    public List<AppFile> getAppFileList(List<Long> IDS)throws PersistenceException{
-        List<AppFile> appFileList = new ArrayList<>();
-        for(Long ID : IDS) {
-            appFileList.add(getEntityManager().find(AppFile.class, ID));
-        }
-        return appFileList;
+    public List<AppFile> getAppFileList(int firstResult, int lastResult)throws PersistenceException{
+        return query(criteriaQueryComplex()).setFirstResult(firstResult).setMaxResults(lastResult).getResultList();
     }
 
     @Override
     public AppFile getAppFileByID(Long ID) throws PersistenceException{
-       return  getEntityManager().find(AppFile.class, ID);
-        
+       //return  getEntityManager().find(AppFile.class, ID);
+       try {
+           CriteriaQuery<AppFile> cq = criteriaQuery();
+            Root<AppFile> root = getRoot(cq);   
+            AppFile app = (AppFile) query(cq.where(criteriaBuilder().equal(root.get("id"), ID))).getSingleResult();
+            return app;
+        } catch (NoResultException e) {
+            LOGGER.info("AppFile not found. id: " + ID, e);
+            return null;
+        }
     }
     
     @Override

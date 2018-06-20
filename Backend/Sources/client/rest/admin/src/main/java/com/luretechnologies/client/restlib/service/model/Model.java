@@ -35,6 +35,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.luretechnologies.client.restlib.common.StringUtil;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Date;
 import javax.annotation.Generated;
 
 /**
@@ -47,111 +48,142 @@ import javax.annotation.Generated;
 @Generated(value = "class io.swagger.codegen.languages.JavaClientCodegen", date = "2015-09-15T15:20:45.337-04:00")
 public class Model {
 
-    private final Long id = null;
-    private String name = null;
-    private String description = null;
-    private Boolean multiApp = null;
-    private Integer maxApps = null;
-    private Integer maxKeys = null;
+    
+    private Long id;
+    private String name;
+    private String description;
+    private String manufacturer;
+    private Date updatedAt;
+    private Boolean available;
+    private Boolean rkiCapable;
+    private Boolean osUpdate;
 
     /**
-     *
-     * @return
+     * @return the id
      */
-    @ApiModelProperty(value = "")
+    @ApiModelProperty(value = "Id")
     @JsonProperty("id")
     public Long getId() {
         return id;
     }
 
     /**
-     *
-     * @return
+     * @param id the id to set
      */
-    @ApiModelProperty(value = "")
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    /**
+     * @return the name
+     */
+    @ApiModelProperty(value = "Name")
     @JsonProperty("name")
     public String getName() {
         return name;
     }
 
     /**
-     *
-     * @param name
+     * @param name the name to set
      */
     public void setName(String name) {
         this.name = name;
     }
 
     /**
-     *
-     * @return
+     * @return the description
      */
-    @ApiModelProperty(value = "")
+    @ApiModelProperty(value = "Description")
     @JsonProperty("description")
     public String getDescription() {
         return description;
     }
 
     /**
-     *
-     * @param description
+     * @param description the description to set
      */
     public void setDescription(String description) {
         this.description = description;
     }
 
     /**
-     *
-     * @return
+     * @return the manufacturer
      */
-    @ApiModelProperty(value = "")
-    @JsonProperty("multiApp")
-    public Boolean getMultiApp() {
-        return multiApp;
+    @ApiModelProperty(value = "Manufacturer")
+    @JsonProperty("manufacturer")
+    public String getManufacturer() {
+        return manufacturer;
     }
 
     /**
-     *
-     * @param multiApp
+     * @param manufacturer the manufacturer to set
      */
-    public void setMultiApp(Boolean multiApp) {
-        this.multiApp = multiApp;
+    public void setManufacturer(String manufacturer) {
+        this.manufacturer = manufacturer;
     }
 
     /**
-     *
-     * @return
+     * @return the updatedAt
      */
-    @ApiModelProperty(value = "")
-    @JsonProperty("maxApps")
-    public Integer getMaxApps() {
-        return maxApps;
+    @ApiModelProperty(value = "Updated At")
+    @JsonProperty("updatedAt")
+    public Date getUpdatedAt() {
+        return updatedAt;
     }
 
     /**
-     *
-     * @param maxApps
+     * @param updatedAt the updatedAt to set
      */
-    public void setMaxApps(Integer maxApps) {
-        this.maxApps = maxApps;
+    public void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     /**
-     *
-     * @return
+     * @return the available
      */
-    @ApiModelProperty(value = "")
-    @JsonProperty("maxKeys")
-    public Integer getMaxKeys() {
-        return maxKeys;
+    @ApiModelProperty(value = "Available")
+    @JsonProperty("available")
+    public Boolean getAvailable() {
+        return available;
     }
 
     /**
-     *
-     * @param maxKeys
+     * @param available the available to set
      */
-    public void setMaxKeys(Integer maxKeys) {
-        this.maxKeys = maxKeys;
+    public void setAvailable(Boolean available) {
+        this.available = available;
+    }
+
+    /**
+     * @return the rkiCapable
+     */
+    @ApiModelProperty(value = "RKI capable")
+    @JsonProperty("rkiCapable")
+    public Boolean getRkiCapable() {
+        return rkiCapable;
+    }
+
+    /**
+     * @param rkiCapable the rkiCapable to set
+     */
+    public void setRkiCapable(Boolean rkiCapable) {
+        this.rkiCapable = rkiCapable;
+    }
+
+    /**
+     * @return the osUpdate
+     */
+    @ApiModelProperty(value = "OS Update")
+    @JsonProperty("osUpdate")
+    public Boolean getOsUpdate() {
+        return osUpdate;
+    }
+
+    /**
+     * @param osUpdate the osUpdate to set
+     */
+    public void setOsUpdate(Boolean osUpdate) {
+        this.osUpdate = osUpdate;
     }
 
     @Override
@@ -159,12 +191,14 @@ public class Model {
         StringBuilder sb = new StringBuilder();
         sb.append("class Model {\n");
 
-        sb.append("    id: ").append(StringUtil.toIndentedString(id)).append("\n");
-        sb.append("    name: ").append(StringUtil.toIndentedString(name)).append("\n");
-        sb.append("    description: ").append(StringUtil.toIndentedString(description)).append("\n");
-        sb.append("    multiApp: ").append(StringUtil.toIndentedString(multiApp)).append("\n");
-        sb.append("    maxApps: ").append(StringUtil.toIndentedString(maxApps)).append("\n");
-        sb.append("    maxKeys: ").append(StringUtil.toIndentedString(maxKeys)).append("\n");
+        sb.append("    id: ").append(StringUtil.toIndentedString(getId())).append("\n");
+        sb.append("    name: ").append(StringUtil.toIndentedString(getName())).append("\n");
+        sb.append("    manufacturer: ").append(StringUtil.toIndentedString(getManufacturer())).append("\n");
+        sb.append("    updatedAt: ").append(StringUtil.toIndentedString(getUpdatedAt())).append("\n");
+        sb.append("    description: ").append(StringUtil.toIndentedString(getDescription())).append("\n");
+        sb.append("    available: ").append(StringUtil.toIndentedString(getAvailable())).append("\n");
+        sb.append("    rkiCapable: ").append(StringUtil.toIndentedString(getRkiCapable())).append("\n");
+        sb.append("    osUpdate: ").append(StringUtil.toIndentedString(getOsUpdate())).append("\n");        
         sb.append("}");
         return sb.toString();
     }

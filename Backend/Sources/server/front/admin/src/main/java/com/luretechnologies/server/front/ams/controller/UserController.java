@@ -70,7 +70,7 @@ public class UserController {
 
     @Autowired
     UserService service;
-    
+
     @Autowired
     @Qualifier("jmsEmailTemplate")
     JmsTemplate jmsEmailTemplate;
@@ -88,14 +88,17 @@ public class UserController {
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(tags = "Users", httpMethod = "POST", value = "Create user", notes = "Creates a new user")
     @ApiResponses(value = {
-        @ApiResponse(code = 201, message = "Created", response = User.class),
-        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class),
-        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+        @ApiResponse(code = 201, message = "Created", response = User.class)
+        ,
+        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class)
+        ,
+        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class)
+        ,
         @ApiResponse(code = 404, message = "Not found", response = ErrorResponse.class)})
     public User create(
             @ApiParam(value = "The authentication token") @RequestHeader(value = "X-Auth-Token", required = true) String authToken,
             @ApiParam(value = "The new user object", required = true) @RequestBody(required = true) User user) throws Exception {
-        
+
         return service.create(user);
     }
 
@@ -108,17 +111,21 @@ public class UserController {
      * @throws java.lang.Exception
      */
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyAuthority('SUPER','ALL_USER','READ_USER')")
     @RequestMapping(value = "/{userId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(tags = "Users", httpMethod = "GET", value = "Get user", notes = "Get user by id")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = User.class),
-        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class),
-        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+        @ApiResponse(code = 200, message = "OK", response = User.class)
+        ,
+        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class)
+        ,
+        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class)
+        ,
         @ApiResponse(code = 404, message = "Not found", response = ErrorResponse.class)})
     public User get(
             @ApiParam(value = "The authentication token") @RequestHeader(value = "X-Auth-Token", required = true) String authToken,
             @ApiParam(value = "The user identifier") @PathVariable("userId") long userId) throws Exception {
-        
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication.getDetails() instanceof UserAuth) {
             return service.get(userId);
@@ -135,20 +142,54 @@ public class UserController {
      * @throws java.lang.Exception
      */
     @ResponseStatus(HttpStatus.OK)
-    @RequestMapping(value = "/getbyusername/{username}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyAuthority('SUPER','ALL_USER','READ_USER')")
+    @RequestMapping(name = "getByUserName", value = "/getByUserName", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(tags = "Users", httpMethod = "GET", value = "Get user", notes = "Get user by username")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = User.class),
-        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class),
-        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+        @ApiResponse(code = 200, message = "OK", response = User.class)
+        ,
+        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class)
+        ,
+        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class)
+        ,
         @ApiResponse(code = 404, message = "Not found", response = ErrorResponse.class)})
     public User getByUserName(
             @ApiParam(value = "The authentication token") @RequestHeader(value = "X-Auth-Token", required = true) String authToken,
-            @ApiParam(value = "The user name") @PathVariable("username") String username) throws Exception {
+            @ApiParam(value = "The user name") @RequestParam(name = "username", required = true) String username) throws Exception {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication.getDetails() instanceof UserAuth) {
             return service.getByUserName(username);
+        }
+        return null;
+    }
+
+    /**
+     *
+     * @param authToken
+     * @param userEmail
+     * @return
+     * @throws Exception
+     */
+    @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyAuthority('SUPER','ALL_USER','READ_USER')")
+    @RequestMapping(name = "getByUserEmail", value = "/getByUserEmail", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(tags = "Users", httpMethod = "GET", value = "Get user", notes = "Get user by user email")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = User.class)
+        ,
+        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class)
+        ,
+        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class)
+        ,
+        @ApiResponse(code = 404, message = "Not found", response = ErrorResponse.class)})
+    public User getByEmail(
+            @ApiParam(value = "The authentication token") @RequestHeader(value = "X-Auth-Token", required = true) String authToken,
+            @ApiParam(value = "The user name") @RequestParam(name = "userEmail", required = true) String userEmail) throws Exception {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication.getDetails() instanceof UserAuth) {
+            return service.findUserByEmailId(userEmail);
         }
         return null;
     }
@@ -166,9 +207,12 @@ public class UserController {
     @RequestMapping(value = "/{userId}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(tags = "Users", httpMethod = "PUT", value = "Update user", notes = "Updates an user")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = User.class),
-        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class),
-        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+        @ApiResponse(code = 200, message = "OK", response = User.class)
+        ,
+        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class)
+        ,
+        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class)
+        ,
         @ApiResponse(code = 404, message = "Not found", response = ErrorResponse.class)})
     public User update(
             @ApiParam(value = "The authentication token") @RequestHeader(value = "X-Auth-Token", required = true) String authToken,
@@ -190,9 +234,12 @@ public class UserController {
     @RequestMapping(value = "/{userId}", method = RequestMethod.DELETE)
     @ApiOperation(tags = "Users", httpMethod = "DELETE", value = "Delete user", notes = "Deletes an user")
     @ApiResponses(value = {
-        @ApiResponse(code = 204, message = "Deleted"),
-        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class),
-        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+        @ApiResponse(code = 204, message = "Deleted")
+        ,
+        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class)
+        ,
+        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class)
+        ,
         @ApiResponse(code = 404, message = "Not found", response = ErrorResponse.class)})
     public void delete(
             @ApiParam(value = "The authentication token") @RequestHeader(value = "X-Auth-Token", required = true) String authToken,
@@ -204,30 +251,29 @@ public class UserController {
      * List all users information.
      *
      * @param authToken
-     * @param username
-     * @param active
-     * @param firstname
-     * @param lastname
+     * @param name
+     * @param available
      * @param pageNumber
      * @param rowsPerPage
      * @return
-     * @throws java.lang.Exception
+     * @throws Exception
      */
     @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("hasAnyAuthority('SUPER','ALL_USER','READ_USER','UPDATE_USER','CREATE_USER')")
+    @PreAuthorize("hasAnyAuthority('SUPER','ALL_USER','READ_USER')")
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(tags = "Users", httpMethod = "GET", value = "List users", notes = "Lists users. Will return 50 records if no paging parameters defined", response = User.class, responseContainer = "List")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK"),
-        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class),
-        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+        @ApiResponse(code = 200, message = "OK")
+        ,
+        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class)
+        ,
+        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class)
+        ,
         @ApiResponse(code = 404, message = "Not found", response = ErrorResponse.class)})
     public List<User> list(
             @ApiParam(value = "The authentication token") @RequestHeader(value = "X-Auth-Token", required = true) String authToken,
-            @ApiParam(value = "The username") @RequestParam(value = "username", required = false) String username,
-            @ApiParam(value = "The first name") @RequestParam(value = "firtsname", required = false) String firstname,
-            @ApiParam(value = "The last name") @RequestParam(value = "lastname", required = false) String lastname,
-            @ApiParam(value = "The status") @RequestParam(value = "active", required = false) Boolean active,
+            @ApiParam(value = "The user's names") @RequestParam(value = "name", required = false) String name,
+            @ApiParam(value = "The status", name = "available", required = false) @RequestParam(value = "available", required = false) Boolean available,
             @ApiParam(value = "The page number", defaultValue = "1") @RequestParam(value = "pageNumber", required = false, defaultValue = "1") Integer pageNumber,
             @ApiParam(value = "the rows per page", defaultValue = "50") @RequestParam(value = "rowsPerPage", required = false, defaultValue = "50") Integer rowsPerPage) throws Exception {
 
@@ -236,7 +282,7 @@ public class UserController {
         if (authentication.getDetails() instanceof UserAuth) {
             UserAuth userAuth = (UserAuth) authentication.getDetails();
             User user = userAuth.getSystemUser();
-            return service.list(user.getEntity(), username, firstname, lastname, active, pageNumber, rowsPerPage);
+            return service.list(user.getEntity(), name, available, pageNumber, rowsPerPage);
         }
         return null;
     }
@@ -256,9 +302,12 @@ public class UserController {
     @RequestMapping(name = "Search", value = "/search", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(tags = "Users", httpMethod = "GET", value = "Search users", notes = "Search users that match a given filter. Will return 50 records if no paging parameters defined", response = User.class, responseContainer = "List")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK"),
-        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class),
-        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+        @ApiResponse(code = 200, message = "OK")
+        ,
+        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class)
+        ,
+        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class)
+        ,
         @ApiResponse(code = 404, message = "Not found", response = ErrorResponse.class)})
     public List<User> search(
             @ApiParam(value = "The authentication token") @RequestHeader(value = "X-Auth-Token", required = true) String authToken,
@@ -288,9 +337,12 @@ public class UserController {
     @RequestMapping(name = "Search", value = "/list", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(tags = "Users", httpMethod = "GET", value = "Get users", notes = "Get users.", response = User.class, responseContainer = "List")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK"),
-        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class),
-        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+        @ApiResponse(code = 200, message = "OK")
+        ,
+        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class)
+        ,
+        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class)
+        ,
         @ApiResponse(code = 404, message = "Not found", response = ErrorResponse.class)})
     public List<User> list(
             @ApiParam(value = "The authentication token") @RequestHeader(value = "X-Auth-Token", required = true) String authToken) throws Exception {

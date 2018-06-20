@@ -145,7 +145,7 @@ public class ITDashboardApi extends BaseApi {
 
         String path = "/itdashboard/transactions/latest/{host}/{count}".replaceAll("\\{format\\}", "json")
                 .replaceAll("\\{" + CommonConstants.FIELD_HOST + "\\}", apiClient.escapeString(host))
-                .replaceAll("\\{" + CommonConstants.FIELD_COUNT  + "\\}", apiClient.escapeString(count.toString()));
+                .replaceAll("\\{" + CommonConstants.FIELD_COUNT + "\\}", apiClient.escapeString(count.toString()));
 
         List<Pair> queryParams = new ArrayList<>();
         Map<String, String> headerParams = new HashMap<>();

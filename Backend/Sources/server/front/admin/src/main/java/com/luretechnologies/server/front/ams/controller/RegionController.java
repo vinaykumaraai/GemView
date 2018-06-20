@@ -34,6 +34,7 @@ package com.luretechnologies.server.front.ams.controller;
 import com.luretechnologies.server.data.display.ErrorResponse;
 import com.luretechnologies.server.data.model.Region;
 import com.luretechnologies.server.data.model.User;
+import com.luretechnologies.server.service.AuditUserLogService;
 import com.luretechnologies.server.service.RegionService;
 import com.luretechnologies.server.utils.UserAuth;
 import io.swagger.annotations.Api;
@@ -71,6 +72,9 @@ public class RegionController {
     @Autowired
     RegionService service;
 
+    @Autowired
+    AuditUserLogService auditUserLogService;
+
     /**
      * Creates a new region
      *
@@ -84,15 +88,28 @@ public class RegionController {
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(tags = "Regions", httpMethod = "POST", value = "Create region", notes = "Creates a new region")
     @ApiResponses(value = {
-        @ApiResponse(code = 201, message = "Created", response = Region.class),
-        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class),
-        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+        @ApiResponse(code = 201, message = "Created", response = Region.class)
+        ,
+        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class)
+        ,
+        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class)
+        ,
         @ApiResponse(code = 404, message = "Not found", response = ErrorResponse.class)})
     public Region create(
             @ApiParam(value = "The authentication token") @RequestHeader(value = "X-Auth-Token", required = true) String authToken,
             @ApiParam(value = "The new region object", required = true) @RequestBody(required = true) Region region) throws Exception {
 
-        return service.create(region);
+        region = service.create(region);
+
+        User user;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication.getDetails() instanceof UserAuth && region != null) {
+            UserAuth userAuth = (UserAuth) authentication.getDetails();
+            user = userAuth.getSystemUser();
+            auditUserLogService.createAuditUserLog(user.getId(), region.getEntityId(), "info", "create", "Creates a new region");
+        }
+        return region;
+
     }
 
     /**
@@ -108,9 +125,12 @@ public class RegionController {
     @RequestMapping(value = "/{regionId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(tags = "Regions", httpMethod = "GET", value = "Get region", notes = "Get region by id")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = Region.class),
-        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class),
-        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+        @ApiResponse(code = 200, message = "OK", response = Region.class)
+        ,
+        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class)
+        ,
+        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class)
+        ,
         @ApiResponse(code = 404, message = "Not found", response = ErrorResponse.class)})
     public Region get(
             @ApiParam(value = "The authentication token") @RequestHeader(value = "X-Auth-Token", required = true) String authToken,
@@ -132,14 +152,25 @@ public class RegionController {
     @RequestMapping(value = "/{regionId}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(tags = "Regions", httpMethod = "PUT", value = "Update region", notes = "Updates a region")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = Region.class),
-        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class),
-        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+        @ApiResponse(code = 200, message = "OK", response = Region.class)
+        ,
+        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class)
+        ,
+        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class)
+        ,
         @ApiResponse(code = 404, message = "Not found", response = ErrorResponse.class)})
     public Region update(
             @ApiParam(value = "The authentication token") @RequestHeader(value = "X-Auth-Token", required = true) String authToken,
             @ApiParam(value = "The region identifier") @PathVariable("regionId") String regionId,
             @ApiParam(value = "The updated region object", required = true) @RequestBody(required = true) Region region) throws Exception {
+
+        User user;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication.getDetails() instanceof UserAuth) {
+            UserAuth userAuth = (UserAuth) authentication.getDetails();
+            user = userAuth.getSystemUser();
+            auditUserLogService.createAuditUserLog(user.getId(), regionId, "info", "update", "Updates a region");
+        }
 
         return service.update(regionId, region);
     }
@@ -152,17 +183,28 @@ public class RegionController {
      * @throws java.lang.Exception
      */
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasAnyAuthority('SUPER')")
+    @PreAuthorize("hasAnyAuthority('SUPER','ALL_ENTITY','DELETE_ENTITY')")
     @RequestMapping(value = "/{regionId}", method = RequestMethod.DELETE)
     @ApiOperation(tags = "Regions", httpMethod = "DELETE", value = "Delete region", notes = "Deletes a region")
     @ApiResponses(value = {
-        @ApiResponse(code = 204, message = "Deleted"),
-        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class),
-        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+        @ApiResponse(code = 204, message = "Deleted")
+        ,
+        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class)
+        ,
+        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class)
+        ,
         @ApiResponse(code = 404, message = "Not found", response = ErrorResponse.class)})
     public void delete(
             @ApiParam(value = "The authentication token") @RequestHeader(value = "X-Auth-Token", required = true) String authToken,
             @ApiParam(value = "The region identifier") @PathVariable("regionId") String regionId) throws Exception {
+
+        User user;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication.getDetails() instanceof UserAuth) {
+            UserAuth userAuth = (UserAuth) authentication.getDetails();
+            user = userAuth.getSystemUser();
+            auditUserLogService.createAuditUserLog(user.getId(), regionId, "info", "delete", "Deletes a region");
+        }
 
         service.delete(regionId);
     }
@@ -181,9 +223,12 @@ public class RegionController {
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(tags = "Regions", httpMethod = "GET", value = "List regions", notes = "Lists regions. Will return 50 records if no paging parameters defined", response = Region.class, responseContainer = "List")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK"),
-        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class),
-        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+        @ApiResponse(code = 200, message = "OK")
+        ,
+        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class)
+        ,
+        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class)
+        ,
         @ApiResponse(code = 404, message = "Not found", response = ErrorResponse.class)})
     public List<Region> list(
             @ApiParam(value = "The authentication token") @RequestHeader(value = "X-Auth-Token", required = true) String authToken,
@@ -217,9 +262,12 @@ public class RegionController {
     @RequestMapping(name = "Search", value = "/search", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(tags = "Regions", httpMethod = "GET", value = "Search regions", notes = "Search regions that match a given filter. Will return 50 records if no paging parameters defined", response = Region.class, responseContainer = "List")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK"),
-        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class),
-        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+        @ApiResponse(code = 200, message = "OK")
+        ,
+        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class)
+        ,
+        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class)
+        ,
         @ApiResponse(code = 404, message = "Not found", response = ErrorResponse.class)})
     public List<Region> search(
             @ApiParam(value = "The authentication token") @RequestHeader(value = "X-Auth-Token", required = true) String authToken,

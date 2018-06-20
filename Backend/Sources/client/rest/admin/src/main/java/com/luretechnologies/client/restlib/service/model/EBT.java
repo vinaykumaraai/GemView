@@ -31,7 +31,6 @@
  */
 package com.luretechnologies.client.restlib.service.model;
 
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.luretechnologies.common.enums.BenefitTypeEnum;
 import io.swagger.annotations.ApiModel;
@@ -46,12 +45,12 @@ import java.io.Serializable;
  */
 @ApiModel(description = "")
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.JavaClientCodegen", date = "2015-11-09T17:35:21.421-05:00")
-public class EBT implements Serializable{
+public class EBT implements Serializable {
 
-protected BenefitTypeEnum benefitType = BenefitTypeEnum.NONE;
-protected String ebtVoucherNumber = null;
-protected String ebtVoucherApprovalCode = null;
-    
+    protected BenefitTypeEnum benefitType = BenefitTypeEnum.NONE;
+    protected String ebtVoucherNumber = null;
+    protected String ebtVoucherApprovalCode = null;
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -61,6 +60,7 @@ protected String ebtVoucherApprovalCode = null;
         sb.append("}");
         return sb.toString();
     }
+
     /**
      * @return the benefitType
      */

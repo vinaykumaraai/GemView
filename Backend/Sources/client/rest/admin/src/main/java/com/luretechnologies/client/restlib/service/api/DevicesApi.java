@@ -166,7 +166,7 @@ public class DevicesApi extends BaseApi {
 
         TypeRef returnType = new TypeRef<List<Device>>() {
         };
-        return apiClient.invokeAPI(path, CommonConstants.METHOD_POST, queryParams, postBody, postBinaryBody, headerParams, formParams, accept, contentType, returnType);
+        return apiClient.invokeAPI(path, CommonConstants.METHOD_GET, queryParams, postBody, postBinaryBody, headerParams, formParams, accept, contentType, returnType);
 
     }
 

@@ -40,20 +40,20 @@ public class ApplianceAppFileValue implements Serializable {
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 256)
-    @Column(name = "Value")
+    @Column(name = "`value`")
     @ApiModelProperty(value = "The Value.", required = true)
     private String value;
     @Basic(optional = false)
     @NotNull
-    @Column(name = "UpdatedAt")
+    @Column(name = "updated_at")
     @ApiModelProperty(value = "The UpdatedAt.", required = true)
     @Temporal(TemporalType.TIMESTAMP)
     private Date updatedAt;
-    @JoinColumn(name = "ApplianceApp", referencedColumnName = "id")
+    @JoinColumn(name = "Appliance_App", referencedColumnName = "id")
     @ApiModelProperty(value = "The ApplianceApp.", required = true)
     @ManyToOne(optional = false)
     private ApplianceApp applianceApp;
-    @JoinColumn(name = "AppProfileFileValue", referencedColumnName = "AppProfile")
+    @JoinColumn(name = "App_Profile_File_Value", referencedColumnName = "app_profile")
     @ApiModelProperty(value = "The AppProfileFileValue.", required = true)
     @ManyToOne(optional = false)
     private AppProfileFileValue appProfileFileValue;

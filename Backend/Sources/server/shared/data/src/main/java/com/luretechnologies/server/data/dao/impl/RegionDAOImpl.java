@@ -29,7 +29,6 @@
  */
 package com.luretechnologies.server.data.dao.impl;
 
-import com.luretechnologies.common.enums.EntityTypeEnum;
 import com.luretechnologies.server.common.utils.Utils;
 import com.luretechnologies.server.data.dao.EntityDAO;
 import com.luretechnologies.server.data.dao.RegionDAO;
@@ -73,7 +72,7 @@ public class RegionDAOImpl extends BaseDAOImpl<Region, Long> implements RegionDA
     }
 
     @Override
-    public void persist(Region region) throws PersistenceException {        
+    public void persist(Region region) throws PersistenceException {
         super.persist(region);
         region.setEntityId(Utils.encodeHashId("REG", region.getId()));
     }
@@ -98,7 +97,8 @@ public class RegionDAOImpl extends BaseDAOImpl<Region, Long> implements RegionDA
             CriteriaQuery<Region> cq = criteriaQuery();
             Root<Region> root = getRoot(cq);
 
-            return (Region) query(cq.where(criteriaBuilder().equal(root.get("id"), Utils.decodeHashId(regionId)))).getSingleResult();
+            long id = Utils.decodeHashId(regionId);
+            return (Region) query(cq.where(criteriaBuilder().equal(root.get("id"), id))).getSingleResult();
         } catch (NoResultException e) {
             LOGGER.info("Region not found. regionId: " + regionId, e);
             return null;
@@ -118,7 +118,8 @@ public class RegionDAOImpl extends BaseDAOImpl<Region, Long> implements RegionDA
         } else {
             wherePredicate = wherePredicate(root, entity);
         }
-
+        wherePredicate.add(criteriaBuilder().equal(root.<Boolean>get("active"), true));
+        
         cq.where(criteriaBuilder().and(wherePredicate.toArray(new Predicate[wherePredicate.size()])));
         return query(cq).setFirstResult(firstResult).setMaxResults(lastResult).getResultList();
     }
@@ -144,6 +145,8 @@ public class RegionDAOImpl extends BaseDAOImpl<Region, Long> implements RegionDA
                 criteriaBuilder().like(criteriaBuilder().upper((Expression) root.get("name")), "%" + filter.toUpperCase() + "%"),
                 criteriaBuilder().like(criteriaBuilder().upper((Expression) root.get("description")), "%" + filter.toUpperCase() + "%"));
         wherePredicate.add(filterPredicate);
+        
+        wherePredicate.add(criteriaBuilder().equal(root.<Boolean>get("active"), true));
 
         cq.where(criteriaBuilder().and(wherePredicate.toArray(new Predicate[wherePredicate.size()])));
 

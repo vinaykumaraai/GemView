@@ -35,12 +35,11 @@ import com.luretechnologies.common.enums.utils.PersistentEnum;
 
 /**
  *
- * 
+ *
  */
 public enum PermissionEnum implements PersistentEnum {
 
     SUPER(PermissionGroupEnum.ALL, PermissionAccessEnum.ALL, "Allow all actions"),
-    
     /* ********************************************************************** */
     /* USER [100 - 199]                                                          */
     /* ********************************************************************** */
@@ -148,6 +147,10 @@ public enum PermissionEnum implements PersistentEnum {
      *
      */
     UPDATE_ENTITY(PermissionGroupEnum.ENTITY, PermissionAccessEnum.UPDATE, "Update entity"),
+    /**
+     *
+     */
+    DELETE_ENTITY(PermissionGroupEnum.ENTITY, PermissionAccessEnum.DELETE, "Delete entity"),
     
     /* ********************************************************************** */
     /* HOST [600 - 699]                                               */
@@ -168,7 +171,6 @@ public enum PermissionEnum implements PersistentEnum {
      *
      */
     UPDATE_HOST(PermissionGroupEnum.HOST, PermissionAccessEnum.UPDATE, "Update host"),
-    
     /* ********************************************************************** */
     /* SETTING [700 - 799]                                               */
     /* ********************************************************************** */
@@ -198,7 +200,168 @@ public enum PermissionEnum implements PersistentEnum {
     /**
      *
      */
-    READ_DASHBOARD(PermissionGroupEnum.DASHBOARD, PermissionAccessEnum.READ, "Read dashboard");
+    READ_DASHBOARD(PermissionGroupEnum.DASHBOARD, PermissionAccessEnum.READ, "Read dashboard"),
+    /* ********************************************************************** */
+    /* AUDIT [900 - 999]                                               */
+    /* ********************************************************************** */
+    /**
+     *
+     */
+    ALL_AUDIT(PermissionGroupEnum.AUDIT, PermissionAccessEnum.ALL, "Allow all audit actions"),
+    /**
+     *
+     */
+    READ_AUDIT(PermissionGroupEnum.AUDIT, PermissionAccessEnum.READ, "Read audit"),
+    /**
+     *
+     */
+    CREATE_AUDIT(PermissionGroupEnum.AUDIT, PermissionAccessEnum.CREATE, "Create audit"),
+    /**
+     *
+     */
+    UPDATE_AUDIT(PermissionGroupEnum.AUDIT, PermissionAccessEnum.UPDATE, "Update audit"),
+    /**
+     *
+     */
+    DELETE_AUDIT(PermissionGroupEnum.AUDIT, PermissionAccessEnum.DELETE, "Delete audit"),
+    /* ********************************************************************** */
+    /* APPSTORE [1000 - 1099]                                               */
+    /* ********************************************************************** */
+    /**
+     *
+     */
+    ALL_APPSTORE(PermissionGroupEnum.APPSTORE, PermissionAccessEnum.ALL, "Allow all app store actions"),
+    /**
+     *
+     */
+    READ_APPSTORE(PermissionGroupEnum.APPSTORE, PermissionAccessEnum.READ, "Read app store"),
+    /**
+     *
+     */
+    CREATE_APPSTORE(PermissionGroupEnum.APPSTORE, PermissionAccessEnum.CREATE, "Create app store"),
+    /**
+     *
+     */
+    UPDATE_APPSTORE(PermissionGroupEnum.APPSTORE, PermissionAccessEnum.UPDATE, "Update app store"),
+    /**
+     *
+     */
+    DELETE_APPSTORE(PermissionGroupEnum.APPSTORE, PermissionAccessEnum.DELETE, "Delete app store"),
+    /* ********************************************************************** */
+    /* SYSTEM [1100 - 1199]                                               */
+    /* ********************************************************************** */
+    /**
+     *
+     */
+    ALL_SYSTEM(PermissionGroupEnum.SYSTEM, PermissionAccessEnum.ALL, "Allow all system actions"),
+    /**
+     *
+     */
+    READ_SYSTEM(PermissionGroupEnum.SYSTEM, PermissionAccessEnum.READ, "Read system"),
+    /**
+     *
+     */
+    CREATE_SYSTEM(PermissionGroupEnum.SYSTEM, PermissionAccessEnum.CREATE, "Create system"),
+    /**
+     *
+     */
+    UPDATE_SYSTEM(PermissionGroupEnum.SYSTEM, PermissionAccessEnum.UPDATE, "Update system"),
+    /**
+     *
+     */
+    DELETE_SYSTEM(PermissionGroupEnum.SYSTEM, PermissionAccessEnum.DELETE, "Delete system"),
+    /* ********************************************************************** */
+    /* ODOMETER [1200 - 1299]                                               */
+    /* ********************************************************************** */
+    /**
+     *
+     */
+    ALL_ODOMETER(PermissionGroupEnum.ODOMETER, PermissionAccessEnum.ALL, "Allow all odometer actions"),
+    /**
+     *
+     */
+    READ_ODOMETER(PermissionGroupEnum.ODOMETER, PermissionAccessEnum.READ, "Read odometer"),
+    /**
+     *
+     */
+    CREATE_ODOMETER(PermissionGroupEnum.ODOMETER, PermissionAccessEnum.CREATE, "Create odometer"),
+    /**
+     *
+     */
+    UPDATE_ODOMETER(PermissionGroupEnum.ODOMETER, PermissionAccessEnum.UPDATE, "Update odometer"),
+    /**
+     *
+     */
+    DELETE_ODOMETER(PermissionGroupEnum.ODOMETER, PermissionAccessEnum.DELETE, "Delete odometer"),
+    /* ********************************************************************** */
+    /* ASSET [1300 - 1399]                                               */
+    /* ********************************************************************** */
+    /**
+     *
+     */
+    ALL_ASSET(PermissionGroupEnum.ASSET, PermissionAccessEnum.ALL, "Allow all asset actions"),
+    /**
+     *
+     */
+    READ_ASSET(PermissionGroupEnum.ASSET, PermissionAccessEnum.READ, "Read asset"),
+    /**
+     *
+     */
+    CREATE_ASSET(PermissionGroupEnum.ASSET, PermissionAccessEnum.CREATE, "Create asset"),
+    /**
+     *
+     */
+    UPDATE_ASSET(PermissionGroupEnum.ASSET, PermissionAccessEnum.UPDATE, "Update asset"),
+    /**
+     *
+     */
+    DELETE_ASSET(PermissionGroupEnum.ASSET, PermissionAccessEnum.DELETE, "Delete asset"),
+    /* ********************************************************************** */
+    /* HEARTBEAT [1400 - 1499]                                               */
+    /* ********************************************************************** */
+    /**
+     *
+     */
+    ALL_HEARTBEAT(PermissionGroupEnum.HEARTBEAT, PermissionAccessEnum.ALL, "Allow all hearbeat actions"),
+    /**
+     *
+     */
+    READ_HEARTBEAT(PermissionGroupEnum.HEARTBEAT, PermissionAccessEnum.READ, "Read hearbeat"),
+    /**
+     *
+     */
+    CREATE_HEARTBEAT(PermissionGroupEnum.HEARTBEAT, PermissionAccessEnum.CREATE, "Create hearbeat"),
+    /**
+     *
+     */
+    UPDATE_HEARTBEAT(PermissionGroupEnum.HEARTBEAT, PermissionAccessEnum.UPDATE, "Update hearbeat"),
+    /**
+     *
+     */
+    DELETE_HEARTBEAT(PermissionGroupEnum.HEARTBEAT, PermissionAccessEnum.DELETE, "Delete hearbeat"),
+    /* ********************************************************************** */
+    /* PERSONALIZATION [1400 - 1499]                                               */
+    /* ********************************************************************** */
+    /**
+     *
+     */
+    ALL_PERSONALIZATION(PermissionGroupEnum.PERSONALIZATION, PermissionAccessEnum.ALL, "Allow all personalization actions"),
+    /**
+     *
+     */
+    READ_PERSONALIZATION(PermissionGroupEnum.PERSONALIZATION, PermissionAccessEnum.READ, "Read personalization"),
+    /**
+     *
+     */
+    CREATE_PERSONALIZATION(PermissionGroupEnum.PERSONALIZATION, PermissionAccessEnum.CREATE, "Create personalization"),
+    /**
+     *
+     */
+    UPDATE_PERSONALIZATION(PermissionGroupEnum.PERSONALIZATION, PermissionAccessEnum.UPDATE, "Update personalization"),
+    /**
+     *
+     */
+    DELETE_PERSONALIZATION(PermissionGroupEnum.PERSONALIZATION, PermissionAccessEnum.DELETE, "Delete personalization");
 
     private final int id;
     private final PermissionGroupEnum group;
@@ -211,12 +374,12 @@ public enum PermissionEnum implements PersistentEnum {
         this.id = id;
         this.description = description;
     }
-    
+
     PermissionEnum(PermissionGroupEnum group, PermissionAccessEnum access, String description) {
         this.group = group;
         this.access = access;
         this.id = group.getId() + access.getId();
-        this.description = description;
+        this.description = description; 
     }
 
     /**
@@ -231,7 +394,7 @@ public enum PermissionEnum implements PersistentEnum {
     /**
      * @return
      */
-    public String getDescription() { 
+    public String getDescription() {
         return description;
     }
 

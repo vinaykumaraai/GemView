@@ -34,7 +34,6 @@ package com.luretechnologies.server.data.dao.impl;
 import com.luretechnologies.server.data.dao.AppParamDAO;
 
 import com.luretechnologies.server.data.model.tms.AppParam;
-import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.PersistenceException;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -44,20 +43,14 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import org.springframework.stereotype.Repository;
 
-/**
- *
- * @author Vinay
- */
 @Repository
 public class AppParamDAOImpl extends BaseDAOImpl<AppParam, Long> implements AppParamDAO{
     
+    private static final long TYPE_FILE = 1; //type file on AppParamFormat
+    
     @Override
-    public List<AppParam> getAppParamList(List<Long> IDS)throws PersistenceException{
-        List<AppParam> appParamList = new ArrayList<>();
-        for(Long ID : IDS) {
-            appParamList.add(getEntityManager().find(AppParam.class, ID));
-        }
-        return appParamList;
+    public List<AppParam> getAppParamList(int firstResult, int lastResult)throws PersistenceException{
+        return query(criteriaQueryComplex()).setFirstResult(firstResult).setMaxResults(lastResult).getResultList();
     }
 
     /**
@@ -100,8 +93,10 @@ public class AppParamDAOImpl extends BaseDAOImpl<AppParam, Long> implements AppP
         
         Predicate namePredicate = critBuilder.like(upperName, "%" + filter.toUpperCase() + "%");
         Predicate descriptionPredicate = critBuilder.like(upperDescription, "%" + filter.toUpperCase() + "%");
+        Predicate typeFilePredicate = criteriaBuilder().notEqual(root.get("appParamFormat").get("id"), TYPE_FILE);
 
-        q.where(critBuilder.or(namePredicate, descriptionPredicate));
+        q.where(critBuilder.or(namePredicate, descriptionPredicate),
+                criteriaBuilder().and(typeFilePredicate));
 
         return query(q).setFirstResult(firstResult).setMaxResults(lastResult).getResultList();
     }

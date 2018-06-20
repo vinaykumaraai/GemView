@@ -221,7 +221,7 @@ public class TerminalsApi extends BaseApi {
 
         TypeRef returnType = new TypeRef<List<Terminal>>() {
         };
-        return apiClient.invokeAPI(path, CommonConstants.METHOD_POST, queryParams, postBody, postBinaryBody, headerParams, formParams, accept, contentType, returnType);
+        return apiClient.invokeAPI(path, CommonConstants.METHOD_GET, queryParams, postBody, postBinaryBody, headerParams, formParams, accept, contentType, returnType);
 
     }
 
@@ -250,6 +250,47 @@ public class TerminalsApi extends BaseApi {
         List<Pair> queryParams = new ArrayList<>();
         Map<String, String> headerParams = new HashMap<>();
         Map<String, Object> formParams = new HashMap<>();
+
+        final String[] accepts = {
+            CommonConstants.HEADER_APP_JSON
+        };
+        final String accept = apiClient.selectHeaderAccept(accepts);
+
+        final String[] contentTypes = {
+            CommonConstants.HEADER_APP_JSON
+        };
+        final String contentType = apiClient.selectHeaderContentType(contentTypes);
+
+        TypeRef returnType = new TypeRef<Terminal>() {
+        };
+        return apiClient.invokeAPI(path, CommonConstants.METHOD_GET, queryParams, postBody, postBinaryBody, headerParams, formParams, accept, contentType, returnType);
+
+    }
+
+    /**
+     *
+     * @param terminalSerialNumber The terminal serial number
+     * @return
+     * @throws ApiException
+     */
+    public Terminal getBySerialNumber(String terminalSerialNumber) throws ApiException {
+        Object postBody = null;
+        byte[] postBinaryBody = null;
+
+        // verify the required parameter 'serialNumber' is set
+        if (terminalSerialNumber == null) {
+            throw new ApiException(400, "Missing the required parameter 'serialNumber' when calling getUsingGET8");
+        }
+
+        // create path and map variables
+        String path = "/terminals/getBySerialNumber".replaceAll("\\{format\\}", "json");
+
+        // query params
+        List<Pair> queryParams = new ArrayList<>();
+        Map<String, String> headerParams = new HashMap<>();
+        Map<String, Object> formParams = new HashMap<>();
+
+        queryParams.addAll(apiClient.parameterToPairs("", CommonConstants.FIELD_TERMINAL_SERIAL_NUMBER, terminalSerialNumber));
 
         final String[] accepts = {
             CommonConstants.HEADER_APP_JSON
@@ -331,521 +372,6 @@ public class TerminalsApi extends BaseApi {
         String path = "/terminals/{serialNumber}".replaceAll("\\{format\\}", "json")
                 .replaceAll("\\{" + "serialNumber" + "\\}", apiClient.escapeString(serialNumber));
 
-        List<Pair> queryParams = new ArrayList<>();
-        Map<String, String> headerParams = new HashMap<>();
-        Map<String, Object> formParams = new HashMap<>();
-
-        final String[] accepts = {
-            CommonConstants.HEADER_ALL
-        };
-        final String accept = apiClient.selectHeaderAccept(accepts);
-
-        final String[] contentTypes = {
-            CommonConstants.HEADER_APP_JSON
-        };
-        final String contentType = apiClient.selectHeaderContentType(contentTypes);
-
-        apiClient.invokeAPI(path, CommonConstants.METHOD_DELETE, queryParams, postBody, postBinaryBody, headerParams, formParams, accept, contentType, null);
-
-    }
-
-    /**
-     * Add host Add host to a terminal
-     *
-     * @param terminalId Terminal id
-     * @param hostId
-     * @return Terminal
-     * @throws com.luretechnologies.client.restlib.common.ApiException
-     */
-    public TerminalHost addHost(String terminalId, Long hostId) throws ApiException {
-        Object postBody = null;
-        byte[] postBinaryBody = null;
-
-        // verify the required parameter 'terminalId' is set
-        if (terminalId == null) {
-            throw new ApiException(400, "Missing the required parameter 'terminalId' when calling addHostUsingPOST1");
-        }
-
-        if (hostId == null) {
-            throw new ApiException(400, "Missing the required parameter 'host' when calling addHostUsingPOST1");
-        }
-
-        String path = "/terminals/{terminalId}/addHost/{hostId}".replaceAll("\\{format\\}", "json")
-                .replaceAll("\\{" + CommonConstants.FIELD_TERMINAL_ID + "\\}", apiClient.escapeString(terminalId))
-                .replaceAll("\\{" + CommonConstants.FIELD_HOST_ID + "\\}", apiClient.escapeString(hostId.toString()));
-
-        List<Pair> queryParams = new ArrayList<>();
-        Map<String, String> headerParams = new HashMap<>();
-        Map<String, Object> formParams = new HashMap<>();
-
-        final String[] accepts = {
-            CommonConstants.HEADER_APP_JSON
-        };
-        final String accept = apiClient.selectHeaderAccept(accepts);
-
-        final String[] contentTypes = {
-            CommonConstants.HEADER_APP_JSON
-        };
-        final String contentType = apiClient.selectHeaderContentType(contentTypes);
-
-        TypeRef returnType = new TypeRef<TerminalHost>() {
-        };
-        return apiClient.invokeAPI(path, CommonConstants.METHOD_POST, queryParams, postBody, postBinaryBody, headerParams, formParams, accept, contentType, returnType);
-
-    }
-
-    /**
-     * Delete host Deletes host
-     *
-     * @param terminalId Terminal id
-     * @param hostId
-     * @throws com.luretechnologies.client.restlib.common.ApiException
-     */
-    public void deleteHost(String terminalId, Long hostId) throws ApiException {
-        Object postBody = null;
-        byte[] postBinaryBody = null;
-
-        if (terminalId == null) {
-            throw new ApiException(400, "Missing the required parameter 'terminalId' when calling deleteHostUsingDELETE1");
-        }
-
-        if (hostId == null) {
-            throw new ApiException(400, "Missing the required parameter 'host' when calling deleteHostUsingDELETE1");
-        }
-
-        String path = "/terminals/{terminalId}/host/{hostId}".replaceAll("\\{format\\}", "json")
-                .replaceAll("\\{" + CommonConstants.FIELD_TERMINAL_ID + "\\}", apiClient.escapeString(terminalId))
-                .replaceAll("\\{" + CommonConstants.FIELD_HOST_ID + "\\}", apiClient.escapeString(hostId.toString()));
-
-        List<Pair> queryParams = new ArrayList<>();
-        Map<String, String> headerParams = new HashMap<>();
-        Map<String, Object> formParams = new HashMap<>();
-
-        final String[] accepts = {
-            CommonConstants.HEADER_ALL
-        };
-        final String accept = apiClient.selectHeaderAccept(accepts);
-
-        final String[] contentTypes = {
-            CommonConstants.HEADER_APP_JSON
-        };
-        final String contentType = apiClient.selectHeaderContentType(contentTypes);
-
-        apiClient.invokeAPI(path, CommonConstants.METHOD_DELETE, queryParams, postBody, postBinaryBody, headerParams, formParams, accept, contentType, null);
-
-    }
-
-    /**
-     * Update host setting U Updates terminal host setting
-     *
-     * @param hostId
-     * @param terminalId Terminal id
-     * @param terminalHostSettingValue
-     * @return Terminal
-     * @throws com.luretechnologies.client.restlib.common.ApiException
-     */
-    public Terminal updateHostSetting(Long hostId, String terminalId, TerminalHostSettingValue terminalHostSettingValue) throws ApiException {
-        Object postBody = terminalHostSettingValue;
-        byte[] postBinaryBody = null;
-
-        // verify the required parameter 'host' is set
-        if (hostId == null) {
-            throw new ApiException(400, "Missing the required parameter 'host' when calling updateHostSettingUsingPUT1");
-        }
-
-        // verify the required parameter 'terminalId' is set
-        if (terminalId == null) {
-            throw new ApiException(400, "Missing the required parameter 'terminalId' when calling updateHostSettingUsingPUT1");
-        }
-
-        // verify the required parameter 'terminalHostSettingValue' is set
-        if (terminalHostSettingValue == null) {
-            throw new ApiException(400, "Missing the required parameter 'terminalHostSettingValue' when calling updateHostSettingUsingPUT1");
-        }
-
-        // create path and map variables
-        String path = "/terminals/{terminalId}/host/{host}/settings".replaceAll("\\{format\\}", "json")
-                .replaceAll("\\{" + "host" + "\\}", apiClient.escapeString(hostId.toString()))
-                .replaceAll("\\{" + "terminalId" + "\\}", apiClient.escapeString(terminalId));
-
-        // query params
-        List<Pair> queryParams = new ArrayList<>();
-        Map<String, String> headerParams = new HashMap<>();
-        Map<String, Object> formParams = new HashMap<>();
-
-        final String[] accepts = {
-            CommonConstants.HEADER_APP_JSON
-        };
-        final String accept = apiClient.selectHeaderAccept(accepts);
-
-        final String[] contentTypes = {
-            CommonConstants.HEADER_APP_JSON
-        };
-        final String contentType = apiClient.selectHeaderContentType(contentTypes);
-
-        TypeRef returnType = new TypeRef<Terminal>() {
-        };
-        return apiClient.invokeAPI(path, CommonConstants.METHOD_PUT, queryParams, postBody, postBinaryBody, headerParams, formParams, accept, contentType, returnType);
-
-    }
-
-    /**
-     * Add host setting Add terminal host setting
-     *
-     * @param terminalId Terminal id
-     * @param hostId
-     * @param terminalHostSettingValue HostEnum Setting
-     * @return Terminal
-     * @throws com.luretechnologies.client.restlib.common.ApiException
-     */
-    public Terminal addHostSetting(String terminalId, Long hostId, TerminalHostSettingValue terminalHostSettingValue) throws ApiException {
-        Object postBody = terminalHostSettingValue;
-        byte[] postBinaryBody = null;
-
-        // verify the required parameter 'terminalId' is set
-        if (terminalId == null) {
-            throw new ApiException(400, "Missing the required parameter 'terminalId' when calling addHostSettingUsingPOST1");
-        }
-
-        // verify the required parameter 'host' is set
-        if (hostId == null) {
-            throw new ApiException(400, "Missing the required parameter 'host' when calling addHostSettingUsingPOST1");
-        }
-
-        // verify the required parameter 'terminalHostSettingValue' is set
-        if (terminalHostSettingValue == null) {
-            throw new ApiException(400, "Missing the required parameter 'terminalHostSettingValue' when calling addHostSettingUsingPOST1");
-        }
-
-        // create path and map variables
-        String path = "/terminals/{terminalId}/host/{host}/settings".replaceAll("\\{format\\}", "json")
-                .replaceAll("\\{" + "terminalId" + "\\}", apiClient.escapeString(terminalId))
-                .replaceAll("\\{" + "host" + "\\}", apiClient.escapeString(hostId.toString()));
-
-        // query params
-        List<Pair> queryParams = new ArrayList<>();
-        Map<String, String> headerParams = new HashMap<>();
-        Map<String, Object> formParams = new HashMap<>();
-
-        final String[] accepts = {
-            CommonConstants.HEADER_APP_JSON
-        };
-        final String accept = apiClient.selectHeaderAccept(accepts);
-
-        final String[] contentTypes = {
-            CommonConstants.HEADER_APP_JSON
-        };
-        final String contentType = apiClient.selectHeaderContentType(contentTypes);
-
-        TypeRef returnType = new TypeRef<Terminal>() {
-        };
-        return apiClient.invokeAPI(path, CommonConstants.METHOD_POST, queryParams, postBody, postBinaryBody, headerParams, formParams, accept, contentType, returnType);
-
-    }
-
-    /**
-     * Delete host setting Deletes terminal host setting
-     *
-     * @param terminalId Terminal id
-     * @param hostId
-     * @param setting HostEnum Setting
-     * @throws com.luretechnologies.client.restlib.common.ApiException
-     */
-    public void deleteHostSetting(String terminalId, Long hostId, Long settingId) throws ApiException {
-        Object postBody = null;
-        byte[] postBinaryBody = null;
-
-        // verify the required parameter 'terminalId' is set
-        if (terminalId == null) {
-            throw new ApiException(400, "Missing the required parameter 'terminalId' when calling deleteHostSettingUsingDELETE1");
-        }
-
-        // verify the required parameter 'host' is set
-        if (hostId == null) {
-            throw new ApiException(400, "Missing the required parameter 'host' when calling deleteHostSettingUsingDELETE1");
-        }
-
-        // verify the required parameter 'setting' is set
-        if (settingId == null) {
-            throw new ApiException(400, "Missing the required parameter 'setting' when calling deleteHostSettingUsingDELETE1");
-        }
-
-        // create path and map variables
-        String path = "/terminals/{terminalId}/host/{host}/settings/{setting}".replaceAll("\\{format\\}", "json")
-                .replaceAll("\\{" + "terminalId" + "\\}", apiClient.escapeString(terminalId))
-                .replaceAll("\\{" + "host" + "\\}", apiClient.escapeString(hostId.toString()))
-                .replaceAll("\\{" + "settingId" + "\\}", apiClient.escapeString(settingId.toString()));
-
-        // query params
-        List<Pair> queryParams = new ArrayList<>();
-        Map<String, String> headerParams = new HashMap<>();
-        Map<String, Object> formParams = new HashMap<>();
-
-        final String[] accepts = {
-            CommonConstants.HEADER_ALL
-        };
-        final String accept = apiClient.selectHeaderAccept(accepts);
-
-        final String[] contentTypes = {
-            CommonConstants.HEADER_APP_JSON
-        };
-        final String contentType = apiClient.selectHeaderContentType(contentTypes);
-
-        apiClient.invokeAPI(path, CommonConstants.METHOD_DELETE, queryParams, postBody, postBinaryBody, headerParams, formParams, accept, contentType, null);
-
-    }
-
-    /**
-     * List available host List available host for a given terminal
-     *
-     * @param terminalId Terminal id
-     * @return Hosts list
-     * @throws com.luretechnologies.client.restlib.common.ApiException
-     */
-    public List<Host> listAvailableHosts(String terminalId) throws ApiException {
-        Object postBody = null;
-        byte[] postBinaryBody = null;
-
-        // verify the required parameter 'terminalId' is set
-        if (terminalId == null) {
-            throw new ApiException(400, "Missing the required parameter 'terminalId' when calling listAvailableHostsUsingGET1");
-        }
-
-        // create path and map variables
-        String path = "/terminals/{terminalId}/hosts".replaceAll("\\{format\\}", "json")
-                .replaceAll("\\{" + "terminalId" + "\\}", apiClient.escapeString(terminalId));
-
-        // query params
-        List<Pair> queryParams = new ArrayList<>();
-        Map<String, String> headerParams = new HashMap<>();
-        Map<String, Object> formParams = new HashMap<>();
-
-        final String[] accepts = {
-            CommonConstants.HEADER_APP_JSON
-        };
-        final String accept = apiClient.selectHeaderAccept(accepts);
-
-        final String[] contentTypes = {
-            CommonConstants.HEADER_APP_JSON
-        };
-        final String contentType = apiClient.selectHeaderContentType(contentTypes);
-
-        TypeRef returnType = new TypeRef<List<Host>>() {
-        };
-        return apiClient.invokeAPI(path, CommonConstants.METHOD_GET, queryParams, postBody, postBinaryBody, headerParams, formParams, accept, contentType, returnType);
-
-    }
-
-    /**
-     * List host settings List all terminal host settings for a given host
-     *
-     * @param terminalId Terminal id
-     * @param hostId
-     * @return TerminalHost settings list
-     * @throws com.luretechnologies.client.restlib.common.ApiException
-     */
-    public List<TerminalHostSettingValue> allHostSettings(String terminalId, Long hostId) throws ApiException {
-        Object postBody = null;
-        byte[] postBinaryBody = null;
-
-        // verify the required parameter 'terminalId' is set
-        if (terminalId == null) {
-            throw new ApiException(400, "Missing the required parameter 'terminalId' when calling listHostSettingsUsingGET1");
-        }
-
-        // verify the required parameter 'host' is set
-        if (hostId == null) {
-            throw new ApiException(400, "Missing the required parameter 'host' when calling listHostSettingsUsingGET1");
-        }
-
-        // create path and map variables
-        String path = "/terminals/{terminalId}/hosts/{host}/settings".replaceAll("\\{format\\}", "json")
-                .replaceAll("\\{" + "terminalId" + "\\}", apiClient.escapeString(terminalId))
-                .replaceAll("\\{" + "host" + "\\}", apiClient.escapeString(hostId.toString()));
-
-        // query params
-        List<Pair> queryParams = new ArrayList<>();
-        Map<String, String> headerParams = new HashMap<>();
-        Map<String, Object> formParams = new HashMap<>();
-
-        final String[] accepts = {
-            CommonConstants.HEADER_APP_JSON
-        };
-        final String accept = apiClient.selectHeaderAccept(accepts);
-
-        final String[] contentTypes = {
-            CommonConstants.HEADER_APP_JSON
-        };
-        final String contentType = apiClient.selectHeaderContentType(contentTypes);
-
-        TypeRef returnType = new TypeRef<List<TerminalHostSettingValue>>() {
-        };
-        return apiClient.invokeAPI(path, CommonConstants.METHOD_GET, queryParams, postBody, postBinaryBody, headerParams, formParams, accept, contentType, returnType);
-
-    }
-
-    /**
-     * List available setting List available setting for a given terminal
-     *
-     * @param terminalId Terminal id
-     * @return Terminal settings list
-     * @throws com.luretechnologies.client.restlib.common.ApiException
-     */
-    public List<TerminalSettingEnum> allAvailableSettings(String terminalId) throws ApiException {
-        Object postBody = null;
-        byte[] postBinaryBody = null;
-
-        // verify the required parameter 'terminalId' is set
-        if (terminalId == null) {
-            throw new ApiException(400, "Missing the required parameter 'terminalId' when calling listAvailableSettingsUsingGET1");
-        }
-
-        // create path and map variables
-        String path = "/terminals/{terminalId}/settings".replaceAll("\\{format\\}", "json")
-                .replaceAll("\\{" + "terminalId" + "\\}", apiClient.escapeString(terminalId));
-
-        // query params
-        List<Pair> queryParams = new ArrayList<>();
-        Map<String, String> headerParams = new HashMap<>();
-        Map<String, Object> formParams = new HashMap<>();
-
-        final String[] accepts = {
-            CommonConstants.HEADER_APP_JSON
-        };
-        final String accept = apiClient.selectHeaderAccept(accepts);
-
-        final String[] contentTypes = {
-            CommonConstants.HEADER_APP_JSON
-        };
-        final String contentType = apiClient.selectHeaderContentType(contentTypes);
-
-        TypeRef returnType = new TypeRef<List<TerminalSettingEnum>>() {
-        };
-        return apiClient.invokeAPI(path, CommonConstants.METHOD_GET, queryParams, postBody, postBinaryBody, headerParams, formParams, accept, contentType, returnType);
-
-    }
-
-    /**
-     * Update terminal setting Updates terminal values
-     *
-     * @param terminalId Terminal Id
-     * @param terminalSettingValue Terminal Setting
-     * @return Terminal
-     * @throws com.luretechnologies.client.restlib.common.ApiException
-     */
-    public Terminal updateSetting(String terminalId, TerminalSettingValue terminalSettingValue) throws ApiException {
-        Object postBody = terminalSettingValue;
-        byte[] postBinaryBody = null;
-
-        // verify the required parameter 'terminalId' is set
-        if (terminalId == null) {
-            throw new ApiException(400, "Missing the required parameter 'terminalId' when calling updateSettingUsingPUT2");
-        }
-
-        // verify the required parameter 'terminalSettingValue' is set
-        if (terminalSettingValue == null) {
-            throw new ApiException(400, "Missing the required parameter 'terminalSettingValue' when calling updateSettingUsingPUT2");
-        }
-
-        // create path and map variables
-        String path = "/terminals/{terminalId}/settings".replaceAll("\\{format\\}", "json")
-                .replaceAll("\\{" + "terminalId" + "\\}", apiClient.escapeString(terminalId));
-
-        // query params
-        List<Pair> queryParams = new ArrayList<>();
-        Map<String, String> headerParams = new HashMap<>();
-        Map<String, Object> formParams = new HashMap<>();
-
-        final String[] accepts = {
-            CommonConstants.HEADER_APP_JSON
-        };
-        final String accept = apiClient.selectHeaderAccept(accepts);
-
-        final String[] contentTypes = {
-            CommonConstants.HEADER_APP_JSON
-        };
-        final String contentType = apiClient.selectHeaderContentType(contentTypes);
-
-        TypeRef returnType = new TypeRef<Terminal>() {
-        };
-        return apiClient.invokeAPI(path, CommonConstants.METHOD_PUT, queryParams, postBody, postBinaryBody, headerParams, formParams, accept, contentType, returnType);
-
-    }
-
-    /**
-     * Add setting Add setting to a terminal
-     *
-     * @param terminalId Terminal Id
-     * @param terminalSettingValue Terminal Setting
-     * @return Terminal
-     * @throws com.luretechnologies.client.restlib.common.ApiException
-     */
-    public Terminal addSetting(String terminalId, TerminalSettingValue terminalSettingValue) throws ApiException {
-        Object postBody = terminalSettingValue;
-        byte[] postBinaryBody = null;
-
-        // verify the required parameter 'terminalId' is set
-        if (terminalId == null) {
-            throw new ApiException(400, "Missing the required parameter 'terminalId' when calling addSettingUsingPOST2");
-        }
-
-        // verify the required parameter 'terminalSettingValue' is set
-        if (terminalSettingValue == null) {
-            throw new ApiException(400, "Missing the required parameter 'terminalSettingValue' when calling addSettingUsingPOST2");
-        }
-
-        // create path and map variables
-        String path = "/terminals/{terminalId}/settings".replaceAll("\\{format\\}", "json")
-                .replaceAll("\\{" + "terminalId" + "\\}", apiClient.escapeString(terminalId));
-
-        // query params
-        List<Pair> queryParams = new ArrayList<>();
-        Map<String, String> headerParams = new HashMap<>();
-        Map<String, Object> formParams = new HashMap<>();
-
-        final String[] accepts = {
-            CommonConstants.HEADER_APP_JSON
-        };
-        final String accept = apiClient.selectHeaderAccept(accepts);
-
-        final String[] contentTypes = {
-            CommonConstants.HEADER_APP_JSON
-        };
-        final String contentType = apiClient.selectHeaderContentType(contentTypes);
-
-        TypeRef returnType = new TypeRef<Terminal>() {
-        };
-        return apiClient.invokeAPI(path, CommonConstants.METHOD_POST, queryParams, postBody, postBinaryBody, headerParams, formParams, accept, contentType, returnType);
-
-    }
-
-    /**
-     * Delete setting values Deletes terminal setting values
-     *
-     * @param terminalId Terminal Id
-     * @param terminalSetting Terminal Setting
-     * @throws com.luretechnologies.client.restlib.common.ApiException
-     */
-    public void deleteSetting(String terminalId, TerminalSettingEnum terminalSetting) throws ApiException {
-        Object postBody = null;
-        byte[] postBinaryBody = null;
-
-        // verify the required parameter 'terminalId' is set
-        if (terminalId == null) {
-            throw new ApiException(400, "Missing the required parameter 'terminalId' when calling deleteSettingUsingDELETE2");
-        }
-
-        // verify the required parameter 'terminalSetting' is set
-        if (terminalSetting == null) {
-            throw new ApiException(400, "Missing the required parameter 'terminalSetting' when calling deleteSettingUsingDELETE2");
-        }
-
-        // create path and map variables
-        String path = "/terminals/{terminalId}/settings/{terminalSetting}".replaceAll("\\{format\\}", "json")
-                .replaceAll("\\{" + "terminalId" + "\\}", apiClient.escapeString(terminalId))
-                .replaceAll("\\{" + "terminalSetting" + "\\}", apiClient.escapeString(terminalSetting.toString()));
-
-        // query params
         List<Pair> queryParams = new ArrayList<>();
         Map<String, String> headerParams = new HashMap<>();
         Map<String, Object> formParams = new HashMap<>();

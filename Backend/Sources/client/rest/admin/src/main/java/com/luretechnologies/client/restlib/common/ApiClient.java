@@ -403,6 +403,8 @@ public final class ApiClient {
             throw new ApiException(500, "either body or binaryBody must be null");
         }
 
+        System.out.println("=====================");
+
         Client client = getClient();
 
         StringBuilder b = new StringBuilder();
@@ -419,17 +421,19 @@ public final class ApiClient {
         }
 
         String querystring = b.substring(0, b.length() - 1);
+        String uri = getBasePath() + path + querystring;
 
         Builder builder;
         if (accept == null) {
-            builder = client.resource(getBasePath() + path + querystring).getRequestBuilder();
+            builder = client.resource(uri).getRequestBuilder();
         } else {
-            builder = client.resource(getBasePath() + path + querystring).accept(accept);
+            builder = client.resource(uri).accept(accept);
         }
 
         headerParams.put("Content-Type", contentType);
         if (authToken != null && !authToken.isEmpty()) {
             headerParams.put("X-Auth-Token", authToken);
+            System.out.println(String.format("Using token for [%s]: %s", path + querystring, authToken.substring(authToken.length() - 15)));
         }
         for (String key : headerParams.keySet()) {
             builder = builder.header(key, headerParams.get(key));
@@ -462,6 +466,7 @@ public final class ApiClient {
         if (null != method) {
             switch (method) {
                 case "GET":
+                    System.out.println(String.format("GET %s", path + querystring));
                     response = builder.get(ClientResponse.class);
                     break;
                 case "POST":
@@ -476,7 +481,9 @@ public final class ApiClient {
                     } else if (body instanceof FormDataMultiPart) {
                         response = builder.type(contentType).post(ClientResponse.class, body);
                     } else {
-                        response = builder.post(ClientResponse.class, serialize(body, contentType));
+                        String serializedBody = serialize(body, contentType);
+                        System.out.println(String.format("POST %s with %s", path + querystring, serializedBody.replace("\n", "").replace("\r", "")));
+                        response = builder.post(ClientResponse.class, serializedBody);
                     }
                     break;
                 case "PUT":
@@ -489,10 +496,13 @@ public final class ApiClient {
                             response = builder.type(contentType).put(ClientResponse.class, binaryBody);
                         }
                     } else {
-                        response = builder.type(contentType).put(ClientResponse.class, serialize(body, contentType));
+                        String serializedBody = serialize(body, contentType);
+                        System.out.println(String.format("PUT %s with %s", path + querystring, serializedBody.replace("\n", "").replace("\r", "")));
+                        response = builder.type(contentType).put(ClientResponse.class, serializedBody);
                     }
                     break;
                 case "DELETE":
+                    System.out.println(String.format("DELETE %s", path + querystring));
                     if (encodedFormParams != null) {
                         response = builder.type(contentType).delete(ClientResponse.class, encodedFormParams);
                     } else if (body == null) {
@@ -509,6 +519,8 @@ public final class ApiClient {
                     throw new ApiException(500, "Unknown method type " + method);
             }
         }
+
+        System.out.println("=====================");
         return response;
     }
 
@@ -542,6 +554,7 @@ public final class ApiClient {
 
         if (items != null) {
             setAuthToken(items.get(0));
+            System.out.println(String.format("Saving new token for [%s]: %s", path, getAuthToken().substring(getAuthToken().length() - 15)));
         }
 
         if (response.getStatusInfo() == ClientResponse.Status.NO_CONTENT) {
@@ -550,6 +563,7 @@ public final class ApiClient {
             if (returnType == null) {
                 return null;
             } else {
+                System.out.println(String.format("%s Response [%s]: %s", method, path, response));
                 return (T) deserialize(response, returnType).getEntity();
             }
         }

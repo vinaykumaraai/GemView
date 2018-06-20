@@ -12,6 +12,7 @@ import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -38,15 +39,15 @@ public class AppParamFormat implements Serializable {
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 128)
-    @Column(name = "Name")
+    @Column(name = "name")
     @ApiModelProperty(value = "The Name.", required = true)
     private String name;
     @Size(max = 128)
-    @Column(name = "Value")
+    @Column(name = "`value`")
     @ApiModelProperty(value = "The Value.", required = true)
     private String value;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "appParamFormat")
-    private Collection<AppParam> appparamCollection;
+    /*@OneToMany(cascade = CascadeType.ALL, mappedBy = "appParamFormat", fetch = FetchType.LAZY)
+    private Collection<AppParam> appparamCollection;*/
 
     public AppParamFormat() {
     }
@@ -84,13 +85,13 @@ public class AppParamFormat implements Serializable {
         this.value = value;
     }
 
-    public Collection<AppParam> getAppParamCollection() {
+    /*public Collection<AppParam> getAppParamCollection() {
         return appparamCollection;
     }
 
     public void setAppParamCollection(Collection<AppParam> appparamCollection) {
         this.appparamCollection = appparamCollection;
-    }
+    }*/
 
     @Override
     public int hashCode() {

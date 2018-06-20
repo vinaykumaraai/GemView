@@ -63,7 +63,10 @@ public class Utils {
     private static final String special_characters = "!#$%&'()*+,.:;<=>?@[]/\"^_`{|}~";
     private static final String special_characters_safe = "!$.@_";
     private static final String numeric = "1234567890";
-    private static final Hashids hashids = new Hashids("DirexX", 10, alpha_lowercase + alpha_uppercase + numeric);
+
+    private static final Hashids hashIds = new Hashids("DirexX", 10, numeric + alpha_uppercase);
+//    private static final String HASHIDS_SECRET_KEY = "dT.Z,izLzJSd7UoWn$B!gbjdrKJq2WMc.7zm@pzwy55ddb74pA@hX6j2GRjSdQwe";
+//    private static final Hashids hashIds = new Hashids(HASHIDS_SECRET_KEY, 10, alpha_lowercase + alpha_uppercase + numeric);
 
     public static final long MS = 1;
     public static final long MS_SECOND = MS * 1000;
@@ -75,7 +78,7 @@ public class Utils {
     public static final String HASH_SIGNING_KEY = "wD8Cidphdiedcw7svWqOBMoK4ZAU7V/DtPfk9yaWI09x4HUiuPyypgwbIfyWFsTVDKOmJmbkE9cpuXcDHR45iA==";
     public static final long PASSWORD_TIME_LIMIT = MS_DAY * 30;
     public static final long VERIFICATION_CODE_TIME_LIMIT = MS_MINUTE * 10;
-    public static final long USER_SESSION_TIME_LIMIT = MS_MINUTE * 2;
+    public static final long USER_SESSION_TIME_LIMIT = MS_MINUTE * 15;
 
     /**
      *
@@ -125,7 +128,7 @@ public class Utils {
      * @return
      */
     public static long decodeHashId(String id) {
-        long[] ids = hashids.decode(id.substring(3, id.length()));
+        long[] ids = hashIds.decode(id.substring(3, id.length()));
         return (ids.length > 0) ? ids[0] : 0;
     }
 
@@ -136,7 +139,7 @@ public class Utils {
      * @return
      */
     public static String encodeHashId(String prefix, long id) {
-        return prefix + hashids.encode(id);
+        return prefix + hashIds.encode(id);
     }
 
     private static String rndstr(int len, boolean safe) {

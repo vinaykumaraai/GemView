@@ -34,6 +34,7 @@ package com.luretechnologies.server.front.ams.controller;
 import com.luretechnologies.server.data.display.ErrorResponse;
 import com.luretechnologies.server.data.model.Device;
 import com.luretechnologies.server.data.model.User;
+import com.luretechnologies.server.service.AuditUserLogService;
 import com.luretechnologies.server.service.DeviceService;
 import com.luretechnologies.server.utils.UserAuth;
 import io.swagger.annotations.Api;
@@ -71,6 +72,9 @@ public class DeviceController {
     @Autowired
     DeviceService service;
 
+    @Autowired
+    AuditUserLogService auditUserLogService;
+
     /**
      * Creates a new device
      *
@@ -84,15 +88,26 @@ public class DeviceController {
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(tags = "Devices", httpMethod = "POST", value = "Create device", notes = "Creates a new device")
     @ApiResponses(value = {
-        @ApiResponse(code = 201, message = "Created", response = Device.class),
-        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class),
-        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+        @ApiResponse(code = 201, message = "Created", response = Device.class)
+        ,
+        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class)
+        ,
+        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class)
+        ,
         @ApiResponse(code = 404, message = "Not found", response = ErrorResponse.class)})
     public Device create(
             @ApiParam(value = "The authentication token") @RequestHeader(value = "X-Auth-Token", required = true) String authToken,
             @ApiParam(value = "The new device object", required = true) @RequestBody(required = true) Device device) throws Exception {
+        device = service.create(device);
 
-        return service.create(device);
+        User user;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication.getDetails() instanceof UserAuth && device != null) {
+            UserAuth userAuth = (UserAuth) authentication.getDetails();
+            user = userAuth.getSystemUser();
+            auditUserLogService.createAuditUserLog(user.getId(), device.getEntityId(), "info", "create", "Creates a new device");
+        }
+        return device;
     }
 
     /**
@@ -108,9 +123,12 @@ public class DeviceController {
     @RequestMapping(value = "/{deviceId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(tags = "Devices", httpMethod = "GET", value = "Get device", notes = "Get device by id")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = Device.class),
-        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class),
-        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+        @ApiResponse(code = 200, message = "OK", response = Device.class)
+        ,
+        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class)
+        ,
+        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class)
+        ,
         @ApiResponse(code = 404, message = "Not found", response = ErrorResponse.class)})
     public Device get(
             @ApiParam(value = "The authentication token") @RequestHeader(value = "X-Auth-Token", required = true) String authToken,
@@ -133,14 +151,24 @@ public class DeviceController {
     @RequestMapping(value = "/{deviceId}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(tags = "Devices", httpMethod = "PUT", value = "Update device", notes = "Updates a device")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = Device.class),
-        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class),
-        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+        @ApiResponse(code = 200, message = "OK", response = Device.class)
+        ,
+        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class)
+        ,
+        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class)
+        ,
         @ApiResponse(code = 404, message = "Not found", response = ErrorResponse.class)})
     public Device update(
             @ApiParam(value = "The authentication token") @RequestHeader(value = "X-Auth-Token", required = true) String authToken,
             @ApiParam(value = "The device identifier") @PathVariable("deviceId") String deviceId,
             @ApiParam(value = "The updated device object", required = true) @RequestBody(required = true) Device device) throws Exception {
+        User user;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication.getDetails() instanceof UserAuth) {
+            UserAuth userAuth = (UserAuth) authentication.getDetails();
+            user = userAuth.getSystemUser();
+            auditUserLogService.createAuditUserLog(user.getId(), deviceId, "info", "update", "Updates a device");
+        }
 
         return service.update(deviceId, device);
     }
@@ -153,18 +181,27 @@ public class DeviceController {
      * @throws java.lang.Exception
      */
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasAnyAuthority('SUPER')")
+    @PreAuthorize("hasAnyAuthority('SUPER','ALL_ENTITY','DELETE_ENTITY')")
     @RequestMapping(value = "/{deviceId}", method = RequestMethod.DELETE)
     @ApiOperation(tags = "Devices", httpMethod = "DELETE", value = "Delete device", notes = "Deletes a device")
     @ApiResponses(value = {
-        @ApiResponse(code = 204, message = "Deleted"),
-        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class),
-        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+        @ApiResponse(code = 204, message = "Deleted")
+        ,
+        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class)
+        ,
+        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class)
+        ,
         @ApiResponse(code = 404, message = "Not found", response = ErrorResponse.class)})
     public void delete(
             @ApiParam(value = "The authentication token") @RequestHeader(value = "X-Auth-Token", required = true) String authToken,
             @ApiParam(value = "The device identifier") @PathVariable("deviceId") String deviceId) throws Exception {
-
+        User user;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication.getDetails() instanceof UserAuth) {
+            UserAuth userAuth = (UserAuth) authentication.getDetails();
+            user = userAuth.getSystemUser();
+            auditUserLogService.createAuditUserLog(user.getId(), deviceId, "info", "delete", "Deletes a device");
+        }
         service.delete(deviceId);
     }
 
@@ -182,9 +219,12 @@ public class DeviceController {
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(tags = "Devices", httpMethod = "GET", value = "List devices", notes = "Lists devices. Will return 50 records if no paging parameters defined", response = Device.class, responseContainer = "List")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK"),
-        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class),
-        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+        @ApiResponse(code = 200, message = "OK")
+        ,
+        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class)
+        ,
+        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class)
+        ,
         @ApiResponse(code = 404, message = "Not found", response = ErrorResponse.class)})
     public List<Device> list(
             @ApiParam(value = "The authentication token") @RequestHeader(value = "X-Auth-Token", required = true) String authToken,
@@ -218,9 +258,12 @@ public class DeviceController {
     @RequestMapping(name = "Search", value = "/search", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(tags = "Devices", httpMethod = "GET", value = "Search devices", notes = "Search devices that match a given filter. Will return 50 records if no paging parameters defined", response = Device.class, responseContainer = "List")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK"),
-        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class),
-        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+        @ApiResponse(code = 200, message = "OK")
+        ,
+        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class)
+        ,
+        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class)
+        ,
         @ApiResponse(code = 404, message = "Not found", response = ErrorResponse.class)})
     public List<Device> search(
             @ApiParam(value = "The authentication token") @RequestHeader(value = "X-Auth-Token", required = true) String authToken,

@@ -115,6 +115,14 @@ public class Constants {
      * Error Code - CODE_INVALID_VERIFICATION_CODE
      */
     public static final int CODE_INVALID_VERIFICATION_CODE = 417;
+    /**
+     * Error Code - CODE_INVALID_SOURCE_IP
+     */
+    public static final int CODE_INVALID_SOURCE_IP = 418;
+    /**
+     * Error Code - CODE_IP_SWITCH_IS_NOT_ALLOWED
+     */
+    public static final int CODE_IP_SWITCH_IS_NOT_ALLOWED = 419;
 
     /**
      * ******************** BUSINESS LOGIC ERROR CODES **********************

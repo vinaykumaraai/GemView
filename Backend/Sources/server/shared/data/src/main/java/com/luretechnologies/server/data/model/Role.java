@@ -80,14 +80,14 @@ public class Role implements Serializable {
 
     @NotNull(message = Messages.VALUE_IS_EMPTY)
     @FieldNotBlank
-    @Size(max = 100, message = Messages.INVALID_DATA_LENGHT)
-    @Pattern(regexp = RegExp.EXP_REG_VALID_ALPHANUMERIC_SPECIAL_NAME, message = Messages.INVALID_DATA_ENTRY)
+    @Size(max = 255, message = Messages.INVALID_DATA_LENGHT)
+    //@Pattern(regexp = RegExp.EXP_REG_VALID_ALPHANUMERIC_SPECIAL_NAME, message = Messages.INVALID_DATA_ENTRY)
     @Column(name = "name", nullable = false, unique = true, length = 100)
     @ApiModelProperty(value = "The name.", required = true)
     private String name;
 
     @Size(max = 255, message = Messages.INVALID_DATA_LENGHT)
-    @Pattern(regexp = RegExp.EXP_REG_VALID_ALPHANUMERIC_SPECIAL_DESC, message = Messages.INVALID_DATA_ENTRY)
+    //@Pattern(regexp = RegExp.EXP_REG_VALID_ALPHANUMERIC_SPECIAL_DESC, message = Messages.INVALID_DATA_ENTRY)
     @Column(name = "description", nullable = true, length = 255)
     @ApiModelProperty(value = "The description.")
     private String description;
@@ -108,7 +108,15 @@ public class Role implements Serializable {
     @OneToMany(mappedBy = "role", targetEntity = User.class, fetch = FetchType.LAZY)
     @ApiModelProperty(value = "The users.")
     private Set<User> users = new HashSet<>();
+    
+    @Column(name = "active", nullable = false)
+    @ApiModelProperty(value = "If is active or not")
+    private Boolean active;
 
+    @Column(name = "Available", nullable = false)
+    @ApiModelProperty(value = "If is available or not")
+    private Boolean available;    
+    
     /**
      * Database identification.
      */
@@ -198,5 +206,31 @@ public class Role implements Serializable {
     public String toString() {
         return String.valueOf(getId());
     }
+    /**
+     * @return the active
+     */
+    public Boolean getActive() {
+        return active;
+    }
 
+    /**
+     * @param active the active to set
+     */
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
+
+    /**
+     * @return the available
+     */
+    public Boolean getAvailable() {
+        return available;
+    }
+
+    /**
+     * @param available the available to set
+     */
+    public void setAvailable(Boolean available) {
+        this.available = available;
+    }
 }

@@ -123,16 +123,14 @@ public interface UserService {
     /**
      *
      * @param entity
-     * @param username
-     * @param firstname
-     * @param lastname
-     * @param active
+     * @param name
+     * @param available
      * @param pageNumber
      * @param rowsPerPage
      * @return
      * @throws Exception
      */
-    public List<User> list(Entity entity, String username, String firstname, String lastname, Boolean active, int pageNumber, int rowsPerPage) throws Exception;
+    public List<User> list(Entity entity, String name, Boolean available, int pageNumber, int rowsPerPage) throws Exception;
 
     /**
      *

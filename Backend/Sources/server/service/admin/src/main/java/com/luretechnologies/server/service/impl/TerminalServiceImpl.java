@@ -46,6 +46,7 @@ import com.luretechnologies.server.data.dao.TerminalHostDAO;
 import com.luretechnologies.server.data.dao.TerminalHostSettingDAO;
 import com.luretechnologies.server.data.dao.TerminalHostSettingValueDAO;
 import com.luretechnologies.server.data.model.Entity;
+import com.luretechnologies.server.data.model.Model;
 import com.luretechnologies.server.data.model.Terminal;
 import com.luretechnologies.server.data.model.payment.Host;
 import com.luretechnologies.server.data.model.payment.TerminalHost;
@@ -59,8 +60,12 @@ import com.luretechnologies.server.data.model.tms.Parameter;
 import com.luretechnologies.server.data.model.tms.PaymentProfile;
 import com.luretechnologies.server.data.model.tms.TerminalApplicationParameter;
 import com.luretechnologies.server.service.TerminalService;
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import javax.persistence.PersistenceException;
@@ -80,7 +85,7 @@ public class TerminalServiceImpl implements TerminalService {
 
     @Autowired
     private HostDAO hostDAO;
-    
+
     @Autowired
     private EntityDAO entityDAO;
 
@@ -101,13 +106,13 @@ public class TerminalServiceImpl implements TerminalService {
 
     @Autowired
     private ModelDAO modelDAO;
-    
+
     @Autowired
     private TerminalHostDAO terminalHostDAO;
-    
+
     @Autowired
     private TerminalHostSettingDAO terminalHostSettingDAO;
-    
+
     @Autowired
     private TerminalHostSettingValueDAO terminalHostSettingValueDAO;
 
@@ -143,8 +148,16 @@ public class TerminalServiceImpl implements TerminalService {
         } else {
             entity.setScheduleGroup(scheduleGroupDAO.getFirstResult());
         }
-
-        terminalDAO.persist(entity);
+        DateFormat format = new SimpleDateFormat("yyyyMMdd");
+        Date date = format.parse("19800101");
+        entity.setLastContact(date);
+        entity.setLastDownload(date);
+        try {
+            terminalDAO.persist(entity);
+        } catch (Exception ex) {
+            ex.getMessage();
+            return null;
+        }
 
         return entity;
     }
@@ -183,34 +196,34 @@ public class TerminalServiceImpl implements TerminalService {
         } else {
             existentEntity.setScheduleGroup(scheduleGroupDAO.getFirstResult());
         }
-
 //        if (existentEntity.getKeyBlock() != null) {
 //            KeyBlock existentKey = existentEntity.getKeyBlock() == null ? new KeyBlock() : existentEntity.getKeyBlock();
 //            BeanUtils.copyProperties(existentEntity.getKeyBlock(), existentKey, new String[]{"version", "createdAt"});
 //            updateVersion(existentKey);
 //            existentEntity.setKeyBlock(existentKey);
 //        }
+        //BeanUtils.copyProperties(entity, existentEntity, new String[]{"entityId"});
+        //BeanUtils.copyProperties(entity, existentEntity, new String[]{"entityId", "lastContact", "lastContact", "active", "lastDownload"});
         
-        BeanUtils.copyProperties(entity, existentEntity, new String[]{"entityId"});
         existentEntity.setParent(parent);
         existentEntity.setType(EntityTypeEnum.TERMINAL);
         entityDAO.updatePath(existentEntity, false);
         entityDAO.updateActive(existentEntity);
-        
-        for (TerminalHost terminalHost : entity.getTerminalHosts()) {
-            TerminalHost existentTerminalHost = terminalHostDAO.findById(terminalHost.getId());
-            if(existentTerminalHost == null) {
-                terminalHost.setTerminal(existentEntity);
-                terminalHostDAO.persist(terminalHost);
-            } else {
-                existentTerminalHost.setTerminalHostSettingValues(terminalHost.getTerminalHostSettingValues());
-                for (TerminalHostSettingValue terminalHostSettingValue : existentTerminalHost.getTerminalHostSettingValues()) {
-                    terminalHostSettingValue.setTerminalHost(existentTerminalHost);
-                }
-                terminalHostDAO.merge(existentTerminalHost);
+        existentEntity.setDescription(entity.getDescription());
+        existentEntity.setAvailable(entity.isAvailable());
+        existentEntity.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+        existentEntity.setHeartbeat(entity.isHeartbeat());
+
+        try {
+            Model model = modelDAO.findById(entity.getModel().getId());
+            if (model != null) {
+                existentEntity.setModel(model);
             }
+        } catch (Exception ex) {
+            ex.getMessage();
         }
-        
+        existentEntity.setName(entity.getName());
+
         return terminalDAO.merge(existentEntity);
     }
 
@@ -227,7 +240,9 @@ public class TerminalServiceImpl implements TerminalService {
             throw new ObjectRetrievalFailureException(Terminal.class, terminalId);
         }
 
-        terminalDAO.delete(terminal.getId());
+        terminal.setActive(false);
+        entityDAO.updateActive(terminal);
+        terminalDAO.merge(terminal);
     }
 
     /**
@@ -269,8 +284,8 @@ public class TerminalServiceImpl implements TerminalService {
      */
     @Override
     public List<Terminal> list(Entity entity, int pageNumber, int rowsPerPage) throws Exception {
-        int firstResult = (pageNumber - 1) * rowsPerPage;
-        return terminalDAO.list(entity, firstResult, rowsPerPage);
+        int firstResult = (((pageNumber - 1) >= 0) ? (pageNumber - 1) : 0) * rowsPerPage;
+        return terminalDAO.list(entity, firstResult, firstResult + rowsPerPage);
     }
 
     /**
@@ -284,8 +299,8 @@ public class TerminalServiceImpl implements TerminalService {
      */
     @Override
     public List<Terminal> search(Entity entity, String filter, int pageNumber, int rowsPerPage) throws Exception {
-        int firstResult = (pageNumber - 1) * rowsPerPage;
-        return terminalDAO.search(entity, filter, firstResult, rowsPerPage);
+        int firstResult = (((pageNumber - 1) >= 0) ? (pageNumber - 1) : 0) * rowsPerPage;
+        return terminalDAO.search(entity, filter, firstResult, firstResult + rowsPerPage);
     }
 
     /**
@@ -325,7 +340,6 @@ public class TerminalServiceImpl implements TerminalService {
 //        updateVersion(existentKey);
 //
 //        terminal.setKeyBlock(existentKey);
-
         return terminalDAO.merge(terminal);
     }
 
@@ -442,7 +456,7 @@ public class TerminalServiceImpl implements TerminalService {
         if (terminal == null) {
             throw new ObjectRetrievalFailureException(Terminal.class, terminalId);
         }
-        
+
         TerminalHost terminalHost = terminalHostDAO.findByHostAndTerminal(terminal.getId(), hostId);
         if (terminalHost != null) {
             throw new Exception("Already exists");
@@ -452,12 +466,12 @@ public class TerminalServiceImpl implements TerminalService {
         if (host == null) {
             throw new ObjectRetrievalFailureException(Host.class, hostId);
         }
-        
+
         terminalHost = new TerminalHost();
         terminalHost.setHost(host);
-        terminalHost.setTerminal(terminal);        
+        terminalHost.setTerminal(terminal);
         terminalHostDAO.persist(terminalHost);
-        
+
         List<TerminalHostSetting> terminalHostSettings = terminalHostSettingDAO.findByHostId(hostId);
         for (TerminalHostSetting terminalHostSetting : terminalHostSettings) {
             TerminalHostSettingValue terminalHostSettingValue = new TerminalHostSettingValue();
@@ -482,7 +496,7 @@ public class TerminalServiceImpl implements TerminalService {
         if (terminal == null) {
             throw new ObjectRetrievalFailureException(Terminal.class, terminalId);
         }
-        
+
         TerminalHost terminalHost = terminalHostDAO.findByHostAndTerminal(terminal.getId(), hostId);
         if (terminalHost == null) {
             throw new ObjectRetrievalFailureException(TerminalHost.class, hostId);
@@ -795,7 +809,6 @@ public class TerminalServiceImpl implements TerminalService {
 //    public int getDiagnosticsTotalPages(Long id, String filter, int rowsPerPage) throws Exception {
 //        return Utils.getTotalPages(terminalDAO.getDiagnostics(id, filter, -1, -1).size(), rowsPerPage);
 //    }
-
     @Override
     public Entity copy(String entityId, long parentId) {
         Terminal original = terminalDAO.findByTerminalId(entityId);
@@ -819,9 +832,9 @@ public class TerminalServiceImpl implements TerminalService {
         copy.setParent(parent);
         copy.setActive(original.getActive());
         copy.setType(EntityTypeEnum.TERMINAL);
-        
+
         entityDAO.updatePath(copy, true);
-                
+
         if (original.getModel() != null) {
             copy.setModel(modelDAO.findById(original.getModel().getId()));
         }
@@ -831,9 +844,9 @@ public class TerminalServiceImpl implements TerminalService {
         } else {
             copy.setScheduleGroup(scheduleGroupDAO.getFirstResult());
         }
-        
+
         terminalDAO.persist(copy);
-        
+
         Set<TerminalHost> terminalHosts = original.getTerminalHosts();
         for (TerminalHost terminalHost : terminalHosts) {
 
@@ -847,18 +860,27 @@ public class TerminalServiceImpl implements TerminalService {
                 TerminalHostSettingValue terminalHostSettingValue = new TerminalHostSettingValue();
                 terminalHostSettingValue.setTerminalHost(newTerminalHost);
                 terminalHostSettingValue.setSetting(terminalHostSetting);
-                
+
                 for (TerminalHostSettingValue originalMerchantHostSettingValue : terminalHost.getTerminalHostSettingValues()) {
-                    if(terminalHostSettingValue.getSetting().getKey().equals(originalMerchantHostSettingValue.getSetting().getKey())) {
+                    if (terminalHostSettingValue.getSetting().getKey().equals(originalMerchantHostSettingValue.getSetting().getKey())) {
                         terminalHostSettingValue.setValue(originalMerchantHostSettingValue.getValue());
                         break;
                     }
-                }                
+                }
                 terminalHostSettingValueDAO.persist(terminalHostSettingValue);
                 terminalHost.getTerminalHostSettingValues().add(terminalHostSettingValue);
             }
         }
 
         return copy;
+    }
+
+    @Override
+    public Terminal getBySerialNumber(String terminalSerialNumber) throws Exception {
+        try {
+            return terminalDAO.getBySerialNumber(terminalSerialNumber);
+        } catch (Exception ex) {
+            throw new PersistenceException("Terminal not found :" + ex.getMessage());
+        }
     }
 }

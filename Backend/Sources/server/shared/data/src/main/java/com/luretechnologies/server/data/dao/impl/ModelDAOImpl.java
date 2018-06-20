@@ -36,7 +36,6 @@ import com.luretechnologies.server.data.model.Model;
 import java.util.List;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceException;
-import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
@@ -72,8 +71,10 @@ public class ModelDAOImpl extends BaseDAOImpl<Model, Long> implements ModelDAO {
 
     @Override
     public List<Model> list(String name, Boolean multiApp, int firstResult, int lastResult) throws PersistenceException {
+
         CriteriaQuery<Model> q = criteriaQuery();
         Root<Model> root = getRoot(q);
+
         Predicate predicate = null;
 
         if (name != null) {
@@ -99,18 +100,28 @@ public class ModelDAOImpl extends BaseDAOImpl<Model, Long> implements ModelDAO {
     @Override
     public List<Model> search(String filter, int firstResult, int lastResult) throws PersistenceException {
 
-        CriteriaBuilder critBuilder = criteriaBuilder();
-        CriteriaQuery<Model> q = criteriaQuery();
-        Root<Model> root = getRoot(q);
+        CriteriaQuery<Model> cq = criteriaQuery();
+        Root<Model> root = getRoot(cq);
 
-        Expression<String> upperName = critBuilder.upper((Expression) root.get("name"));
-        Expression<String> upperDescription = critBuilder.upper((Expression) root.get("description"));
+        Predicate predicate = criteriaBuilder().conjunction();
 
-        Predicate namePredicate = critBuilder.like(upperName, "%" + filter.toUpperCase() + "%");
-        Predicate descriptionPredicate = critBuilder.like(upperDescription, "%" + filter.toUpperCase() + "%");
+        if (filter != null && !filter.isEmpty()) {
+            predicate.getExpressions().add(criteriaBuilder().or(
+                    criteriaBuilder().like(criteriaBuilder().upper((Expression) root.get("name")), "%" + filter.toUpperCase() + "%"),
+                    criteriaBuilder().like(criteriaBuilder().upper((Expression) root.get("description")), "%" + filter.toUpperCase() + "%")));
+        }
 
-        q.where(critBuilder.or(namePredicate, descriptionPredicate));
+        predicate.getExpressions().add(criteriaBuilder().equal(root.<Boolean>get("active"), true));
 
-        return query(q).setFirstResult(firstResult).setMaxResults(lastResult).getResultList();
+        cq.where(predicate).orderBy(criteriaBuilder().asc(root.get("name")));
+
+        return query(cq).setFirstResult(firstResult).setMaxResults(lastResult).getResultList();
+    }
+
+    @Override
+    public void delete(Long id) throws PersistenceException {
+        Model model = findById(id);
+        model.setActive(false);
+        merge(model);
     }
 }

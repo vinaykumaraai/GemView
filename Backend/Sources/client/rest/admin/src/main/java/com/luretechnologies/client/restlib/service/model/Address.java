@@ -190,7 +190,7 @@ public class Address {
     public void setType(AddressTypeEnum type) {
         this.type = type;
     }
-    
+
     public String getCompleteAddress() {
         String str = "";
         str += getAddress1() + " ";

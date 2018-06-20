@@ -68,6 +68,20 @@ import javax.validation.constraints.Size;
 public class Entity implements Serializable {
 
     /**
+     * @return the available
+     */
+    public boolean isAvailable() {
+        return available;
+    }
+
+    /**
+     * @param available the available to set
+     */
+    public void setAvailable(boolean available) {
+        this.available = available;
+    }
+
+    /**
      *
      */
     public Entity() {
@@ -111,10 +125,10 @@ public class Entity implements Serializable {
         @JoinColumn(name = "parent", referencedColumnName = "id", nullable = true)})
     @ApiModelProperty(value = "The parent entity.")
     protected Entity parent;
-    
-    @Column(name = "parent", updatable=false, insertable=false)
+
+    @Column(name = "parent", updatable = false, insertable = false)
     protected Long parentId;
-    
+
     @Column(name = "entitytype", nullable = false, length = 2)
     @Convert(converter = EntityTypeEnumConverter.class)
     @ApiModelProperty(value = "The entity type.")
@@ -128,10 +142,14 @@ public class Entity implements Serializable {
     @Column(name = "path", nullable = true, columnDefinition = "TEXT")
     @ApiModelProperty(value = "The entity path.")
     protected String path;
-    
+
     @Column(name = "active", nullable = false, length = 1)
     @ApiModelProperty(value = "Specifies if the record is active.")
     private boolean active = true;
+
+    @Column(name = "available", nullable = false, length = 1)
+    @ApiModelProperty(value = "Specifies if the record is available.")
+    private boolean available = true;
 
     protected void setId(long value) {
         this.id = value;
@@ -260,7 +278,7 @@ public class Entity implements Serializable {
     public Set<User> getUsers() {
         return users;
     }
-    
+
     /**
      *
      * @param users
@@ -284,7 +302,7 @@ public class Entity implements Serializable {
     public void setParentId(Long parentId) {
         this.parentId = parentId;
     }
-    
+
     /*
      * Flag which says if the entity is active or not.
      */

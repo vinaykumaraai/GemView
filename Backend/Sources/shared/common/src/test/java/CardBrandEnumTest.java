@@ -56,6 +56,7 @@ public class CardBrandEnumTest {
         String label = brand.getName();
 
         match(label, brand, "5555555555554444");
+        match(label, brand, "2222222222222224");
     }
 
     @Test

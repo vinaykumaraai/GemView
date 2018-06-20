@@ -53,20 +53,16 @@ public class EntityTest {
     private static RestClientService service;
     private static UserSession userSession;
 
-    /**
-     *
-     */
     @BeforeClass
     public static void createService() {
-        service = new RestClientService(Utils.serviceUrl + "/admin/api", Utils.serviceUrl + "/payment/api");
+        service = new RestClientService(Utils.ADMIN_SERVICE_URL, Utils.TMS_SERVICE_URL);
         assumeNotNull(service);
         try {
             userSession = service.getAuthApi().login(CommonConstants.testStandardUsername, CommonConstants.testStandardPassword);
-            assertTrue("User logged in", userSession != null);
+            assertNotNull("User failed login", userSession);
         } catch (ApiException ex) {
             fail(ex.getResponseBody());
         }
-
     }
 
     @Test
@@ -78,7 +74,6 @@ public class EntityTest {
         } catch (ApiException ex) {
             fail(ex.getResponseBody());
         }
-
     }
 
     @Test
@@ -86,6 +81,7 @@ public class EntityTest {
         try {
             Entity node = service.getEntityApi().getEntityHierarchy();
             assertNotNull(node);
+            
         } catch (ApiException ex) {
             fail(ex.getResponseBody());
         }
@@ -101,7 +97,6 @@ public class EntityTest {
         } catch (ApiException ex) {
             fail(ex.getResponseBody());
         }
-
     }
 
     // TODO: Fix0 this test. java.lang.AssertionError: {"code":500,"message":"Parent and entity id must be differents.; nested exception is javax.persistence.PersistenceException: Parent and entity id must be differents."}
@@ -117,7 +112,5 @@ public class EntityTest {
         } catch (ApiException ex) {
             fail(ex.getResponseBody());
         }
-
     }
-
 }

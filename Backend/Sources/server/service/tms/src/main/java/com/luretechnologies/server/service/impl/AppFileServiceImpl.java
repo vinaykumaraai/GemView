@@ -53,7 +53,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class AppFileServiceImpl implements AppFileService{
     
-    @Autowired(required = true)
+    @Autowired
     AppFileDAO appFileDAO;
     
     @Autowired
@@ -69,25 +69,19 @@ public class AppFileServiceImpl implements AppFileService{
      * @throws Exception
      */
     @Override
-    public AppFile createAppFile(AppFile appFile) throws Exception{
-        //AppFile newAppFile = new AppFile();
-        App app = appFile.getApp();
-        AppFileFormat appFileFormat = appFile.getAppFileFormat();
+    public AppFile createAppFile(AppFile appFile) throws Exception {
+        AppFile newAppFile = new AppFile();
+        
+        //Check app existence
+        App existentApp = appDAO.getAppByID(appFile.getAppId());
 
-        // Check app existence
-        if (app != null) {
-            App existentApp = appDAO.getAppByID(appFile.getApp().getId());
-
-            if (existentApp == null) {
-                throw new ObjectRetrievalFailureException(App.class, appFile.getApp().getId());
-            }
-            appFile.setApp(existentApp);
-        } else {
-            // If not App defined throw Exception
-            throw new Exception("The AppFile need to associated with some valid App.");
+        if (existentApp == null) {
+            throw new ObjectRetrievalFailureException(App.class, appFile.getAppId());
         }
+        appFile.setAppId(existentApp.getId());
         
         //Check appFileFormat existence
+        AppFileFormat appFileFormat = appFile.getAppFileFormat();
         if (appFileFormat != null) {
             AppFileFormat existentAppFileFormat = appFileFormatDAO.getAppFileFormatByID(appFile.getAppFileFormat().getId());
 
@@ -99,12 +93,11 @@ public class AppFileServiceImpl implements AppFileService{
             // If not AppFileFormat defined throw Exception
             throw new Exception("The AppFile need to associated with some valid AppFileFormat.");
         }
-                
-         // Copy properties from -> to
-        //BeanUtils.copyProperties(appFile , newAppFile);
+
+        // Copy properties from -> to
+        BeanUtils.copyProperties(appFile , newAppFile);
         appFileDAO.persist(appFile);
         return appFile;
-        
     }
     
     /**
@@ -117,21 +110,15 @@ public class AppFileServiceImpl implements AppFileService{
     public AppFile updateAppFile(long ID, AppFile appFile) throws Exception{
         AppFile existentAppFile = appFileDAO.getAppFileByID(ID);
                 
-        App app = appFile.getApp();
         AppFileFormat appFileFormat = appFile.getAppFileFormat();
 
         // Check app existence
-        if (app != null) {
-            App existentApp = appDAO.getAppByID(appFile.getApp().getId());
+        App existentApp = appDAO.getAppByID(appFile.getAppId());
 
-            if (existentApp == null) {
-                throw new ObjectRetrievalFailureException(App.class, appFile.getApp().getId());
-            }
-            appFile.setApp(existentApp);
-        } else {
-            // If not App defined throw Exception
-            throw new Exception("The AppFile need to associated with some valid App.");
+        if (existentApp == null) {
+            throw new ObjectRetrievalFailureException(App.class, appFile.getAppId());
         }
+        appFile.setAppId(existentApp.getId());
         
         //Check appFileFormat existence
         if (appFileFormat != null) {
@@ -181,13 +168,14 @@ public class AppFileServiceImpl implements AppFileService{
     
     /**
      *
-     * @param ids
+     * @param firstResult
+     * @param lastResult
      * @return
      * @throws Exception
      */
     @Override
-    public List<AppFile> getAppFileList(List<Long> ids) throws Exception{
-        List<AppFile> appFileList = appFileDAO.getAppFileList(ids);
+    public List<AppFile> getAppFileList(int firstResult, int lastResult) throws Exception{
+        List<AppFile> appFileList = appFileDAO.getAppFileList(firstResult, lastResult);
         return appFileList;
         
     }

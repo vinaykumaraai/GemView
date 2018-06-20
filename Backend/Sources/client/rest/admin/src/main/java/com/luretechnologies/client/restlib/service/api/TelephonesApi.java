@@ -36,11 +36,7 @@ import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.client.restlib.common.CommonConstants;
 import com.luretechnologies.client.restlib.common.Pair;
 import com.luretechnologies.client.restlib.common.TypeRef;
-import com.luretechnologies.client.restlib.service.model.Address;
-import com.luretechnologies.client.restlib.service.model.Country;
-import com.luretechnologies.client.restlib.service.model.State;
 import com.luretechnologies.client.restlib.service.model.Telephone;
-import com.luretechnologies.client.restlib.service.model.Transaction;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -58,7 +54,7 @@ public class TelephonesApi extends BaseApi {
     public TelephonesApi(ApiClient apiClient) {
         super(apiClient);
     }
-    
+
     /**
      * Creates a new telephone
      *

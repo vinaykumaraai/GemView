@@ -46,9 +46,11 @@ public interface AppProfileParamValueDAO extends BaseDAO<AppProfileParamValue, L
      * @param ID
      * @return
      */
-    public List<AppProfileParamValue> getAppProfileParamList(List<Long> ID)throws PersistenceException;
+    public List<AppProfileParamValue> getAppProfileParamValueList(List<Long> ID)throws PersistenceException;
     
-    public AppProfileParamValue getAppProfileParamByID(Long ID)throws PersistenceException;
+    public AppProfileParamValue getAppProfileParamValueByID(Long ID)throws PersistenceException;
     
     public Integer doForceUpdate(Integer value)throws PersistenceException;
+    
+    public AppProfileParamValue findByAppProfileAndAppParam(Long appProfileId, Long appParamId);
 }

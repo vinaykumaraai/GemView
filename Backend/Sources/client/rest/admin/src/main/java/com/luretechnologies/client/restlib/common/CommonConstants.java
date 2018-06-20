@@ -60,12 +60,16 @@ public class CommonConstants {
     public static final String FIELD_PAGE_NUMBER = "pageNumber";
     public static final String FIELD_ROWS_PER_PAGE = "rowsPerPage";
     public static final String FIELD_FILTER = "filter";
+    public static final String FIELD_FILE_NAME = "fileName";
+    public static final String FIELD_FILE_CONTENT = "fileContent";
     public static final String FIELD_USER_NAME = "username";
+    public static final String FIELD_USER_EMAIL = "userEmail";
+    public static final String FIELD_DATA = "data";
     public static final String FIELD_PASSWORD = "password";
     public static final String FIELD_CODE = "code";
-    public static final String FIELD_CURRENT_PASSWORD = "tempPassword";
+    public static final String FIELD_CURRENT_PASSWORD = "currentPassword";
     public static final String FIELD_NEW_PASSWORD = "newPassword";
-    public static final String FIELD_EMAIL = "emailId";
+    public static final String FIELD_EMAIL = "emailAddress";
     public static final String FIELD_IMAGE = "image";
     public static final String FIELD_GROUP = "group";
     public static final String FIELD_REGION_ID = "regionId";
@@ -89,4 +93,14 @@ public class CommonConstants {
     public static final String FIELD_HOST_ID = "hostId";
     public static final String FIELD_TERMINAL_ID = "terminalId";
     public static final String FIELD_KEY = "key";
+    public static final String FIELD_DATE_FROM = "dateFrom";
+    public static final String FIELD_DATE_TO = "dateTo";
+    public static final String FIELD_ENTITY_ID = "entityId";
+    public static final String FIELD_USER_ID = "userId";
+    public static final String FIELD_TERMINAL_SERIAL_NUMBER = "terminalSerialNumber";
+    public static final String FIELD_NAME = "name";
+    public static final String FIELD_DESCRIPTION = "description";
+    public static final String FIELD_VALUE = "value";
+    public static final String FIELD_SYSTEM_PARAM_TYPE = "systemParamType";
+    public static final String FIELD_PERMISSION = "permission";
 }

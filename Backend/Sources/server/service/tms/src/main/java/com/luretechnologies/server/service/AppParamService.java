@@ -31,7 +31,6 @@
  */
 package com.luretechnologies.server.service;
 
-import com.luretechnologies.server.data.model.tms.App;
 import com.luretechnologies.server.data.model.tms.AppParam;
 import java.util.List;
 
@@ -43,11 +42,11 @@ public interface AppParamService {
     
     /**
      *
-     * @param appfile
+     * @param appParam
      * @return
      * @throws Exception
      */
-    public AppParam createAppParam(AppParam appfile) throws Exception;
+    public AppParam createAppParam(AppParam appParam) throws Exception;
 
     /**
      *
@@ -75,11 +74,12 @@ public interface AppParamService {
     
     /**
      *
-     * @param ids
+     * @param firstResult
+     * @param lastResult
      * @return 
      * @throws Exception
      */
-    public List<AppParam> getAppParamList(List<Long>  ids) throws Exception;
+    public List<AppParam> getAppParamList(int firstResult, int lastResult) throws Exception;
     
     /**
      *

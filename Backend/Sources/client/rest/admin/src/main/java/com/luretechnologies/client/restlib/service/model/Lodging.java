@@ -31,7 +31,6 @@
  */
 package com.luretechnologies.client.restlib.service.model;
 
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -45,60 +44,60 @@ import java.io.Serializable;
  */
 @ApiModel(description = "")
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.JavaClientCodegen", date = "2015-11-09T17:35:21.421-05:00")
-public class Lodging implements Serializable{
+public class Lodging implements Serializable {
 
-private String duration = null;
-private String checkInDate = null;
-private String checkOutDate = null;
-private String dailyRoomRate1 = null;
-private String dailyRoomRate2 = null;
-private String dailyRoomRate3 = null;
-private String roomNights1 = null;
-private String roomNights2 = null;
-private String roomNights3 = null;
-private String guestSmokingPreference = null;
-private String numberOfRoomsBooked = null;
-private String numberOfGuests = null;
-private String roomBedType = null;
-private String roomTaxElements = null;
-private String roomRateType = null;
-private String guestName = null;
-private String customerServicePhoneNumber = null;
-private String corporateClientCode = null;
-private String promotionalCode = null;
-private String additionalCoupon = null;
-private String roomLocation = null;
-private String specialProgramCode = null;
-private String tax = null;
-private String prepaidCost = null;
-private String foodAndBeverageCost = null;
-private String roomTax = null;
-private String adjustmentAmount = null;
-private String phoneCost = null;
-private String restaurantCost = null;
-private String roomServiceCost = null;
-private String miniBarCost = null;
-private String laundryCost = null;
-private String miscellaneousCost = null;
-private String giftShopCost = null;
-private String movieCost = null;
-private String healthClubCost = null;
-private String valetParkingCost = null;
-private String cashDisbursementCost = null;
-private String nonRoomCost = null;
-private String businessCenterCost = null;
-private String loungeBarCost = null;
-private String transportationCost = null;
-private String gratuityCost = null;
-private String conferenceRoomCost = null;
-private String audioVisualCost = null;
-private String banquetCost = null;
-private String internetAccessCost = null;
-private String earlyCheckOutCost = null;
-private String nonRoomTax = null;
-private String travelAgencyCode = null;
-private String travelAgencyName = null;
-    
+    private String duration = null;
+    private String checkInDate = null;
+    private String checkOutDate = null;
+    private String dailyRoomRate1 = null;
+    private String dailyRoomRate2 = null;
+    private String dailyRoomRate3 = null;
+    private String roomNights1 = null;
+    private String roomNights2 = null;
+    private String roomNights3 = null;
+    private String guestSmokingPreference = null;
+    private String numberOfRoomsBooked = null;
+    private String numberOfGuests = null;
+    private String roomBedType = null;
+    private String roomTaxElements = null;
+    private String roomRateType = null;
+    private String guestName = null;
+    private String customerServicePhoneNumber = null;
+    private String corporateClientCode = null;
+    private String promotionalCode = null;
+    private String additionalCoupon = null;
+    private String roomLocation = null;
+    private String specialProgramCode = null;
+    private String tax = null;
+    private String prepaidCost = null;
+    private String foodAndBeverageCost = null;
+    private String roomTax = null;
+    private String adjustmentAmount = null;
+    private String phoneCost = null;
+    private String restaurantCost = null;
+    private String roomServiceCost = null;
+    private String miniBarCost = null;
+    private String laundryCost = null;
+    private String miscellaneousCost = null;
+    private String giftShopCost = null;
+    private String movieCost = null;
+    private String healthClubCost = null;
+    private String valetParkingCost = null;
+    private String cashDisbursementCost = null;
+    private String nonRoomCost = null;
+    private String businessCenterCost = null;
+    private String loungeBarCost = null;
+    private String transportationCost = null;
+    private String gratuityCost = null;
+    private String conferenceRoomCost = null;
+    private String audioVisualCost = null;
+    private String banquetCost = null;
+    private String internetAccessCost = null;
+    private String earlyCheckOutCost = null;
+    private String nonRoomTax = null;
+    private String travelAgencyCode = null;
+    private String travelAgencyName = null;
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -108,10 +107,10 @@ private String travelAgencyName = null;
         sb.append("}");
         return sb.toString();
     }
+
     /**
      * @return the duration
      */
-    
     @ApiModelProperty(value = "The length of the upcoming Lodging stay (from 01 to 99).")
     @JsonProperty("duration")
     public String getDuration() {
@@ -177,7 +176,7 @@ private String travelAgencyName = null;
      * @return the dailyRoomRate2
      */
     @ApiModelProperty(value = "")
-    @JsonProperty("dailyRoomRate2")    
+    @JsonProperty("dailyRoomRate2")
     public String getDailyRoomRate2() {
         return dailyRoomRate2;
     }
@@ -193,7 +192,7 @@ private String travelAgencyName = null;
      * @return the dailyRoomRate3
      */
     @ApiModelProperty(value = "")
-    @JsonProperty("dailyRoomRate3")    
+    @JsonProperty("dailyRoomRate3")
     public String getDailyRoomRate3() {
         return dailyRoomRate3;
     }
@@ -209,7 +208,7 @@ private String travelAgencyName = null;
      * @return the roomNights1
      */
     @ApiModelProperty(value = "The number of nights being billed for the correspnding lodgingData_dailyRoom# field")
-    @JsonProperty("roomNights1")    
+    @JsonProperty("roomNights1")
     public String getRoomNights1() {
         return roomNights1;
     }
@@ -225,7 +224,7 @@ private String travelAgencyName = null;
      * @return the roomNights2
      */
     @ApiModelProperty(value = "")
-    @JsonProperty("roomNights2")    
+    @JsonProperty("roomNights2")
     public String getRoomNights2() {
         return roomNights2;
     }
@@ -241,7 +240,7 @@ private String travelAgencyName = null;
      * @return the roomNights3
      */
     @ApiModelProperty(value = "")
-    @JsonProperty("roomNights3")    
+    @JsonProperty("roomNights3")
     public String getRoomNights3() {
         return roomNights3;
     }
@@ -257,7 +256,7 @@ private String travelAgencyName = null;
      * @return the guestSmokingPreference
      */
     @ApiModelProperty(value = "The smoking preference of the guest")
-    @JsonProperty("guestSmokingPreference")    
+    @JsonProperty("guestSmokingPreference")
     public String getGuestSmokingPreference() {
         return guestSmokingPreference;
     }
@@ -273,7 +272,7 @@ private String travelAgencyName = null;
      * @return the numberOfRoomsBooked
      */
     @ApiModelProperty(value = "The total number of rooms being booked")
-    @JsonProperty("numberOfRoomsBooked")    
+    @JsonProperty("numberOfRoomsBooked")
     public String getNumberOfRoomsBooked() {
         return numberOfRoomsBooked;
     }
@@ -289,7 +288,7 @@ private String travelAgencyName = null;
      * @return the numberOfGuests
      */
     @ApiModelProperty(value = "The total number of adults in all rooms being booked")
-    @JsonProperty("numberOfGuests")    
+    @JsonProperty("numberOfGuests")
     public String getNumberOfGuests() {
         return numberOfGuests;
     }
@@ -305,7 +304,7 @@ private String travelAgencyName = null;
      * @return the roomBedType
      */
     @ApiModelProperty(value = "The type of bed in the room (twin, full, queen, king, etc).")
-    @JsonProperty("roomBedType")    
+    @JsonProperty("roomBedType")
     public String getRoomBedType() {
         return roomBedType;
     }
@@ -321,7 +320,7 @@ private String travelAgencyName = null;
      * @return the roomTaxElements
      */
     @ApiModelProperty(value = "The specific tax elements about the room (tourist, hotel, etc).")
-    @JsonProperty("roomTaxElements")    
+    @JsonProperty("roomTaxElements")
     public String getRoomTaxElements() {
         return roomTaxElements;
     }
@@ -337,7 +336,7 @@ private String travelAgencyName = null;
      * @return the roomRateType
      */
     @ApiModelProperty(value = "Types of rate used (AAA, AARP, Government, etc).")
-    @JsonProperty("roomRateType")    
+    @JsonProperty("roomRateType")
     public String getRoomRateType() {
         return roomRateType;
     }
@@ -353,7 +352,7 @@ private String travelAgencyName = null;
      * @return the guestName
      */
     @ApiModelProperty(value = "Name of the guest.")
-    @JsonProperty("guestName")    
+    @JsonProperty("guestName")
     public String getGuestName() {
         return guestName;
     }
@@ -369,7 +368,7 @@ private String travelAgencyName = null;
      * @return the customerServicePhoneNumber
      */
     @ApiModelProperty(value = "Phone number for the cardholder to contact the hotel or hotel chain.")
-    @JsonProperty("customerServicePhoneNumber")    
+    @JsonProperty("customerServicePhoneNumber")
     public String getCustomerServicePhoneNumber() {
         return customerServicePhoneNumber;
     }
@@ -385,7 +384,7 @@ private String travelAgencyName = null;
      * @return the corporateClientCode
      */
     @ApiModelProperty(value = "A code assigned to a business/corporation entity that the hotel or hotel chain uses to identify corporate rates or discounts")
-    @JsonProperty("corporateClientCode")    
+    @JsonProperty("corporateClientCode")
     public String getCorporateClientCode() {
         return corporateClientCode;
     }
@@ -401,7 +400,7 @@ private String travelAgencyName = null;
      * @return the promotionalCode
      */
     @ApiModelProperty(value = "A code that describes a current discount program at the hotel")
-    @JsonProperty("promotionalCode")    
+    @JsonProperty("promotionalCode")
     public String getPromotionalCode() {
         return promotionalCode;
     }
@@ -417,7 +416,7 @@ private String travelAgencyName = null;
      * @return the additionalCoupon
      */
     @ApiModelProperty(value = "Any additional coupon or discount.")
-    @JsonProperty("additionalCoupon")    
+    @JsonProperty("additionalCoupon")
     public String getAdditionalCoupon() {
         return additionalCoupon;
     }
@@ -433,7 +432,7 @@ private String travelAgencyName = null;
      * @return the roomLocation
      */
     @ApiModelProperty(value = "The location of the room: Lake View, Ocean View, etc.")
-    @JsonProperty("roomLocation")    
+    @JsonProperty("roomLocation")
     public String getRoomLocation() {
         return roomLocation;
     }
@@ -449,7 +448,7 @@ private String travelAgencyName = null;
      * @return the specialProgramCode
      */
     @ApiModelProperty(value = "The code that identifies the type of purchase")
-    @JsonProperty("specialProgramCode")    
+    @JsonProperty("specialProgramCode")
     public String getSpecialProgramCode() {
         return specialProgramCode;
     }
@@ -465,7 +464,7 @@ private String travelAgencyName = null;
      * @return the tax
      */
     @ApiModelProperty(value = "The total amount of tax for the stay.")
-    @JsonProperty("tax")    
+    @JsonProperty("tax")
     public String getTax() {
         return tax;
     }
@@ -481,7 +480,7 @@ private String travelAgencyName = null;
      * @return the prepaidCost
      */
     @ApiModelProperty(value = "The amount of the deposit or other prepaid amounts for the stay.")
-    @JsonProperty("prepaidCost")    
+    @JsonProperty("prepaidCost")
     public String getPrepaidCost() {
         return prepaidCost;
     }
@@ -497,7 +496,7 @@ private String travelAgencyName = null;
      * @return the foodAndBeverageCost
      */
     @ApiModelProperty(value = "The total amount of all food and beverage charges during the stay")
-    @JsonProperty("foodAndBeverageCost")    
+    @JsonProperty("foodAndBeverageCost")
     public String getFoodAndBeverageCost() {
         return foodAndBeverageCost;
     }
@@ -513,7 +512,7 @@ private String travelAgencyName = null;
      * @return the roomTax
      */
     @ApiModelProperty(value = "The total amount of tax for the room charges only")
-    @JsonProperty("roomTax")    
+    @JsonProperty("roomTax")
     public String getRoomTax() {
         return roomTax;
     }
@@ -529,7 +528,7 @@ private String travelAgencyName = null;
      * @return the adjustmentAmount
      */
     @ApiModelProperty(value = "The amount of any adjustment made to the final folio/bill.")
-    @JsonProperty("adjustmentAmount")    
+    @JsonProperty("adjustmentAmount")
     public String getAdjustmentAmount() {
         return adjustmentAmount;
     }
@@ -545,7 +544,7 @@ private String travelAgencyName = null;
      * @return the phoneCost
      */
     @ApiModelProperty(value = "The total amount of phone charges.")
-    @JsonProperty("phoneCost")    
+    @JsonProperty("phoneCost")
     public String getPhoneCost() {
         return phoneCost;
     }
@@ -561,7 +560,7 @@ private String travelAgencyName = null;
      * @return the restaurantCost
      */
     @ApiModelProperty(value = "The total amount of restaurant charges.")
-    @JsonProperty("restaurantCost")    
+    @JsonProperty("restaurantCost")
     public String getRestaurantCost() {
         return restaurantCost;
     }
@@ -577,7 +576,7 @@ private String travelAgencyName = null;
      * @return the roomServiceCost
      */
     @ApiModelProperty(value = "The total amount of Room Service charges")
-    @JsonProperty("roomServiceCost")    
+    @JsonProperty("roomServiceCost")
     public String getRoomServiceCost() {
         return roomServiceCost;
     }
@@ -593,7 +592,7 @@ private String travelAgencyName = null;
      * @return the miniBarCost
      */
     @ApiModelProperty(value = "The total amount of in-room Mini Bar charges")
-    @JsonProperty("miniBarCost")    
+    @JsonProperty("miniBarCost")
     public String getMiniBarCost() {
         return miniBarCost;
     }
@@ -609,7 +608,7 @@ private String travelAgencyName = null;
      * @return the laundryCost
      */
     @ApiModelProperty(value = "The total amount of Laundry charges")
-    @JsonProperty("laundryCost")    
+    @JsonProperty("laundryCost")
     public String getLaundryCost() {
         return laundryCost;
     }
@@ -625,7 +624,7 @@ private String travelAgencyName = null;
      * @return the miscellaneousCost
      */
     @ApiModelProperty(value = "The total amount of charges not elsewhere classified.")
-    @JsonProperty("miscellaneousCost")    
+    @JsonProperty("miscellaneousCost")
     public String getMiscellaneousCost() {
         return miscellaneousCost;
     }
@@ -641,7 +640,7 @@ private String travelAgencyName = null;
      * @return the giftShopCost
      */
     @ApiModelProperty(value = "The total amount of Gift Shop charges.")
-    @JsonProperty("giftShopCost")    
+    @JsonProperty("giftShopCost")
     public String getGiftShopCost() {
         return giftShopCost;
     }
@@ -657,7 +656,7 @@ private String travelAgencyName = null;
      * @return the movieCost
      */
     @ApiModelProperty(value = "The total amount of Movie charges.")
-    @JsonProperty("movieCost")    
+    @JsonProperty("movieCost")
     public String getMovieCost() {
         return movieCost;
     }
@@ -673,7 +672,7 @@ private String travelAgencyName = null;
      * @return the healthClubCost
      */
     @ApiModelProperty(value = "The total amount of Health Club charges.")
-    @JsonProperty("healthClubCost")    
+    @JsonProperty("healthClubCost")
     public String getHealthClubCost() {
         return healthClubCost;
     }
@@ -689,7 +688,7 @@ private String travelAgencyName = null;
      * @return the valetParkingCost
      */
     @ApiModelProperty(value = "The total amount of Valet Parking charges.")
-    @JsonProperty("valetParkingCost")    
+    @JsonProperty("valetParkingCost")
     public String getValetParkingCost() {
         return valetParkingCost;
     }
@@ -705,7 +704,7 @@ private String travelAgencyName = null;
      * @return the cashDisbursementCost
      */
     @ApiModelProperty(value = "The total amount of Cash Disbursment charges.")
-    @JsonProperty("cashDisbursementCost")    
+    @JsonProperty("cashDisbursementCost")
     public String getCashDisbursementCost() {
         return cashDisbursementCost;
     }
@@ -721,7 +720,7 @@ private String travelAgencyName = null;
      * @return the nonRoomCost
      */
     @ApiModelProperty(value = "The total amount of charges not related to the room rate (restaurant, gift shop, etc).")
-    @JsonProperty("nonRoomCost")    
+    @JsonProperty("nonRoomCost")
     public String getNonRoomCost() {
         return nonRoomCost;
     }
@@ -737,7 +736,7 @@ private String travelAgencyName = null;
      * @return the businessCenterCost
      */
     @ApiModelProperty(value = "The total amount of Business Center charges.")
-    @JsonProperty("businessCenterCost")    
+    @JsonProperty("businessCenterCost")
     public String getBusinessCenterCost() {
         return businessCenterCost;
     }
@@ -753,7 +752,7 @@ private String travelAgencyName = null;
      * @return the loungeBarCost
      */
     @ApiModelProperty(value = "The total amount of Lounge and/or Bar charges.")
-    @JsonProperty("loungeBarCost")    
+    @JsonProperty("loungeBarCost")
     public String getLoungeBarCost() {
         return loungeBarCost;
     }
@@ -769,7 +768,7 @@ private String travelAgencyName = null;
      * @return the transportationCost
      */
     @ApiModelProperty(value = "The total amount of Transportation charges.")
-    @JsonProperty("transportationCost")    
+    @JsonProperty("transportationCost")
     public String getTransportationCost() {
         return transportationCost;
     }
@@ -785,7 +784,7 @@ private String travelAgencyName = null;
      * @return the gratuityCost
      */
     @ApiModelProperty(value = "The total amount of Gratuity charges.")
-    @JsonProperty("gratuityCost")    
+    @JsonProperty("gratuityCost")
     public String getGratuityCost() {
         return gratuityCost;
     }
@@ -801,7 +800,7 @@ private String travelAgencyName = null;
      * @return the conferenceRoomCost
      */
     @ApiModelProperty(value = "The total amount of Conference Room charges.")
-    @JsonProperty("conferenceRoomCost")    
+    @JsonProperty("conferenceRoomCost")
     public String getConferenceRoomCost() {
         return conferenceRoomCost;
     }
@@ -817,7 +816,7 @@ private String travelAgencyName = null;
      * @return the audioVisualCost
      */
     @ApiModelProperty(value = "The total amount of Audio Visual charges.")
-    @JsonProperty("audioVisualCost")    
+    @JsonProperty("audioVisualCost")
     public String getAudioVisualCost() {
         return audioVisualCost;
     }
@@ -833,7 +832,7 @@ private String travelAgencyName = null;
      * @return the banquetCost
      */
     @ApiModelProperty(value = "The total amount of Banquet charges.")
-    @JsonProperty("banquetCost")    
+    @JsonProperty("banquetCost")
     public String getBanquetCost() {
         return banquetCost;
     }
@@ -849,7 +848,7 @@ private String travelAgencyName = null;
      * @return the internetAccessCost
      */
     @ApiModelProperty(value = "The total amount of Internet Access charges.")
-    @JsonProperty("internetAccessCost")    
+    @JsonProperty("internetAccessCost")
     public String getInternetAccessCost() {
         return internetAccessCost;
     }
@@ -865,7 +864,7 @@ private String travelAgencyName = null;
      * @return the earlyCheckOutCost
      */
     @ApiModelProperty(value = "The fee charged for an early departure.")
-    @JsonProperty("earlyCheckOutCost")    
+    @JsonProperty("earlyCheckOutCost")
     public String getEarlyCheckOutCost() {
         return earlyCheckOutCost;
     }
@@ -881,7 +880,7 @@ private String travelAgencyName = null;
      * @return the nonRoomTax
      */
     @ApiModelProperty(value = "The total amount of tax not related to the room rate.")
-    @JsonProperty("nonRoomTax")    
+    @JsonProperty("nonRoomTax")
     public String getNonRoomTax() {
         return nonRoomTax;
     }
@@ -897,7 +896,7 @@ private String travelAgencyName = null;
      * @return the travelAgencyCode
      */
     @ApiModelProperty(value = "The code used by travel agencies to identify who made the reservation")
-    @JsonProperty("travelAgencyCode")    
+    @JsonProperty("travelAgencyCode")
     public String getTravelAgencyCode() {
         return travelAgencyCode;
     }
@@ -913,7 +912,7 @@ private String travelAgencyName = null;
      * @return the travelAgencyName
      */
     @ApiModelProperty(value = "The name of the agency that made the reservation.")
-    @JsonProperty("travelAgencyName")    
+    @JsonProperty("travelAgencyName")
     public String getTravelAgencyName() {
         return travelAgencyName;
     }

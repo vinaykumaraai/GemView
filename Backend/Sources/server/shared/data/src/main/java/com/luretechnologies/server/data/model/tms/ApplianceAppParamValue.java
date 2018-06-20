@@ -51,7 +51,7 @@ public class ApplianceAppParamValue implements Serializable {
     @ApiModelProperty(value = "The ApplianceApp.", required = true)
     @ManyToOne(optional = false)
     private ApplianceApp applianceApp;
-    @JoinColumn(name = "AppProfileParamValue", referencedColumnName = "AppProfile")
+    @JoinColumn(name = "AppProfileParamValue", referencedColumnName = "app_profile")
     @ApiModelProperty(value = "The AppProfileParamValue.", required = true)
     @ManyToOne(optional = false)
     private AppProfileParamValue appProfileParamValue;

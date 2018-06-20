@@ -42,36 +42,36 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
- * 
+ *
  */
 @Service
 @Transactional
 public class EntityServiceImpl implements EntityService {
 
     @Autowired
-    private EntityDAO entityDAO;
+    EntityDAO entityDAO;
 
     /**
      *
      * @param id
      * @param parentId
-     * @return 
+     * @return
      */
     @Override
     public Entity move(long id, long parentId) {
         return entityDAO.move(id, parentId);
     }
-    
+
     @Override
     public Entity findById(long id) {
         return entityDAO.findById(id);
     }
-    
+
     @Override
     public Entity findByEntityId(String entityId) {
         return entityDAO.findByEntityId(entityId);
     }
-    
+
     /**
      *
      * @param entity
@@ -93,5 +93,15 @@ public class EntityServiceImpl implements EntityService {
     public List<Entity> getEntityChildren(Entity entity, long id) {
         return entityDAO.getEntityChildren(entity, id);
     }
-    
+
+    /**
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public List<Entity> getEntityHierarchyList(long id) {
+        return entityDAO.getEntityHierarchyList(id);
+    }
+
 }

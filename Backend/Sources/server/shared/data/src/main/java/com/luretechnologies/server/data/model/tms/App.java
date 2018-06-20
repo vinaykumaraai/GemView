@@ -5,25 +5,24 @@
  */
 package com.luretechnologies.server.data.model.tms;
 
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Date;
+import java.sql.Timestamp;
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -43,39 +42,48 @@ public class App implements Serializable {
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 128)
-    @Column(name = "Name")
+    @Column(name = "name")
     @ApiModelProperty(value = "The Name.", required = true)
     private String name;
+    @Size(min = 1, max = 128)
+    @Column(name = "description")
+    @ApiModelProperty(value = "The Description.", required = true)
+    private String description;
     @Size(max = 20)
-    @Column(name = "Version")
+    @Column(name = "version")
     @ApiModelProperty(value = "The Version.", required = true)
     private String version;
+    
+    @JsonIgnore
+    @Column(name = "start_date", nullable = false)
+    private Timestamp startDate;
+    
+    @JsonIgnore
+    @Column(name = "end_date", nullable = false)
+    private Timestamp endDate;
+    
+    @Column(name = "active", nullable = false, length = 1)
+    @ApiModelProperty(value = "The active.")
+    private boolean active = true;
+    
+    @Column(name = "available", nullable = false, length = 1)
+    @ApiModelProperty(value = "The available.")
+    private boolean available = true;
+    
     @Basic(optional = false)
     @NotNull
-    @Column(name = "StartDate")
-    @ApiModelProperty(value = "The Start Date.", required = true)
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date startDate;
-    @Basic(optional = false)
-    @NotNull
-    @Column(name = "EndDate")
-    @ApiModelProperty(value = "The End Date.", required = true)
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date endDate;
-    @Basic(optional = false)
-    @NotNull
-    @Column(name = "Active")
-    @ApiModelProperty(value = "The Active.", required = true)
-    private short active;
-    @JoinColumn(name = "Entity", referencedColumnName = "id")
-    @ManyToOne(optional = false)
-    private com.luretechnologies.server.data.model.Entity entity;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "app")
-    private Collection<AppFile> appfileCollection;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "app")
-    private Collection<AppParam> appparamCollection;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "app")
-    private Collection<AppProfile> appprofileCollection;
+    @Column(name = "owner_id")
+    @ApiModelProperty(value = "The entity id.", required = true)
+    private Long ownerId;
+        
+    /*@OneToMany(mappedBy = "appId", targetEntity = AppFile.class, fetch = FetchType.LAZY)
+    private Set<AppFile> appfileCollection = new HashSet<>();*/
+    
+    @OneToMany(mappedBy = "appId", targetEntity = AppParam.class, fetch = FetchType.LAZY)
+    private Set<AppParam> appparamCollection = new HashSet<>();
+    
+    @OneToMany(mappedBy = "appId", targetEntity = AppProfile.class, fetch = FetchType.LAZY)
+    private Set<AppProfile> appprofileCollection = new HashSet<>();
 
     public App() {
     }
@@ -84,12 +92,13 @@ public class App implements Serializable {
         this.id = id;
     }
 
-    public App(Long id, String name, Date startDate, Date endDate, short active) {
+    public App(Long id, String name, String description, boolean available, boolean active, Long ownerId) {
         this.id = id;
         this.name = name;
-        this.startDate = startDate;
-        this.endDate = endDate;
+        this.description = description;
+        this.available = available;
         this.active = active;
+        this.ownerId = ownerId;
     }
 
     public Long getId() {
@@ -116,59 +125,51 @@ public class App implements Serializable {
         this.version = version;
     }
 
-    public Date getStartDate() {
+    public Timestamp getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(Date startDate) {
+    public void setStartDate(Timestamp startDate) {
         this.startDate = startDate;
     }
 
-    public Date getEndDate() {
+    public Timestamp getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(Date endDate) {
+    public void setEndDate(Timestamp endDate) {
         this.endDate = endDate;
     }
 
-    public short getActive() {
+    public boolean getActive() {
         return active;
     }
 
-    public void setActive(short active) {
+    public void setActive(boolean active) {
         this.active = active;
     }
 
-    public com.luretechnologies.server.data.model.Entity getEntity() {
-        return entity;
-    }
-
-    public void setEntity(com.luretechnologies.server.data.model.Entity entity) {
-        this.entity = entity;
-    }
-
-    public Collection<AppFile> getAppFileCollection() {
+    /*public Set<AppFile> getAppFileCollection() {
         return appfileCollection;
     }
 
-    public void setAppFileCollection(Collection<AppFile> appfileCollection) {
+    public void setAppFileCollection(Set<AppFile> appfileCollection) {
         this.appfileCollection = appfileCollection;
-    }
+    }*/
 
-    public Collection<AppParam> getAppParamCollection() {
+    public Set<AppParam> getAppParamCollection() {
         return appparamCollection;
     }
 
-    public void setAppParamCollection(Collection<AppParam> appparamCollection) {
+    public void setAppParamCollection(Set<AppParam> appparamCollection) {
         this.appparamCollection = appparamCollection;
     }
 
-    public Collection<AppProfile> getAppProfileCollection() {
+    public Set<AppProfile> getAppProfileCollection() {
         return appprofileCollection;
     }
 
-    public void setAppProfileCollection(Collection<AppProfile> appprofileCollection) {
+    public void setAppProfileCollection(Set<AppProfile> appprofileCollection) {
         this.appprofileCollection = appprofileCollection;
     }
 
@@ -195,6 +196,48 @@ public class App implements Serializable {
     @Override
     public String toString() {
         return "com.luretechnologies.server.data.model.tms.App[ id=" + id + " ]";
+    }
+
+    /**
+     * @return the ownerId
+     */
+    public Long getOwnerId() {
+        return ownerId;
+    }
+
+    /**
+     * @param ownerId the ownerId to set
+     */
+    public void setOwnerId(Long ownerId) {
+        this.ownerId = ownerId;
+    }
+
+    /**
+     * @return the description
+     */
+    public String getDescription() {
+        return description;
+    }
+
+    /**
+     * @param description the description to set
+     */
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    /**
+     * @return the available
+     */
+    public boolean getAvailable() {
+        return available;
+    }
+
+    /**
+     * @param available the available to set
+     */
+    public void setAvailable(boolean available) {
+        this.available = available;
     }
     
 }

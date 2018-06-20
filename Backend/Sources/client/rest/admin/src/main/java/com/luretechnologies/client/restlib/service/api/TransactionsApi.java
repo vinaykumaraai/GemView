@@ -55,7 +55,7 @@ public class TransactionsApi extends BaseApi {
     private static final String METHOD_GET_TRANSACTION = "/transactions/{id}";
     private static final String METHOD_ADD_SIGNATURE = "/transactions/{id}/signature";
     private static final String METHOD_GET_SIGNATURE = "/transactions/{id}/signature";
-                
+
     /**
      * @param apiClient
      */
@@ -100,10 +100,10 @@ public class TransactionsApi extends BaseApi {
         };
         return apiClient.invokeAPI(path, CommonConstants.METHOD_GET, queryParams, postBody, postBinaryBody, headerParams, formParams, accept, contentType, returnType);
     }
-    
+
     /**
-     * List transactions of the given entity. Will return 50 records if no paging
-     * parameters defined
+     * List transactions of the given entity. Will return 50 records if no
+     * paging parameters defined
      *
      * @param id the entity id
      * @param pageNumber Page number
@@ -122,7 +122,7 @@ public class TransactionsApi extends BaseApi {
         Map<String, Object> formParams = new HashMap<>();
 
         queryParams.addAll(apiClient.parameterToPairs("", CommonConstants.FIELD_ID, id));
-        
+
         queryParams.addAll(apiClient.parameterToPairs("", CommonConstants.FIELD_PAGE_NUMBER, pageNumber));
 
         queryParams.addAll(apiClient.parameterToPairs("", CommonConstants.FIELD_ROWS_PER_PAGE, rowsPerPage));
@@ -155,7 +155,7 @@ public class TransactionsApi extends BaseApi {
     public List<Transaction> searchTransactions(TransactionFilter filter, Integer pageNumber, Integer rowsPerPage) throws ApiException {
         return searchTransactions(filter.toString(), pageNumber, rowsPerPage);
     }
-    
+
     /**
      * Search transactions Search transactions that match a given filter. Will
      * return 50 records if no paging parameters defined
@@ -198,7 +198,7 @@ public class TransactionsApi extends BaseApi {
         };
         return apiClient.invokeAPI(path, CommonConstants.METHOD_GET, queryParams, postBody, postBinaryBody, headerParams, formParams, accept, contentType, returnType);
     }
-    
+
     /**
      * Search transactions Search transactions that match a given filter. Will
      * return 50 records if no paging parameters defined
@@ -213,7 +213,7 @@ public class TransactionsApi extends BaseApi {
     public List<Transaction> searchTransactionsByEntity(Long id, TransactionFilter filter, Integer pageNumber, Integer rowsPerPage) throws ApiException {
         return searchTransactionsByEntity(id, filter.toString(), pageNumber, rowsPerPage);
     }
-    
+
     /**
      * Search transactions Search transactions that match a given filter. Will
      * return 50 records if no paging parameters defined
@@ -367,7 +367,7 @@ public class TransactionsApi extends BaseApi {
         final String accept = apiClient.selectHeaderAccept(accepts);
 
         final String[] contentTypes = {
-            CommonConstants.HEADER_MULTIPART_FORM_DATA 
+            CommonConstants.HEADER_MULTIPART_FORM_DATA
         };
         final String contentType = apiClient.selectHeaderContentType(contentTypes);
 

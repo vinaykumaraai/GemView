@@ -113,7 +113,7 @@ public class ClientServiceImpl implements ClientService {
     @Override
     public void delete(long id) throws Exception {
         Client client = clientDAO.findById(id);
-
+        
         clientDAO.delete(client.getId());
     }
 

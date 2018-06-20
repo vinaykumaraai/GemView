@@ -5,14 +5,17 @@
  */
 package com.luretechnologies.server.data.model.tms;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Date;
+import java.sql.Timestamp;
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -22,8 +25,6 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -44,45 +45,46 @@ public class AppFile implements Serializable {
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 128)
-    @Column(name = "Name")
+    @Column(name = "name")
     @ApiModelProperty(value = "The Name.", required = true)
     private String name;
     @Size(max = 128)
-    @Column(name = "Description")
+    @Column(name = "description")
     @ApiModelProperty(value = "The Description.", required = true)
     private String description;
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 256)
-    @Column(name = "DefaultValue")
+    @Column(name = "default_value")
     @ApiModelProperty(value = "The Default Value.", required = true)
     private String defaultValue;
-    @Basic(optional = false)
-    @NotNull
-    @Column(name = "Modifiable")
-    @ApiModelProperty(value = "The Modifiable.", required = true)
-    private short modifiable;
-    @Basic(optional = false)
-    @NotNull
-    @Column(name = "ForceUpdate")
-    @ApiModelProperty(value = "The Force Update.", required = true)
-    private short forceUpdate;
-    @Basic(optional = false)
-    @NotNull
-    @Column(name = "UpdatedAt")
-    @ApiModelProperty(value = "The UpdateAt.", required = true)
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date updatedAt;
     
-    @JoinColumn(name = "App", referencedColumnName = "id")
+    @Column(name = "modifiable", nullable = false, length = 1)
+    @ApiModelProperty(value = "The modifiable.")
+    private boolean modifiable = true;
+    @Column(name = "force_update", nullable = false, length = 1)
+    @ApiModelProperty(value = "The Force Update.")
+    private boolean forceUpdate = false;
+    
+    @JsonIgnore
+    @Column(name = "updated_at", nullable = false)
+    private Timestamp updatedAt;
+        
+    @Basic(optional = false)
+    @NotNull
+    @Column(name = "app")
+    @ApiModelProperty(value = "The app id.", required = true)
+    private Long appId;
+    
+    
+    @JoinColumn(name = "App_File_Format", referencedColumnName = "id")
     @ManyToOne(optional = false)
-    private App app;
-    @JoinColumn(name = "AppFileFormat", referencedColumnName = "id")
-    @ManyToOne(optional = false)
+    @ApiModelProperty(value = "The AppFileFormat.", required = true)
     private AppFileFormat appFileFormat;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "appFile")
-    private Collection<AppProfileFileValue> appprofilefilevalueCollection;
-
+    
+    /*@OneToMany(mappedBy = "appFileId", targetEntity = AppProfileFileValue.class, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<AppProfileFileValue> appprofilefilevalueCollection = new HashSet<>();*/
+    
     public AppFile() {
     }
 
@@ -90,13 +92,12 @@ public class AppFile implements Serializable {
         this.id = id;
     }
 
-    public AppFile(Long id, String name, String defaultValue, short modifiable, short forceUpdate, Date updatedAt) {
+    public AppFile(Long id, String name, String defaultValue, boolean modifiable, boolean forceUpdate) {
         this.id = id;
         this.name = name;
         this.defaultValue = defaultValue;
         this.modifiable = modifiable;
         this.forceUpdate = forceUpdate;
-        this.updatedAt = updatedAt;
     }
 
     public Long getId() {
@@ -131,36 +132,36 @@ public class AppFile implements Serializable {
         this.defaultValue = defaultValue;
     }
 
-    public short getModifiable() {
+    public boolean getModifiable() {
         return modifiable;
     }
 
-    public void setModifiable(short modifiable) {
+    public void setModifiable(boolean modifiable) {
         this.modifiable = modifiable;
     }
 
-    public short getForceUpdate() {
+    public boolean getForceUpdate() {
         return forceUpdate;
     }
 
-    public void setForceUpdate(short forceUpdate) {
+    public void setForceUpdate(boolean forceUpdate) {
         this.forceUpdate = forceUpdate;
     }
 
-    public Date getUpdatedAt() {
+    public Timestamp getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(Date updatedAt) {
-        this.updatedAt = updatedAt;
+    public void setUpdatedAt(Timestamp value) {
+        this.updatedAt = value;
     }
 
-    public App getApp() {
-        return app;
+    public Long getAppId() {
+        return appId;
     }
 
-    public void setApp(App app) {
-        this.app = app;
+    public void setAppId(Long appId) {
+        this.appId = appId;
     }
 
     public AppFileFormat getAppFileFormat() {
@@ -171,13 +172,13 @@ public class AppFile implements Serializable {
         this.appFileFormat = appFileFormat;
     }
 
-    public Collection<AppProfileFileValue> getAppProfileFileValueCollection() {
+    /*public Set<AppProfileFileValue> getAppProfileFileValueCollection() {
         return appprofilefilevalueCollection;
     }
 
-    public void setAppProfileFileValueCollection(Collection<AppProfileFileValue> appprofilefilevalueCollection) {
+    public void setAppProfileFileValueCollection(Set<AppProfileFileValue> appprofilefilevalueCollection) {
         this.appprofilefilevalueCollection = appprofilefilevalueCollection;
-    }
+    }*/
 
     @Override
     public int hashCode() {

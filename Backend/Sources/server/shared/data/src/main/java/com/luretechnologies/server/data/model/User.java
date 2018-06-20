@@ -177,7 +177,16 @@ public class User implements Serializable {
     @Column(name = "ip_last_access", nullable = true, length = 45)
     @ApiModelProperty(value = "The IP of last access.")
     private String lastAccessIP;
+    
+    @Column(name = "Available", nullable = false)
+    @ApiModelProperty(value = "If is available or not")
+    private Boolean available; 
+    
+    @Column(name = "password_frequency", nullable = false)
+    @ApiModelProperty(value = "Password frequency")
+    private Integer passwordFrequency; 
 
+    
     /**
      * User database identification.
      *
@@ -531,4 +540,30 @@ public class User implements Serializable {
     public void setVerificationCodeExpiration(Timestamp verificationCodeExpiration) {
         this.verificationCodeExpiration = verificationCodeExpiration;
     }
+    /**
+     * @return the available
+     */
+    public Boolean getAvailable() {
+        return available;
+    }
+
+    /**
+     * @param available the available to set
+     */
+    public void setAvailable(Boolean available) {
+        this.available = available;
+    }
+    /**
+     * @return the passwordFrequency
+     */
+    public Integer getPasswordFrequency() {
+        return passwordFrequency;
+    }
+
+    /**
+     * @param passwordFrequency the passwordFrequency to set
+     */
+    public void setPasswordFrequency(Integer passwordFrequency) {
+        this.passwordFrequency = passwordFrequency;
+    }    
 }

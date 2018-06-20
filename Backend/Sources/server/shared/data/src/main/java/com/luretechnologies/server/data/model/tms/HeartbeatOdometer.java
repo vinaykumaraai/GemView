@@ -31,27 +31,66 @@
  */
 package com.luretechnologies.server.data.model.tms;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import io.swagger.annotations.ApiModelProperty;
+import java.io.Serializable;
+import java.sql.Timestamp;
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.validation.constraints.Size;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({
-    "facility",
-    "label",
-    "description",
-    "value"
-})
-public class HeartbeatOdometer {
+@Entity
+@Table(name = "Heartbeat_Odometer")
+public class HeartbeatOdometer implements Serializable {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Basic(optional = false)
+    @Column(name = "id")
+    @ApiModelProperty(value = "The table primary key", required = true)
+    private Long id;
 
-    @JsonProperty("facility")
-    private String facility;
-    @JsonProperty("label")
+    @Size(max = 128)
+    @Column(name = "component", nullable = true)
+    @ApiModelProperty(value = "The component.", required = false)
+    private String component;
+
+    @Size(max = 128)
+    @Column(name = "name", nullable = true)
+    @ApiModelProperty(value = "The name", required = false)
+    private String name;
+
+    @Size(max = 128)
+    @Column(name = "label", nullable = true)
+    @ApiModelProperty(value = "The label.", required = false)
     private String label;
-    @JsonProperty("description")
+
+    @Size(max = 128)
+    @Column(name = "description", nullable = true)
+    @ApiModelProperty(value = "The Description.", required = false)
     private String description;
-    @JsonProperty("value")
-    private Long value;
+
+    @Size(max = 45)
+    @Column(name = "value", nullable = true)
+    @ApiModelProperty(value = "The value.", required = false)
+    private String value;
+
+    @JoinColumn(name = "entity", referencedColumnName = "id")
+    @ManyToOne(optional = false)
+    private com.luretechnologies.server.data.model.Entity entity;
+
+    @Column(name = "occurred", nullable = false)
+    @ApiModelProperty(value = "The time in which the heartbeat was performed.")
+    private Timestamp occurred;
+
+    @Column(name = "updated_at", nullable = false)
+    @ApiModelProperty(value = "The time in which the heartbeat was performed.")
+    private Timestamp updatedAt;
 
     /**
      * No args constructor for use in serialization
@@ -62,56 +101,166 @@ public class HeartbeatOdometer {
 
     /**
      *
-     * @param facility
+     * @param component
+     * @param label
      * @param description
      * @param value
-     * @param label
      */
-    public HeartbeatOdometer(String facility, String label, String description, Long value) {
+    public HeartbeatOdometer(String component, String name, String label, String description, String value) {
         super();
-        this.facility = facility;
+        this.component = component;
+        this.name = name;
         this.label = label;
         this.description = description;
         this.value = value;
     }
 
-    @JsonProperty("facility")
-    public String getFacility() {
-        return facility;
+    /**
+     * @return the id
+     */
+    public Long getId() {
+        return id;
     }
 
-    @JsonProperty("facility")
-    public void setFacility(String facility) {
-        this.facility = facility;
+    /**
+     * @param id the id to set
+     */
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    @JsonProperty("label")
+    /**
+     * @return the component
+     */
+    public String getComponent() {
+        return component;
+    }
+
+    /**
+     * @param component the component to set
+     */
+    public void setComponent(String component) {
+        this.component = component;
+    }
+
+    /**
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * @param name the name to set
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * @return the label
+     */
     public String getLabel() {
         return label;
     }
 
-    @JsonProperty("label")
+    /**
+     * @param label the label to set
+     */
     public void setLabel(String label) {
         this.label = label;
     }
 
-    @JsonProperty("description")
+    /**
+     * @return the description
+     */
     public String getDescription() {
         return description;
     }
 
-    @JsonProperty("description")
+    /**
+     * @param description the description to set
+     */
     public void setDescription(String description) {
         this.description = description;
     }
 
-    @JsonProperty("value")
-    public Long getValue() {
+    /**
+     * @return the value
+     */
+    public String getValue() {
         return value;
     }
 
-    @JsonProperty("value")
-    public void setValue(Long value) {
+    /**
+     * @param value the value to set
+     */
+    public void setValue(String value) {
         this.value = value;
     }
+
+    /**
+     * @return the entity
+     */
+    public com.luretechnologies.server.data.model.Entity getEntity() {
+        return entity;
+    }
+
+    /**
+     * @param entity the entity to set
+     */
+    public void setEntity(com.luretechnologies.server.data.model.Entity entity) {
+        this.entity = entity;
+    }
+
+    /**
+     * @return the currentTime
+     */
+    public Timestamp getCurrentTime() {
+        return occurred;
+    }
+
+    /**
+     * @param currentTime the currentTime to set
+     */
+    public void setCurrentTime(Timestamp currentTime) {
+        this.occurred = currentTime;
+    }
+    
+    /**
+     * @return the updatedAt
+     */
+    public Timestamp getUpdatedAt() {
+        return updatedAt;
+    }
+
+    /**
+     * @param updatedAt the updatedAt to set
+     */
+    public void setUpdatedAt(Timestamp updatedAt) {
+        this.updatedAt = updatedAt;
+    }    
+
+    @Override
+    public int hashCode() {
+        int hash = 0;
+        hash += (id != null ? id.hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        // TODO: Warning - this method won't work in the case the id fields are not set
+        if (!(object instanceof HeartbeatOdometer)) {
+            return false;
+        }
+        HeartbeatOdometer other = (HeartbeatOdometer) object;
+        return !((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id)));
+    }
+
+    @Override
+    public String toString() {
+        return "com.luretechnologies.server.data.model.tms.HeartbeatOdometer[ id=" + id + " ]";
+    }
+
 }

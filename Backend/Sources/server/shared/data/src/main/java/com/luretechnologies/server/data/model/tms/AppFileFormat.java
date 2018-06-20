@@ -7,9 +7,7 @@ package com.luretechnologies.server.data.model.tms;
 
 import io.swagger.annotations.ApiModelProperty;
 import java.io.Serializable;
-import java.util.Collection;
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -17,7 +15,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -38,11 +35,11 @@ public class AppFileFormat implements Serializable {
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 128)
-    @Column(name = "Name")
+    @Column(name = "name")
     @ApiModelProperty(value = "The Name.", required = true)
     private String name;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "appFileFormat")
-    private Collection<AppFile> appfileCollection;
+    /*@OneToMany(cascade = CascadeType.ALL, mappedBy = "appFileFormat")
+    private Collection<AppFile> appfileCollection;*/
 
     public AppFileFormat() {
     }
@@ -72,13 +69,13 @@ public class AppFileFormat implements Serializable {
         this.name = name;
     }
 
-    public Collection<AppFile> getAppFileCollection() {
+    /*public Collection<AppFile> getAppFileCollection() {
         return appfileCollection;
     }
 
     public void setAppFileCollection(Collection<AppFile> appfileCollection) {
         this.appfileCollection = appfileCollection;
-    }
+    }*/
 
     @Override
     public int hashCode() {

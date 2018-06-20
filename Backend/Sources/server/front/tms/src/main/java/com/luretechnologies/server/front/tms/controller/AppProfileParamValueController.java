@@ -31,8 +31,6 @@
  */
 package com.luretechnologies.server.front.tms.controller;
 
-import com.luretechnologies.server.data.display.ErrorResponse;
-import com.luretechnologies.server.data.model.tms.AppProfileFileValue;
 import com.luretechnologies.server.data.model.tms.AppProfileParamValue;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -48,13 +46,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import com.luretechnologies.server.service.AppProfileParamValueService;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/appprofileparamvalue")
-@Api(value = "AppProfileParam")
+@Api(value = "AppProfileParamValue")
 public class AppProfileParamValueController {
     
     @Autowired
@@ -63,16 +58,17 @@ public class AppProfileParamValueController {
     /**
      * Creates a new appProfileFile
      *
-     * @param appProfileParam
+     * @param appProfileParamValue
      * @return
      * @throws java.lang.Exception
      */
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(tags = "AppProfileParam", httpMethod = "POST",value = "Create AppProfileFile")
-    public AppProfileParamValue createAppProfileParam(@RequestBody AppProfileParamValue appProfileParam) throws Exception {
+    @ApiOperation(tags = "AppProfileParamValue", httpMethod = "POST",value = "Create AppProfileFile")
+    public AppProfileParamValue createAppProfileParam(
+            @RequestBody AppProfileParamValue appProfileParamValue) throws Exception {
 
-        return appProfileParamService.createAppProfileParam(appProfileParam);
+        return appProfileParamService.createAppProfileParam(appProfileParamValue);
     }
     
     /**
@@ -80,12 +76,11 @@ public class AppProfileParamValueController {
      *
      * @param  id
      * @param appProfileParamValue
-     * @param appProfileParam
      * @return
      * @throws java.lang.Exception
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(tags = "AppProfileParam", httpMethod = "PUT", value = "Update AppProfileParam", notes = "Updates an AppProfileParam")
+    @ApiOperation(tags = "AppProfileParamValue", httpMethod = "PUT", value = "Update AppProfileParam", notes = "Updates an AppProfileParam")
     public AppProfileParamValue updateAppProfileParam(
             @ApiParam(value = "AppProfileParam id", required = true) @PathVariable("id") long id,
             @ApiParam(value = "AppProfileParam object", required = true) @RequestBody AppProfileParamValue appProfileParamValue) throws Exception {
@@ -101,7 +96,7 @@ public class AppProfileParamValueController {
      */
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    @ApiOperation(tags = "AppProfileParam", httpMethod = "DELETE",value = "Delete AppProfileParam")
+    @ApiOperation(tags = "AppProfileParamValue", httpMethod = "DELETE",value = "Delete AppProfileParam")
     public void deleteAppProfileParam(long id) throws Exception {
 
         appProfileParamService.deleteAppProfileParamvalue(id);
@@ -115,7 +110,7 @@ public class AppProfileParamValueController {
      * @throws java.lang.Exception
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(tags = "AppProfileParam", httpMethod = "GET", value = "Get AppProfileParam", notes = "Get AppProfileParam by id")
+    @ApiOperation(tags = "AppProfileParamValue", httpMethod = "GET", value = "Get AppProfileParam", notes = "Get AppProfileParam by id")
     public AppProfileParamValue getAppProfileParamByID(@ApiParam(value = "AppProfileParam ID", required = true) @PathVariable long id) throws Exception {
 
         return appProfileParamService.getAppProfileParamByID(id);
@@ -129,7 +124,7 @@ public class AppProfileParamValueController {
      * @throws java.lang.Exception
      */
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(tags = "AppProfileParam", httpMethod = "GET", value = "Get AppProfileParam List", notes = "Get list of AppProfileParam by ID's")
+    @ApiOperation(tags = "AppProfileParamValue", httpMethod = "GET", value = "Get AppProfileParam List", notes = "Get list of AppProfileParam by ID's")
     public List<AppProfileParamValue> getAppProfileFileList(@ApiParam(value = "AppProfileParam ID", required = true) @PathVariable List<Long> ids) throws Exception {
 
         return appProfileParamService.getAppProfileParamList(ids);
@@ -144,7 +139,7 @@ public class AppProfileParamValueController {
      */
     
     @RequestMapping(method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(tags = "AppProfileParam", httpMethod = "PUT",value = "Force Update")
+    @ApiOperation(tags = "AppProfileParamValue", httpMethod = "PUT",value = "Force Update")
     public Integer forceupdate(@RequestBody Integer value) throws Exception {
 
         return appProfileParamService.doForceUpdate(value);

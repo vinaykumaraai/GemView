@@ -31,12 +31,17 @@
  */
 package com.luretechnologies.server.service.impl;
 
+import com.luretechnologies.server.data.dao.AppFileDAO;
+import com.luretechnologies.server.data.dao.AppProfileDAO;
 import com.luretechnologies.server.data.dao.AppProfileFileValueDAO;
+import com.luretechnologies.server.data.model.tms.AppFile;
+import com.luretechnologies.server.data.model.tms.AppProfile;
 import com.luretechnologies.server.data.model.tms.AppProfileFileValue;
 import com.luretechnologies.server.service.AppProfileFileValueService;
 import java.util.List;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.orm.ObjectRetrievalFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,7 +54,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class AppProfileFileValueServiceImpl implements AppProfileFileValueService{
     
     @Autowired
-    AppProfileFileValueDAO appProfileFileDAO;
+    AppProfileFileValueDAO appProfileFileValueDAO;
+    
+    @Autowired
+    AppProfileDAO appProfileDAO;
+    
+    @Autowired
+    AppFileDAO appFileDAO;
     
      /**
      *
@@ -58,12 +69,29 @@ public class AppProfileFileValueServiceImpl implements AppProfileFileValueServic
      * @throws Exception
      */
     @Override
-    public AppProfileFileValue createAppProfileFile(AppProfileFileValue appProfileFileValue) throws Exception{
+    public AppProfileFileValue createAppProfileFileValue(AppProfileFileValue appProfileFileValue) throws Exception{
         AppProfileFileValue newAppProfileFileValue = new AppProfileFileValue();
+        
+        // Check appFile existence
+        AppFile existentAppFile = appFileDAO.getAppFileByID(appProfileFileValue.getAppFileId());
+
+        if (existentAppFile == null) {
+            throw new ObjectRetrievalFailureException(AppFile.class, appProfileFileValue.getAppFileId());
+        }
+        appProfileFileValue.setAppFileId(existentAppFile.getId());
+        
+        // Check appProfile existence        
+        
+        AppProfile existentAppProfile = appProfileDAO.getAppProfileByID(appProfileFileValue.getAppProfileId());
+
+        if (existentAppProfile == null) {
+            throw new ObjectRetrievalFailureException(AppProfile.class, appProfileFileValue.getAppProfileId());
+        }
+        appProfileFileValue.setAppProfileId(existentAppProfile.getId());
         
          // Copy properties from -> to
         BeanUtils.copyProperties(appProfileFileValue , newAppProfileFileValue);
-        appProfileFileDAO.persist(newAppProfileFileValue);
+        appProfileFileValueDAO.persist(newAppProfileFileValue);
         return newAppProfileFileValue;
         
     }
@@ -71,27 +99,48 @@ public class AppProfileFileValueServiceImpl implements AppProfileFileValueServic
     /**
      *
      * @param ID
+     * @param appProfileFileValue
      * @return
      * @throws Exception
      */
     @Override
-    public AppProfileFileValue updateAppProfileFile(long ID) throws Exception{
-        AppProfileFileValue appProfileFileValue = appProfileFileDAO.getAppProfileFileByID(ID);
-        AppProfileFileValue updatedAppProfileFile=  updateAppProfileFile(appProfileFileValue);
-        return updatedAppProfileFile;
+    public AppProfileFileValue updateAppProfileFileValue(long ID, AppProfileFileValue appProfileFileValue) throws Exception{
+        AppProfileFileValue existentAppProfileFileValue = appProfileFileValueDAO.getAppProfileFileByID(ID);
+        
+        // Check appFile existence
+        AppFile existentAppFile = appFileDAO.getAppFileByID(appProfileFileValue.getAppFileId());
+
+        if (existentAppFile == null) {
+            throw new ObjectRetrievalFailureException(AppFile.class, appProfileFileValue.getAppFileId());
+        }
+        appProfileFileValue.setAppFileId(existentAppFile.getId());
+        
+        // Check appProfile existence        
+        
+        AppProfile existentAppProfile = appProfileDAO.getAppProfileByID(appProfileFileValue.getAppProfileId());
+
+        if (existentAppProfile == null) {
+            throw new ObjectRetrievalFailureException(AppProfile.class, appProfileFileValue.getAppProfileId());
+        }
+        appProfileFileValue.setAppProfileId(existentAppProfile.getId());
+        
+        // Copy properties from -> to
+        BeanUtils.copyProperties(appProfileFileValue, existentAppProfileFileValue);
+        
+        //AppProfileFileValue updatedAppProfileFileValue=  updateAppProfileFileValue(appProfileFileValue);
+        return appProfileFileValueDAO.merge(existentAppProfileFileValue);
         
     }
     
     /**
      *
      * @param ID
-     * @return
      * @throws Exception
      */
     @Override
-    public void deleteAppProfileFile(long ID) throws Exception{
-        AppProfileFileValue deletedAppProfileFile = appProfileFileDAO.getAppProfileFileByID(ID);
-        appProfileFileDAO.delete(deletedAppProfileFile);
+    public void deleteAppProfileFileValue(long ID) throws Exception{
+        AppProfileFileValue deletedAppProfileFileValue = appProfileFileValueDAO.getAppProfileFileByID(ID);
+        appProfileFileValueDAO.delete(deletedAppProfileFileValue);
         
     }
     
@@ -104,7 +153,7 @@ public class AppProfileFileValueServiceImpl implements AppProfileFileValueServic
      */
     @Override
     public Integer doForceUpdate(Integer value) throws Exception{
-        Integer forceUpdateValue = appProfileFileDAO.doForceUpdate(value);
+        Integer forceUpdateValue = appProfileFileValueDAO.doForceUpdate(value);
         return forceUpdateValue;
         
     }
@@ -116,8 +165,8 @@ public class AppProfileFileValueServiceImpl implements AppProfileFileValueServic
      * @throws Exception
      */
     @Override
-    public List<AppProfileFileValue> getAppProfileFileList(List<Long> ids) throws Exception{
-        List<AppProfileFileValue> appFileList = appProfileFileDAO.getAppProfileFileList(ids);
+    public List<AppProfileFileValue> getAppProfileFileValueList(List<Long> ids) throws Exception{
+        List<AppProfileFileValue> appFileList = appProfileFileValueDAO.getAppProfileFileList(ids);
         return appFileList;
         
     }
@@ -129,15 +178,15 @@ public class AppProfileFileValueServiceImpl implements AppProfileFileValueServic
      * @throws Exception
      */
     @Override
-    public AppProfileFileValue getAppProfileFileByID(Long id) throws Exception{
-        AppProfileFileValue appFile = appProfileFileDAO.getAppProfileFileByID(id);
+    public AppProfileFileValue getAppProfileFileValueByID(Long id) throws Exception{
+        AppProfileFileValue appFile = appProfileFileValueDAO.getAppProfileFileByID(id);
         return appFile;
         
     }
     
-    private AppProfileFileValue updateAppProfileFile(AppProfileFileValue appProfileFile)throws Exception{
-        appProfileFile.setDefaultValue("Updated");
-        appProfileFileDAO.merge(appProfileFile);
-        return appProfileFile;
+    private AppProfileFileValue updateAppProfileFileValue(AppProfileFileValue appProfileFileValue)throws Exception{
+        appProfileFileValue.setDefaultValue("Updated");
+        appProfileFileValueDAO.merge(appProfileFileValue);
+        return appProfileFileValue;
     }
 }

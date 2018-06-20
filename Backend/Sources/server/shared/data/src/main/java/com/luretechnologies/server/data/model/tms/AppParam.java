@@ -5,12 +5,11 @@
  */
 package com.luretechnologies.server.data.model.tms;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Date;
+import java.sql.Timestamp;
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -20,10 +19,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -43,69 +39,72 @@ public class AppParam implements Serializable {
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 128)
-    @Column(name = "Name")
+    @Column(name = "name")
     @ApiModelProperty(value = "The Name.", required = true)
     private String name;
     @Size(max = 128)
-    @Column(name = "Description")
+    @Column(name = "description")
     @ApiModelProperty(value = "The Description.", required = true)
     private String description;
     @Size(max = 512)
-    @Column(name = "DefaultValue")
+    @Column(name = "default_value")
     @ApiModelProperty(value = "The DefaultValue.", required = true)
     private String defaultValue;
+    
+    @Column(name = "modifiable", nullable = false, length = 1)
+    @ApiModelProperty(value = "The modifiable.")
+    private boolean modifiable = true;
+    
     @Basic(optional = false)
     @NotNull
-    @Column(name = "Modifiable")
-    @ApiModelProperty(value = "The Modifiable.", required = true)
-    private short modifiable;
-    @Basic(optional = false)
-    @NotNull
-    @Column(name = "Min")
+    @Column(name = "`min`")
     @ApiModelProperty(value = "The Min.", required = true)
     private int min;
     @Basic(optional = false)
     @NotNull
-    @Column(name = "Max")
+    @Column(name = "`max`")
     @ApiModelProperty(value = "The Max.", required = true)
     private int max;
     @Size(max = 256)
-    @Column(name = "`Restrict`")
+    @Column(name = "`restrict`")
     @ApiModelProperty(value = "The Restrict.", required = true)
     private String restrict;
     @Size(max = 256)
-    @Column(name = "Regex")
+    @Column(name = "regex")
     @ApiModelProperty(value = "The Regex.", required = true)
     private String regex;
+    
+    @Column(name = "force_update", nullable = false, length = 1)
+    @ApiModelProperty(value = "The Force Update.")
+    private boolean forceUpdate = false;
+    
+    @JsonIgnore
+    @Column(name = "updated_at", nullable = false)
+    private Timestamp updatedAt;
+    
     @Basic(optional = false)
     @NotNull
-    @Column(name = "ForceUpdate")
-    @ApiModelProperty(value = "The ForceUpdate.", required = true)
-    private short forceUpdate;
-    @Basic(optional = false)
-    @NotNull
-    @Column(name = "UpdatedAt")
-    @ApiModelProperty(value = "The UpdateAt.", required = true)
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date updatedAt;
-    @JoinColumn(name = "App", referencedColumnName = "id")
-    @ApiModelProperty(value = "The App.", required = true)
-    @ManyToOne(optional = false)
-    private App app;
-    @JoinColumn(name = "EntityLevel", referencedColumnName = "id")
+    @Column(name = "app")
+    @ApiModelProperty(value = "The app id.", required = true)
+    private Long appId;
+    
+    @JoinColumn(name = "Entity_Level", referencedColumnName = "id")
     @ApiModelProperty(value = "The EntityLevel.", required = true)
     @ManyToOne(optional = false)
     private EntityLevel entityLevel;
-    @JoinColumn(name = "AppParamFormat", referencedColumnName = "id")
+    
+    @JoinColumn(name = "App_Param_Format", referencedColumnName = "id")
     @ApiModelProperty(value = "The AppParamFormat.", required = true)
     @ManyToOne(optional = false)
     private AppParamFormat appParamFormat;
+    
     @JoinColumn(name = "Action", referencedColumnName = "id")
     @ApiModelProperty(value = "The Action.", required = true)
     @ManyToOne(optional = false)
     private Action action;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "appParam")
-    private Collection<AppProfileParamValue> appprofileparamvalueCollection;
+    
+    /*@OneToMany(cascade = CascadeType.ALL, mappedBy = "appParam", fetch = FetchType.LAZY)
+    private Collection<AppProfileParamValue> appprofileparamvalueCollection;*/
 
     public AppParam() {
     }
@@ -114,14 +113,13 @@ public class AppParam implements Serializable {
         this.id = id;
     }
 
-    public AppParam(Long id, String name, short modifiable, int min, int max, short forceUpdate, Date updatedAt) {
+    public AppParam(Long id, String name, boolean modifiable, int min, int max, boolean forceUpdate) {
         this.id = id;
         this.name = name;
         this.modifiable = modifiable;
         this.min = min;
         this.max = max;
         this.forceUpdate = forceUpdate;
-        this.updatedAt = updatedAt;
     }
 
     public Long getId() {
@@ -156,11 +154,11 @@ public class AppParam implements Serializable {
         this.defaultValue = defaultValue;
     }
 
-    public short getModifiable() {
+    public boolean getModifiable() {
         return modifiable;
     }
 
-    public void setModifiable(short modifiable) {
+    public void setModifiable(boolean modifiable) {
         this.modifiable = modifiable;
     }
 
@@ -196,28 +194,28 @@ public class AppParam implements Serializable {
         this.regex = regex;
     }
 
-    public short getForceUpdate() {
+    public boolean getForceUpdate() {
         return forceUpdate;
     }
 
-    public void setForceUpdate(short forceUpdate) {
+    public void setForceUpdate(boolean forceUpdate) {
         this.forceUpdate = forceUpdate;
     }
 
-    public Date getUpdatedAt() {
+    public Timestamp getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(Date updatedAt) {
+    public void setUpdatedAt(Timestamp updatedAt) {
         this.updatedAt = updatedAt;
     }
 
-    public App getApp() {
-        return app;
+    public Long getAppId() {
+        return appId;
     }
 
-    public void setApp(App app) {
-        this.app = app;
+    public void setAppId(Long appId) {
+        this.appId = appId;
     }
 
     public EntityLevel getEntityLevel() {
@@ -244,13 +242,13 @@ public class AppParam implements Serializable {
         this.action = action;
     }
 
-    public Collection<AppProfileParamValue> getAppProfileParamValueCollection() {
+    /*public Collection<AppProfileParamValue> getAppProfileParamValueCollection() {
         return appprofileparamvalueCollection;
     }
 
     public void setAppProfileParamValueCollection(Collection<AppProfileParamValue> appprofileparamvalueCollection) {
         this.appprofileparamvalueCollection = appprofileparamvalueCollection;
-    }
+    }*/
 
     @Override
     public int hashCode() {

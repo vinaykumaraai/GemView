@@ -42,11 +42,11 @@ public interface AppFileService {
     
     /**
      *
-     * @param appfile
+     * @param appFile
      * @return
      * @throws Exception
      */
-    public AppFile createAppFile(AppFile appfile) throws Exception;
+    public AppFile createAppFile(AppFile appFile) throws Exception;
 
     /**
      *
@@ -74,11 +74,12 @@ public interface AppFileService {
     
     /**
      *
-     * @param ids
+     * @param firstResult
+     * @param lastResult
      * @return 
      * @throws Exception
      */
-    public List<AppFile> getAppFileList(List<Long>  ids) throws Exception;
+    public List<AppFile> getAppFileList(int firstResult, int lastResult) throws Exception;
     
     /**
      *

@@ -126,12 +126,10 @@ public class Merchant extends Entity {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("class Merchant {\n");
-
         sb.append("    name: ").append(StringUtil.toIndentedString(name)).append("\n");
         sb.append("    description: ").append(StringUtil.toIndentedString(description)).append("\n");
         sb.append("    parentId: ").append(StringUtil.toIndentedString(parentId)).append("\n");
-        sb.append("    merchantHosts: ").append(StringUtil.toIndentedString(merchantHosts)).append("\n");
-        sb.append("    merchantSettingValues: ").append(StringUtil.toIndentedString(merchantSettingValues)).append("\n");
+        sb.append("    entityId: ").append(StringUtil.toIndentedString(entityId)).append("\n");
         sb.append("}");
         return sb.toString();
     }

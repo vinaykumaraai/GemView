@@ -38,6 +38,9 @@ import com.luretechnologies.server.data.dao.EntityDAO;
 import com.luretechnologies.server.data.model.Device;
 import com.luretechnologies.server.data.model.Entity;
 import com.luretechnologies.server.service.DeviceService;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import javax.persistence.PersistenceException;
 import org.springframework.beans.BeanUtils;
@@ -78,8 +81,17 @@ public class DeviceServiceImpl implements DeviceService {
         }
 
         entity.setParent(parent);
+        entity.setActive(true);
+        entity.setAvailable(entity.isAvailable());
+
         entity.setType(EntityTypeEnum.DEVICE);
         entityDAO.updatePath(entity, true);
+
+        DateFormat format = new SimpleDateFormat("yyyyMMdd");
+        Date date = format.parse("19800101");
+        entity.setLastContact(date);
+        entity.setLastDownload(date);
+
         deviceDAO.persist(entity);
 
         return entity;
@@ -110,12 +122,11 @@ public class DeviceServiceImpl implements DeviceService {
             throw new PersistenceException("Incorrect parent type.");
         }
 
-        BeanUtils.copyProperties(entity, existentEntity, new String[]{"entityId"});
+        BeanUtils.copyProperties(entity, existentEntity, new String[]{"entityId", "lastContact", "lastContact","active","lastDownload"});
         existentEntity.setParent(parent);
         existentEntity.setType(EntityTypeEnum.DEVICE);
         entityDAO.updatePath(existentEntity, false);
         entityDAO.updateActive(existentEntity);
-
         return deviceDAO.merge(existentEntity);
     }
 
@@ -131,7 +142,9 @@ public class DeviceServiceImpl implements DeviceService {
         if (device == null) {
             throw new ObjectRetrievalFailureException(Device.class, deviceId);
         }
-        deviceDAO.delete(device.getId());
+        device.setActive(false);
+        entityDAO.updateActive( device );
+        deviceDAO.merge(device);
     }
 
     /**
@@ -194,7 +207,7 @@ public class DeviceServiceImpl implements DeviceService {
         if (original == null) {
             throw new ObjectRetrievalFailureException(Entity.class, entityId);
         }
-        
+
         Entity parent = entityDAO.findById(parentId);
         if (parent == null) {
             throw new ObjectRetrievalFailureException(Entity.class, parentId);
@@ -205,10 +218,10 @@ public class DeviceServiceImpl implements DeviceService {
         }
 
         Device copy = new Device();
-                
+
         copy.setParent(parent);
         copy.setType(EntityTypeEnum.DEVICE);
-        BeanUtils.copyProperties(original, copy, new String[]{"entityId, transactions"});        
+        BeanUtils.copyProperties(original, copy, new String[]{"entityId, transactions"});
         entityDAO.updatePath(copy, true);
         deviceDAO.persist(copy);
 

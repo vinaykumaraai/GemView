@@ -43,13 +43,13 @@ public class ApplianceApp implements Serializable {
     private Long id;
     @Basic(optional = false)
     @NotNull
-    @Column(name = "CreatedAt")
+    @Column(name = "created_at")
     @ApiModelProperty(value = "The CreateAt.", required = true)
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
     @Basic(optional = false)
     @NotNull
-    @Column(name = "UpdatedAt")
+    @Column(name = "updated_at")
     @ApiModelProperty(value = "The UpdatedAt.", required = true)
     @Temporal(TemporalType.TIMESTAMP)
     private Date updatedAt;
@@ -57,7 +57,7 @@ public class ApplianceApp implements Serializable {
     private Collection<ApplianceAppFileValue> applianceappfilevalueCollection;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "applianceApp")
     private Collection<ApplianceAppParamValue> applianceappparamvalueCollection;
-    @JoinColumn(name = "AppProfile", referencedColumnName = "id")
+    @JoinColumn(name = "App_Profile", referencedColumnName = "id")
     @ApiModelProperty(value = "The App Profile.", required = true)
     @ManyToOne(optional = false)
     private AppProfile appProfile;

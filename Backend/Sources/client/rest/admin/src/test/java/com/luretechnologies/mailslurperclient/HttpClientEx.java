@@ -73,7 +73,7 @@ public class HttpClientEx {
 
         int code = response.getStatusLine().getStatusCode();
         String reason = response.getStatusLine().getReasonPhrase();
-        System.out.println(String.format("\nput: %s = %d [%s] \n  --> old: %s", uri, code, reason, getXauthtoken()));
+        //System.out.println(String.format("\nput: %s = %d [%s] \n  --> old: %s", uri, code, reason, getXauthtoken()));
 
         switch (code) {
 
@@ -112,7 +112,7 @@ public class HttpClientEx {
 
         int code = response.getStatusLine().getStatusCode();
         String reason = response.getStatusLine().getReasonPhrase();
-        System.out.println(String.format("\nget: %s = %d [%s] \n  --> old: %s", uri, code, reason, getXauthtoken()));
+        //System.out.println(String.format("\nget: %s = %d [%s] \n  --> old: %s", uri, code, reason, getXauthtoken()));
 
         switch (code) {
 
@@ -166,7 +166,7 @@ public class HttpClientEx {
 
         int code = response.getStatusLine().getStatusCode();
         String reason = response.getStatusLine().getReasonPhrase();
-        System.out.println(String.format("\nget: %s = %d [%s] \n  --> old: %s", uri, code, reason, getXauthtoken()));
+        //System.out.println(String.format("\nget: %s = %d [%s] \n  --> old: %s", uri, code, reason, getXauthtoken()));
 
         switch (code) {
 
@@ -207,7 +207,7 @@ public class HttpClientEx {
 
         int code = response.getStatusLine().getStatusCode();
         String reason = response.getStatusLine().getReasonPhrase();
-        System.out.println(String.format("\ndelete: %s = %d [%s] \n  --> old: %s", uri, code, reason, getXauthtoken()));
+        //System.out.println(String.format("\ndelete: %s = %d [%s] \n  --> old: %s", uri, code, reason, getXauthtoken()));
 
         switch (code) {
 
@@ -237,7 +237,7 @@ public class HttpClientEx {
 
         int code = response.getStatusLine().getStatusCode();
         String reason = response.getStatusLine().getReasonPhrase();
-        System.out.println(String.format("\npost: %s = %d [%s] \n  --> old: %s", uri, code, reason, getXauthtoken()));
+        //System.out.println(String.format("\npost: %s = %d [%s] \n  --> old: %s", uri, code, reason, getXauthtoken()));
 
         switch (code) {
 
@@ -292,7 +292,7 @@ public class HttpClientEx {
 
         int code = response.getStatusLine().getStatusCode();
         String reason = response.getStatusLine().getReasonPhrase();
-        System.out.println(String.format("\npost: %s = %d [%s] \n  --> old: %s", uri, code, reason, getXauthtoken()));
+        //System.out.println(String.format("\npost: %s = %d [%s] \n  --> old: %s", uri, code, reason, getXauthtoken()));
 
         switch (code) {
 

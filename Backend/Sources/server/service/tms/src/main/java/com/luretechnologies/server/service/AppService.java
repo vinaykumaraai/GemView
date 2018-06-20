@@ -31,8 +31,14 @@
  */
 package com.luretechnologies.server.service;
 
+import com.luretechnologies.server.data.model.Entity;
 import com.luretechnologies.server.data.model.tms.App;
+import com.luretechnologies.server.data.model.tms.AppFile;
+import com.luretechnologies.server.data.model.tms.AppParam;
+import com.luretechnologies.server.data.model.tms.AppProfile;
+import java.io.File;
 import java.util.List;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  *
@@ -51,6 +57,40 @@ public interface AppService {
     /**
      *
      * @param id
+     * @param description
+     * @param fileContent
+     * @param file
+     * @return
+     * @throws Exception
+     */
+    public App addAppFile(Long id, String description, MultipartFile fileContent, File file) throws Exception;
+    
+    /**
+     *
+     * @param id
+     * @param appParamId
+     * @throws Exception
+     */
+    public void deleteAppFile(Long id, Long appParamId) throws Exception;
+    
+    /**
+     *
+     * @param id
+     * @throws Exception
+     */
+    public void deleteAllAppFile(Long id) throws Exception;
+    
+    /**
+     *
+     * @param id
+     * @throws Exception
+     */
+    public void deleteAllAppParam(Long id) throws Exception;
+    
+    /**
+     *
+     * @param id
+     * @param app
      * @return
      * @throws Exception
      */
@@ -65,14 +105,11 @@ public interface AppService {
     
     /**
      *
-     * @param name
-     * @param active
-     * @param pageNumber
-     * @param rowsPerPage
+     * @param entity
      * @return
      * @throws Exception
      */
-    public List<App> list(String name, Boolean active, int pageNumber, int rowsPerPage) throws Exception;
+    public List<App> list(Entity entity) throws Exception;
     
     
     /**
@@ -86,11 +123,99 @@ public interface AppService {
     /**
      *
      * @param filter
-     * @param active
      * @param pageNumber
      * @param rowsPerPage
      * @return
      * @throws Exception
      */
-    public List<App> search(String filter,  Boolean active, int pageNumber, int rowsPerPage) throws Exception;
+    public List<App> search(String filter,  int pageNumber, int rowsPerPage) throws Exception;
+
+    /**
+     *
+     * @param id
+     * @param appParam
+     * @return
+     * @throws Exception
+     */
+    public App addAppParam(Long id, AppParam appParam) throws Exception;
+    
+    /**
+     *
+     * @param id
+     * @param appParamId
+     * @throws Exception
+     */
+    public void deleteAppParam(Long id, Long appParamId) throws Exception;
+    
+    /**
+     *
+     * @param id
+     * @param appParam
+     * @return 
+     * @throws Exception
+     */
+    public App updateAppParam(Long id, AppParam appParam) throws Exception;
+    
+    /**
+     *
+     * @param id
+     * @param appProfile
+     * @return
+     * @throws Exception
+     */
+    public App addAppProfile(Long id, AppProfile appProfile) throws Exception;
+
+    /**
+     *
+     * @param id
+     * @param appProfileId
+     * @throws Exception
+     */
+    public void deleteAppProfile(Long id, Long appProfileId) throws Exception;
+    
+    /**
+     *
+     * @param id
+     * @return 
+     * @throws Exception
+     */
+    public List<AppParam> getAppParamList(Long id) throws Exception;
+    
+     /**
+     *
+     * @param id
+     * @return 
+     * @throws Exception
+     */
+    public List<AppProfile> getAppProfileList(Long id) throws Exception;
+    
+     /**
+     *
+     * @param id
+     * @return 
+     * @throws Exception
+     */
+    public List<AppParam>  getAppFileList(Long id) throws Exception;
+    
+     /**
+     *
+     * @param appId
+     * @param filter
+     * @param pageNumber
+     * @param rowsPerPage
+     * @return 
+     * @throws Exception
+     */
+    public List<AppParam> searchAppParam(Long appId, String filter, int pageNumber, int rowsPerPage) throws Exception;
+    
+     /**
+     *
+     * @param appId
+     * @param filter
+     * @param pageNumber
+     * @param rowsPerPage
+     * @return 
+     * @throws Exception
+     */
+    public List<AppParam> searchAppFile(Long appId, String filter, int pageNumber, int rowsPerPage) throws Exception;
 }

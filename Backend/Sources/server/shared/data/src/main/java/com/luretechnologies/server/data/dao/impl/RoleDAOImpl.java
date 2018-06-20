@@ -35,7 +35,6 @@ import com.luretechnologies.server.data.dao.RoleDAO;
 import com.luretechnologies.server.data.model.Role;
 import java.util.List;
 import javax.persistence.PersistenceException;
-import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
@@ -49,37 +48,57 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public class RoleDAOImpl extends BaseDAOImpl<Role, Long> implements RoleDAO {
-    
+
     @Override
     public List<Role> list(int firstResult, int lastResult) throws PersistenceException {
-        CriteriaBuilder critBuilder = criteriaBuilder();
-        CriteriaQuery<Role> q = criteriaQuery();
-        Root<Role> root = getRoot(q);
-
-        Expression<String> upperName = critBuilder.upper((Expression) root.get("name"));
-        Predicate namePredicate = critBuilder.notLike(upperName, "%" + Role.SUPER_ADMIN + "%");
         
-        return query(q.where(namePredicate)).setFirstResult(firstResult).setMaxResults(lastResult).getResultList();
+         CriteriaQuery<Role> cq = criteriaQuery();
+        Root<Role> root = getRoot(cq);
+
+        Predicate predicate = criteriaBuilder().conjunction();
+
+        predicate.getExpressions().add(criteriaBuilder().notLike(criteriaBuilder().upper((Expression) root.get("name")), "%" + Role.SUPER_ADMIN + "%"));
+        
+        predicate.getExpressions().add(criteriaBuilder().equal(root.<Boolean>get("active"), true));
+
+        cq.where(predicate).orderBy(criteriaBuilder().asc(root.get("name")));
+        
+
+        return query(cq).setFirstResult(firstResult).setMaxResults(lastResult).getResultList();
+        
     }
 
     @Override
     public List<Role> search(String filter, int firstResult, int lastResult) throws PersistenceException {
 
-        CriteriaBuilder critBuilder = criteriaBuilder();
-        CriteriaQuery<Role> q = criteriaQuery();
-        Root<Role> root = getRoot(q);
+        CriteriaQuery<Role> cq = criteriaQuery();
+        Root<Role> root = getRoot(cq);
 
-        Expression<String> upperName = critBuilder.upper((Expression) root.get("name"));
+        Predicate predicate = criteriaBuilder().conjunction();
 
-        Expression<String> upperDescription = critBuilder.upper((Expression) root.get("description"));
+        if (filter != null && !filter.isEmpty()) {
+            predicate.getExpressions().add(criteriaBuilder().or(
+                    criteriaBuilder().like(criteriaBuilder().upper((Expression) root.get("name")), "%" + filter.toUpperCase() + "%"),
+                    criteriaBuilder().like(criteriaBuilder().upper((Expression) root.get("description")), "%" + filter.toUpperCase() + "%")));
+        }
 
-        Predicate namePredicate = critBuilder.like(upperName, "%" + filter.toUpperCase() + "%");
-        Predicate descriptionPredicate = critBuilder.like(upperDescription, "%" + filter.toUpperCase() + "%");
-        Predicate notAdminPredicate = critBuilder.notLike(upperName, "%" + Role.SUPER_ADMIN + "%");
+        predicate.getExpressions().add(criteriaBuilder().notLike(criteriaBuilder().upper((Expression) root.get("name")), "%" + Role.SUPER_ADMIN + "%"));
+        
+        predicate.getExpressions().add(criteriaBuilder().equal(root.<Boolean>get("active"), true));
 
-        q.where(critBuilder.or(namePredicate, descriptionPredicate), critBuilder.and(notAdminPredicate));
+        cq.where(predicate).orderBy(criteriaBuilder().asc(root.get("name")));
+        
 
-        return query(q).setFirstResult(firstResult).setMaxResults(lastResult).getResultList();
+        return query(cq).setFirstResult(firstResult).setMaxResults(lastResult).getResultList();
+    }
+
+    @Override
+    public void delete(Long id) throws PersistenceException {
+        //Role role = findById(id);
+        //role.setActive(false);
+        //String newName = role.getName() + "_" + (new Timestamp(System.currentTimeMillis())).toString();
+        //role.setDescription(newName);
+        // merge(role);
     }
 
 //    @Override

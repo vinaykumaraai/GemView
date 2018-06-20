@@ -31,10 +31,8 @@
  */
 package com.luretechnologies.client.restlib.service.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.luretechnologies.client.restlib.common.StringUtil;
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import javax.annotation.Generated;
 
 /**

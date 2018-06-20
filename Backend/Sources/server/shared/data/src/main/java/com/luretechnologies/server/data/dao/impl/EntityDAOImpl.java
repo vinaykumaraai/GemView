@@ -79,7 +79,7 @@ public class EntityDAOImpl extends BaseDAOImpl<Entity, Long> implements EntityDA
             return null;
         }
     }
-    
+
     /**
      *
      * @param entity
@@ -96,7 +96,7 @@ public class EntityDAOImpl extends BaseDAOImpl<Entity, Long> implements EntityDA
         query.select(root).where(critBuilder.equal(root.get("parent"), entity.getId()));
         return query(query).setFirstResult(firstResult).setMaxResults(lastResult).getResultList();
     }
-    
+
     /**
      *
      * @param entity
@@ -141,7 +141,7 @@ public class EntityDAOImpl extends BaseDAOImpl<Entity, Long> implements EntityDA
         CriteriaBuilder critBuilder = criteriaBuilder();
         CriteriaQuery<Entity> query = criteriaQuery();
         Root<Entity> root = query.from(Entity.class);
-                
+
         query.select(root);
         query.where(critBuilder.like(root.<String>get("path"), "-" + String.valueOf(id) + "-%"));
         return query(query).getResultList();
@@ -359,24 +359,39 @@ public class EntityDAOImpl extends BaseDAOImpl<Entity, Long> implements EntityDA
 
         if (!isNew) {
             List<Entity> subTree = getEntityHierarchyList(entity.getId());
-            for (Entity item : subTree) {
-                LOGGER.info("updatePath: " + item.getName());
-                path = getEntityPath(item);
-                super.merge(item);
-                item.setPath(path);
+            if (subTree != null) {
+                for (Entity item : subTree) {
+                    LOGGER.info("updatePath: " + item.getName());
+                    path = getEntityPath(item);
+                    super.merge(item);
+                    item.setPath(path);
+                }
             }
         }
     }
-    
+
     /**
      * @param entity
      */
     @Override
     public void updateActive(Entity entity) {
         List<Entity> entities = getEntityHierarchyList(entity.getId());
-        for (Entity item : entities) {
-            item.setActive(entity.getActive());
-            merge(item);
+        if (entities != null) {
+            for (Entity item : entities) {
+                item.setAvailable(entity.isAvailable());
+                merge(item);
+            }
+        }
+    }
+
+    @Override
+    public void updateActive(Entity entity, Boolean active) {
+        List<Entity> entities = getEntityHierarchyList(entity.getId());
+        if (entities != null) {
+            for (Entity item : entities) {
+                item.setAvailable(entity.isAvailable());
+                merge(item);
+            }
         }
     }
 
@@ -388,7 +403,7 @@ public class EntityDAOImpl extends BaseDAOImpl<Entity, Long> implements EntityDA
      */
     @Override
     public Entity move(long id, long parentId) throws PersistenceException {
-        if(id == parentId) {
+        if (id == parentId) {
             throw new PersistenceException("Parent and entity id must be differents.");
         }
         Entity parent = findById(parentId);
@@ -406,13 +421,13 @@ public class EntityDAOImpl extends BaseDAOImpl<Entity, Long> implements EntityDA
             throw new PersistenceException("Incorrect parent type.");
         }
         String parentPath = getEntityPath(parent);
-        if(parentPath.contains("-" + String.valueOf(id) + "-")) {
+        if (parentPath.contains("-" + String.valueOf(id) + "-")) {
             throw new PersistenceException("Entity is already a parent ancestor.");
         }
         super.merge(entity);
         entity.setParent(parent);
         entity.setParentId(parent.getId());
-        updatePath(entity, false);        
+        updatePath(entity, false);
         return entity;
     }
 
@@ -468,7 +483,11 @@ public class EntityDAOImpl extends BaseDAOImpl<Entity, Long> implements EntityDA
         CriteriaQuery<Entity> query = criteriaQuery();
         Root<Entity> root = getRoot(query);
         query.select(root).where(critBuilder.like(root.<String>get("path"), "%-" + String.valueOf(id) + "-%"));
-        return query(query).getResultList();
+        try {
+            return query(query).getResultList();
+        } catch (Exception ex) {
+            return null;
+        }
     }
 
     private void updateAllPaths() {
@@ -495,4 +514,12 @@ public class EntityDAOImpl extends BaseDAOImpl<Entity, Long> implements EntityDA
         }
         return path;
     }
+
+    @Override
+    public void delete(Long id) throws PersistenceException {
+        Entity entity = findById(id);
+        entity.setActive(false);
+        merge(entity);
+    }
+
 }

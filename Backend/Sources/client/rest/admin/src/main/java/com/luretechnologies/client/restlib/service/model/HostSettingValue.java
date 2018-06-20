@@ -68,7 +68,7 @@ public class HostSettingValue {
     public void setHost(Host host) {
         this.host = host;
     }
-    
+
     /**
      *
      * @return

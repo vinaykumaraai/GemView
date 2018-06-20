@@ -62,32 +62,34 @@ public class AppProfileFileValueController {
     /**
      * Creates a new appProfileFile
      *
-     * @param appProfileFile
+     * @param appProfileFileValue
      * @return
      * @throws java.lang.Exception
      */
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(tags = "AppProfileFile", httpMethod = "POST",value = "Create AppProfileFile")
-    public AppProfileFileValue createAppProfileFile(@RequestBody AppProfileFileValue appProfileFile) throws Exception {
+    public AppProfileFileValue createAppProfileFile(
+            @RequestBody AppProfileFileValue appProfileFileValue) throws Exception {
 
-        return appProfileFileService.createAppProfileFile(appProfileFile);
+        return appProfileFileService.createAppProfileFileValue(appProfileFileValue);
     }
     
     /**
      * Updates an appProfileFile
      *
      * @param  id
-     * @param appProfileFile
+     * @param appProfileFileValue
      * @return
      * @throws java.lang.Exception
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(tags = "AppProfileFile", httpMethod = "PUT", value = "Update AppProfileFile", notes = "Updates an AppProfileFile")
-    public AppProfileFileValue updateAppProfileFile(@ApiParam(value = "AppProfileFile id", required = true) @PathVariable("id") long id,
-            @ApiParam(value = "AppProfileFile object", required = true) @RequestBody AppProfileFileValue appProfileFile) throws Exception {
+    public AppProfileFileValue updateAppProfileFile(
+            @ApiParam(value = "AppProfileFile id", required = true) @PathVariable("id") long id,
+            @ApiParam(value = "AppProfileFile object", required = true) @RequestBody AppProfileFileValue appProfileFileValue) throws Exception {
 
-        return appProfileFileService.updateAppProfileFile(id);
+        return appProfileFileService.updateAppProfileFileValue(id, appProfileFileValue);
     }
     
     /**
@@ -101,7 +103,7 @@ public class AppProfileFileValueController {
     @ApiOperation(tags = "AppProfileFile", httpMethod = "DELETE",value = "Delete AppProfileFile")
     public void deleteAppProfileFile(long id) throws Exception {
 
-        appProfileFileService.deleteAppProfileFile(id);
+        appProfileFileService.deleteAppProfileFileValue(id);
     }
     
     /**
@@ -115,7 +117,7 @@ public class AppProfileFileValueController {
     @ApiOperation(tags = "AppProfileFile", httpMethod = "GET", value = "Get AppProfileFile", notes = "Get AppProfileFile by id")
     public AppProfileFileValue getAppProfileFileByID(@ApiParam(value = "AppProfileFile ID", required = true) @PathVariable long id) throws Exception {
 
-        return appProfileFileService.getAppProfileFileByID(id);
+        return appProfileFileService.getAppProfileFileValueByID(id);
     }
     
     /**
@@ -129,7 +131,7 @@ public class AppProfileFileValueController {
     @ApiOperation(tags = "AppProfileFile", httpMethod = "GET", value = "Get AppProfileFileValue List", notes = "Get list of AppProfileFileValue by ID's")
     public List<AppProfileFileValue> getAppProfileFileList(@ApiParam(value = "AppProfileFileValue ID", required = true) @PathVariable List<Long> ids) throws Exception {
 
-        return appProfileFileService.getAppProfileFileList(ids);
+        return appProfileFileService.getAppProfileFileValueList(ids);
     }
     
     /**

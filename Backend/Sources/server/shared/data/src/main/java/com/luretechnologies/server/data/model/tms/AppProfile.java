@@ -7,16 +7,15 @@ package com.luretechnologies.server.data.model.tms;
 
 import io.swagger.annotations.ApiModelProperty;
 import java.io.Serializable;
-import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
@@ -40,24 +39,28 @@ public class AppProfile implements Serializable {
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 128)
-    @Column(name = "Name")
+    @Column(name = "name")
     @ApiModelProperty(value = "The Name.", required = true)
     private String name;
+    
+    @Column(name = "active", nullable = false, length = 1)
+    @ApiModelProperty(value = "The active.")
+    private boolean active = true;
+    
+    @OneToMany(mappedBy = "appProfileId", targetEntity = AppProfileParamValue.class, fetch = FetchType.LAZY)
+    private Set<AppProfileParamValue> appprofileparamvalueCollection = new HashSet<>();
+    
+    @OneToMany(mappedBy = "appProfileId", targetEntity = EntityAppProfile.class, fetch = FetchType.LAZY)
+    private Set<EntityAppProfile> entityappprofileCollection = new HashSet<>();
+    
+    /*@OneToMany(mappedBy = "appProfileId", targetEntity = AppProfileFileValue.class, fetch = FetchType.LAZY)
+    private Set<AppProfileFileValue> appprofilefilevalueCollection = new HashSet<>();*/
+    
     @Basic(optional = false)
     @NotNull
-    @Column(name = "Active")
-    @ApiModelProperty(value = "The Active.", required = true)
-    private short active;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "appProfile")
-    private Collection<AppProfileParamValue> appprofileparamvalueCollection;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "appProfile")
-    private Collection<ApplianceApp> applianceappCollection;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "appProfile")
-    private Collection<AppProfileFileValue> appprofilefilevalueCollection;
-    @JoinColumn(name = "App", referencedColumnName = "id")
-    @ApiModelProperty(value = "The App.", required = true)
-    @ManyToOne(optional = false)
-    private App app;
+    @Column(name = "app")
+    @ApiModelProperty(value = "The app id.", required = true)
+    private Long appId;
 
     public AppProfile() {
     }
@@ -66,7 +69,7 @@ public class AppProfile implements Serializable {
         this.id = id;
     }
 
-    public AppProfile(Long id, String name, short active) {
+    public AppProfile(Long id, String name, boolean active) {
         this.id = id;
         this.name = name;
         this.active = active;
@@ -88,44 +91,50 @@ public class AppProfile implements Serializable {
         this.name = name;
     }
 
-    public short getActive() {
+    public boolean getActive() {
         return active;
     }
 
-    public void setActive(short active) {
+    public void setActive(boolean active) {
         this.active = active;
     }
 
-    public Collection<AppProfileParamValue> getAppProfileParamValueCollection() {
+    public Set<AppProfileParamValue> getAppProfileParamValueCollection() {
         return appprofileparamvalueCollection;
     }
 
-    public void setAppProfileParamValueCollection(Collection<AppProfileParamValue> appprofileparamvalueCollection) {
+    public void setAppProfileParamValueCollection(Set<AppProfileParamValue> appprofileparamvalueCollection) {
         this.appprofileparamvalueCollection = appprofileparamvalueCollection;
     }
-
-    public Collection<ApplianceApp> getApplianceAppCollection() {
-        return applianceappCollection;
-    }
-
-    public void setApplianceAppCollection(Collection<ApplianceApp> applianceappCollection) {
-        this.applianceappCollection = applianceappCollection;
-    }
-
-    public Collection<AppProfileFileValue> getAppProfileFileValueCollection() {
+    
+    /*public Set<AppProfileFileValue> getAppProfileFileValueCollection() {
         return appprofilefilevalueCollection;
     }
 
-    public void setAppProfileFileValueCollection(Collection<AppProfileFileValue> appprofilefilevalueCollection) {
+    public void setAppProfileFileValueCollection(Set<AppProfileFileValue> appprofilefilevalueCollection) {
         this.appprofilefilevalueCollection = appprofilefilevalueCollection;
+    }*/
+    
+    /**
+     * @return the entityappprofileCollection
+     */
+    public Set<EntityAppProfile> getEntityAppProfileCollection() {
+        return entityappprofileCollection;
     }
 
-    public App getApp() {
-        return app;
+    /**
+     * @param entityappprofileCollection the entityappprofileCollection to set
+     */
+    public void setEntityAppProfileCollection(Set<EntityAppProfile> entityappprofileCollection) {
+        this.entityappprofileCollection = entityappprofileCollection;
     }
 
-    public void setApp(App app) {
-        this.app = app;
+    public Long getAppId() {
+        return appId;
+    }
+
+    public void setAppId(Long appId) {
+        this.appId = appId;
     }
 
     @Override
@@ -151,6 +160,5 @@ public class AppProfile implements Serializable {
     @Override
     public String toString() {
         return "com.luretechnologies.server.data.model.tms.App_Profile[ id=" + id + " ]";
-    }
-    
+    }  
 }

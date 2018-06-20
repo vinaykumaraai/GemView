@@ -31,27 +31,69 @@
  */
 package com.luretechnologies.server.data.model.tms;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import io.swagger.annotations.ApiModelProperty;
+import java.io.Serializable;
+import java.sql.Timestamp;
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinColumns;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.validation.constraints.Size;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({
-    "occurred",
-    "facility",
-    "label",
-    "message"
-})
-public class HeartbeatAudit {
+@Entity
+@Table(name = "Heartbeat_Audit")
+public class HeartbeatAudit implements Serializable {
 
-    @JsonProperty("occurred")
-    private String occurred;
-    @JsonProperty("facility")
-    private String facility;
-    @JsonProperty("label")
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Basic(optional = false)
+    @Column(name = "id")
+    @ApiModelProperty(value = "The table primary key", required = true)
+    private Long id;
+
+    @Column(name = "occurred", nullable = false)
+    @ApiModelProperty(value = "The time in which the heartbeat was performed")
+    private Timestamp occurred;
+
+    @Size(max = 128)
+    @Column(name = "component")
+    @ApiModelProperty(value = "The component", required = false)
+    private String component;
+
+    @Size(max = 128)
+    @Column(name = "label")
+    @ApiModelProperty(value = "The label", required = false)
     private String label;
-    @JsonProperty("message")
+
+    @Size(max = 128)
+    @Column(name = "description")
+    @ApiModelProperty(value = "The Description", required = false)
+    private String description;
+
+    @Size(max = 128)
+    @Column(name = "message")
+    @ApiModelProperty(value = "The Message", required = false)
     private String message;
+
+    @ManyToOne(targetEntity = Heartbeat.class, fetch = FetchType.LAZY)
+    @JoinColumns({
+        @JoinColumn(name = "heartbeat", referencedColumnName = "id", nullable = false)})
+    private Heartbeat heartbeat;
+
+    @JoinColumn(name = "entity", referencedColumnName = "id")
+    @ManyToOne(optional = false)
+    private com.luretechnologies.server.data.model.Entity entity;
+
+    @Column(name = "updated_at", nullable = false)
+    @ApiModelProperty(value = "The time in which the heartbeat was performed.")
+    private Timestamp updatedAt;
 
     /**
      * No args constructor for use in serialization
@@ -63,55 +105,161 @@ public class HeartbeatAudit {
     /**
      *
      * @param message
-     * @param facility
      * @param label
      * @param occurred
      */
-    public HeartbeatAudit(String occurred, String facility, String label, String message) {
+    public HeartbeatAudit(Timestamp occurred, String component, String label, String message) {
         super();
         this.occurred = occurred;
-        this.facility = facility;
+        this.component = component;
         this.label = label;
-        this.message = message;
+        this.description = message;
     }
 
-    @JsonProperty("occurred")
-    public String getOccurred() {
+    /**
+     * @return the id
+     */
+    public Long getId() {
+        return id;
+    }
+
+    /**
+     * @param id the id to set
+     */
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    /**
+     * @return the occurred
+     */
+    public Timestamp getOccurred() {
         return occurred;
     }
 
-    @JsonProperty("occurred")
-    public void setOccurred(String occurred) {
+    /**
+     * @param occurred the occurred to set
+     */
+    public void setOccurred(Timestamp occurred) {
         this.occurred = occurred;
     }
 
-    @JsonProperty("facility")
-    public String getFacility() {
-        return facility;
+    /**
+     * @return the component
+     */
+    public String getComponent() {
+        return component;
     }
 
-    @JsonProperty("facility")
-    public void setFacility(String facility) {
-        this.facility = facility;
+    /**
+     * @param component the component to set
+     */
+    public void setComponent(String component) {
+        this.component = component;
     }
 
-    @JsonProperty("label")
+    /**
+     * @return the label
+     */
     public String getLabel() {
         return label;
     }
 
-    @JsonProperty("label")
+    /**
+     * @param label the label to set
+     */
     public void setLabel(String label) {
         this.label = label;
     }
 
-    @JsonProperty("message")
+    /**
+     * @return the description
+     */
+    public String getDescription() {
+        return description;
+    }
+
+    /**
+     * @param description the description to set
+     */
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 0;
+        hash += (id != null ? id.hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        // TODO: Warning - this method won't work in the case the id fields are not set
+        if (!(object instanceof HeartbeatAudit)) {
+            return false;
+        }
+        HeartbeatAudit other = (HeartbeatAudit) object;
+        return !((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id)));
+    }
+
+    @Override
+    public String toString() {
+        return "com.luretechnologies.server.data.model.tms.HeartbeatAudit[ id=" + id + " ]";
+    }
+
+    /**
+     * @return the heartbeat
+     */
+    public Heartbeat getHeartbeat() {
+        return heartbeat;
+    }
+
+    /**
+     * @param heartbeat the heartbeat to set
+     */
+    public void setHeartbeat(Heartbeat heartbeat) {
+        this.heartbeat = heartbeat;
+    }
+
+    /**
+     * @return the message
+     */
     public String getMessage() {
         return message;
     }
 
-    @JsonProperty("message")
+    /**
+     * @param message the message to set
+     */
     public void setMessage(String message) {
         this.message = message;
     }
+    /**
+     * @return the updatedAt
+     */
+    public Timestamp getUpdatedAt() {
+        return updatedAt;
+    }
+
+    /**
+     * @param updatedAt the updatedAt to set
+     */
+    public void setUpdatedAt(Timestamp updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    /**
+     * @return the entity
+     */
+    public com.luretechnologies.server.data.model.Entity getEntity() {
+        return entity;
+    }
+
+    /**
+     * @param entity the entity to set
+     */
+    public void setEntity(com.luretechnologies.server.data.model.Entity entity) {
+        this.entity = entity;
+    }    
 }

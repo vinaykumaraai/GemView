@@ -394,7 +394,7 @@ public class ClientTransactionResponse {
     public void setTransmissionTime(String transmissionTime) {
         this.transmissionTime = transmissionTime;
     }
-    
+
     /**
      *
      * @return

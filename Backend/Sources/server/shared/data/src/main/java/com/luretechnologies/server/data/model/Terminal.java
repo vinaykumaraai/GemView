@@ -34,12 +34,10 @@ package com.luretechnologies.server.data.model;
 //import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.luretechnologies.server.common.Messages;
-import com.luretechnologies.server.constraints.FieldNotBlank;
 import com.luretechnologies.server.data.model.payment.TerminalHost;
 import com.luretechnologies.server.data.model.payment.TerminalSettingValue;
 import com.luretechnologies.server.data.model.payment.Transaction;
 import com.luretechnologies.server.data.model.tms.ApplicationPackage;
-import com.luretechnologies.server.data.model.tms.KeyBlock;
 import com.luretechnologies.server.data.model.tms.ScheduleGroup;
 import io.swagger.annotations.ApiModelProperty;
 import java.io.Serializable;
@@ -56,7 +54,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -73,6 +70,34 @@ import javax.validation.constraints.Size;
 //@JsonFilter("terminalFilter")
 //@JsonIgnoreProperties(ignoreUnknown=true)
 public class Terminal extends com.luretechnologies.server.data.model.Entity implements Serializable {
+
+    /**
+     * @return the active
+     */
+    public boolean isActive() {
+        return active;
+    }
+
+    /**
+     * @param active the active to set
+     */
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    /**
+     * @return the heartbeat
+     */
+    public boolean isHeartbeat() {
+        return heartbeat;
+    }
+
+    /**
+     * @param heartbeat the heartbeat to set
+     */
+    public void setHeartbeat(boolean heartbeat) {
+        this.heartbeat = heartbeat;
+    }
 
     /**
      *
@@ -144,6 +169,18 @@ public class Terminal extends com.luretechnologies.server.data.model.Entity impl
     @ApiModelProperty(value = "The last  download.", required = true)
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date lastDownload;
+    
+    @Column(name = "active", nullable = false, length = 1)
+    @ApiModelProperty(value = "The active.")
+    private boolean active = true;
+    
+    @Column(name = "heartbeat", nullable = false, length = 1)
+    @ApiModelProperty(value = "The Heartbeat.")
+    private boolean heartbeat = true;
+    
+    @Column(name = "frequency", nullable = false, length = 20)
+    @ApiModelProperty(value = "The frequency heartbeat request.")
+    private long frequency;
 
     public Date getLastContact() {
         return lastContact;
@@ -336,6 +373,20 @@ public class Terminal extends com.luretechnologies.server.data.model.Entity impl
     @Override
     public String toString() {
         return String.valueOf(getId());
+    }
+
+    /**
+     * @return the frequency
+     */
+    public long getFrequency() {
+        return frequency;
+    }
+
+    /**
+     * @param frequency the frequency to set
+     */
+    public void setFrequency(long frequency) {
+        this.frequency = frequency;
     }
 
 }

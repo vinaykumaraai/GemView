@@ -33,20 +33,24 @@ import com.luretechnologies.client.restlib.Utils;
 import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.client.restlib.common.CommonConstants;
 import com.luretechnologies.client.restlib.service.model.UserSession;
-import com.luretechnologies.mailslurper.MailCollection;
-import com.luretechnologies.mailslurper.MailItem;
 import com.luretechnologies.mailslurperclient.MailApiClient;
 import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.junit.After;
+import org.junit.AfterClass;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeNotNull;
+import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class AuthTest {
 
     private static String temporaryPassword = null;
@@ -54,17 +58,66 @@ public class AuthTest {
 
     private static RestClientService service;
     private static UserSession userSession;
-    private static MailApiClient mail;
+    private static MailApiClient mail_test_standard;
+    private static MailApiClient mail_test_updatepw;
+    private static MailApiClient mail_test_twofactor;
+
+    private static long startTime;
 
     @BeforeClass
     public static void createService() {
-        service = new RestClientService(Utils.serviceUrl + "/admin/api", Utils.serviceUrl + "/payment/api");
-        assumeNotNull(service);
-        mail = new MailApiClient("http", "mia.lure68.net:58124");
+        try {
+
+            service = new RestClientService(Utils.ADMIN_SERVICE_URL, Utils.TMS_SERVICE_URL);
+            assumeNotNull(service);
+
+            mail_test_standard = new MailApiClient("atl.lure68.net", 1100, "test_standard", "anything");
+            mail_test_updatepw = new MailApiClient("atl.lure68.net", 1100, "test_updatepw", "anything");
+            mail_test_twofactor = new MailApiClient("atl.lure68.net", 1100, "test_twofactor", "anything");
+        } catch (Exception ex) {
+        }
+    }
+
+    @AfterClass
+    public static void removeService() {
+    }
+
+    @Before
+    public void setUp() {
+
+        startTime = System.currentTimeMillis();
+
+        try {
+            DeleteAllEmail();
+        } catch (Exception ex) {
+        }
+    }
+
+    @After
+    public void tearDown() {
+        try {
+            DeleteAllEmail();
+        } catch (Exception ex) {
+        }
     }
 
     @Test
-    public void _001_loginStandard() {
+    public void auth_001a_loginStandard() {
+
+        try {
+            userSession = service.getAuthApi().login(CommonConstants.testStandardUsername, CommonConstants.testStandardPassword);
+            assertNotNull("User failed login", userSession);
+            assertFalse("User requires two factor", userSession.isPerformTwoFactor());
+            assertFalse("User requires password update", userSession.isRequirePasswordUpdate());
+        } catch (ApiException ex) {
+            fail(ex.getMessage());
+        } finally {
+            System.out.println(String.format("%s took %dms", Utils.getMethodName(), System.currentTimeMillis() - startTime));
+        }
+    }
+
+    @Test
+    public void auth_001b_loginStandard() {
 
         try {
             userSession = service.getAuthApi().login(CommonConstants.testStandardUsername, CommonConstants.testStandardPassword);
@@ -74,47 +127,29 @@ public class AuthTest {
             service.getAuthApi().logout();
         } catch (ApiException ex) {
             fail(ex.getMessage());
+        } finally {
+            System.out.println(String.format("%s took %dms", Utils.getMethodName(), System.currentTimeMillis() - startTime));
         }
     }
 
     @Test
-    public void _004_loginUpdatePassword() {
+    public void auth_001c_loginEx() {
 
         try {
-            temporaryPassword = null;
-            userSession = null;
-
-            service.getAuthApi().forgotPassword(CommonConstants.testUpdatePwEmail);
-            temporaryPassword = getContentFromEmail("Temporary Password: ");
-            assertNotNull("Temporary password not retrieved.", temporaryPassword);
-
-            // verify password update is required
-            userSession = service.getAuthApi().login(CommonConstants.testUpdatePwUsername, temporaryPassword);
+            userSession = service.getAuthApi().loginEx(CommonConstants.testStandardUsername, CommonConstants.testStandardPassword);
             assertNotNull("User failed login", userSession);
-            assertTrue("User did not require password update.", userSession.isRequirePasswordUpdate());
-
+            assertFalse("User requires two factor", userSession.isPerformTwoFactor());
+            assertFalse("User requires password update", userSession.isRequirePasswordUpdate());
             service.getAuthApi().logout();
-
-            CommonConstants.testUpdatePwPassword = Utils.generatePassword(10);
-
-            service.getAuthApi().updatePassword(CommonConstants.testUpdatePwEmail, temporaryPassword, CommonConstants.testUpdatePwPassword);
-
-            userSession = service.getAuthApi().login(CommonConstants.testUpdatePwUsername, CommonConstants.testUpdatePwPassword);
-            assertNotNull("User failed login", userSession);
-            assertFalse("User required two factor", userSession.isPerformTwoFactor());
-            assertFalse("User required password update", userSession.isRequirePasswordUpdate());
-
-            service.getHostApi().getHosts();
-
-            service.getAuthApi().logout();
-
-        } catch (ApiException | IOException ex) {
+        } catch (ApiException ex) {
             fail(ex.getMessage());
+        } finally {
+            System.out.println(String.format("%s took %dms", Utils.getMethodName(), System.currentTimeMillis() - startTime));
         }
     }
 
     @Test
-    public void _003_loginTwoFactor() {
+    public void auth_002a_loginTwoFactor() {
 
         try {
             verificationCode = null;
@@ -125,32 +160,80 @@ public class AuthTest {
 
             assertTrue("User did not require two factor auth.", userSession.isPerformTwoFactor());
 
-            verificationCode = getContentFromEmail("Verification Code: ");
+            verificationCode = getContentFromEmail(mail_test_twofactor, "Verification Code: ");
             assertNotNull("Verification code not retrieved.", verificationCode);
 
             service.getAuthApi().verifyCode(verificationCode);
 
             service.getAuthApi().logout();
 
-        } catch (ApiException | IOException ex) {
+        } catch (Exception ex) {
             fail(ex.getMessage());
+        } finally {
+            System.out.println(String.format("%s took %dms", Utils.getMethodName(), System.currentTimeMillis() - startTime));
         }
     }
 
-    //@Test
-    public void _002_loginUpdatePassword() {
+    @Test
+    public void auth_002b_loginTwoFactorWithResend() {
+
+        try {
+            verificationCode = null;
+            userSession = null;
+
+            userSession = service.getAuthApi().login(CommonConstants.testTwoFactorUsername, CommonConstants.testTwoFactorPassword);
+            assertNotNull("User failed login", userSession);
+
+            assertTrue("User did not require two factor auth.", userSession.isPerformTwoFactor());
+
+            verificationCode = getContentFromEmail(mail_test_twofactor, "Verification Code: ");
+            assertNotNull("Verification code not retrieved.", verificationCode);
+
+            System.out.println("Got 1st verification code: " + verificationCode);
+
+            verificationCode = null;
+            DeleteAllEmail();
+
+            // ask for another verification code
+            service.getAuthApi().resendCode();
+
+            verificationCode = getContentFromEmail(mail_test_twofactor, "Verification Code: ");
+            assertNotNull("Verification code not retrieved.", verificationCode);
+
+            System.out.println("Got 2nd verification code: " + verificationCode);
+
+            service.getAuthApi().verifyCode(verificationCode);
+
+            service.getAuthApi().logout();
+
+        } catch (Exception ex) {
+            fail(ex.getMessage());
+        } finally {
+            System.out.println(String.format("%s took %dms", Utils.getMethodName(), System.currentTimeMillis() - startTime));
+        }
+    }
+
+    @Test
+    public void auth_003a_loginUpdatePassword() {
 
         try {
             temporaryPassword = null;
             userSession = null;
 
             service.getAuthApi().forgotPassword(CommonConstants.testUpdatePwEmail);
-            temporaryPassword = getContentFromEmail("Temporary Password: ");
+            temporaryPassword = getContentFromEmail(mail_test_updatepw, "Temporary Password: ");
             assertNotNull("Temporary password not retrieved.", temporaryPassword);
-            System.out.println("Temporary Password: " + temporaryPassword + " [" + Utils.encryptPassword(temporaryPassword) + "]");
+            System.out.println("Temporary Password: [" + temporaryPassword + "] [" + Utils.encryptPassword(temporaryPassword) + "]");
+
+            // verify password update is required
+            userSession = service.getAuthApi().login(CommonConstants.testUpdatePwUsername, temporaryPassword);
+            assertNotNull("User failed login", userSession);
+            assertTrue("User did not require password update.", userSession.isRequirePasswordUpdate());
+
+            service.getAuthApi().logout();
 
             CommonConstants.testUpdatePwPassword = Utils.generatePassword(10);
-            System.out.println("New Password: " + CommonConstants.testUpdatePwPassword + " [" + Utils.encryptPassword(CommonConstants.testUpdatePwPassword) + "]");
+            System.out.println("New Password: [" + CommonConstants.testUpdatePwPassword + "] [" + Utils.encryptPassword(CommonConstants.testUpdatePwPassword) + "]");
 
             service.getAuthApi().updatePassword(CommonConstants.testUpdatePwEmail, temporaryPassword, CommonConstants.testUpdatePwPassword);
 
@@ -159,47 +242,130 @@ public class AuthTest {
             assertFalse("User required two factor", userSession.isPerformTwoFactor());
             assertFalse("User required password update", userSession.isRequirePasswordUpdate());
 
-            service.getHostApi().getHosts();
+            service.getUserApi().getUsers();
 
             service.getAuthApi().logout();
 
-        } catch (ApiException | IOException ex) {
-            System.out.println("Exception: " + ex.getMessage());
+        } catch (Exception ex) {
             fail(ex.getMessage());
+        } finally {
+            System.out.println(String.format("%s took %dms", Utils.getMethodName(), System.currentTimeMillis() - startTime));
         }
     }
 
-    private String getContentFromEmail(String afterText) throws IOException {
+    @Test
+    public void auth_003b_loginUpdatePassword() {
 
-        int limit = 25;
-        int count = mail.GetEmailCount();
-        System.out.println(String.format("Mail Count = %d", count));
+        try {
+            temporaryPassword = null;
+            userSession = null;
 
-        while (count == 0 && limit > 0) {
-            try {
-                Thread.sleep(250);
-                count = mail.GetEmailCount();
-            } catch (InterruptedException ex) {
+            service.getAuthApi().forgotPassword(CommonConstants.testUpdatePwEmail);
+            temporaryPassword = getContentFromEmail(mail_test_updatepw, "Temporary Password: ");
+            assertNotNull("Temporary password not retrieved.", temporaryPassword);
+            System.out.println("Temporary Password: [" + temporaryPassword + "] [" + Utils.encryptPassword(temporaryPassword) + "]");
+
+            CommonConstants.testUpdatePwPassword = Utils.generatePassword(10);
+            System.out.println("New Password: [" + CommonConstants.testUpdatePwPassword + "] [" + Utils.encryptPassword(CommonConstants.testUpdatePwPassword) + "]");
+
+            service.getAuthApi().updatePasswordEx(CommonConstants.testUpdatePwEmail, temporaryPassword, CommonConstants.testUpdatePwPassword);
+
+            userSession = service.getAuthApi().login(CommonConstants.testUpdatePwUsername, CommonConstants.testUpdatePwPassword);
+            assertNotNull("User failed login", userSession);
+            assertFalse("User required two factor", userSession.isPerformTwoFactor());
+            assertFalse("User required password update", userSession.isRequirePasswordUpdate());
+
+            service.getUserApi().getUsers();
+
+            service.getAuthApi().logout();
+
+        } catch (Exception ex) {
+            System.out.println("Exception: " + ex.getMessage());
+            fail(ex.getMessage());
+        } finally {
+            System.out.println(String.format("%s took %dms", Utils.getMethodName(), System.currentTimeMillis() - startTime));
+        }
+    }
+
+    @Test
+    public void auth_003c_loginUpdatePasswordEx() {
+
+        try {
+            temporaryPassword = null;
+            userSession = null;
+
+            service.getAuthApi().forgotPassword(CommonConstants.testUpdatePwEmail);
+            temporaryPassword = getContentFromEmail(mail_test_updatepw, "Temporary Password: ");
+            assertNotNull("Temporary password not retrieved.", temporaryPassword);
+            System.out.println("Temporary Password: [" + temporaryPassword + "] [" + Utils.encryptPassword(temporaryPassword) + "]");
+
+            // verify password update is required
+            userSession = service.getAuthApi().login(CommonConstants.testUpdatePwUsername, temporaryPassword);
+            assertNotNull("User failed login", userSession);
+            assertTrue("User did not require password update.", userSession.isRequirePasswordUpdate());
+
+            service.getAuthApi().logout();
+
+            CommonConstants.testUpdatePwPassword = Utils.generatePassword(10);
+            System.out.println("New Password: [" + CommonConstants.testUpdatePwPassword + "] [" + Utils.encryptPassword(CommonConstants.testUpdatePwPassword) + "]");
+
+            service.getAuthApi().updatePassword(CommonConstants.testUpdatePwEmail, temporaryPassword, CommonConstants.testUpdatePwPassword);
+
+            userSession = service.getAuthApi().login(CommonConstants.testUpdatePwUsername, CommonConstants.testUpdatePwPassword);
+            assertNotNull("User failed login", userSession);
+            assertFalse("User required two factor", userSession.isPerformTwoFactor());
+            assertFalse("User required password update", userSession.isRequirePasswordUpdate());
+
+            service.getUserApi().getUsers();
+
+            service.getAuthApi().logout();
+
+        } catch (Exception ex) {
+            fail(ex.getMessage());
+        } finally {
+            System.out.println(String.format("%s took %dms", Utils.getMethodName(), System.currentTimeMillis() - startTime));
+        }
+    }
+
+    private String getContentFromEmail(MailApiClient inbox, String afterText) throws Exception {
+
+        int waitTimeSeconds = 15;
+        int count = 0;
+        long beginTime = System.currentTimeMillis();
+
+        while (Utils.elapsedSecondsSince(beginTime) < waitTimeSeconds) {
+
+            count = inbox.GetEmailCount();
+
+            if (count != 0) {
+                break;
             }
 
-            limit--;
+            try {
+                Thread.sleep(250);
+            } catch (InterruptedException ex) {
+            }
         }
 
-        MailCollection mc = mail.GetMailCollection();
-        System.out.println(String.format("getTotalPages = %d", mc.getTotalPages()));
-        System.out.println(String.format("getTotalRecords = %d", mc.getTotalRecords()));
+        if (count > 0) {
 
-        String regexString = Pattern.quote(afterText) + "(.*?)" + Pattern.quote("<br>");
-        Pattern p = Pattern.compile(regexString);
+            String regexString = Pattern.quote(afterText) + "(.*?)" + Pattern.quote("<br>");
+            Pattern p = Pattern.compile(regexString);
 
-        for (MailItem item : mc.getMailItems()) {
-            System.out.println(String.format("MailItem [%s] [%s] [%s]\n", item.getId(), item.getSubject(), item.getBody()));
-            Matcher m = p.matcher(item.getBody());
+            String content = inbox.GetMailItemContent();
+            System.out.println(String.format("Message [%s]\n", content));
+            Matcher m = p.matcher((String) content);
             if (m.find()) {
                 return m.group(1);
             }
         }
 
         throw new IOException("Got no mail.");
+    }
+
+    private static void DeleteAllEmail() throws Exception {
+        mail_test_standard.DeleteAllEmail();
+        mail_test_updatepw.DeleteAllEmail();
+        mail_test_twofactor.DeleteAllEmail();
     }
 }

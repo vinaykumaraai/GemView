@@ -50,7 +50,7 @@ public interface UserDAO extends BaseDAO<User, Long> {
      * @throws PersistenceException
      */
     public User get(Long userId) throws PersistenceException;
-    
+
     /**
      *
      * @param username
@@ -70,12 +70,12 @@ public interface UserDAO extends BaseDAO<User, Long> {
     /**
      *
      * @param entity
-     * 
+     *
      * @return
      * @throws PersistenceException
      */
     public List<User> list(Entity entity) throws PersistenceException;
-    
+
     /**
      *
      * @param entity
@@ -89,16 +89,14 @@ public interface UserDAO extends BaseDAO<User, Long> {
     /**
      *
      * @param entity
-     * @param username
-     * @param firstname
-     * @param lastname
-     * @param active
+     * @param name
+     * @param available
      * @param firstResult
      * @param lastResult
      * @return
      * @throws PersistenceException
      */
-    public List<User> list(Entity entity, String username, String firstname, String lastname, Boolean active, int firstResult, int lastResult) throws PersistenceException;
+    public List<User> list(Entity entity, String name, Boolean available, int firstResult, int lastResult) throws PersistenceException;
 
     /**
      *
@@ -127,7 +125,6 @@ public interface UserDAO extends BaseDAO<User, Long> {
      * @throws PersistenceException
      */
 //    public Object getEntity(User user) throws PersistenceException;
-    
     /**
      *
      * @param emailId

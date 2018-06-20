@@ -31,7 +31,11 @@
  */
 package com.luretechnologies.server.service;
 
+import com.luretechnologies.server.data.model.tms.AppParam;
 import com.luretechnologies.server.data.model.tms.AppProfile;
+import com.luretechnologies.server.data.model.tms.AppProfileParamValue;
+import com.luretechnologies.server.data.model.tms.EntityAppProfile;
+import com.luretechnologies.server.data.model.tms.EntityAppProfileParam;
 import java.util.List;
 
 /**
@@ -41,11 +45,11 @@ import java.util.List;
 public interface AppProfileService {
     /**
      *
-     * @param appfile
+     * @param appProfile
      * @return
      * @throws Exception
      */
-    public AppProfile createAppProfile(AppProfile appfile) throws Exception;
+    public AppProfile createAppProfile(AppProfile appProfile) throws Exception;
 
     /**
      *
@@ -78,4 +82,193 @@ public interface AppProfileService {
      * @throws Exception
      */
     public AppProfile getAppProfileByID(Long id) throws Exception;
+    
+    /**
+     *
+     * @param id
+     * @return 
+     * @throws Exception
+     */
+    public List<AppParam> getAppParamListByAppProfile(Long id) throws Exception;
+    
+    /**
+     *
+     * @param id
+     * @return 
+     * @throws Exception
+     */
+    public List<AppParam> getAppParamListWithoutAppProfile(Long id) throws Exception;
+    
+    /**
+     *
+     * @param id
+     * @param appParamId
+     * @return 
+     * @throws Exception
+     */
+    public AppProfileParamValue addAppProfileParamValue(Long id, Long appParamId) throws Exception;
+    
+    /**
+     *
+     * @param id
+     * @param appProfileParamValue
+     * @return 
+     * @throws Exception
+     */
+    public AppProfileParamValue updateAppProfileParamValue(Long id, AppProfileParamValue appProfileParamValue) throws Exception;
+    
+    /**
+     *
+     * @param id 
+     * @param appParamId 
+     * @throws Exception
+     */
+    public void deleteAppProfileParamValue(Long id, Long appParamId) throws Exception;
+    
+    /**
+     * 
+     * @param appId
+     * @param entityId
+     * @return 
+     * @throws Exception
+     */
+    public List<AppProfile> getAppProfileListByEntity(Long appId, Long entityId) throws Exception;
+    
+    /**
+     * 
+     * @param appId
+     * @param entityId
+     * @return 
+     * @throws Exception
+     */
+    public List<AppProfile> getAppProfileListWithoutEntity(Long appId, Long entityId) throws Exception;
+    
+    /**
+     * 
+     * @param appProfileId
+     * @param entityId
+     * @return 
+     * @throws Exception
+     */
+    public EntityAppProfile addEntityAppProfile(Long appProfileId, Long entityId) throws Exception;
+    
+    /**
+     * 
+     * @param appProfileId
+     * @param entityAppProfile
+     * @return 
+     * @throws Exception
+     */
+    public EntityAppProfile updateEntityAppProfile(Long appProfileId, EntityAppProfile entityAppProfile) throws Exception;
+    
+    /**
+     * 
+     * @param appProfileId 
+     * @param entityId 
+     * @throws Exception
+     */
+    public void deleteEntityAppProfile(Long appProfileId, Long entityId) throws Exception;
+    
+    /**
+     * 
+     * @param appProfileId 
+     * @param entityId 
+     * @return  
+     * @throws Exception
+     */
+    public List<AppParam> getAppParamListByEntity(Long appProfileId, Long entityId) throws Exception;
+    
+    /**
+     * 
+     * @param appProfileId 
+     * @param entityId 
+     * @return  
+     * @throws Exception
+     */
+    public List<AppParam> getAppParamListWithoutEntity(Long appProfileId, Long entityId) throws Exception;
+    
+    /**
+     *
+     * @param appProfileId
+     * @param entityId 
+     * @param appParamId 
+     * @return
+     * @throws java.lang.Exception
+     */
+    public EntityAppProfileParam addEntityAppProfileParam(Long appProfileId, Long entityId, Long appParamId) throws Exception;
+    
+    /**
+     *
+     * @param appProfileId
+     * @param entityId
+     * @param entityAppProfileParam  
+     * @return
+     * @throws java.lang.Exception
+     */
+    public EntityAppProfileParam updateEntityAppProfileParam(Long appProfileId, Long entityId, EntityAppProfileParam entityAppProfileParam) throws Exception;
+    
+    /**
+     *
+     * @param appProfileId
+     * @param entityId
+     * @param appParamId
+     * @throws java.lang.Exception
+     */
+    public void deleteEntityAppProfileParam(Long appProfileId, Long entityId, Long appParamId) throws Exception;
+    
+    /**
+     *
+     * @param id
+     * @return 
+     * @throws java.lang.Exception
+     */
+    public List<AppParam> getAppFileListByAppProfile(Long id) throws Exception;
+    
+    /**
+     *
+     * @param id
+     * @return 
+     * @throws java.lang.Exception
+     */
+    public List<AppParam> getAppFileListWithoutAppProfile(Long id) throws Exception;
+    
+    /**
+     *
+     * @param id
+     * @param entityId
+     * @return 
+     * @throws java.lang.Exception
+     */
+    public List<AppParam> getAppFileListByEntity(Long id, Long entityId) throws Exception;
+    
+    /**
+     *
+     * @param id
+     * @param entityId
+     * @return 
+     * @throws java.lang.Exception
+     */
+    public List<AppParam> getAppFileListWithoutEntity(Long id, Long entityId) throws Exception;
+    
+    /**
+     *
+     * @param appProfileId
+     * @param filter
+     * @param pageNumber
+     * @param rowsPerPage
+     * @return 
+     * @throws java.lang.Exception
+     */
+    public List<AppParam> searchAppParamByProfile(Long appProfileId, String filter, int pageNumber, int rowsPerPage) throws Exception;
+       
+    /**
+     *
+     * @param appProfileId
+     * @param filter
+     * @param pageNumber
+     * @param rowsPerPage
+     * @return 
+     * @throws java.lang.Exception
+     */        
+    public List<AppParam> searchAppFileByProfile(Long appProfileId, String filter, int pageNumber, int rowsPerPage) throws Exception;
 }

@@ -51,11 +51,13 @@ import javax.annotation.Generated;
 public class Role {
 
     public final static String SUPER_ADMIN = "SUPER_ADMIN";
-    
+
     private final Long id = null;
     private String description = null;
     private String name = null;
     private List<PermissionEnum> permissions = new ArrayList<>();
+    private Boolean available;
+    
 
     /**
      *
@@ -120,10 +122,26 @@ public class Role {
     public void setPermissions(List<PermissionEnum> permissions) {
         this.permissions = permissions;
     }
-    
+
     public boolean isSuperAdmin() {
         return name.equals(SUPER_ADMIN);
     }
+    
+    /**
+     * @return the available
+     */
+    @ApiModelProperty(value = "If the role is available or not")
+    @JsonProperty("available")    
+    public Boolean getAvailable() {
+        return available;
+    }
+
+    /**
+     * @param available the available to set
+     */
+    public void setAvailable(Boolean available) {
+        this.available = available;
+    }    
 
     @Override
     public String toString() {
@@ -134,6 +152,7 @@ public class Role {
         sb.append("    description: ").append(StringUtil.toIndentedString(description)).append("\n");
         sb.append("    name: ").append(StringUtil.toIndentedString(name)).append("\n");
         sb.append("    permissions: ").append(StringUtil.toIndentedString(permissions)).append("\n");
+        sb.append("    available: ").append(StringUtil.toIndentedString(available)).append("\n");
         sb.append("}");
         return sb.toString();
     }

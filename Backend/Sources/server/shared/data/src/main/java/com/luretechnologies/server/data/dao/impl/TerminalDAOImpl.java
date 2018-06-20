@@ -74,15 +74,15 @@ public class TerminalDAOImpl extends BaseDAOImpl<Terminal, Long> implements Term
         root.fetch("parent", JoinType.INNER);
         root.fetch("model", JoinType.LEFT);
         root.fetch("scheduleGroup", JoinType.LEFT);
-        root.fetch("keyBlock", JoinType.LEFT);
+        // root.fetch("keyBlock", JoinType.LEFT);
         return root;
     }
 
     @Override
-    public void persist(Terminal terminal) throws PersistenceException {        
+    public void persist(Terminal terminal) throws PersistenceException {
         super.persist(terminal);
         terminal.setEntityId(Utils.encodeHashId("TER", terminal.getId()));
-        if(StringUtils.isEmpty(terminal.getSerialNumber())) {
+        if (StringUtils.isEmpty(terminal.getSerialNumber())) {
             terminal.setSerialNumber(terminal.getEntityId());
         }
     }
@@ -172,6 +172,14 @@ public class TerminalDAOImpl extends BaseDAOImpl<Terminal, Long> implements Term
                     filerPredicate = criteriaBuilder().equal(root.get("active"), active);
                 }
             }
+
+            // activate
+            if (filerPredicate != null) {
+                filerPredicate.getExpressions().add(criteriaBuilder().equal(root.<Boolean>get("active"), true));
+            } else {
+                filerPredicate = criteriaBuilder().equal(root.<Boolean>get("active"), true);
+            }
+
             List<Predicate> wherePredicate = wherePredicate(root, entity);
             wherePredicate.add(filerPredicate);
 
@@ -197,6 +205,7 @@ public class TerminalDAOImpl extends BaseDAOImpl<Terminal, Long> implements Term
 
             List<Predicate> wherePredicate = wherePredicate(root, entity);
             wherePredicate.add(filterPredicate);
+            wherePredicate.add(criteriaBuilder().equal(root.<Boolean>get("active"), true));
 
             cq.where(criteriaBuilder().and(wherePredicate.toArray(new Predicate[wherePredicate.size()])));
 
@@ -307,6 +316,13 @@ public class TerminalDAOImpl extends BaseDAOImpl<Terminal, Long> implements Term
         Predicate entPredicate = criteriaBuilder().disjunction();
         entPredicate.getExpressions().add(criteriaBuilder().like(root.<String>get("path"), "%-" + String.valueOf(entity.getId()) + "-%"));
         wherePredicate.add(entPredicate);
+        wherePredicate.add(criteriaBuilder().equal(root.<Boolean>get("active"), true));
+
         return wherePredicate;
+    }
+
+    @Override
+    public Terminal getBySerialNumber(String terminalSerialNumber) throws PersistenceException {
+        return (Terminal)findByProperty("serialNumber", terminalSerialNumber).getSingleResult();
     }
 }

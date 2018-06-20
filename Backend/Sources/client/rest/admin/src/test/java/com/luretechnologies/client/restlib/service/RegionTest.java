@@ -34,132 +34,118 @@ package com.luretechnologies.client.restlib.service;
 import com.luretechnologies.client.restlib.Utils;
 import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.client.restlib.common.CommonConstants;
+import com.luretechnologies.client.restlib.service.model.Organization;
+import com.luretechnologies.client.restlib.service.model.Region;
 import com.luretechnologies.client.restlib.service.model.UserSession;
-import static org.junit.Assert.assertTrue;
+import java.util.List;
+import org.hamcrest.core.IsInstanceOf;
+import org.junit.Assert;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeNotNull;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
+import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
-/**
- *
- */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class RegionTest {
 
     private static RestClientService service;
     private static UserSession userSession;
 
-    /**
-     *
-     */
     @BeforeClass
     public static void createService() {
 
-        service = new RestClientService(Utils.serviceUrl + "/admin/api", Utils.serviceUrl + "/payment/api");
+        service = new RestClientService(Utils.ADMIN_SERVICE_URL, Utils.TMS_SERVICE_URL);
 
         assumeNotNull(service);
 
         try {
             userSession = service.getAuthApi().login(CommonConstants.testStandardUsername, CommonConstants.testStandardPassword);
-            assertTrue("User logged in", userSession != null);
+            assertNotNull("User failed login", userSession);
         } catch (ApiException ex) {
             fail(ex.getResponseBody());
         }
 
     }
-//
-//    @Test
-//    public void createRegion() {
-//
-//        Region region = new Region();
-//        region.setName("Testing Region");
-//        region.setDescription("Testing Region");
-//
-//        try {
-//            List<Organization> organizations = service.listOrganizations(1, 1);
-//            if (!organizations.isEmpty()) {
-//                region.setParent(organizations.get(0));
-//            }
-//            region = service.createRegion(region);
-//            id = region.getEntityId();
-//            assertThat(region, instanceOf(Region.class));
-//            assertNotNull(region.getEntityId());
-//        } catch (ApiException ex) {
-//            fail(ex.getResponseBody());
-//        }
-//    }
-//
-//    @Test
-//    public void editRegion() {
-//        try {
-////            List<Region> listRegions = service.listRegions();
-////            assertNotNull(service.listRegions());
-////            Region region = null;
-////
-////            for (Region listRegion : listRegions) {
-////                if (listRegion.getName().equals("Testing Region")) {
-////                    region = listRegion;
-////                    break;
-////                }
-////            }
-//            if (id != null) {
-//                Region region = service.getRegion(id);
-//                if (region != null) {
-//                    assertEquals("Testing Region", region.getDescription());
-//                    region.setDescription("UPDATED");
-//
-//                    region = service.updateRegion(region.getEntityId(), region);
-//                    assertEquals("UPDATED", region.getDescription());
-//                }
-//            }
-//        } catch (ApiException ex) {
-//            fail(ex.getResponseBody());
-//        }
-//
-//    }
-//
-//    @Test
-//    public void getRegion() {
-//        try {
-////            List<Region> listRegions = service.listRegions();
-////            assertNotNull(service.listRegions());
-////            for (Region listRegion : listRegions) {
-////                if (listRegion.getName().equals("Testing Region")) {
-////                    Region region = listRegion;
-////                    break;
-////                }
-////            }
-//            if (id != null) {
-//                Region region = service.getRegion(id);
-//                assertNotNull(region);
-//            }
-//        } catch (ApiException ex) {
-//            fail(ex.getResponseBody());
-//        }
-//
-//    }
-//
-//    @Test
-//    public void listRegions() {
-//        try {
-//            assertNotNull(service.listRegions(1, 10));
-//        } catch (ApiException ex) {
-//            fail(ex.getResponseBody());
-//        }
-//    }
-//    
-//    @Test
-//    public void findRegions() {
-//        try {
-//            List<Region> regions = service.searchRegion("Testing Region", 1, 20);
-//            assertNotNull(regions);
-//            assertTrue(regions.size()>0);
-//        } catch (ApiException ex) {
-//            fail(ex.getResponseBody());
-//        }
-//    }
+
+    @Test
+    public void createAndDeleteRegion() {
+
+        Region region = new Region();
+        region.setName("Testing Region");
+        region.setDescription("Testing Region");
+
+        try {
+            List<Organization> organizations = service.getOrganizationApi().getOrganizations(1, 1);
+            if (!organizations.isEmpty()) {
+                region.setParentId(organizations.get(0).getId());
+            }
+            region = service.getRegionApi().createRegion(region);
+            Assert.assertThat(region, IsInstanceOf.instanceOf(Region.class));
+            assertNotNull(region.getEntityId());
+            System.out.println(region.toString());
+
+            service.getRegionApi().deleteRegion(region.getEntityId());
+
+        } catch (ApiException ex) {
+            fail(ex.getResponseBody());
+        }
+    }
+
+    @Test
+    public void editRegion() {
+        try {
+
+            Region region = service.getRegionApi().getRegion("REGXJZ8EOD694");
+            if (region != null) {
+                region.setDescription("UPDATED");
+
+                region = service.getRegionApi().updateRegion(region.getEntityId(), region);
+                Assert.assertEquals("UPDATED", region.getDescription());
+                System.out.println(region.toString());
+            }
+        } catch (ApiException ex) {
+            fail(ex.getResponseBody());
+        }
+
+    }
+
+    @Test
+    public void getRegion() {
+        try {
+            Region region = service.getRegionApi().getRegion("REG0EZ04K46R4");
+            assertNotNull(region);
+        } catch (ApiException ex) {
+            fail(ex.getResponseBody());
+        }
+
+    }
+
+    @Test
+    public void listRegions() {
+        try {
+            assertNotNull(service.getRegionApi().getRegions(1, 10));
+        } catch (ApiException ex) {
+            fail(ex.getResponseBody());
+        }
+    }
+
+    @Test
+    public void findRegions() {
+        try {
+            List<Region> regions = service.getRegionApi().searchRegions("Testing Region", 1, 20);
+            assertNotNull(regions);
+            Assert.assertTrue(regions.size() > 0);
+            for (Region temp : regions) {
+                System.out.println(temp.toString());
+            }
+
+        } catch (ApiException ex) {
+            fail(ex.getResponseBody());
+        }
+    }
 //
 //    @Test
 //    public void removeRegion() {

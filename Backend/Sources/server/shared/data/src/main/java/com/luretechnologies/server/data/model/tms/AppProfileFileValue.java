@@ -5,25 +5,19 @@
  */
 package com.luretechnologies.server.data.model.tms;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Date;
+import java.sql.Timestamp;
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -43,30 +37,29 @@ public class AppProfileFileValue implements Serializable {
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 256)
-    @Column(name = "DefaultValue")
+    @Column(name = "default_value")
     @ApiModelProperty(value = "The DefaultValue.", required = true)
     private String defaultValue;
+    
+    @Column(name = "force_update", nullable = false, length = 1)
+    @ApiModelProperty(value = "The Force Update.")
+    private boolean forceUpdate = false;
+    
+    @JsonIgnore
+    @Column(name = "updated_at", nullable = false)
+    private Timestamp updatedAt;
+    
     @Basic(optional = false)
     @NotNull
-    @Column(name = "ForceUpdate")
-    @ApiModelProperty(value = "The ForceUpdate.", required = true)
-    private short forceUpdate;
+    @Column(name = "app_profile")
+    @ApiModelProperty(value = "The appProfile id.", required = true)
+    private Long appProfileId;
+    
     @Basic(optional = false)
     @NotNull
-    @Column(name = "UpdatedAt")
-    @ApiModelProperty(value = "The UpdateAt.", required = true)
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date updatedAt;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "appProfileFileValue")
-    private Collection<ApplianceAppFileValue> applianceappfilevalueCollection;
-    @JoinColumn(name = "AppProfile", referencedColumnName = "id")
-    @ApiModelProperty(value = "The AppProfile.", required = true)
-    @ManyToOne(optional = false)
-    private AppProfile appProfile;
-    @JoinColumn(name = "AppFile", referencedColumnName = "id")
-    @ApiModelProperty(value = "The AppFile.", required = true)
-    @ManyToOne(optional = false)
-    private AppFile appFile;
+    @Column(name = "app_file")
+    @ApiModelProperty(value = "The app_file id.", required = true)
+    private Long appFileId;
 
     public AppProfileFileValue() {
     }
@@ -75,11 +68,10 @@ public class AppProfileFileValue implements Serializable {
         this.id = id;
     }
 
-    public AppProfileFileValue(Long id, String defaultValue, short forceUpdate, Date updatedAt) {
+    public AppProfileFileValue(Long id, String defaultValue, boolean forceUpdate) {
         this.id = id;
         this.defaultValue = defaultValue;
         this.forceUpdate = forceUpdate;
-        this.updatedAt = updatedAt;
     }
 
     public Long getId() {
@@ -98,44 +90,36 @@ public class AppProfileFileValue implements Serializable {
         this.defaultValue = defaultValue;
     }
 
-    public short getForceUpdate() {
+    public boolean getForceUpdate() {
         return forceUpdate;
     }
 
-    public void setForceUpdate(short forceUpdate) {
+    public void setForceUpdate(boolean forceUpdate) {
         this.forceUpdate = forceUpdate;
     }
 
-    public Date getUpdatedAt() {
+    public Timestamp getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(Date updatedAt) {
+    public void setUpdatedAt(Timestamp updatedAt) {
         this.updatedAt = updatedAt;
     }
 
-    public Collection<ApplianceAppFileValue> getApplianceAppFileValueCollection() {
-        return applianceappfilevalueCollection;
+    public Long getAppProfileId() {
+        return appProfileId;
     }
 
-    public void setApplianceAppFileValueCollection(Collection<ApplianceAppFileValue> applianceappfilevalueCollection) {
-        this.applianceappfilevalueCollection = applianceappfilevalueCollection;
+    public void setAppProfileId(Long appProfileId) {
+        this.appProfileId = appProfileId;
     }
 
-    public AppProfile getAppProfile() {
-        return appProfile;
+    public Long getAppFileId() {
+        return appFileId;
     }
 
-    public void setAppProfile(AppProfile appProfile) {
-        this.appProfile = appProfile;
-    }
-
-    public AppFile getAppFile() {
-        return appFile;
-    }
-
-    public void setAppFile(AppFile appFile) {
-        this.appFile = appFile;
+    public void setAppFileId(Long appFileId) {
+        this.appFileId = appFileId;
     }
 
     @Override

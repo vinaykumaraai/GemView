@@ -43,10 +43,11 @@ public interface AppParamDAO extends BaseDAO<AppParam, Long>{
     
     /**
      *
-     * @param ID
+     * @param firstResult
+     * @param lastResult
      * @return
      */
-    public List<AppParam> getAppParamList(List<Long> ID)throws PersistenceException;
+    public List<AppParam> getAppParamList(int firstResult, int lastResult)throws PersistenceException;
     
     public AppParam getAppParamByID(Long ID)throws PersistenceException;
     

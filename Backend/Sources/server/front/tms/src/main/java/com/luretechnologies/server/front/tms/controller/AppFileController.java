@@ -44,6 +44,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -56,7 +57,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Api(value = "AppFile")
 public class AppFileController {
     
-    @Autowired(required = true)
+    @Autowired
     AppFileService appfileService;
     
     /**
@@ -123,15 +124,18 @@ public class AppFileController {
     /**
      * Retrieve an List of AppFile  information
      *
-     * @param ids
+     * @param pageNumber
+     * @param rowsPerPage
      * @return
      * @throws java.lang.Exception
      */
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(tags = "AppFile", httpMethod = "GET", value = "Get AppFile List", notes = "Get list pf AppFiles by ID's")
-    public List<AppFile> getAppFileList(@ApiParam(value = "AppFile ID", required = true) @PathVariable List<Long> ids) throws Exception {
+    public List<AppFile> getAppFileList(
+            @ApiParam(value = "Page number", required = false, defaultValue = "1") @RequestParam(name = "pageNumber", defaultValue = "1") Integer pageNumber,
+            @ApiParam(value = "Rows per page", required = false, defaultValue = "50") @RequestParam(name = "rowsPerPage", defaultValue = "50") Integer rowsPerPage) throws Exception {
 
-        return appfileService.getAppFileList(ids);
+        return appfileService.getAppFileList(pageNumber, rowsPerPage);
     }
     
     /**

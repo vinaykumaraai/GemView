@@ -67,10 +67,19 @@ public interface RoleService {
 
     /**
      *
-     * @param id
+     * @param roleName
+     * @return
      * @throws Exception
      */
-    public void delete(long id) throws Exception;
+    public Role getByName(String roleName) throws Exception;
+
+    /**
+     *
+     * @param id
+     * @return
+     * @throws Exception
+     */
+    public Role deleteRole(long id) throws Exception;
 
     /**
      *

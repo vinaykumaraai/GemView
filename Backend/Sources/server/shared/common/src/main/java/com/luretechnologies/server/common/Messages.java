@@ -372,6 +372,16 @@ public class Messages {
     /**
      *
      */
+    public static final String INVALID_SOURCE_IP = "INVALID SOURCE IP";
+
+    /**
+     *
+     */
+    public static final String IP_SWITCH_NOT_ALLOWED = "IP SWITCH IS NOT ALLOWED";
+
+    /**
+     *
+     */
     public static final String NO_HOST_FOUND = "NO HOST {} FOUND";
 
     /**

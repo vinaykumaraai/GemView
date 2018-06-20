@@ -58,19 +58,15 @@ public class UsersApi {
     }
 
     /**
-     * Lists users. Will return 50 records if no paging parameters
-     * defined
      *
-     * @param username Login name
-     * @param firstname User first name
-     * @param lastname User last name
-     * @param active User status
-     * @param pageNumber Page number
-     * @param rowsPerPage Rows per page
-     * @return Users list
-     * @throws com.luretechnologies.client.restlib.common.ApiException
+     * @param name
+     * @param available
+     * @param pageNumber
+     * @param rowsPerPage
+     * @return
+     * @throws ApiException
      */
-    public List<User> getUsers(String username, String firstname, String lastname, Boolean active, Integer pageNumber, Integer rowsPerPage) throws ApiException {
+    public List<User> getUsers(String name, Boolean available, Integer pageNumber, Integer rowsPerPage) throws ApiException {
         Object postBody = null;
         byte[] postBinaryBody = null;
 
@@ -80,17 +76,9 @@ public class UsersApi {
         Map<String, String> headerParams = new HashMap<>();
         Map<String, Object> formParams = new HashMap<>();
 
-        if (username != null && !username.isEmpty()) {
-            queryParams.addAll(apiClient.parameterToPairs("", CommonConstants.FIELD_USER_NAME, username));
-        }
-        if (firstname != null && !firstname.isEmpty()) {
-            queryParams.addAll(apiClient.parameterToPairs("", CommonConstants.FIELD_FIRST_NAME, firstname));
-        }
-        if (lastname != null && !lastname.isEmpty()) {
-            queryParams.addAll(apiClient.parameterToPairs("", CommonConstants.FIELD_LAST_NAME, lastname));
-        }
+        queryParams.addAll(apiClient.parameterToPairs("", CommonConstants.FIELD_NAME, name));
 
-        queryParams.addAll(apiClient.parameterToPairs("", CommonConstants.FIELD_ACTIVE, active));
+        queryParams.addAll(apiClient.parameterToPairs("", CommonConstants.FIELD_ACTIVE, available));
 
         queryParams.addAll(apiClient.parameterToPairs("", CommonConstants.FIELD_PAGE_NUMBER, pageNumber));
 
@@ -148,10 +136,9 @@ public class UsersApi {
         return apiClient.invokeAPI(path, CommonConstants.METHOD_POST, queryParams, postBody, postBinaryBody, headerParams, formParams, accept, contentType, returnType);
 
     }
-    
+
     /**
-     * Get all users. Will return 50
-     * records if no paging parameters defined
+     * Get all users. Will return 50 records if no paging parameters defined
      *
      * @return Users list
      * @throws com.luretechnologies.client.restlib.common.ApiException
@@ -176,7 +163,7 @@ public class UsersApi {
         };
         final String contentType = apiClient.selectHeaderContentType(contentTypes);
 
-        TypeRef returnType = new TypeRef<List<User>>() { 
+        TypeRef returnType = new TypeRef<List<User>>() {
         };
         return apiClient.invokeAPI(path, CommonConstants.METHOD_GET, queryParams, postBody, postBinaryBody, headerParams, formParams, accept, contentType, returnType);
 
@@ -222,7 +209,7 @@ public class UsersApi {
         };
         final String contentType = apiClient.selectHeaderContentType(contentTypes);
 
-        TypeRef returnType = new TypeRef<List<User>>() { 
+        TypeRef returnType = new TypeRef<List<User>>() {
         };
         return apiClient.invokeAPI(path, CommonConstants.METHOD_GET, queryParams, postBody, postBinaryBody, headerParams, formParams, accept, contentType, returnType);
 
@@ -268,7 +255,7 @@ public class UsersApi {
         return apiClient.invokeAPI(path, CommonConstants.METHOD_GET, queryParams, postBody, postBinaryBody, headerParams, formParams, accept, contentType, returnType);
 
     }
-    
+
     /**
      * Get user by username
      *
@@ -286,13 +273,55 @@ public class UsersApi {
         }
 
         // create path and map variables
-        String path = "/users/getbyusername/{username}".replaceAll("\\{format\\}", "json")
-                .replaceAll("\\{" + "username" + "\\}", apiClient.escapeString(username));
+        String path = "/users/getByUserName".replaceAll("\\{format\\}", "json");
 
         // query params
         List<Pair> queryParams = new ArrayList<>();
         Map<String, String> headerParams = new HashMap<>();
         Map<String, Object> formParams = new HashMap<>();
+
+        queryParams.addAll(apiClient.parameterToPairs("", CommonConstants.FIELD_USER_NAME, username));
+
+        final String[] accepts = {
+            CommonConstants.HEADER_APP_JSON
+        };
+        final String accept = apiClient.selectHeaderAccept(accepts);
+
+        final String[] contentTypes = {
+            CommonConstants.HEADER_APP_JSON
+        };
+        final String contentType = apiClient.selectHeaderContentType(contentTypes);
+
+        TypeRef returnType = new TypeRef<User>() {
+        };
+        return apiClient.invokeAPI(path, CommonConstants.METHOD_GET, queryParams, postBody, postBinaryBody, headerParams, formParams, accept, contentType, returnType);
+
+    }
+
+    /**
+     *
+     * @param email
+     * @return
+     * @throws ApiException
+     */
+    public User getUserByEmail(String email) throws ApiException {
+        Object postBody = null;
+        byte[] postBinaryBody = null;
+
+        // verify the required parameter 'id' is set
+        if (email == null) {
+            throw new ApiException(400, "Missing the required parameter 'username' when calling getUserByUsername");
+        }
+
+        // create path and map variables
+        String path = "/users/getByUserEmail".replaceAll("\\{format\\}", "json");
+
+        // query params
+        List<Pair> queryParams = new ArrayList<>();
+        Map<String, String> headerParams = new HashMap<>();
+        Map<String, Object> formParams = new HashMap<>();
+
+        queryParams.addAll(apiClient.parameterToPairs("", CommonConstants.FIELD_USER_EMAIL, email));
 
         final String[] accepts = {
             CommonConstants.HEADER_APP_JSON

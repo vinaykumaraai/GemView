@@ -131,8 +131,9 @@ public class RegionServiceImpl implements RegionService {
         if (region == null) {
             throw new ObjectRetrievalFailureException(Region.class, regionId);
         }
-
-        regionDAO.delete(region.getId());
+        region.setActive(false);
+        entityDAO.updateActive(region);
+        regionDAO.merge(region);
     }
 
     /**
@@ -157,8 +158,8 @@ public class RegionServiceImpl implements RegionService {
      */
     @Override
     public List<Region> list(Entity entity, int pageNumber, int rowsPerPage) throws Exception {
-        int firstResult = (pageNumber - 1) * rowsPerPage;
-        return regionDAO.list(entity, firstResult, rowsPerPage);
+        int firstResult = (((pageNumber - 1) >= 0) ? (pageNumber - 1) : 0) * rowsPerPage;
+        return regionDAO.list(entity, firstResult, firstResult + rowsPerPage);
     }
 
     /**
@@ -172,8 +173,8 @@ public class RegionServiceImpl implements RegionService {
      */
     @Override
     public List<Region> search(Entity entity, String filter, int pageNumber, int rowsPerPage) throws Exception {
-        int firstResult = (pageNumber - 1) * rowsPerPage;
-        return regionDAO.search(entity, filter, firstResult, rowsPerPage);
+        int firstResult = (((pageNumber - 1) >= 0) ? (pageNumber - 1) : 0) * rowsPerPage;
+        return regionDAO.search(entity, filter, firstResult, firstResult + rowsPerPage);
     }
 
     /**
@@ -281,14 +282,13 @@ public class RegionServiceImpl implements RegionService {
 //
 //        return merchant;
 //    }
-
     @Override
     public Entity copy(String entityId, long parentId) {
         Region original = regionDAO.findByRegionId(entityId);
         if (original == null) {
             throw new ObjectRetrievalFailureException(Entity.class, entityId);
         }
-        
+
         Entity parent = entityDAO.findById(parentId);
         if (parent == null) {
             throw new ObjectRetrievalFailureException(Entity.class, parentId);
@@ -299,10 +299,10 @@ public class RegionServiceImpl implements RegionService {
         }
 
         Region copy = new Region();
-                
+
         copy.setParent(parent);
         copy.setType(EntityTypeEnum.REGION);
-        BeanUtils.copyProperties(original, copy, new String[]{"entityId"});        
+        BeanUtils.copyProperties(original, copy, new String[]{"entityId"});
         entityDAO.updatePath(copy, true);
         regionDAO.persist(copy);
 

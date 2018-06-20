@@ -34,6 +34,7 @@ package com.luretechnologies.server.front.ams.controller;
 import com.luretechnologies.server.data.display.ErrorResponse;
 import com.luretechnologies.server.data.model.Organization;
 import com.luretechnologies.server.data.model.User;
+import com.luretechnologies.server.service.AuditUserLogService;
 import com.luretechnologies.server.service.OrganizationService;
 import com.luretechnologies.server.utils.UserAuth;
 import io.swagger.annotations.Api;
@@ -71,6 +72,9 @@ public class OrganizationController {
     @Autowired
     OrganizationService service;
 
+    @Autowired
+    AuditUserLogService auditUserLogService;
+
     /**
      * Creates a new organization
      *
@@ -84,15 +88,30 @@ public class OrganizationController {
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(tags = "Organizations", httpMethod = "POST", value = "Create organization", notes = "Creates a new organization")
     @ApiResponses(value = {
-        @ApiResponse(code = 201, message = "Created", response = Organization.class),
-        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class),
-        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+        @ApiResponse(code = 201, message = "Created", response = Organization.class)
+        ,
+        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class)
+        ,
+        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class)
+        ,
         @ApiResponse(code = 404, message = "Not found", response = ErrorResponse.class)})
     public Organization create(
             @ApiParam(value = "The authentication token") @RequestHeader(value = "X-Auth-Token", required = true) String authToken,
             @ApiParam(value = "The new organization object", required = true) @RequestBody(required = true) Organization organization) throws Exception {
 
-        return service.create(organization);
+        User user = null;
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication.getDetails() instanceof UserAuth) {
+            UserAuth userAuth = (UserAuth) authentication.getDetails();
+            user = userAuth.getSystemUser();
+        }
+        organization = service.create(organization);
+
+        auditUserLogService.createAuditUserLog(user.getId(), organization.getEntityId(), "info", "create", "Creates a new organization");
+
+        return organization;
     }
 
     /**
@@ -108,9 +127,12 @@ public class OrganizationController {
     @RequestMapping(value = "/{organizationId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(tags = "Organizations", httpMethod = "GET", value = "Get organization", notes = "Get organization by id")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = Organization.class),
-        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class),
-        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+        @ApiResponse(code = 200, message = "OK", response = Organization.class)
+        ,
+        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class)
+        ,
+        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class)
+        ,
         @ApiResponse(code = 404, message = "Not found", response = ErrorResponse.class)})
     public Organization get(
             @ApiParam(value = "The authentication token") @RequestHeader(value = "X-Auth-Token", required = true) String authToken,
@@ -132,16 +154,31 @@ public class OrganizationController {
     @RequestMapping(value = "/{organizationId}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(tags = "Organizations", httpMethod = "PUT", value = "Update organization", notes = "Updates an organization")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK", response = Organization.class),
-        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class),
-        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+        @ApiResponse(code = 200, message = "OK", response = Organization.class)
+        ,
+        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class)
+        ,
+        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class)
+        ,
         @ApiResponse(code = 404, message = "Not found", response = ErrorResponse.class)})
     public Organization update(
             @ApiParam(value = "The authentication token") @RequestHeader(value = "X-Auth-Token", required = true) String authToken,
             @ApiParam(value = "The organization identifier") @PathVariable("organizationId") String organizationId,
             @ApiParam(value = "The updated organization object", required = true) @RequestBody(required = true) Organization organization) throws Exception {
 
-        return service.update(organizationId, organization);
+        User user = null;
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication.getDetails() instanceof UserAuth) {
+            UserAuth userAuth = (UserAuth) authentication.getDetails();
+            user = userAuth.getSystemUser();
+        }
+        organization = service.update(organizationId, organization);
+
+        auditUserLogService.createAuditUserLog(user.getId(), organization.getEntityId(), "info", "update", "Updates an organization");
+
+        return organization;
     }
 
     /**
@@ -156,13 +193,26 @@ public class OrganizationController {
     @RequestMapping(value = "/{organizationId}", method = RequestMethod.DELETE)
     @ApiOperation(tags = "Organizations", httpMethod = "DELETE", value = "Delete organization", notes = "Deletes an organization")
     @ApiResponses(value = {
-        @ApiResponse(code = 204, message = "Deleted"),
-        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class),
-        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+        @ApiResponse(code = 204, message = "Deleted")
+        ,
+        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class)
+        ,
+        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class)
+        ,
         @ApiResponse(code = 404, message = "Not found", response = ErrorResponse.class)})
     public void delete(
             @ApiParam(value = "The authentication token") @RequestHeader(value = "X-Auth-Token", required = true) String authToken,
             @ApiParam(value = "The organization identifier") @PathVariable("organizationId") String organizationId) throws Exception {
+
+        User user = null;
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication.getDetails() instanceof UserAuth) {
+            UserAuth userAuth = (UserAuth) authentication.getDetails();
+            user = userAuth.getSystemUser();
+            auditUserLogService.createAuditUserLog(user.getId(), organizationId, "info", "delete", "Deletes an organization");
+        }
 
         service.delete(organizationId);
     }
@@ -181,9 +231,12 @@ public class OrganizationController {
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(tags = "Organizations", httpMethod = "GET", value = "List organizations", notes = "Lists organizations. Will return 50 records if no paging parameters defined", response = Organization.class, responseContainer = "List")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK"),
-        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class),
-        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+        @ApiResponse(code = 200, message = "OK")
+        ,
+        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class)
+        ,
+        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class)
+        ,
         @ApiResponse(code = 404, message = "Not found", response = ErrorResponse.class)})
     public List<Organization> list(
             @ApiParam(value = "The authentication token") @RequestHeader(value = "X-Auth-Token", required = true) String authToken,
@@ -217,9 +270,12 @@ public class OrganizationController {
     @RequestMapping(name = "Search", value = "/search", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(tags = "Organizations", httpMethod = "GET", value = "Search organizations", notes = "Search organizations that match a given filter. Will return 50 records if no paging parameters defined", response = Organization.class, responseContainer = "List")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "OK"),
-        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class),
-        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
+        @ApiResponse(code = 200, message = "OK")
+        ,
+        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class)
+        ,
+        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class)
+        ,
         @ApiResponse(code = 404, message = "Not found", response = ErrorResponse.class)})
     public List<Organization> search(
             @ApiParam(value = "The authentication token") @RequestHeader(value = "X-Auth-Token", required = true) String authToken,

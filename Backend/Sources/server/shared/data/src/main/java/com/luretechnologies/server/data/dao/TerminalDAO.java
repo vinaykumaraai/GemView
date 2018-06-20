@@ -212,4 +212,11 @@ public interface TerminalDAO extends BaseDAO<Terminal, Long> {
      * @throws PersistenceException
      */
 //    public List<Diagnostic> getDiagnostics(long id, String filter, int firstResult, int maxResult) throws PersistenceException;
+    /**
+     *
+     * @param terminalSerialNumber The terminal serial number
+     * @return
+     * @throws PersistenceException
+     */
+    Terminal getBySerialNumber(String terminalSerialNumber) throws PersistenceException;
 }

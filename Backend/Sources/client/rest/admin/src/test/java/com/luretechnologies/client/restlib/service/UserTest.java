@@ -34,128 +34,146 @@ package com.luretechnologies.client.restlib.service;
 import com.luretechnologies.client.restlib.Utils;
 import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.client.restlib.common.CommonConstants;
+import com.luretechnologies.client.restlib.service.model.Organization;
+import com.luretechnologies.client.restlib.service.model.Role;
 import com.luretechnologies.client.restlib.service.model.User;
 import com.luretechnologies.client.restlib.service.model.UserSession;
 import java.util.List;
+import org.hamcrest.core.IsInstanceOf;
+import org.junit.Assert;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeNotNull;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
+import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
-/**
- *
- *
- * @author developer
- */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class UserTest {
 
     private static RestClientService service;
     private static UserSession userSession;
 
-    /**
-     *
-     */
     @BeforeClass
     public static void createService() {
-        service = new RestClientService(Utils.serviceUrl + "/admin/api", Utils.serviceUrl + "/payment/api");
+        service = new RestClientService(Utils.ADMIN_SERVICE_URL, Utils.TMS_SERVICE_URL);
 
         assumeNotNull(service);
 
         try {
             userSession = service.getAuthApi().login(CommonConstants.testStandardUsername, CommonConstants.testStandardPassword);
-            assertTrue("User logged in", userSession != null);
+            assertNotNull("User failed login", userSession);
         } catch (ApiException ex) {
             fail(ex.getResponseBody());
         }
     }
-//
-//    @Test
-//    public void createUser() {
-//        try {
-//            User user = new User();
-//            user.setFirstName("John");
-//            user.setLastName("Doe");
-//            user.setUsername("john.doe");
-//            user.setPassword("JohnDoe123");
-//            user.setEmail("john.doe@luretechnologies.com");
-//
-////            List<Organization> orgs = service.listOrganizations(1, 50);
-////            if (!orgs.isEmpty()){
-////                Organization organization = orgs.get(0);
-////                user.setEntity(organization);
-////            }
-//
-//            Role role = service.getRole(1);
-//            user.setRole(role);
-//
-//            user = service.createUser(user);
-//            id = user.getId();
-//
-//            assertThat(user, instanceOf(User.class));
-//            assertNotNull(user.getId());
-//        } catch (ApiException ex) {
-//            fail(ex.getResponseBody());
-//        }
-//    }
-//
-//    @Test
-//    public void editUser() {
-//        try {
-//            if (id != null) {
-//                User user = service.getUser(id);
-//                assertEquals("john.doe", user.getUsername());
-//
-//                user.setLastName("Updated");
-//
-//                user = service.updateUser(user.getId(), user);
-//
-//                assertEquals("Updated", user.getLastName());
-//            }
-//        } catch (ApiException ex) {
-//            fail(ex.getResponseBody());
-//        }
-//    }
 
-    //@Test
+    @Test
+    public void createAndActivateAndDeleteAnUser() {
+        try {
+            String username = "john.doe";
+            User user = service.getUserApi().getUserByUserName(username);
+            if ( user != null ){
+                service.getUserApi().deleteUser(user.getId());
+            }
+            user = new User();
+            user.setFirstName("John");
+            user.setLastName("Doe");
+            user.setUsername(username);
+            user.setPassword("JohnDoe123");
+            user.setEmail("john.doe@luretechnologies.com");
+            // entity id =3 or "ORGNQBZKO6GJP"  is Test Organization  
+            Organization org = service.getOrganizationApi().getOrganization("ORGNQBZKO6GJP");
+            if (org != null) {
+                user.setEntity(org);
+            } else {
+                fail("it doesn't getting the organization");
+            }
+
+            // Rolo 2 it is the test rolo
+            Role role = service.getRoleApi().getRole(new Long(2));
+            user.setRole(role);
+
+            user = service.getUserApi().createUser(user);
+
+            Assert.assertThat(user, IsInstanceOf.instanceOf(User.class));
+            assertNotNull(user.getId());
+
+            // active the user
+            // Delete de user.
+        } catch (ApiException ex) {
+            fail(ex.getResponseBody());
+        }
+    }
+
+    @Test
+    public void editUser() {
+        try {
+            Long id = 20L;
+            User user = service.getUserApi().getUser(id);
+
+            user.setLastName("Updated");
+            user.setPasswordFrequency(20);
+
+            user = service.getUserApi().updateUser(user.getId(), user);
+
+            assertEquals("Updated", user.getLastName());
+
+        } catch (ApiException ex) {
+            fail(ex.getResponseBody());
+        }
+    }
+
+    @Test
     public void getUser() {
         try {
-            List<User> users = service.getUserApi().getUsers("admin", "", "", true, 1, 10);
+            String name = CommonConstants.testStandardUsername;
+            List<User> users = service.getUserApi().getUsers(name, true, 1, 10);
             assertNotNull(users);
-            if (!users.isEmpty()) {
-                User user = service.getUserApi().getUser(users.get(0).getId());
-                assertEquals("admin", user.getUsername());
+            for (User user : users) {
+                System.out.println("User: " + user.getUsername());
+            }
+
+        } catch (ApiException ex) {
+            fail(ex.getResponseBody());
+        }
+    }
+
+    @Test
+    public void listUsers() {
+        try {
+            List<User> users = service.getUserApi().getUsers();
+            assertNotNull(users);
+            for (User user : users) {
+                System.out.println("User: " + user.getUsername());
             }
         } catch (ApiException ex) {
             fail(ex.getResponseBody());
         }
     }
 
-    //@Test
-    public void listUsers() {
+    @Test
+    public void removeUser() {
         try {
-            List<User> users = service.getUserApi().getUsers("admin", "", "", true, 1, 10);
-            assertNotNull(users);
+            User user = service.getUserApi().getUser(new Long(20));
+            assertNotNull(user);
+            service.getUserApi().deleteUser(new Long(20));
         } catch (ApiException ex) {
             fail(ex.getResponseBody());
         }
     }
-
-//    @Test
-//    public void removeUser() {
-//        try {
-//            if (id != null) {
-//                User user = service.getUser(id);
-//                assertEquals("john.doe@luretechnologies.com", user.getEmail());
-//
-//                service.deleteUser(user.getId());
-//            }
-//        } catch (ApiException ex) {
-//            fail(ex.getResponseBody());
-//        }
-//    }
+    @Test
+    public void findUserByEmail() {
+        try {
+            User user = service.getUserApi().getUserByEmail("test_standard@gemstonepay.com");
+            assertNotNull(user);
+            System.out.println("User: " + user.toString());
+        } catch (ApiException ex) {
+            fail(ex.getResponseBody());
+        }
+    }
+    
+    
 }

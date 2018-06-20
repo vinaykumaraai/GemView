@@ -264,4 +264,11 @@ public interface TerminalService {
 //    public int getDiagnosticsTotalPages(Long id, String filter, int rowsPerPage) throws Exception;
 
     public Entity copy(String entityId, long parentId);
+    /**
+     * Get the terminal info by serial number
+     * @param terminalSerialNumber The serial number
+     * @return
+     * @throws Exception 
+     */
+    public Terminal getBySerialNumber(String terminalSerialNumber) throws Exception;
 }

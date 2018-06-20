@@ -32,6 +32,9 @@
 package com.luretechnologies.server.data.dao;
 
 import com.luretechnologies.server.data.model.tms.App;
+import com.luretechnologies.server.data.model.tms.AppFile;
+import com.luretechnologies.server.data.model.tms.AppParam;
+import com.luretechnologies.server.data.model.tms.AppProfile;
 import java.util.List;
 import javax.persistence.PersistenceException;
 
@@ -58,14 +61,13 @@ public interface AppDAO extends BaseDAO<App, Long>{
     
     /**
      *
-     * @param name
-     * @param active
+     * @param entity
      * @param firstResult
      * @param lastResult
      * @return
      * @throws PersistenceException
      */
-    public List<App> list(String name, Boolean active, int firstResult, int lastResult) throws PersistenceException;
+    public List<App> list(Long entity) throws PersistenceException;
     
     /**
      *
@@ -79,11 +81,56 @@ public interface AppDAO extends BaseDAO<App, Long>{
     /**
      *
      * @param filter
-     * @param active
      * @param firstResult
      * @param lastResult
      * @return
      * @throws PersistenceException
      */
-    public List<App> search(String filter, Boolean active, int firstResult, int lastResult) throws PersistenceException;
+    public List<App> search(String filter, int firstResult, int lastResult) throws PersistenceException;
+    
+    /**
+     *
+     * @param id
+     * @return
+     * @throws PersistenceException
+     */
+    public List<AppParam> listAppParam(Long id) throws PersistenceException;
+    
+    /**
+     *
+     * @param id
+     * @return
+     * @throws PersistenceException
+     */
+    public List<AppProfile> listAppProfile(Long id) throws PersistenceException;
+    
+    /**
+     *
+     * @param id
+     * @return
+     * @throws PersistenceException
+     */
+    public List<AppParam> listAppFile(Long id) throws PersistenceException;
+    
+    /**
+     *
+     * @param appId
+     * @param filter
+     * @param firstResult
+     * @param lastResult
+     * @return
+     * @throws PersistenceException
+     */
+    public List<AppParam> searchAppParam(Long appId, String filter, int firstResult, int lastResult) throws PersistenceException;
+    
+    /**
+     *
+     * @param appId
+     * @param filter
+     * @param firstResult
+     * @param lastResult
+     * @return
+     * @throws PersistenceException
+     */
+    public List<AppParam> searchAppFile(Long appId, String filter, int firstResult, int lastResult) throws PersistenceException;
 }

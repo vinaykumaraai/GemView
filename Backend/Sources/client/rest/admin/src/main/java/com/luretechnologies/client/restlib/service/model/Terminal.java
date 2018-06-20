@@ -79,24 +79,6 @@ public class Terminal extends Entity {
      * @return
      */
     @ApiModelProperty(value = "")
-    @JsonProperty("active")
-    public Boolean getActive() {
-        return active;
-    }
-
-    /**
-     *
-     * @param active
-     */
-    public void setActive(Boolean active) {
-        this.active = active;
-    }
-
-    /**
-     *
-     * @return
-     */
-    @ApiModelProperty(value = "")
     @JsonProperty("model")
     public Model getModel() {
         return model;
@@ -192,7 +174,7 @@ public class Terminal extends Entity {
         sb.append("    description: ").append(StringUtil.toIndentedString(description)).append("\n");
         sb.append("    parentId: ").append(StringUtil.toIndentedString(parentId)).append("\n");
         sb.append("    serialNumber: ").append(StringUtil.toIndentedString(serialNumber)).append("\n");
-        sb.append("    active: ").append(StringUtil.toIndentedString(active)).append("\n");
+        sb.append("    available: ").append(StringUtil.toIndentedString(available)).append("\n");
         sb.append("    model: ").append(StringUtil.toIndentedString(model)).append("\n");
         sb.append("    keyBlock: ").append(StringUtil.toIndentedString(keyBlock)).append("\n");
         sb.append("    scheduleGroup: ").append(StringUtil.toIndentedString(scheduleGroup)).append("\n");

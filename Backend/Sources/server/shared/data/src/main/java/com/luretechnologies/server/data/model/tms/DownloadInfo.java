@@ -31,33 +31,89 @@
  */
 package com.luretechnologies.server.data.model.tms;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import io.swagger.annotations.ApiModelProperty;
+import java.io.Serializable;
+import java.sql.Timestamp;
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinColumns;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({
-    "username",
-    "password",
-    "filename",
-    "ftps_url",
-    "https_url",
-    "window"
-})
-public class DownloadInfo {
+/**
+ *
+ * @author romer
+ */
+@Entity
+@Table(name = "Download_Info")
+public class DownloadInfo implements Serializable {
 
-    @JsonProperty("username")
+    /**
+     * @return the heartbeatResponse
+     */
+    public HeartbeatResponse getHeartbeatResponse() {
+        return heartbeatResponse;
+    }
+
+    /**
+     * @param heartbeatResponse the heartbeatResponse to set
+     */
+    public void setHeartbeatResponse(HeartbeatResponse heartbeatResponse) {
+        this.heartbeatResponse = heartbeatResponse;
+    }
+
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Basic(optional = false)
+    @Column(name = "id")
+    @ApiModelProperty(value = "The table primary key", required = true)
+    private Long id;
+
+    @Size(max = 128)
+    @Column(name = "username")
+    @ApiModelProperty(value = "The username.", required = false)
     private String username;
-    @JsonProperty("password")
+
+    @Size(max = 128)
+    @Column(name = "password")
+    @ApiModelProperty(value = "The password.", required = false)
     private String password;
-    @JsonProperty("filename")
+
+    @Size(max = 256)
+    @Column(name = "filename")
+    @ApiModelProperty(value = "The filename.", required = false)
     private String filename;
-    @JsonProperty("ftps_url")
+
+    @Size(max = 256)
+    @Column(name = "ftps_url")
+    @ApiModelProperty(value = "The ftpsUrl.", required = false)
     private String ftpsUrl;
-    @JsonProperty("https_url")
+
+    @Size(max = 256)
+    @Column(name = "http_url")
+    @ApiModelProperty(value = "The httpsUrl.", required = false)
     private String httpsUrl;
-    @JsonProperty("window")
-    private Long window;
+
+    //  private Long window;
+    @Column(name = "occurred", nullable = false)
+    @ApiModelProperty(value = "The time in which the heartbeat was performed.")
+    private Timestamp occurred;
+    
+    
+    @OneToOne(targetEntity = HeartbeatResponse.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "heartbeat_response", referencedColumnName = "id", nullable = true)
+    private HeartbeatResponse heartbeatResponse;
+
 
     /**
      * No args constructor for use in serialization
@@ -68,80 +124,141 @@ public class DownloadInfo {
 
     /**
      *
-     * @param ftpsUrl
      * @param username
-     * @param window
-     * @param httpsUrl
-     * @param filename
      * @param password
+     * @param filename
+     * @param ftpsUrl
+     * @param httpsUrl
      */
-    public DownloadInfo(String username, String password, String filename, String ftpsUrl, String httpsUrl, Long window) {
+    public DownloadInfo(String username, String password, String filename, String ftpsUrl, String httpsUrl) {
         super();
         this.username = username;
         this.password = password;
         this.filename = filename;
         this.ftpsUrl = ftpsUrl;
         this.httpsUrl = httpsUrl;
-        this.window = window;
+        //   this.window = window;
     }
 
-    @JsonProperty("username")
+    /**
+     * @return the id
+     */
+    public Long getId() {
+        return id;
+    }
+
+    /**
+     * @param id the id to set
+     */
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    /**
+     * @return the username
+     */
     public String getUsername() {
         return username;
     }
 
-    @JsonProperty("username")
+    /**
+     * @param username the username to set
+     */
     public void setUsername(String username) {
         this.username = username;
     }
 
-    @JsonProperty("password")
+    /**
+     * @return the password
+     */
     public String getPassword() {
         return password;
     }
 
-    @JsonProperty("password")
+    /**
+     * @param password the password to set
+     */
     public void setPassword(String password) {
         this.password = password;
     }
 
-    @JsonProperty("filename")
+    /**
+     * @return the filename
+     */
     public String getFilename() {
         return filename;
     }
 
-    @JsonProperty("filename")
+    /**
+     * @param filename the filename to set
+     */
     public void setFilename(String filename) {
         this.filename = filename;
     }
 
-    @JsonProperty("ftps_url")
+    /**
+     * @return the ftpsUrl
+     */
     public String getFtpsUrl() {
         return ftpsUrl;
     }
 
-    @JsonProperty("ftps_url")
+    /**
+     * @param ftpsUrl the ftpsUrl to set
+     */
     public void setFtpsUrl(String ftpsUrl) {
         this.ftpsUrl = ftpsUrl;
     }
 
-    @JsonProperty("https_url")
+    /**
+     * @return the httpsUrl
+     */
     public String getHttpsUrl() {
         return httpsUrl;
     }
 
-    @JsonProperty("https_url")
+    /**
+     * @param httpsUrl the httpsUrl to set
+     */
     public void setHttpsUrl(String httpsUrl) {
         this.httpsUrl = httpsUrl;
     }
 
-    @JsonProperty("window")
-    public Long getWindow() {
-        return window;
+    /**
+     * @return the occurred
+     */
+    public Timestamp getOccurred() {
+        return occurred;
     }
 
-    @JsonProperty("window")
-    public void setWindow(Long window) {
-        this.window = window;
+    /**
+     * @param occurred the occurred to set
+     */
+    public void setOccurred(Timestamp occurred) {
+        this.occurred = occurred;
     }
+
+
+    @Override
+    public int hashCode() {
+        int hash = 0;
+        hash += (id != null ? id.hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        // TODO: Warning - this method won't work in the case the id fields are not set
+        if (!(object instanceof DownloadInfo)) {
+            return false;
+        }
+        DownloadInfo other = (DownloadInfo) object;
+        return !((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id)));
+    }
+
+    @Override
+    public String toString() {
+        return "com.luretechnologies.server.data.model.tms.DownloadInfo[ id=" + id + " ]";
+    }
+
 }

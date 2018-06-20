@@ -135,7 +135,9 @@ public class OrganizationServiceImpl implements OrganizationService {
             throw new ObjectRetrievalFailureException(Organization.class, organizationId);
         }
 
-        organizationDAO.delete(organization.getId());
+        organization.setActive(false);
+        entityDAO.updateActive(organization);
+        organizationDAO.merge(organization);
     }
 
     /**

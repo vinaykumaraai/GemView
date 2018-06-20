@@ -80,25 +80,19 @@ public class AppParamServiceImpl implements AppParamService{
      */
     @Override
     public AppParam createAppParam(AppParam appParam) throws Exception{
-        //AppParam newAppParam = new AppParam();
+        AppParam newAppParam = new AppParam();
         
-        App app = appParam.getApp();
         EntityLevel entityLevel = appParam.getEntityLevel();
         Action action = appParam.getAction();
         AppParamFormat appParamFormat = appParam.getAppParamFormat();
 
         // Check app existence
-        if (app != null) {
-            App existentApp = appDAO.getAppByID(appParam.getApp().getId());
+        App existentApp = appDAO.getAppByID(appParam.getAppId());
 
-            if (existentApp == null) {
-                throw new ObjectRetrievalFailureException(App.class, appParam.getApp().getId());
-            }
-            appParam.setApp(existentApp);
-        } else {
-            // If not App defined throw Exception
-            throw new Exception("The AppParam need to associated with some valid App.");
+        if (existentApp == null) {
+            throw new ObjectRetrievalFailureException(App.class, appParam.getAppId());
         }
+        appParam.setAppId(existentApp.getId());
         
         // Check entityLevel existence
         if (entityLevel != null) {
@@ -138,8 +132,9 @@ public class AppParamServiceImpl implements AppParamService{
             // If not AppParamFormat defined throw Exception
             throw new Exception("The AppParam need to associated with some valid AppParamFormat.");
         }
+
          // Copy properties from -> to
-        //BeanUtils.copyProperties(appParam , newAppParam);
+        BeanUtils.copyProperties(appParam , newAppParam);
         appParamDAO.persist(appParam);
         return appParam;
         
@@ -156,23 +151,17 @@ public class AppParamServiceImpl implements AppParamService{
     public AppParam updateAppParam(long ID, AppParam appParam) throws Exception{
         AppParam existentAppParam = appParamDAO.getAppParamByID(ID);
         
-        App app = appParam.getApp();
         EntityLevel entityLevel = appParam.getEntityLevel();
         Action action = appParam.getAction();
         AppParamFormat appParamFormat = appParam.getAppParamFormat();
 
         // Check app existence
-        if (app != null) {
-            App existentApp = appDAO.getAppByID(appParam.getApp().getId());
+        App existentApp = appDAO.getAppByID(appParam.getAppId());
 
-            if (existentApp == null) {
-                throw new ObjectRetrievalFailureException(App.class, appParam.getApp().getId());
-            }
-            appParam.setApp(existentApp);
-        } else {
-            // If not App defined throw Exception
-            throw new Exception("The AppParam need to associated with some valid App.");
+        if (existentApp == null) {
+            throw new ObjectRetrievalFailureException(App.class, appParam.getAppId());
         }
+        appParam.setAppId(existentApp.getId());
         
         // Check entityLevel existence
         if (entityLevel != null) {
@@ -253,8 +242,8 @@ public class AppParamServiceImpl implements AppParamService{
      * @throws Exception
      */
     @Override
-    public List<AppParam> getAppParamList(List<Long> ids) throws Exception{
-        List<AppParam> appParamList = appParamDAO.getAppParamList(ids);
+    public List<AppParam> getAppParamList(int firstResult, int lastResult) throws Exception{
+        List<AppParam> appParamList = appParamDAO.getAppParamList(firstResult, lastResult);
         return appParamList;
         
     }

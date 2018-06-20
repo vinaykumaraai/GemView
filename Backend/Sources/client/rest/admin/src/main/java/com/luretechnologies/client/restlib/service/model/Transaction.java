@@ -328,14 +328,6 @@ public class Transaction {
      *
      * @return
      */
-    public boolean getTerminalActive() {
-        return terminal.getActive();
-    }
-
-    /**
-     *
-     * @return
-     */
     @ApiModelProperty(value = "")
     @JsonProperty("host")
     public Host getHost() {
@@ -361,7 +353,7 @@ public class Transaction {
     public OperationEnum getOperation() {
         return operation;
     }
-    
+
     /**
      *
      * @return
@@ -400,7 +392,7 @@ public class Transaction {
     @JsonProperty("device")
     public Device getDevice() {
         return device;
-    } 
+    }
 
     /**
      *
@@ -411,7 +403,7 @@ public class Transaction {
     public String getInvoiceNumber() {
         return invoiceNumber;
     }
-    
+
     /**
      *
      * @return
@@ -421,9 +413,7 @@ public class Transaction {
     public Timestamp getCreatedAt() {
         return createdAt;
     }
-    
-    
-    
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

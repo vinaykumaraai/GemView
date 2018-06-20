@@ -37,6 +37,9 @@ package com.luretechnologies.server.common;
  */
 public class ServerJNDI {
 
+    private ServerJNDI() {
+    }
+
     /**
      * JDBC
      *
@@ -50,36 +53,26 @@ public class ServerJNDI {
     public static final String BROKER_URL = (System.getProperty("BROKER_URL") != null) ? System.getProperty("BROKER_URL") : "tcp://127.0.0.1:61616";
 
     /**
-     * Core In Queue
-     *
-     */
-    public static final String CORE_IN_QUEUE = "jms_tms_Queue_CoreIn";
-
-    /**
-     * Core Out Queue
-     *
-     */
-    public static final String CORE_OUT_QUEUE = "jms_tms_Queue_CoreOut";
-
-    /**
-     * Host Out Queue
-     *
-     */
-    public static final String HOST_OUT_QUEUE = "jms_tms_HostOut_Queue";
-
-    /**
      * Service In Queue - Email
      *
      */
-    public static final String SERVICE_IN_QUEUE_EMAIL = "jms_ServerX_Queue_ServiceIn_Email";
+    public static final String SERVICE_IN_QUEUE_EMAIL = "jms_tms_Queue_ServiceIn_Email";
 
     /**
-     * Service Out Queue
+     * Service In Queue - SMS
      *
      */
-    public static final String SERVICE_OUT_QUEUE = "jms_tms_ServiceOut_Queue";
+    public static final String SERVICE_IN_QUEUE_SMS = "jms_tms_Queue_ServiceIn_SMS";
 
-    private ServerJNDI() {
-    }
+    /**
+     * Service In Queue - Heartbeat
+     *
+     */
+    public static final String SERVICE_IN_QUEUE_HEARTBEAT = "jms_tms_Queue_ServiceIn_Heartbeat";
 
+    /**
+     * Service In Queue - Packaging
+     *
+     */
+    public static final String SERVICE_IN_QUEUE_PACKAGING = "jms_tms_Queue_ServiceIn_Packaging";
 }

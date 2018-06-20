@@ -32,9 +32,6 @@
 package com.luretechnologies.server.service.impl;
 
 import com.luretechnologies.common.enums.EntityTypeEnum;
-import com.luretechnologies.common.enums.MerchantSettingEnum;
-import com.luretechnologies.common.enums.ModeEnum;
-import com.luretechnologies.common.enums.OperationEnum;
 import com.luretechnologies.server.common.utils.Utils;
 import com.luretechnologies.server.data.dao.AddressDAO;
 import com.luretechnologies.server.data.dao.EntityDAO;
@@ -50,18 +47,11 @@ import com.luretechnologies.server.data.dao.TerminalHostDAO;
 import com.luretechnologies.server.data.model.Entity;
 import com.luretechnologies.server.data.model.Merchant;
 import com.luretechnologies.server.data.model.payment.Address;
-import com.luretechnologies.server.data.model.payment.Host;
-import com.luretechnologies.server.data.model.payment.HostModeOperation;
 import com.luretechnologies.server.data.model.payment.MerchantHost;
-import com.luretechnologies.server.data.model.payment.MerchantHostModeOperation;
 import com.luretechnologies.server.data.model.payment.MerchantHostSetting;
 import com.luretechnologies.server.data.model.payment.MerchantHostSettingValue;
-import com.luretechnologies.server.data.model.payment.MerchantSettingValue;
 import com.luretechnologies.server.data.model.payment.Telephone;
-import com.luretechnologies.server.data.model.payment.TerminalHost;
 import com.luretechnologies.server.service.MerchantService;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import javax.persistence.PersistenceException;
@@ -215,8 +205,9 @@ public class MerchantServiceImpl implements MerchantService {
         if (merchant == null) {
             throw new ObjectRetrievalFailureException(Merchant.class, merchantId);
         }
-
-        merchantDAO.delete(merchant.getId());
+        merchant.setActive(false);
+        entityDAO.updateActive(merchant);
+        merchantDAO.merge(merchant);
     }
 
     /**
@@ -241,8 +232,8 @@ public class MerchantServiceImpl implements MerchantService {
      */
     @Override
     public List<Merchant> list(Entity entity, int pageNumber, int rowsPerPage) throws Exception {
-        int firstResult = (pageNumber - 1) * rowsPerPage;
-        return merchantDAO.list(entity, firstResult, rowsPerPage);
+        int firstResult = (((pageNumber - 1) >= 0) ? (pageNumber - 1) : 0) * rowsPerPage;
+        return merchantDAO.list(entity, firstResult, firstResult + rowsPerPage);
 
     }
 
@@ -257,8 +248,8 @@ public class MerchantServiceImpl implements MerchantService {
      */
     @Override
     public List<Merchant> search(Entity entity, String filter, int pageNumber, int rowsPerPage) throws Exception {
-        int firstResult = (pageNumber - 1) * rowsPerPage;
-        return merchantDAO.search(entity, filter, firstResult, rowsPerPage);
+        int firstResult = (((pageNumber - 1) >= 0) ? (pageNumber - 1) : 0) * rowsPerPage;
+        return merchantDAO.search(entity, filter, firstResult, firstResult + rowsPerPage);
     }
 
     /**
@@ -274,324 +265,7 @@ public class MerchantServiceImpl implements MerchantService {
         return Utils.getTotalPages(merchantDAO.search(entity, filter, -1, -1).size(), rowsPerPage);
     }
 
-    /**
-     *
-     * @param merchantId
-     * @return
-     * @throws Exception
-     */
-    @Override
-    public List<Host> listAvailableHosts(String merchantId) throws Exception {
-
-        // Throw error if the Merchant does not exists.
-        Merchant existentMerchant = (Merchant) merchantDAO.findByMerchantId(merchantId);
-        if (existentMerchant == null) {
-            throw new ObjectRetrievalFailureException(Merchant.class, merchantId);
-        }
-
-        List<MerchantHost> merchantHosts = merchantDAO.listHosts(merchantId);
-
-        List<Host> availableHosts = new ArrayList<>();
-
-        for (MerchantHost merchantHost : merchantHosts) {
-            if (!availableHosts.contains(merchantHost.getHost())) {
-                availableHosts.add(merchantHost.getHost());
-            }
-        }
-        return availableHosts;
-    }
-
-    /**
-     *
-     * @param merchantId
-     * @param hostId
-     * @return
-     * @throws Exception
-     */
-    @Override
-    public MerchantHost addHost(String merchantId, Long hostId) throws Exception {
-
-        Merchant merchant = (Merchant) merchantDAO.findByMerchantId(merchantId);
-        if (merchant == null) {
-            throw new ObjectRetrievalFailureException(Merchant.class, merchantId);
-        }
-
-        MerchantHost merchantHost = merchantHostDAO.findByHostAndMerchant(merchant.getId(), hostId);
-        if (merchantHost != null) {
-            throw new Exception("Already exists");
-        }
-
-        Host host = hostDAO.findById(hostId);
-        if (host == null) {
-            throw new ObjectRetrievalFailureException(Host.class, hostId);
-        }
-
-        merchantHost = new MerchantHost();
-        merchantHost.setHost(host);
-        merchantHost.setMerchant(merchant);
-        merchantHostDAO.persist(merchantHost);
-
-        List<MerchantHostSetting> merchantHostSettings = merchantHostSettingDAO.findByHostId(hostId);
-        for (MerchantHostSetting merchantHostSetting : merchantHostSettings) {
-            MerchantHostSettingValue merchantHostSettingValue = new MerchantHostSettingValue();
-            merchantHostSettingValue.setMerchantHost(merchantHost);
-            merchantHostSettingValue.setSetting(merchantHostSetting);
-            merchantHostSettingValue.setValue("");
-            merchantHostSettingValueDAO.persist(merchantHostSettingValue);
-            merchantHost.getMerchantHostSettingValues().add(merchantHostSettingValue);
-        }
-        return merchantHost;
-    }
-
-    /**
-     *
-     * @param merchantId
-     * @param hostId
-     * @throws Exception
-     */
-    @Override
-    public void deleteHost(String merchantId, Long hostId) throws Exception {
-        Merchant merchant = (Merchant) merchantDAO.findByMerchantId(merchantId);
-        if (merchant == null) {
-            throw new ObjectRetrievalFailureException(Merchant.class, merchantId);
-        }
-
-        MerchantHost merchantHost = merchantHostDAO.findByHostAndMerchant(merchant.getId(), hostId);
-        if (merchantHost == null) {
-            throw new ObjectRetrievalFailureException(MerchantHost.class, hostId);
-        }
-        merchantHostDAO.delete(merchantHost);
-
-        List<Entity> children = entityDAO.listChildren(merchant);
-        for (Entity entity : children) {
-            if (entity.getType() == EntityTypeEnum.TERMINAL) {
-                TerminalHost terminalHost = terminalHostDAO.findByHostAndTerminal(entity.getId(), hostId);
-                if (terminalHost != null) {
-                    terminalHostDAO.delete(terminalHost);
-                }
-            }
-        }
-    }
-
-    /**
-     *
-     * @param merchantId
-     * @param hostId
-     * @return
-     * @throws Exception
-     */
-    @Override
-    public List<MerchantHostSettingValue> listHostSettings(String merchantId, Long hostId) throws Exception {
-        // Throw error if the Merchant does not exists.
-        Merchant existentMerchant = (Merchant) merchantDAO.findByMerchantId(merchantId);
-        if (existentMerchant == null) {
-            throw new ObjectRetrievalFailureException(Merchant.class, merchantId);
-        }
-        return merchantDAO.listHostSettings(merchantId, hostId);
-    }
-
-    /**
-     *
-     * @param merchantId
-     * @param hostId
-     * @return
-     * @throws Exception
-     */
-    @Override
-    public MerchantHostSettingValue setHostSettingValue(String merchantId, Long hostId, Long merchantHostSettingId, String value) throws Exception {
-        Merchant merchant = (Merchant) merchantDAO.findByMerchantId(merchantId);
-        if (merchant == null) {
-            throw new ObjectRetrievalFailureException(Merchant.class, merchantId);
-        }
-
-        MerchantHost merchantHost = merchantHostDAO.findByHostAndMerchant(merchant.getId(), hostId);
-        if (merchantHost == null) {
-            throw new ObjectRetrievalFailureException(MerchantHost.class, hostId);
-        }
-
-        MerchantHostSettingValue merchantHostSettingValue = merchantHostSettingValueDAO.getMerchantHostSettingValue(merchantHost.getId(), merchantHostSettingId);
-        if (merchantHostSettingValue == null) {
-            throw new ObjectRetrievalFailureException(MerchantHostSettingValue.class, merchantHostSettingId);
-        }
-
-        merchantHostSettingValue.setValue(value);
-        merchantHostSettingValueDAO.merge(merchantHostSettingValue);
-        return merchantHostSettingValue;
-    }
-
-    /**
-     *
-     * @param merchantId
-     * @param merchantSettingValue
-     * @return
-     * @throws Exception
-     */
-    @Override
-    public Merchant addSetting(String merchantId, MerchantSettingValue merchantSettingValue) throws Exception {
-
-        // Throw error if the Merchant does not exists.
-        Merchant merchant = (Merchant) merchantDAO.findByMerchantId(merchantId);
-        if (merchant == null) {
-            throw new ObjectRetrievalFailureException(Merchant.class, merchantId);
-        }
-
-        // If the Setting is already set up for this Merchant --> Do Nothing
-        for (MerchantSettingValue existentMerchantSettingValue : merchant.getMerchantSettingValues()) {
-            if (existentMerchantSettingValue.getMerchantSetting().equals(merchantSettingValue.getMerchantSetting())) {
-                return null;
-            }
-        }
-
-        merchantSettingValue.setMerchant(merchant);
-        merchant.getMerchantSettingValues().add(merchantSettingValue);
-
-        return merchantDAO.merge(merchant);
-    }
-
-    /**
-     *
-     * @param merchantId
-     * @param merchantSettingValue
-     * @return
-     * @throws Exception
-     */
-    @Override
-    public Merchant updateSetting(String merchantId, MerchantSettingValue merchantSettingValue) throws Exception {
-
-        // Throw error if the Merchant does not exists.
-        Merchant merchant = (Merchant) merchantDAO.findByMerchantId(merchantId);
-        if (merchant == null) {
-            throw new ObjectRetrievalFailureException(Merchant.class, merchantId);
-        }
-
-        // If the Setting is already set up for this Merchant  --> UPDATE
-        for (MerchantSettingValue existentMerchantSettingValue : merchant.getMerchantSettingValues()) {
-            if (existentMerchantSettingValue.getMerchantSetting().equals(merchantSettingValue.getMerchantSetting())) {
-
-                merchant.getMerchantSettingValues().remove(existentMerchantSettingValue);
-                BeanUtils.copyProperties(merchantSettingValue, existentMerchantSettingValue, "id", "merchant");
-                merchant.getMerchantSettingValues().add(existentMerchantSettingValue);
-
-                return merchantDAO.merge(merchant);
-            }
-        }
-        // Throw error if the Merchant Setting does not exists.
-        throw new ObjectRetrievalFailureException(Merchant.class, merchantId);
-    }
-
-    /**
-     *
-     * @param merchantId
-     * @param merchantSetting
-     * @throws Exception
-     */
-    @Override
-    public void deleteSetting(String merchantId, MerchantSettingEnum merchantSetting) throws Exception {
-
-        // Throw error if the Merchant does not exists.
-        Merchant merchant = (Merchant) merchantDAO.findByMerchantId(merchantId);
-        if (merchant == null) {
-            throw new ObjectRetrievalFailureException(Merchant.class, merchantId);
-        }
-        // If the Setting is already set up for this Merchant  --> DELETE
-        for (MerchantSettingValue existentMerchantSettingValue : merchant.getMerchantSettingValues()) {
-            if (existentMerchantSettingValue.getMerchantSetting().equals(merchantSetting)) {
-                merchant.getMerchantSettingValues().remove(existentMerchantSettingValue);
-
-                merchantDAO.merge(merchant);
-                return;
-            }
-        }
-        // Throw error if the Merchant HostEnum does not exists.
-        throw new ObjectRetrievalFailureException(Merchant.class, merchantId);
-    }
-
-    /**
-     *
-     * @param merchantId
-     * @return
-     * @throws Exception
-     */
-    @Override
-    public List<MerchantSettingEnum> listAvailableSettings(String merchantId) throws Exception {
-
-        // Throw error if the Merchant does not exists.
-        Merchant existentMerchant = (Merchant) merchantDAO.findByMerchantId(merchantId);
-        if (existentMerchant == null) {
-            throw new ObjectRetrievalFailureException(Merchant.class, merchantId);
-        }
-
-        List<MerchantSettingValue> terminalSettingValues = merchantDAO.listMerchantSettings(merchantId);
-
-        List<MerchantSettingEnum> allMerchantSettings = Arrays.asList(MerchantSettingEnum.values());
-        List<MerchantSettingEnum> assignedMerchantSettings = new ArrayList<>();
-        List<MerchantSettingEnum> availableMerchantSettings = new ArrayList<>();
-
-        for (MerchantSettingValue merchantSettingValue : terminalSettingValues) {
-            assignedMerchantSettings.add(merchantSettingValue.getMerchantSetting());
-        }
-
-        for (MerchantSettingEnum terminalSetting : allMerchantSettings) {
-            if (!assignedMerchantSettings.contains(terminalSetting)) {
-                availableMerchantSettings.add(terminalSetting);
-            }
-        }
-
-        return availableMerchantSettings;
-    }
-
-    /**
-     *
-     * @param merchantId
-     * @param mode
-     * @param operation
-     * @return
-     * @throws PersistenceException
-     */
-    @Override
-    public Host getHostByModeOperation(String merchantId, ModeEnum mode, OperationEnum operation) throws PersistenceException {
-        return merchantDAO.getHostByModeOperation(merchantId, mode, operation);
-    }
-
-    @Override
-    public List<MerchantHostModeOperation> getHostModeOperationsByMerchantId(String merchantId) throws PersistenceException {
-        return merchantHostModeOperationDAO.findByMerchantId(merchantId);
-    }
-
-    @Override
-    public MerchantHostModeOperation addHostModeOperation(String merchantId, Long hostModeOperationId) throws Exception {
-        MerchantHostModeOperation merchantHostModeOperation = findHostModeOperation(merchantId, hostModeOperationId);
-        if (merchantHostModeOperation != null) {
-            throw new Exception("Already exists");
-        }
-        Merchant merchant = (Merchant) merchantDAO.findByMerchantId(merchantId);
-        if (merchant == null) {
-            throw new ObjectRetrievalFailureException(Merchant.class, merchantId);
-        }
-        HostModeOperation hostModeOperation = (HostModeOperation) hostModeOperationDAO.findById(hostModeOperationId);
-        if (hostModeOperation == null) {
-            throw new ObjectRetrievalFailureException(HostModeOperation.class, hostModeOperationId);
-        }
-        merchantHostModeOperation = new MerchantHostModeOperation();
-        merchantHostModeOperation.setMerchant(merchant);
-        merchantHostModeOperation.setHostModeOperation(hostModeOperation);
-        merchantHostModeOperationDAO.persist(merchantHostModeOperation);
-        return merchantHostModeOperation;
-    }
-
-    @Override
-    public void deleteHostModeOperation(String merchantId, Long hostModeOperationId) throws Exception {
-        MerchantHostModeOperation merchantHostModeOperation = findHostModeOperation(merchantId, hostModeOperationId);
-        if (merchantHostModeOperation == null) {
-            throw new Exception("It does not exist");
-        }
-        merchantHostModeOperationDAO.delete(merchantHostModeOperation.getId());
-    }
-
-    @Override
-    public MerchantHostModeOperation findHostModeOperation(String merchantId, Long hostModeOperationId) {
-        return merchantHostModeOperationDAO.findByMerchantAndHostModeOperation(merchantId, hostModeOperationId);
-    }
+ 
 
 //    @Override
 //    public List<Merchant> searchTree(String filter, int pageNumber, int rowsPerPage) throws Exception {
@@ -785,11 +459,6 @@ public class MerchantServiceImpl implements MerchantService {
                 merchantHost.getMerchantHostSettingValues().add(merchantHostSettingValue);
             }
 
-        }
-
-        List<MerchantHostModeOperation> hostModeOperations = getHostModeOperationsByMerchantId(entityId);
-        for (MerchantHostModeOperation hostModeOperation : hostModeOperations) {
-            addHostModeOperation(copy.getEntityId(), hostModeOperation.getHostModeOperation().getId());
         }
 
         return copy;

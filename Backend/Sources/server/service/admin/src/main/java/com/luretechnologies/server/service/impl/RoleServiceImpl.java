@@ -31,14 +31,12 @@
  */
 package com.luretechnologies.server.service.impl;
 
-import com.luretechnologies.common.Constants;
 import com.luretechnologies.common.enums.PermissionEnum;
-import com.luretechnologies.server.common.Messages;
 import com.luretechnologies.server.common.utils.Utils;
-import com.luretechnologies.server.common.utils.exceptions.CustomException;
 import com.luretechnologies.server.data.dao.RoleDAO;
 import com.luretechnologies.server.data.model.Role;
 import com.luretechnologies.server.service.RoleService;
+import java.sql.Timestamp;
 import java.util.List;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,7 +66,11 @@ public class RoleServiceImpl implements RoleService {
         // Copy properties from -> to
         BeanUtils.copyProperties(role, newRole);
 
-        return roleDAO.merge(newRole);
+        newRole.setActive(Boolean.TRUE);
+
+        roleDAO.persist(newRole);
+
+        return newRole;
     }
 
     /**
@@ -83,26 +85,12 @@ public class RoleServiceImpl implements RoleService {
         Role existentRole = roleDAO.findById(id);
 
         // Copy properties from -> to
+        Boolean active = existentRole.getActive();
         BeanUtils.copyProperties(role, existentRole);
-
-        return roleDAO.merge(existentRole);
-    }
-
-    /**
-     *
-     * @param id
-     * @throws Exception
-     */
-    @Override
-    public void delete(long id) throws Exception {
-        Role role = roleDAO.findById(id);
-
-        // Do not let delete the Admin role
-        if (role.getId() == roleDAO.getFirstResult().getId()) {
-            throw new CustomException(Constants.CODE_CANNOT_BE_DELETED, Messages.CANNOT_BE_DELETED);
+        if (role.getActive() == null) {
+            existentRole.setActive(active);
         }
-
-        roleDAO.delete(role.getId());
+        return roleDAO.merge(existentRole);
     }
 
     /**
@@ -125,8 +113,8 @@ public class RoleServiceImpl implements RoleService {
      */
     @Override
     public List<Role> list(int pageNumber, int rowsPerPage) throws Exception {
-        int firstResult = (pageNumber - 1) * rowsPerPage;
-        return roleDAO.list(firstResult, rowsPerPage);
+        int firstResult = (((pageNumber - 1) >= 0) ? (pageNumber - 1) : 0) * rowsPerPage;
+        return roleDAO.list(firstResult, firstResult + rowsPerPage);
     }
 
     /**
@@ -139,8 +127,8 @@ public class RoleServiceImpl implements RoleService {
      */
     @Override
     public List<Role> search(String filter, int pageNumber, int rowsPerPage) throws Exception {
-        int firstResult = (pageNumber - 1) * rowsPerPage;
-        return roleDAO.search(filter, firstResult, rowsPerPage);
+        int firstResult = (((pageNumber - 1) >= 0) ? (pageNumber - 1) : 0) * rowsPerPage;
+        return roleDAO.search(filter, firstResult, firstResult + rowsPerPage);
     }
 
     /**
@@ -164,7 +152,7 @@ public class RoleServiceImpl implements RoleService {
      */
     @Override
     public Role addPermission(long id, PermissionEnum permission) throws Exception {
-        if(permission.equals(PermissionEnum.SUPER)) {
+        if (permission.equals(PermissionEnum.SUPER)) {
             throw new Exception("Super permission cannot be added");
         }
         Role role = roleDAO.findById(id);
@@ -183,8 +171,28 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public Role removePermission(long idRole, PermissionEnum permission) throws Exception {
         Role role = roleDAO.findById(idRole);
+
+        if (permission.equals(PermissionEnum.SUPER)) {
+            throw new Exception("Super permission cannot be added");
+        }
+
         role.getPermissions().remove(permission);
 
         return roleDAO.merge(role);
+    }
+
+    @Override
+    public Role getByName(String roleName) throws Exception {
+        return (Role) roleDAO.findByProperty("name", roleName).getSingleResult();
+    }
+
+    @Override
+    public Role deleteRole(long id) throws Exception {
+        Role existentRole = roleDAO.findById(id);
+        String newName = existentRole.getName() + " deleted on: " + (new Timestamp(System.currentTimeMillis())).toString();
+        existentRole.setName(newName);
+        existentRole.setActive(false);
+        existentRole.setAvailable(false);
+        return roleDAO.merge(existentRole);
     }
 }

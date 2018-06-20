@@ -31,18 +31,9 @@
  */
 package com.luretechnologies.server.service;
 
-import com.luretechnologies.common.enums.MerchantSettingEnum;
-import com.luretechnologies.common.enums.ModeEnum;
-import com.luretechnologies.common.enums.OperationEnum;
 import com.luretechnologies.server.data.model.Entity;
 import com.luretechnologies.server.data.model.Merchant;
-import com.luretechnologies.server.data.model.payment.Host;
-import com.luretechnologies.server.data.model.payment.MerchantHost;
-import com.luretechnologies.server.data.model.payment.MerchantHostModeOperation;
-import com.luretechnologies.server.data.model.payment.MerchantHostSettingValue;
-import com.luretechnologies.server.data.model.payment.MerchantSettingValue;
 import java.util.List;
-import javax.persistence.PersistenceException;
 
 /**
  *
@@ -111,129 +102,6 @@ public interface MerchantService {
      * @throws Exception
      */
     public int getSearchTotalPages(Entity entity, String filter, int rowsPerPage) throws Exception;
-
-    /**
-     *
-     * @param merchantId
-     * @return
-     * @throws Exception
-     */
-    public List<Host> listAvailableHosts(String merchantId) throws Exception;
-
-    /**
-     *
-     * @param merchantId
-     * @param hostId
-     * @return
-     * @throws Exception
-     */
-    public MerchantHost addHost(String merchantId, Long hostId) throws Exception;
-
-    /**
-     *
-     * @param merchantId
-     * @param host
-     * @throws Exception
-     */
-    public void deleteHost(String merchantId, Long hostId) throws Exception;
-
-    /**
-     *
-     * @param merchantId
-     * @param hostId
-     * @return
-     * @throws Exception
-     */
-    public List<MerchantHostSettingValue> listHostSettings(String merchantId, Long hostId) throws Exception;
-
-    /**
-     *
-     * @param merchantId
-     * @param hostId
-     * @param merchantHostSettingId
-     * @param value
-     * @return
-     * @throws Exception
-     */
-    public MerchantHostSettingValue setHostSettingValue(String merchantId, Long hostId, Long merchantHostSettingId, String value) throws Exception;
-
-
-    /**
-     *
-     * @param merchantId
-     * @param merchantSettingValue
-     * @return
-     * @throws Exception
-     */
-    public Merchant addSetting(String merchantId, MerchantSettingValue merchantSettingValue) throws Exception;
-
-    /**
-     *
-     * @param merchantId
-     * @param merchantSettingValue
-     * @return
-     * @throws Exception
-     */
-    public Merchant updateSetting(String merchantId, MerchantSettingValue merchantSettingValue) throws Exception;
-
-    /**
-     *
-     * @param merchantId
-     * @param merchantSetting
-     * @throws Exception
-     */
-    public void deleteSetting(String merchantId, MerchantSettingEnum merchantSetting) throws Exception;
-
-    /**
-     *
-     * @param merchantId
-     * @return
-     * @throws Exception
-     */
-    public List<MerchantSettingEnum> listAvailableSettings(String merchantId) throws Exception;
-
-    /**
-     *
-     * @param merchantId
-     * @param mode
-     * @param operation
-     * @return
-     * @throws PersistenceException
-     */
-    public Host getHostByModeOperation(String merchantId, ModeEnum mode, OperationEnum operation) throws PersistenceException;
-    
-    public List<MerchantHostModeOperation> getHostModeOperationsByMerchantId(String merchantId) throws PersistenceException;
-    
-    public MerchantHostModeOperation addHostModeOperation(String merchantId, Long hostModeOperationId) throws Exception;
-    
-    public void deleteHostModeOperation(String merchantId, Long hostModeOperationId) throws Exception;
-    
-    public MerchantHostModeOperation findHostModeOperation(String merchantId, Long hostModeOperationId);
-
-//    public List<Merchant> searchTree(String filter, int pageNumber, int rowsPerPage) throws Exception;
-//
-//    public int getSearchTotalPages(String search, int rowsPerPage) throws Exception;
-//
-//    public List<Terminal> getTerminals(long id) throws Exception;
-//
-//    
-//    public List<Survey> getSurveys(long id) throws Exception;
-//    public void addTerminal(EntityRelation entityRelation) throws Exception;
-//
-//    public void updateTerminal(EntityRelation entityRelation) throws Exception;
-//    public void deleteTerminal(long idEntityRelation) throws Exception;
-//
-//    public int searchTotalPagesSurvey(long idEntity, String search, int rowsPerPage) throws Exception;
-//
-//    public void addSurvey(EntitySurvey entitySurvey) throws Exception;
-//
-//    public void updateSurvey(EntitySurvey entitySurvey) throws Exception;
-//
-//    public void deleteSurvey(long idEntitySurvey) throws Exception;
-//
-//    public List<EntitySurvey> searchSurveys(long id, String filter, int pageNumber, int rowsPerPage) throws Exception;
-//
-//    public List<Region> getPrevRegions(long id) throws Exception;
 
     public Entity copy(String entityId, long parentId) throws Exception;
 }

@@ -43,32 +43,30 @@ import java.util.List;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeNotNull;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.runners.MethodSorters;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@Ignore
 public class AddressTest {
 
     private static RestClientService service;
     private static UserSession userSession;
 
-    /**
-     *
-     */
     @BeforeClass
     public static void createService() {
 
-        service = new RestClientService(Utils.serviceUrl + "/admin/api", Utils.serviceUrl + "/payment/api");
+        service = new RestClientService(Utils.ADMIN_SERVICE_URL, Utils.TMS_SERVICE_URL);
 
         assumeNotNull(service);
 
         try {
             userSession = service.getAuthApi().login(CommonConstants.testStandardUsername, CommonConstants.testStandardPassword);
-            assertTrue("User logged in", userSession != null);
+            assertNotNull("User failed login", userSession);
         } catch (ApiException ex) {
             fail(ex.getResponseBody());
         }
@@ -98,5 +96,4 @@ public class AddressTest {
             fail(ex.getResponseBody());
         }
     }
-
 }

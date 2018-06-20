@@ -46,7 +46,8 @@ public interface EntityService {
     public Entity move(long id, long parentId);
     
     public EntityNode getEntityHierarchy(Entity entity, long id);
+    
+    public List<Entity> getEntityHierarchyList(long id);
 
     public List<Entity> getEntityChildren(Entity entity, long id);
-
 }

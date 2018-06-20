@@ -108,6 +108,9 @@ public class DeviceDAOImpl extends BaseDAOImpl<Device, Long> implements DeviceDA
 
         List<Predicate> wherePredicate = wherePredicate(root, entity);
         wherePredicate.add(filterPredicate);
+        
+        wherePredicate.add(criteriaBuilder().equal(root.<Boolean>get("active"), true));
+        
         cq.where(criteriaBuilder().and(wherePredicate.toArray(new Predicate[wherePredicate.size()])));
 
         return query(cq).setFirstResult(firstResult).setMaxResults(lastResult).getResultList();
@@ -129,7 +132,8 @@ public class DeviceDAOImpl extends BaseDAOImpl<Device, Long> implements DeviceDA
             CriteriaQuery<Device> cq = criteriaQuery();
             Root<Device> root = getRoot(cq);
 
-            return (Device) query(cq.where(criteriaBuilder().equal(root.get("id"), Utils.decodeHashId(deviceId)))).getSingleResult();
+            long id = Utils.decodeHashId(deviceId);
+            return (Device) query(cq.where(criteriaBuilder().equal(root.get("id"), id ))).getSingleResult();
         } catch (NoResultException e) {
             LOGGER.info("Device not found. deviceId: " + deviceId, e);
             return null;
@@ -141,6 +145,7 @@ public class DeviceDAOImpl extends BaseDAOImpl<Device, Long> implements DeviceDA
         Predicate entPredicate = criteriaBuilder().disjunction();
         entPredicate.getExpressions().add(criteriaBuilder().like(root.<String>get("path"), "%-" + String.valueOf(entity.getId()) + "-%"));
         wherePredicate.add(entPredicate);
+        wherePredicate.add(criteriaBuilder().equal(root.<Boolean>get("active"), true));
         return wherePredicate;
     }
 }

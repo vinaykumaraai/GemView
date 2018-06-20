@@ -31,112 +31,155 @@
  */
 package com.luretechnologies.server.service.impl;
 
-import com.luretechnologies.server.common.utils.Utils;
 import com.luretechnologies.server.data.dao.ModelDAO;
+import com.luretechnologies.server.data.display.ModelDisplay;
 import com.luretechnologies.server.data.model.Model;
 import com.luretechnologies.server.service.ModelService;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.Date;
 
 /**
  *
+ * @author
  */
 @Service
 @Transactional
 public class ModelServiceImpl implements ModelService {
 
     @Autowired
-    private ModelDAO modelDAO;
-
-    /**
-     *
-     * @param model
-     * @return
-     * @throws Exception
-     */
+    ModelDAO modelDAO;
     @Override
-    public Model save(Model model) throws Exception {
-        return modelDAO.merge(model);
-    }
-
-    /**
-     *
-     * @param id
-     * @throws Exception
-     */
-    @Override
-    public void delete(long id) throws Exception {
-        modelDAO.delete(id);
-    }
-
-    /**
-     *
-     * @param id
-     * @return
-     * @throws Exception
-     */
-    @Override
-    public Model get(long id) throws Exception {
-        return modelDAO.findById(id);
-    }
-
-    /**
-     *
-     * @param pageNumber
-     * @param rowsPerPage
-     * @return
-     * @throws Exception
-     */
-    @Override
-    public List<Model> list(int pageNumber, int rowsPerPage) throws Exception {
-        int firstResult = (pageNumber - 1) * rowsPerPage;
-        return modelDAO.list(firstResult, rowsPerPage);
-    }
-
-    /**
-     *
-     * @param filter
-     * @param pageNumber
-     * @param rowsPerPage
-     * @return
-     * @throws Exception
-     */
-    @Override
-    public List<Model> search(String filter, int pageNumber, int rowsPerPage) throws Exception {
-        int firstResult = (pageNumber - 1) * rowsPerPage;
-        return modelDAO.search(filter, firstResult, rowsPerPage);
-    }
-
-    /**
-     *
-     * @param filter
-     * @param rowsPerPage
-     * @return
-     * @throws Exception
-     */
-    @Override
-    public int getSearchTotalPages(String filter, int rowsPerPage) throws Exception {
-        return Utils.getTotalPages(modelDAO.search(filter, -1, -1).size(), rowsPerPage);
-    }
-
-    /**
-     *
-     * @param name
-     * @param multiApp
-     * @param pageNumber
-     * @param rowsPerPage
-     * @return
-     * @throws Exception
-     */
-    @Override
-    public List<Model> list(String name, Boolean multiApp, int pageNumber, int rowsPerPage) throws Exception {
-
-        if (name == null && multiApp == null) {
-            return modelDAO.list();
+    public ModelDisplay create(ModelDisplay modelDisplay) throws Exception {
+        Model model = new Model();
+        model.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+        model.setActive(true);
+        if (modelDisplay.getAvailable() != null) {
+            model.setAvailable(modelDisplay.getAvailable());
         } else {
-            return modelDAO.list(name, multiApp, pageNumber, rowsPerPage);
+            model.setAvailable(true);
+        }
+        model.setDescription(modelDisplay.getDescription());
+        model.setManufacturer(modelDisplay.getManufacturer());
+        model.setName(modelDisplay.getName());
+        model.setOsUpdate(modelDisplay.getOsUpdate());
+        model.setRkiCapable(modelDisplay.getRkiCapable());
+        modelDAO.persist(model);
+        modelDisplay.setId(model.getId());
+        modelDisplay.setUpdatedAt(new Date (model.getUpdatedAt().getTime()));
+        modelDisplay.setId(model.getId());
+        return modelDisplay;
+    }
+
+    @Override
+    public List<ModelDisplay> search(String filter, int pageNumber, int rowsPerPage) throws Exception {
+        int firstResult = (((pageNumber - 1) >= 0) ? (pageNumber - 1) : 0) * rowsPerPage;
+        List<Model> models = modelDAO.search(filter, firstResult, firstResult + rowsPerPage);
+        List<ModelDisplay> displays = new ArrayList<>();
+        if (models != null && models.size() > 0) {
+            for (Model model : models) {
+                ModelDisplay display = new ModelDisplay();
+                display.setAvailable(model.getAvailable());
+                display.setUpdatedAt(new Date(model.getUpdatedAt().getTime()));
+                display.setDescription(model.getDescription());
+                display.setManufacturer(model.getManufacturer());
+                display.setRkiCapable(model.getRkiCapable());
+                display.setOsUpdate(model.getOsUpdate());
+                display.setName(model.getName());
+                display.setId(model.getId());
+                displays.add(display);
+            }
+            return displays;
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public List<ModelDisplay> list(int firstResult, int lastResult) throws Exception {
+        List<Model> models = modelDAO.list(firstResult, lastResult);
+        List<ModelDisplay> displays = new ArrayList<>();
+        if (models != null && models.size() > 0) {
+            for (Model model : models) {
+                ModelDisplay display = new ModelDisplay();
+                display.setAvailable(model.getAvailable());
+                display.setUpdatedAt(new Date(model.getUpdatedAt().getTime()));
+                display.setDescription(model.getDescription());
+                display.setManufacturer(model.getManufacturer());
+                display.setRkiCapable(model.getRkiCapable());
+                display.setOsUpdate(model.getOsUpdate());
+                displays.add(display);
+            }
+            return displays;
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public ModelDisplay findByName(String name) throws Exception {
+        Model model = modelDAO.findByName(name);
+        if (model != null) {
+            ModelDisplay display = new ModelDisplay();
+            display.setAvailable(model.getAvailable());
+            display.setUpdatedAt(new Date(model.getUpdatedAt().getTime()));
+            display.setDescription(model.getDescription());
+            display.setManufacturer(model.getManufacturer());
+            display.setRkiCapable(model.getRkiCapable());
+            display.setOsUpdate(model.getOsUpdate());
+            return display;
+        } else {
+            return null;
+        }
+
+    }
+
+    @Override
+    public ModelDisplay update(ModelDisplay modelDisplay) throws Exception {
+     Model model = modelDAO.findById(modelDisplay.getId());
+        model.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+        if (modelDisplay.getAvailable() != null) {
+            model.setAvailable(modelDisplay.getAvailable());
+        } 
+        model.setDescription(modelDisplay.getDescription());
+        model.setManufacturer(modelDisplay.getManufacturer());
+        model.setName(modelDisplay.getName());
+        model.setOsUpdate(modelDisplay.getOsUpdate());
+        model.setRkiCapable(modelDisplay.getRkiCapable());
+        modelDAO.merge(model);
+        modelDisplay.setId(model.getId());
+        return modelDisplay;
+    }
+
+    @Override
+    public void delete(Long id) throws Exception {
+        Model model = modelDAO.findById(id);
+        model.setActive(false);
+        modelDAO.merge(model);
+    }
+
+    @Override
+    public ModelDisplay get(Long id) throws Exception {
+        Model model = modelDAO.findById(id);
+        if (model != null) {
+            ModelDisplay display = new ModelDisplay();
+            display.setAvailable(model.getAvailable());
+            display.setUpdatedAt(new Date(model.getUpdatedAt().getTime()));
+            display.setDescription(model.getDescription());
+            display.setManufacturer(model.getManufacturer());
+            display.setRkiCapable(model.getRkiCapable());
+            display.setOsUpdate(model.getOsUpdate());
+            display.setName(model.getName());
+            display.setId(model.getId());
+            
+            return display;
+        } else {
+            return null;
         }
     }
 }

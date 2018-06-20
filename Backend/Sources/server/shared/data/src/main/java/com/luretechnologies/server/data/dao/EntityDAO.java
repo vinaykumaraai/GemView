@@ -58,7 +58,7 @@ public interface EntityDAO extends BaseDAO<Entity, Long> {
      * @throws PersistenceException
      */
     public Entity findByEntityId(String entityId) throws PersistenceException;
-    
+
     /**
      *
      * @param entity
@@ -68,9 +68,9 @@ public interface EntityDAO extends BaseDAO<Entity, Long> {
      * @throws PersistenceException
      */
     public List<Entity> listChildren(Entity entity, int firstResult, int lastResult) throws PersistenceException;
-    
+
     public List<Entity> listChildren(Entity entity) throws PersistenceException;
-    
+
     public List<Entity> getEntityChildren(Entity entity, long id) throws PersistenceException;
 
     /**
@@ -80,7 +80,7 @@ public interface EntityDAO extends BaseDAO<Entity, Long> {
      * @throws PersistenceException
      */
     public EntityNode getEntityHierarchy(Entity entity, long id);
-    
+
     /**
      *
      * @param entity
@@ -140,16 +140,26 @@ public interface EntityDAO extends BaseDAO<Entity, Long> {
      * @throws PersistenceException
      */
     public List<Long> listTerminalIds(Entity entity, int firstResult, int lastResult) throws PersistenceException;
-    
+
     public List<Predicate> wherePredicate(Expression expression, Entity entity) throws PersistenceException;
-    
+
     public boolean isDescendant(Entity entity, long id);
-    
+
     public void updatePath(Entity entity, boolean isNew);
-    
+
     public void updateActive(Entity entity);
-    
+
+    /**
+     *
+     * @param entity
+     * @param active
+     * @throws PersistenceException
+     */
+    public void updateActive(Entity entity, Boolean active) throws PersistenceException;
+
     public Entity move(long id, long parentId);
-    
+
     public boolean isParentCorrect(EntityTypeEnum entityType, Entity parent);
+
+    public List<Entity> getEntityHierarchyList(long id) throws PersistenceException;
 }

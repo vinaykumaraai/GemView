@@ -60,6 +60,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import com.luretechnologies.server.service.AuditUserLogService;
 
 /**
  *
@@ -88,6 +89,9 @@ public class EntityController {
 
     @Autowired
     OrganizationService organizationService;
+
+    @Autowired
+    AuditUserLogService auditUserLogService;
 
     /**
      * Retrieve an entity
@@ -153,8 +157,15 @@ public class EntityController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication.getDetails() instanceof UserAuth) {
+            UserAuth userAuth = (UserAuth) authentication.getDetails();
+            User user = userAuth.getSystemUser();
+            auditUserLogService.createAuditUserLog(user.getId(), id, "info", "move", "Move entity to new parent");
+        }
+
+        if (authentication.getDetails() instanceof UserAuth) {
             return service.move(id, parentId);
         }
+
         return null;
     }
 
@@ -206,8 +217,13 @@ public class EntityController {
                     paste = deviceService.copy(entityId, parentId);
                     break;
             }
-            if(paste != null) {
+            if (paste != null) {
                 paste.setParentId(parentId);
+            }
+            if (authentication.getDetails() instanceof UserAuth) {
+                UserAuth userAuth = (UserAuth) authentication.getDetails();
+                User user = userAuth.getSystemUser();
+                auditUserLogService.createAuditUserLog(user.getId(), entityId , "info", "copy", "Copy entity to new parent");
             }
 
             return paste;

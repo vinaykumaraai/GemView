@@ -31,14 +31,11 @@
  */
 package com.luretechnologies.server.service.supporting;
 
-import com.luretechnologies.conf.spring.JmsConfig;
+import com.luretechnologies.conf.spring.email.JmsConfig;
 import com.luretechnologies.server.data.model.tms.Email;
 import com.luretechnologies.server.service.supporting.email.EmailServiceConnector;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.annotation.JmsListener;
-import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.support.JmsHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Service;
@@ -52,13 +49,7 @@ import org.springframework.stereotype.Service;
 public class EmailService {
 
     @Autowired
-    JmsTemplate jmsTemplate;
-
-    @Autowired
     EmailServiceConnector connector;
-
-    private final Logger systemLogger = LoggerFactory.getLogger(EmailService.class);
-    private final Logger classLogger = LoggerFactory.getLogger("classLogger");
 
     public Boolean debugOn;
 
@@ -70,9 +61,7 @@ public class EmailService {
     @JmsListener(destination = JmsConfig.SERVICE_IN_QUEUE)
     public void processTransaction(Email email, @Header(JmsHeaders.CORRELATION_ID) String correlationId) {
         try {
-
             connector.process(email, correlationId);
-
         } catch (Exception ex) {
         } finally {
         }

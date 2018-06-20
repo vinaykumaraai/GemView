@@ -53,7 +53,7 @@ public class ClientsApi extends BaseApi {
     private static final String METHOD_GET_CLIENTS = "/clients";
     private static final String METHOD_SEARCH_CLIENTS = "/clients/search";
     private static final String METHOD_UPDATE_CLIENT = "/clients/{id}";
-    
+
     /**
      *
      * @param apiClient

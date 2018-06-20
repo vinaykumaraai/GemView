@@ -112,6 +112,16 @@ public class StatelessAuthFilter extends GenericFilterBean {
                     return;
                 }
 
+                String tokenIP = tokenAuthService.getAccessIP(httpRequest);
+
+                if (!tokenIP.contentEquals(httpRequest.getRemoteAddr())) {
+                    logger.info("IP switch not allowed during session: " + tokenIP + " -> " + httpRequest.getRemoteAddr());
+                    httpResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
+                    ErrorResponse res = new ErrorResponse(Constants.CODE_IP_SWITCH_IS_NOT_ALLOWED, Messages.IP_SWITCH_NOT_ALLOWED);
+                    setResponse(res, httpResponse);
+                    return;
+                }
+
                 logger.info("--------------------------------------------------------");
                 logger.info("SERVLET PATH: " + httpRequest.getServletPath());
                 logger.info("TOKEN AUDIENCE: " + tokenAuthService.getAudience(httpRequest));

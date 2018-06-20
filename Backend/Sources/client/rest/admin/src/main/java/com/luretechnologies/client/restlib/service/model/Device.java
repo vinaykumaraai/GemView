@@ -46,9 +46,9 @@ import javax.annotation.Generated;
 @ApiModel(description = "")
 @Generated(value = "class io.swagger.codegen.languages.JavaClientCodegen", date = "2015-09-15T15:20:45.337-04:00")
 public class Device extends Entity {
-    
+
     private String serialNumber = null;
-    
+
     /**
      *
      * @return
@@ -76,7 +76,7 @@ public class Device extends Entity {
         sb.append("    description: ").append(StringUtil.toIndentedString(description)).append("\n");
         sb.append("    parentId: ").append(StringUtil.toIndentedString(parentId)).append("\n");
         sb.append("    serialNumber: ").append(StringUtil.toIndentedString(serialNumber)).append("\n");
-        sb.append("    active: ").append(StringUtil.toIndentedString(active)).append("\n");
+        sb.append("    available: ").append(StringUtil.toIndentedString(available)).append("\n");
         sb.append("}");
         return sb.toString();
     }

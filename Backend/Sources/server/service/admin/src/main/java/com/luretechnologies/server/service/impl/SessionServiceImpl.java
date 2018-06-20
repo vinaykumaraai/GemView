@@ -86,6 +86,12 @@ public class SessionServiceImpl implements SessionService {
     @Override
     public void validateSession(String token) throws Exception {
 
+        String val = System.getProperty("FOR_TEST_ONLY_SESSION_ALWAYS_VALID");
+
+        if (val != null) {
+            return;
+        }
+
         sessionDAO.validateSession(token);
     }
 }

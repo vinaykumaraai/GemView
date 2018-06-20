@@ -39,23 +39,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.luretechnologies.common.validator.RegExp;
 import com.luretechnologies.server.common.Messages;
 import com.luretechnologies.server.constraints.FieldNotBlank;
-import com.luretechnologies.server.data.model.tms.Application;
-import com.luretechnologies.server.data.model.tms.TerminalProfile;
 import io.swagger.annotations.ApiModelProperty;
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.util.HashSet;
-import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotNull;
@@ -79,11 +70,11 @@ public class Model implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @ApiModelProperty(value = "The database identification.")
-    private long id;
+    private Long id;
 
     @NotNull(message = Messages.VALUE_IS_EMPTY)
     @FieldNotBlank
-    @Size(max = 100, message = Messages.INVALID_DATA_LENGHT)
+    @Size(max = 128, message = Messages.INVALID_DATA_LENGHT)
     @Pattern(regexp = RegExp.EXP_REG_VALID_ALPHANUMERIC_SPECIAL_NAME, message = Messages.INVALID_DATA_ENTRY)
     @Column(name = "name", nullable = false, unique = true, length = 100)
     @ApiModelProperty(value = "The name.", required = true)
@@ -95,19 +86,10 @@ public class Model implements Serializable {
     @ApiModelProperty(value = "The description.")
     private String description;
 
-    @Column(name = "multi_app", nullable = false, length = 1)
-    @ApiModelProperty(value = "Flag which says if the model supports multiple applications.")
-    private boolean multiApp = true;
-
-    @Digits(integer = 10, fraction = 0, message = Messages.INVALID_DATA_LENGHT)
-    @Column(name = "max_apps", nullable = true, length = 10)
-    @ApiModelProperty(value = "Maximun number of applications supported.")
-    private Integer maxApps;
-
-    @Digits(integer = 10, fraction = 0, message = Messages.INVALID_DATA_LENGHT)
-    @Column(name = "max_keys", nullable = true, length = 10)
-    @ApiModelProperty(value = "Maximun number of keys.")
-    private Integer maxKeys;
+    @Size(max = 255, message = Messages.INVALID_DATA_LENGHT)
+    @Column(name = "manufacturer", nullable = true, length = 255)
+    @ApiModelProperty(value = "The manufacturer.")
+    private String manufacturer;
 
     @JsonIgnore
     @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
@@ -117,20 +99,21 @@ public class Model implements Serializable {
     @Column(name = "updated_at", nullable = false)
     private Timestamp updatedAt;
 
-    @JsonIgnore
-    @ManyToMany(targetEntity = Application.class, fetch = FetchType.LAZY)
-    @JoinTable(name = "Model_Application", joinColumns = {
-        @JoinColumn(name = "model")}, inverseJoinColumns = {
-        @JoinColumn(name = "application")})
-    private Set<Application> applications = new HashSet<>();
+    @Column(name = "active", nullable = false)
+    @ApiModelProperty(value = "If is active or not",required = true)
+    private Boolean active;
 
-    @JsonIgnore
-    @ManyToMany(mappedBy = "models", targetEntity = TerminalProfile.class, fetch = FetchType.LAZY)
-    private Set<TerminalProfile> profiles = new HashSet<>();
+    @Column(name = "Available", nullable = false)
+    @ApiModelProperty(value = "If is available or not", required = true)
+    private Boolean available;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "model", targetEntity = Terminal.class, fetch = FetchType.LAZY)
-    private Set<Terminal> terminals = new HashSet<>();
+    @Column(name = "rki_capable", nullable = false)
+    @ApiModelProperty(value = "Device is RKI capable (Remote key injection)", required = true)
+    private Boolean rkiCapable;
+
+    @Column(name = "os_update", nullable = false)
+    @ApiModelProperty(value = "Device can accept O/S update", required = true)
+    private Boolean osUpdate;
 
     /**
      * Database identification.
@@ -185,80 +168,6 @@ public class Model implements Serializable {
     }
 
     /**
-     * Flag which say if the model supports multiple applications.
-     *
-     * @param value
-     */
-    public void setMultiApp(boolean value) {
-        this.multiApp = value;
-    }
-
-    /**
-     * Flag which say if the model supports multiple applications.
-     *
-     * @return
-     */
-    public boolean getMultiApp() {
-        return multiApp;
-    }
-
-    /**
-     * Maximum number of applications that the model supports.
-     *
-     * @param value
-     */
-    public void setMaxApps(int value) {
-        setMaxAppsInteger(new Integer(value));
-    }
-
-    /**
-     * Maximum number of applications that the model supports.
-     *
-     * @param value
-     */
-    @JsonIgnore
-    public void setMaxAppsInteger(Integer value) {
-        this.maxApps = value;
-    }
-
-    /**
-     * Maximum number of applications that the model supports.
-     *
-     * @return
-     */
-    public Integer getMaxApps() {
-        return maxApps;
-    }
-
-    /**
-     * Maximum number of keys that the model supports.
-     *
-     * @param value
-     */
-    public void setMaxKeys(int value) {
-        setMaxKeysInteger(new Integer(value));
-    }
-
-    /**
-     * Maximum number of keys that the model supports.
-     *
-     * @param value
-     */
-    @JsonIgnore
-    public void setMaxKeysInteger(Integer value) {
-        this.maxKeys = value;
-    }
-
-    /**
-     * Maximum number of keys that the model supports.
-     *
-     * @return
-     */
-    public Integer getMaxKeys() {
-        return maxKeys;
-    }
-
-    /**
      * Creation date.
      *
      * @return
@@ -285,57 +194,78 @@ public class Model implements Serializable {
         return updatedAt;
     }
 
-    /**
-     *
-     * @param value
-     */
-    public void setApplications(Set<Application> value) {
-        this.applications = value;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public Set<Application> getApplications() {
-        return applications;
-    }
-
-    /**
-     *
-     * @param value
-     */
-    public void setProfiles(Set<TerminalProfile> value) {
-        this.profiles = value;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public Set<TerminalProfile> getProfiles() {
-        return profiles;
-    }
-
-    /**
-     *
-     * @param value
-     */
-    public void setTerminals(Set<Terminal> value) {
-        this.terminals = value;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public Set<Terminal> getTerminals() {
-        return terminals;
-    }
-
     @Override
     public String toString() {
         return String.valueOf(getId());
     }
 
+    /**
+     * @return the active
+     */
+    public Boolean getActive() {
+        return active;
+    }
+
+    /**
+     * @param active the active to set
+     */
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
+
+    /**
+     * @return the available
+     */
+    public Boolean getAvailable() {
+        return available;
+    }
+
+    /**
+     * @param available the available to set
+     */
+    public void setAvailable(Boolean available) {
+        this.available = available;
+    }
+
+    /**
+     * @return the rkiCapable
+     */
+    public Boolean getRkiCapable() {
+        return rkiCapable;
+    }
+
+    /**
+     * @param rkiCapable the rkiCapable to set
+     */
+    public void setRkiCapable(Boolean rkiCapable) {
+        this.rkiCapable = rkiCapable;
+    }
+
+    /**
+     * @return the osUpdate
+     */
+    public Boolean getOsUpdate() {
+        return osUpdate;
+    }
+
+    /**
+     * @param osUpdate the osUpdate to set
+     */
+    public void setOsUpdate(Boolean osUpdate) {
+        this.osUpdate = osUpdate;
+    }
+
+    /**
+     * @return the manufacturer
+     */
+    public String getManufacturer() {
+        return manufacturer;
+    }
+
+    /**
+     * @param manufacturer the manufacturer to set
+     */
+    public void setManufacturer(String manufacturer) {
+        this.manufacturer = manufacturer;
+    }
 }

@@ -40,12 +40,14 @@ import java.util.Random;
 import javax.xml.bind.DatatypeConverter;
 
 public class Utils {
+    
+//    private static final String BASE_SERVICE_URL = "http://mia.lure68.net:54071";
+//    private static final String BASE_SERVICE_URL = "http://localhost:20446";
+  private static final String BASE_SERVICE_URL = "http://localhost:8080";
 
-    public static String serviceUrl = "http://mia.warp68.net:54061";
-//    public static String serviceUrl = "http://127.0.0.1:4001/";
-//    public static String serviceUrl = "http://localhost:13374";
-//    public static String serviceUrl = "https://mia.lure68.net:54052";
-//    public static String serviceUrl = "http://192.168.40.220:4051";
+    //
+    public static final String ADMIN_SERVICE_URL = BASE_SERVICE_URL + "/admin/api";
+    public static final String TMS_SERVICE_URL = BASE_SERVICE_URL + "/tms/api";
 
     public static String getMethodName() {
         return Thread.currentThread().getStackTrace()[2].getMethodName();
@@ -77,21 +79,33 @@ public class Utils {
     private static final String special_characters = "!$.@_";
     private static final String numeric = "1234567890";
 
+    public static String generateRandomString(int len) {
+
+        Random r = new Random();
+        StringBuilder rsb = new StringBuilder();
+
+        while (rsb.length() < len) {
+            rsb.append(alphabet.charAt(r.nextInt(alphabet.length() - 1)));
+        }
+
+        return rsb.toString();
+    }
+
     public static String generatePassword(int len) {
 
         Random r = new Random();
-        StringBuilder sb = new StringBuilder();
+        StringBuilder rsb = new StringBuilder();
 
-        sb.append(numeric.charAt(r.nextInt(numeric.length() - 1)));
-        sb.append(alphabet_uppercase.charAt(r.nextInt(alphabet_uppercase.length() - 1)));
-        sb.append(alphabet_lowercase.charAt(r.nextInt(alphabet_lowercase.length() - 1)));
-        sb.append(special_characters.charAt(r.nextInt(special_characters.length() - 1)));
+        rsb.append(numeric.charAt(r.nextInt(numeric.length() - 1)));
+        rsb.append(alphabet_uppercase.charAt(r.nextInt(alphabet_uppercase.length() - 1)));
+        rsb.append(alphabet_lowercase.charAt(r.nextInt(alphabet_lowercase.length() - 1)));
+        rsb.append(special_characters.charAt(r.nextInt(special_characters.length() - 1)));
 
-        while (sb.length() < len) {
-            sb.append(alphabet.charAt(r.nextInt(alphabet.length() - 1)));
+        while (rsb.length() < len) {
+            rsb.append(alphabet.charAt(r.nextInt(alphabet.length() - 1)));
         }
 
-        String pw = sb.toString();
+        String pw = rsb.toString();
 
         List<Character> chars = new ArrayList<>();
         for (char c : pw.toCharArray()) {
@@ -106,6 +120,10 @@ public class Utils {
         }
 
         return output.toString();
+    }
+
+    public static int elapsedSecondsSince(long startTime) {
+        return (int) ((System.currentTimeMillis() - startTime) / 1000);
     }
 
     public static String encryptPassword(String password) {

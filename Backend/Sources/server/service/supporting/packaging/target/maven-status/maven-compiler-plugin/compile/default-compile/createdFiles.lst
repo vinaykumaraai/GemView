@@ -1,0 +1,5 @@
+com\luretechnologies\conf\spring\packaging\JmsConfig.class
+com\luretechnologies\conf\spring\packaging\ServiceWebConfig.class
+com\luretechnologies\server\service\controller\InitController.class
+com\luretechnologies\server\service\supporting\PackagingService.class
+com\luretechnologies\server\service\supporting\packaging\PackagingServiceConnector.class

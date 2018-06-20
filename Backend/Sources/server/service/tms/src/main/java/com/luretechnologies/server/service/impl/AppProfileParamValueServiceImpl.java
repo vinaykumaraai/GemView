@@ -42,8 +42,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.luretechnologies.server.service.AppProfileParamValueService;
 import org.springframework.orm.ObjectRetrievalFailureException;
+import com.luretechnologies.server.service.AppProfileParamValueService;
 
 /**
  *
@@ -54,13 +54,13 @@ import org.springframework.orm.ObjectRetrievalFailureException;
 public class AppProfileParamValueServiceImpl implements AppProfileParamValueService{
     
     @Autowired
-    AppProfileParamValueDAO appProfileParamValueDAO;
+    private AppProfileParamValueDAO appProfileParamValueDAO;
     
     @Autowired
-    AppParamDAO appParamDAO;
+    private AppParamDAO appParamDAO;
     
     @Autowired
-    AppProfileDAO appProfileDAO;
+    private AppProfileDAO appProfileDAO;
     
     /**
      *
@@ -70,81 +70,55 @@ public class AppProfileParamValueServiceImpl implements AppProfileParamValueServ
      */
     @Override
     public AppProfileParamValue createAppProfileParam(AppProfileParamValue appProfileParamValue) throws Exception{
-        //AppProfileParamValue newAppProfileParamValue = new AppProfileParamValue();
-        AppParam appParam = appProfileParamValue.getAppParam();
-        AppProfile appProfile = appProfileParamValue.getAppProfile();
+        AppProfileParamValue newAppProfileParamValue = new AppProfileParamValue();
         
         // Check appParam existence
-        if (appParam != null) {
-            AppParam existentAppParam = appParamDAO.getAppParamByID(appProfileParamValue.getAppParam().getId());
+        AppParam existentAppParam = appParamDAO.getAppParamByID(appProfileParamValue.getAppParamId());
 
-            if (existentAppParam == null) {
-                throw new ObjectRetrievalFailureException(AppParam.class, appProfileParamValue.getAppParam().getId());
-            }
-            appProfileParamValue.setAppParam(existentAppParam);
-        } else {
-            // If not AppParam defined throw Exception
-            throw new Exception("The AppProfileParamValue need to associated with some valid AppParam.");
+        if (existentAppParam == null) {
+            throw new ObjectRetrievalFailureException(AppParam.class, appProfileParamValue.getAppParamId());
         }
+        appProfileParamValue.setAppParamId(existentAppParam.getId());
         
         // Check appProfile existence
-        if (appProfile != null) {
-            AppProfile existentAppProfile = appProfileDAO.getAppProfileByID(appProfileParamValue.getAppProfile().getId());
+        AppProfile existentAppProfile = appProfileDAO.getAppProfileByID(appProfileParamValue.getAppProfileId());
 
-            if (existentAppProfile == null) {
-                throw new ObjectRetrievalFailureException(AppProfile.class, appProfileParamValue.getAppProfile().getId());
-            }
-            appProfileParamValue.setAppProfile(existentAppProfile);
-        } else {
-            // If not AppProfile defined throw Exception
-            throw new Exception("The AppProfileParamValue need to associated with some valid AppProfile.");
+        if (existentAppProfile == null) {
+            throw new ObjectRetrievalFailureException(AppProfile.class, appProfileParamValue.getAppProfileId());
         }
+        appProfileParamValue.setAppProfileId(existentAppProfile.getId());
+        
          // Copy properties from -> to
-        //BeanUtils.copyProperties(appProfileParamValue , newAppProfileParamValue);
+        BeanUtils.copyProperties(appProfileParamValue , newAppProfileParamValue);
         appProfileParamValueDAO.persist(appProfileParamValue);
         return appProfileParamValue;
-        
     }
     
     /**
      *
      * @param ID
-     * @param appProfileParamValue
      * @return
      * @throws Exception
      */
     @Override
     public AppProfileParamValue updateAppProfileParam(long ID, AppProfileParamValue appProfileParamValue) throws Exception{
-        AppProfileParamValue existentAppProfileParamValue = appProfileParamValueDAO.getAppProfileParamByID(ID);
-        
-        AppParam appParam = appProfileParamValue.getAppParam();
-        AppProfile appProfile = appProfileParamValue.getAppProfile();
+        AppProfileParamValue existentAppProfileParamValue = appProfileParamValueDAO.getAppProfileParamValueByID(ID);
         
         // Check appParam existence
-        if (appParam != null) {
-            AppParam existentAppParam = appParamDAO.getAppParamByID(appProfileParamValue.getAppParam().getId());
+        AppParam existentAppParam = appParamDAO.getAppParamByID(appProfileParamValue.getAppParamId());
 
-            if (existentAppParam == null) {
-                throw new ObjectRetrievalFailureException(AppParam.class, appProfileParamValue.getAppParam().getId());
-            }
-            appProfileParamValue.setAppParam(existentAppParam);
-        } else {
-            // If not AppParam defined throw Exception
-            throw new Exception("The AppProfileParamValue need to associated with some valid AppParam.");
+        if (existentAppParam == null) {
+            throw new ObjectRetrievalFailureException(AppParam.class, appProfileParamValue.getAppParamId());
         }
+        appProfileParamValue.setAppParamId(existentAppParam.getId());
         
         // Check appProfile existence
-        if (appProfile != null) {
-            AppProfile existentAppProfile = appProfileDAO.getAppProfileByID(appProfileParamValue.getAppProfile().getId());
+        AppProfile existentAppProfile = appProfileDAO.getAppProfileByID(appProfileParamValue.getAppProfileId());
 
-            if (existentAppProfile == null) {
-                throw new ObjectRetrievalFailureException(AppProfile.class, appProfileParamValue.getAppProfile().getId());
-            }
-            appProfileParamValue.setAppProfile(existentAppProfile);
-        } else {
-            // If not AppProfile defined throw Exception
-            throw new Exception("The AppProfileParamValue need to associated with some valid AppProfile.");
+        if (existentAppProfile == null) {
+            throw new ObjectRetrievalFailureException(AppProfile.class, appProfileParamValue.getAppProfileId());
         }
+        appProfileParamValue.setAppProfileId(existentAppProfile.getId());
         
         //AppProfileParamValue updatedAppProfileParamValue=  updateAppProfileParamValue(appProfileParamValue);
          // Copy properties from -> to
@@ -160,7 +134,7 @@ public class AppProfileParamValueServiceImpl implements AppProfileParamValueServ
      */
     @Override
     public void deleteAppProfileParamvalue(long ID) throws Exception{
-        AppProfileParamValue deletedAppProfileParamValue = appProfileParamValueDAO.getAppProfileParamByID(ID);
+        AppProfileParamValue deletedAppProfileParamValue = appProfileParamValueDAO.getAppProfileParamValueByID(ID);
         appProfileParamValueDAO.delete(deletedAppProfileParamValue);
         
     }
@@ -187,8 +161,8 @@ public class AppProfileParamValueServiceImpl implements AppProfileParamValueServ
      */
     @Override
     public List<AppProfileParamValue> getAppProfileParamList(List<Long> ids) throws Exception{
-        List<AppProfileParamValue> appProfileParamList = appProfileParamValueDAO.getAppProfileParamList(ids);
-        return appProfileParamList;
+        List<AppProfileParamValue> appProfileParamValueList = appProfileParamValueDAO.getAppProfileParamValueList(ids);
+        return appProfileParamValueList;
         
     }
     
@@ -200,7 +174,7 @@ public class AppProfileParamValueServiceImpl implements AppProfileParamValueServ
      */
     @Override
     public AppProfileParamValue getAppProfileParamByID(Long id) throws Exception{
-        AppProfileParamValue appProfileParam = appProfileParamValueDAO.getAppProfileParamByID(id);
+        AppProfileParamValue appProfileParam = appProfileParamValueDAO.getAppProfileParamValueByID(id);
         return appProfileParam;
         
     }

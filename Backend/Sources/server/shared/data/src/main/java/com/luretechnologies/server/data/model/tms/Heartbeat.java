@@ -31,37 +31,77 @@
  */
 package com.luretechnologies.server.data.model.tms;
 
-import java.util.List;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import io.swagger.annotations.ApiModelProperty;
+import java.io.Serializable;
+import java.sql.Timestamp;
+import java.util.HashSet;
+import java.util.Set;
+import javax.persistence.Basic;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.validation.constraints.Size;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({
-    "serialNumber",
-    "message",
-    "heartbeatOdometers",
-    "heartbeatAlerts",
-    "heartbeatAudits"
-})
-public class Heartbeat {
+@Entity
+@Table(name = "heartbeat")
+public class Heartbeat implements Serializable {
 
-    @JsonProperty("serialNumber")
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Basic(optional = false)
+    @Column(name = "id")
+    @ApiModelProperty(value = "The table primary key", required = true)
+    private Long id;
+
+    @Size(max = 128)
+    @Column(name = "serial_number")
+    @ApiModelProperty(value = "The serial number", required = false)
     private String serialNumber;
-    @JsonProperty("message")
+
+    @Size(max = 128)
+    @Column(name = "sequence")
+    @ApiModelProperty(value = "The sequence", required = false)
+    private String sequence;
+
+    @Size(max = 128)
+    @Column(name = "hw_model")
+    @ApiModelProperty(value = "The hard ware model", required = false)
+    private String hwModel;
+
+    @Size(max = 128)
+    @Column(name = "ip")
+    @ApiModelProperty(value = "The heartbeat ip", required = false)
+    private String ip;
+
+    @Column(name = "status")
+    @ApiModelProperty(value = "The status", required = true)
+    private Integer status;
+
+    @Size(max = 128)
+    @Column(name = "message")
+    @ApiModelProperty(value = "The message", required = false)
     private String message;
-    @JsonProperty("apps")
-    private List<App> apps = null;
-    @JsonProperty("kernels")
-    private List<App> kernels = null;
-    @JsonProperty("os")
-    private List<App> os = null;
-    @JsonProperty("heartbeatOdometers")
-    private List<HeartbeatOdometer> heartbeatOdometers = null;
-    @JsonProperty("heartbeatAlerts")
-    private List<HeartbeatAlert> heartbeatAlerts = null;
-    @JsonProperty("heartbeatAudits")
-    private List<HeartbeatAudit> heartbeatAudits = null;
+
+    @JoinColumn(name = "entity", referencedColumnName = "id", nullable = true)
+    @ManyToOne(optional = true, fetch = FetchType.LAZY)
+    @ApiModelProperty(value = "Entity", required = true)
+    private com.luretechnologies.server.data.model.Entity entity;
+
+    @OneToMany(mappedBy = "heartbeat", targetEntity = HeartbeatAudit.class, fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    @ApiModelProperty(value = "Heartbeat Audits", required = false)
+    private Set<HeartbeatAudit> heartbeatAudits = new HashSet<>();
+
+    @Column(name = "occurred", nullable = false)
+    @ApiModelProperty(value = "The time in which the heartbeat was performed.")
+    private Timestamp occurred;
 
     /**
      * No args constructor for use in serialization
@@ -71,99 +111,163 @@ public class Heartbeat {
     }
 
     /**
-     *
-     * @param heartbeatAlerts
-     * @param message
-     * @param serialNumber
-     * @param heartbeatAudits
-     * @param heartbeatOdometers
+     * @return the id
      */
-    public Heartbeat(String serialNumber, String message, List<HeartbeatOdometer> heartbeatOdometers, List<HeartbeatAlert> heartbeatAlerts, List<HeartbeatAudit> heartbeatAudits) {
-        super();
-        this.serialNumber = serialNumber;
-        this.message = message;
-        this.heartbeatOdometers = heartbeatOdometers;
-        this.heartbeatAlerts = heartbeatAlerts;
-        this.heartbeatAudits = heartbeatAudits;
+    public Long getId() {
+        return id;
     }
 
-    @JsonProperty("serialNumber")
+    /**
+     * @return the serialNumber
+     */
     public String getSerialNumber() {
         return serialNumber;
     }
 
-    @JsonProperty("serialNumber")
-    public void setSerialNumber(String serialNumber) {
-        this.serialNumber = serialNumber;
+    /**
+     * @return the hwModel
+     */
+    public String getHwModel() {
+        return hwModel;
     }
 
-    @JsonProperty("message")
+    /**
+     * @return the status
+     */
+    public Integer getStatus() {
+        return status;
+    }
+
+    /**
+     * @return the message
+     */
     public String getMessage() {
         return message;
     }
 
-    @JsonProperty("message")
+    /**
+     * @param message the message to set
+     */
     public void setMessage(String message) {
         this.message = message;
     }
 
-    @JsonProperty("heartbeatOdometers")
-    public List<HeartbeatOdometer> getHeartbeatOdometers() {
-        return heartbeatOdometers;
+    /**
+     * @return the entity
+     */
+    public com.luretechnologies.server.data.model.Entity getEntity() {
+        return entity;
     }
 
-    @JsonProperty("heartbeatOdometers")
-    public void setHeartbeatOdometers(List<HeartbeatOdometer> heartbeatOdometers) {
-        this.heartbeatOdometers = heartbeatOdometers;
+    /**
+     * @param entity the entity to set
+     */
+    public void setEntity(com.luretechnologies.server.data.model.Entity entity) {
+        this.entity = entity;
     }
 
-    @JsonProperty("apps")
-    public List<App> getApps() {
-        return apps;
+    @Override
+    public int hashCode() {
+        int hash = 0;
+        hash += (getId() != null ? getId().hashCode() : 0);
+        return hash;
     }
 
-    @JsonProperty("apps")
-    public void setApps(List<App> apps) {
-        this.apps = apps;
+    @Override
+    public boolean equals(Object object) {
+        // TODO: Warning - this method won't work in the case the id fields are not set
+        if (!(object instanceof Heartbeat)) {
+            return false;
+        }
+        Heartbeat other = (Heartbeat) object;
+        return !((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id)));
     }
 
-    @JsonProperty("kernels")
-    public List<App> getKernels() {
-        return kernels;
+    @Override
+    public String toString() {
+        return "com.luretechnologies.server.data.model.tms.Heartbeat[ id=" + getId() + " ]";
     }
 
-    @JsonProperty("kernels")
-    public void setKernels(List<App> kernels) {
-        this.kernels = kernels;
-    }
 
-    @JsonProperty("os")
-    public List<App> getOS() {
-        return os;
-    }
-
-    @JsonProperty("os")
-    public void setOS(List<App> os) {
-        this.os = os;
-    }
-
-    @JsonProperty("heartbeatAlerts")
-    public List<HeartbeatAlert> getHeartbeatAlerts() {
-        return heartbeatAlerts;
-    }
-
-    @JsonProperty("heartbeatAlerts")
-    public void setHeartbeatAlerts(List<HeartbeatAlert> heartbeatAlerts) {
-        this.heartbeatAlerts = heartbeatAlerts;
-    }
-
-    @JsonProperty("heartbeatAudits")
-    public List<HeartbeatAudit> getHeartbeatAudits() {
+    /**
+     * @return the heartbeatAudits
+     */
+    public Set<HeartbeatAudit> getHeartbeatAudits() {
         return heartbeatAudits;
     }
 
-    @JsonProperty("heartbeatAudits")
-    public void setHeartbeatAudits(List<HeartbeatAudit> heartbeatAudits) {
+    /**
+     * @param heartbeatAudits the heartbeatAudits to set
+     */
+    public void setHeartbeatAudits(Set<HeartbeatAudit> heartbeatAudits) {
         this.heartbeatAudits = heartbeatAudits;
+    }
+
+    /**
+     * @return the occurred
+     */
+    public Timestamp getOccurred() {
+        return occurred;
+    }
+
+    /**
+     * @param occurred the occurred to set
+     */
+    public void setOccurred(Timestamp occurred) {
+        this.occurred = occurred;
+    }
+    /**
+     * @return the ip
+     */
+    public String getIp() {
+        return ip;
+    }
+
+    /**
+     * @param ip the ip to set
+     */
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
+
+    /**
+     * @param id the id to set
+     */
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    /**
+     * @param serialNumber the serialNumber to set
+     */
+    public void setSerialNumber(String serialNumber) {
+        this.serialNumber = serialNumber;
+    }
+
+    /**
+     * @param hwModel the hwModel to set
+     */
+    public void setHwModel(String hwModel) {
+        this.hwModel = hwModel;
+    }
+
+    /**
+     * @param status the status to set
+     */
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+    /**
+     * @return the sequence
+     */
+    public String getSequence() {
+        return sequence;
+    }
+
+    /**
+     * @param sequence the sequence to set
+     */
+    public void setSequence(String sequence) {
+        this.sequence = sequence;
     }
 }

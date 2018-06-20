@@ -42,12 +42,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 
 public class TokenAuthService {
-    
+
     public final String AUDIENCE_NO_ACCESS = "NO_ACCESS";
     public final String AUDIENCE_GENERAL_USE = "GENERAL_USE";
     public final String AUDIENCE_TWO_FACTOR = "TWO_FACTOR";
     public final String AUDIENCE_PASSWORD_UPDATE = "UPDATE_PW";
-    
+
     public static final String AUTH_HEADER_NAME = "X-Auth-Token";
     public static final String REFRESH_HEADER_NAME = "X-Auth-Token";
     private final TokenHandler tokenHandler;
@@ -63,13 +63,14 @@ public class TokenAuthService {
     /**
      *
      * @param authentication
+     * @param accessIP
      * @param audience
      * @return
      * @throws Exception
      */
-    public String createToken(UserAuthentication authentication, String audience) throws MalformedJwtException, SignatureException, Exception {
+    public String createToken(UserAuthentication authentication, String accessIP, String audience) throws MalformedJwtException, SignatureException, Exception {
         final User user = authentication.getDetails();
-        return tokenHandler.createTokenForUser(user, audience);
+        return tokenHandler.createTokenForUser(user, accessIP, audience);
     }
 
     /**
@@ -85,12 +86,12 @@ public class TokenAuthService {
      */
     public Authentication getAuthentication(HttpServletRequest request) throws MalformedJwtException, SignatureException, ExpiredJwtException {
         final String token = request.getHeader(AUTH_HEADER_NAME);
-        
+
         if (token != null) {
             final UserAuth user = tokenHandler.getUserFromToken(token);
             if (user != null) {
                 Timestamp logout = user.getSystemUser().getLogoutTime();
-                
+
                 if (logout != null) {
                     //Date logoutDate = new java.sql.Date(logout.getTime());
                     Timestamp issuedAt = new Timestamp(tokenHandler.getIssuedAtFromToken(token).getTime());
@@ -120,6 +121,19 @@ public class TokenAuthService {
     public UserAuth getUser(HttpServletRequest request) throws ExpiredJwtException, MalformedJwtException, SignatureException, Exception {
         String token = request.getHeader(AUTH_HEADER_NAME);
         return tokenHandler.getUserFromToken(token);
+    }
+
+    /**
+     *
+     * @param request
+     * @return
+     * @throws ExpiredJwtException
+     * @throws MalformedJwtException
+     * @throws SignatureException
+     */
+    public String getAccessIP(HttpServletRequest request) throws ExpiredJwtException, MalformedJwtException, SignatureException {
+        String token = request.getHeader(AUTH_HEADER_NAME);
+        return tokenHandler.getAccessIPFromToken(token);
     }
 
     /**
@@ -176,7 +190,7 @@ public class TokenAuthService {
             return tokenHandler.refreshTokenForUser(token, AUDIENCE_GENERAL_USE);
             //}
         }
-        
+
         return null;
     }
 

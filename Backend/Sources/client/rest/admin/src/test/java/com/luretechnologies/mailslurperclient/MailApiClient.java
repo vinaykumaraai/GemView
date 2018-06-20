@@ -31,58 +31,106 @@
  */
 package com.luretechnologies.mailslurperclient;
 
-import com.luretechnologies.mailslurper.MailCollection;
-import com.luretechnologies.mailslurper.MailCount;
-import com.luretechnologies.mailslurper.MailItem;
 import java.io.IOException;
-import org.apache.http.entity.StringEntity;
-import org.codehaus.jackson.map.ObjectMapper;
+import javax.mail.Flags;
+import javax.mail.Folder;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Store;
 
 public class MailApiClient {
 
-    HttpClientEx http;
+    Session session = null;
+    String address;
+    int port;
+    String username;
+    String password;
 
-    public MailApiClient(String protocol, String address) {
-        http = new HttpClientEx(protocol, address);
+    public MailApiClient(String address, int port, String username, String password) throws Exception {
+        session = Session.getDefaultInstance(System.getProperties());
+        this.address = address;
+        this.port = port;
+        this.username = username;
+        this.password = password;
     }
 
-    public MailItem GetMailItem(String id) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        HttpResponseEx response = http.get("/mail/" + id);
-        String content = response.getContent();
-        content = content.replace(",\"transferEncoding\":\"\",\"Message\":null,\"InlineAttachments\":null,\"TextBody\":\"\",\"HTMLBody\":\"\"", "");
-        //debug("GetMailItem", content);
-        MailItem item = mapper.readValue(content, MailItem.class);
-        return item;
+    public String GetMailItemContent() throws IOException, Exception {
+
+        try (Store store = session.getStore("pop3")) {
+
+            store.connect(address, port, username, password);
+            Folder inbox = store.getFolder("Inbox");
+            inbox.open(Folder.READ_WRITE);
+
+            Message[] messages = inbox.getMessages();
+
+            if (messages == null || messages.length == 0) {
+                System.out.println("No messages found.");
+                return null;
+            }
+
+            String content = (String) messages[messages.length - 1].getContent();
+            inbox.close(true);
+
+            return content;
+        }
     }
 
-    public MailCollection GetMailCollection() throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        HttpResponseEx response = http.get("/mail");
-        String content = response.getContent();
-        content = content.replace(",\"transferEncoding\":\"\",\"Message\":null,\"InlineAttachments\":null,\"TextBody\":\"\",\"HTMLBody\":\"\"", "");
-        //debug("GetMailCollection", content);
-        MailCollection mc = mapper.readValue(content, MailCollection.class);
-        return mc;
+    public int GetEmailCount() throws IOException, Exception {
+
+        try (Store store = session.getStore("pop3")) {
+
+            store.connect(address, port, username, password);
+            Folder inbox = store.getFolder("Inbox");
+            inbox.open(Folder.READ_WRITE);
+
+            Message[] messages = inbox.getMessages();
+
+            inbox.close(true);
+            return messages == null ? 0 : messages.length;
+        }
     }
 
-    public int GetEmailCount() throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        HttpResponseEx response = http.get("/mailcount");
-        String content = response.getContent();
-        //debug("GetEmailCount", content);
-        MailCount mc = mapper.readValue(content, MailCount.class);
-        return mc.getMailCount();
+    public void DeleteAllEmail() throws IOException, Exception {
+
+        try (Store store = session.getStore("pop3")) {
+
+            store.connect(address, port, username, password);
+            Folder inbox = store.getFolder("Inbox");
+            inbox.open(Folder.READ_WRITE);
+
+            Message[] messages = inbox.getMessages();
+
+            if (messages != null && messages.length > 0) {
+                for (Message message : messages) {
+                    message.setFlag(Flags.Flag.DELETED, true);
+                }
+            }
+
+            inbox.close(true);
+        }
     }
 
-    public void DeleteAllEmail() throws IOException {
-        StringEntity entity = new StringEntity("{\"pruneCode\":\"all\"}");
-        http.delete("/mail", entity);
-    }
+    public void ListAllEmail() throws Exception {
 
-    private void debug(String method, String content) {
-        System.out.println("===========================================================");
-        System.out.println("Method: " + method);
-        System.out.println("Content: " + content);
+        try (Store store = session.getStore("pop3")) {
+
+            store.connect(address, port, username, password);
+            Folder inbox = store.getFolder("Inbox");
+            inbox.open(Folder.READ_WRITE);
+
+            Message[] messages = inbox.getMessages();
+
+            for (Message message : messages) {
+                System.out.println("Message: " + message.getMessageNumber());
+                System.out.println("From : " + message.getFrom()[0]);
+                System.out.println("Subject : " + message.getSubject());
+                System.out.println("Sent Date : " + message.getSentDate());
+                System.out.println("Content : " + (String) message.getContent());
+            }
+
+            inbox.close(true);
+        }
     }
 }

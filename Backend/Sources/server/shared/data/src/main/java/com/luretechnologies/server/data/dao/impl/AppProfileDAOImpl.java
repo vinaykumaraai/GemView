@@ -31,13 +31,21 @@
  */
 package com.luretechnologies.server.data.dao.impl;
 
-import com.luretechnologies.server.data.model.tms.App;
 import com.luretechnologies.server.data.model.tms.AppProfile;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.PersistenceException;
 import org.springframework.stereotype.Repository;
 import com.luretechnologies.server.data.dao.AppProfileDAO;
+import com.luretechnologies.server.data.model.tms.AppParam;
+import com.luretechnologies.server.data.model.tms.AppProfileParamValue;
+import com.luretechnologies.server.data.model.tms.EntityAppProfile;
+import javax.persistence.NoResultException;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Root;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -45,6 +53,9 @@ import com.luretechnologies.server.data.dao.AppProfileDAO;
  */
 @Repository
 public class AppProfileDAOImpl extends BaseDAOImpl<AppProfile, Long> implements AppProfileDAO{
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger(AppProfileDAO.class);
+    private static final long TYPE_FILE = 1; //type file on AppParamFormat
     
     @Override
     public List<AppProfile> getAppProfileList(List<Long> IDS)throws PersistenceException{
@@ -57,8 +68,82 @@ public class AppProfileDAOImpl extends BaseDAOImpl<AppProfile, Long> implements 
 
     @Override
     public AppProfile getAppProfileByID(Long ID) throws PersistenceException{
-       App app = new App();
-       return  getEntityManager().find(AppProfile.class, ID);
-        
+        try{
+            CriteriaQuery<AppProfile> cq = criteriaQuery();
+            Root<AppProfile> root = getRoot(cq);   
+            root.fetch("appprofileparamvalueCollection", JoinType.LEFT);
+            root.fetch("entityappprofileCollection", JoinType.LEFT);
+            root.fetch("entityappprofileCollection", JoinType.LEFT).fetch("entityappprofileparamCollection", JoinType.LEFT);
+            //root.fetch("appprofilefilevalueCollection", JoinType.LEFT);
+            
+            AppProfile appProfile = (AppProfile) query(cq.where(criteriaBuilder().equal(root.get("id"), ID))).getSingleResult();
+            return appProfile;
+        } catch (NoResultException e) {
+            LOGGER.info("AppProfile not found. id: " + ID, e);
+            return null;
+        }
+    }
+    
+    @Override
+    public List<AppParam> getAppParamList(Long id) throws PersistenceException {
+        List<AppParam> appParamList = new ArrayList<>();
+        try {
+            CriteriaQuery<AppProfile> cq = criteriaQuery();
+            Root<AppProfile> root = getRoot(cq); 
+            
+            AppProfile appProfile = (AppProfile) query(cq.where(criteriaBuilder().equal(root.get("id"), id))).getSingleResult();
+            for (AppProfileParamValue existentAppProfileParamValue : appProfile.getAppProfileParamValueCollection()) {
+                AppParam appParam = getEntityManager().find(AppParam.class, existentAppProfileParamValue.getAppParamId());
+                if(!appParam.getAppParamFormat().getId().equals(TYPE_FILE))
+                    appParamList.add(appParam);
+            }
+        } catch (NoResultException e) {
+            LOGGER.info("AppParam not found. id: " + id, e);
+            return null;
+        }
+        return appParamList;
+    }
+    
+    @Override
+    public List<AppParam> getAppFileList(Long id) throws PersistenceException {
+        List<AppParam> appParamList = new ArrayList<>();
+        try {
+            CriteriaQuery<AppProfile> cq = criteriaQuery();
+            Root<AppProfile> root = getRoot(cq); 
+            
+            AppProfile appProfile = (AppProfile) query(cq.where(criteriaBuilder().equal(root.get("id"), id))).getSingleResult();
+            for (AppProfileParamValue existentAppProfileParamValue : appProfile.getAppProfileParamValueCollection()) {
+                AppParam appParam = getEntityManager().find(AppParam.class, existentAppProfileParamValue.getAppParamId());
+                if(appParam.getAppParamFormat().getId().equals(TYPE_FILE))
+                    appParamList.add(appParam);
+            }
+        } catch (NoResultException e) {
+            LOGGER.info("AppParam not found. id: " + id, e);
+            return null;
+        }
+        return appParamList;
+    }
+    
+    @Override
+    public List<AppProfile> getAppProfileList(Long appId, Long entityId) throws PersistenceException {
+        List<AppProfile> appProfileListbyEntity = new ArrayList<>();
+        try {
+            CriteriaQuery<AppProfile> cq = criteriaQuery();
+            Root<AppProfile> root = getRoot(cq);
+
+            cq.where(criteriaBuilder().and(criteriaBuilder().equal(root.get("appId"), appId)));
+            List<AppProfile> appProfileList = query(cq).getResultList();
+            for (AppProfile appProfile : appProfileList) {
+                for (EntityAppProfile entityAppProfile : appProfile.getEntityAppProfileCollection()) {
+                    if(entityAppProfile.getEntity().getId() == entityId)
+                        appProfileListbyEntity.add(getAppProfileByID(entityAppProfile.getAppProfileId()));
+                }
+            }
+            return appProfileListbyEntity;
+            
+        } catch (NoResultException e) {
+            LOGGER.info("getAppProfileList return an empty list", e);
+            return null;
+        }
     }
 }

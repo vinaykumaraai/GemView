@@ -48,7 +48,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -71,16 +70,14 @@ public class RoleController {
     RoleService service;
 
     /**
-     * Creates a new role
      *
-     * @param authToken
      * @param role
      * @return
-     * @throws java.lang.Exception
+     * @throws Exception
      */
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAnyAuthority('SUPER','ALL_ROLE','CREATE_ROLE')")
-    @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(name = "create", value = "/create", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(tags = "Roles", httpMethod = "POST", value = "Create role", notes = "Creates a new role")
     @ApiResponses(value = {
         @ApiResponse(code = 201, message = "Created", response = Role.class)
@@ -91,22 +88,39 @@ public class RoleController {
         ,
         @ApiResponse(code = 404, message = "Not found", response = ErrorResponse.class)})
     public Role create(
-            @ApiParam(value = "The authentication token") @RequestHeader(value = "X-Auth-Token", required = true) String authToken,
             @ApiParam(value = "The new role object", required = true) @RequestBody(required = true) Role role) throws Exception {
 
         return service.create(role);
     }
 
+    @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyAuthority('SUPER','ALL_ROLE','READ_ROLE')")
+    @RequestMapping(name = "getByName", value = "/getByName", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(tags = "Roles", httpMethod = "GET", value = "Get role", notes = "Get role by id")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK", response = Role.class)
+        ,
+        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class)
+        ,
+        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class)
+        ,
+        @ApiResponse(code = 404, message = "Not found", response = ErrorResponse.class)})
+    public Role getByName(
+            @ApiParam(value = "The role's name") @RequestParam(name = "name", required = true) String name) throws Exception {
+
+        return service.getByName(name);
+    }
+
     /**
-     * Retrieve a role information
      *
      * @param authToken
-     * @param roleId
+     * @param id
      * @return
-     * @throws java.lang.Exception
+     * @throws Exception
      */
     @ResponseStatus(HttpStatus.OK)
-    @RequestMapping(value = "/{roleId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyAuthority('SUPER','ALL_ROLE','READ_ROLE')")
+    @RequestMapping(name = "get", value = "/get", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(tags = "Roles", httpMethod = "GET", value = "Get role", notes = "Get role by id")
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK", response = Role.class)
@@ -118,26 +132,25 @@ public class RoleController {
         @ApiResponse(code = 404, message = "Not found", response = ErrorResponse.class)})
     public Role get(
             @ApiParam(value = "The authentication token") @RequestHeader(value = "X-Auth-Token", required = true) String authToken,
-            @ApiParam(value = "The role identifier") @PathVariable("roleId") long roleId) throws Exception {
+            @ApiParam(value = "The role identifier") @RequestParam(name = "id", required = true) long id) throws Exception {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication.getDetails() instanceof UserAuth) {
-            return service.get(roleId);
+            return service.get(id);
         }
         return null;
     }
 
     /**
-     * Updates a role information
      *
      * @param authToken
-     * @param roleId
+     * @param id
      * @param role
      * @return
-     * @throws java.lang.Exception
+     * @throws Exception
      */
-    @PreAuthorize("hasAnyAuthority('SUPER','ALL_ROLE','UPDATE_ROLE','CREATE_ROLE')")
-    @RequestMapping(value = "/{roleId}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyAuthority('SUPER','ALL_ROLE','UPDATE_ROLE')")
+    @RequestMapping(name = "update", value = "/update", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(tags = "Roles", httpMethod = "PUT", value = "Update role", notes = "Updates a role")
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK", response = Role.class)
@@ -149,22 +162,22 @@ public class RoleController {
         @ApiResponse(code = 404, message = "Not found", response = ErrorResponse.class)})
     public Role update(
             @ApiParam(value = "The authentication token") @RequestHeader(value = "X-Auth-Token", required = true) String authToken,
-            @ApiParam(value = "The role identifier") @PathVariable("roleId") long roleId,
+            @ApiParam(value = "The role identifier") @RequestParam(name = "id", required = true) long id,
             @ApiParam(value = "The updated role object", required = true) @RequestBody(required = true) Role role) throws Exception {
 
-        return service.update(roleId, role);
+        return service.update(id, role);
     }
 
     /**
      * Deletes a role information
      *
      * @param authToken
-     * @param roleId
-     * @throws java.lang.Exception
+     * @param id
+     * @throws Exception
      */
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasAnyAuthority('SUPER','ALL_ROLE','DELETE_ROLE')")
-    @RequestMapping(value = "/{roleId}", method = RequestMethod.DELETE)
+    @RequestMapping(name = "delete", value = "/delete", method = RequestMethod.DELETE)
     @ApiOperation(tags = "Roles", httpMethod = "DELETE", value = "Delete role", notes = "Deletes a role")
     @ApiResponses(value = {
         @ApiResponse(code = 204, message = "Deleted")
@@ -176,23 +189,26 @@ public class RoleController {
         @ApiResponse(code = 404, message = "Not found", response = ErrorResponse.class)})
     public void delete(
             @ApiParam(value = "The authentication token") @RequestHeader(value = "X-Auth-Token", required = true) String authToken,
-            @ApiParam(value = "The role identifier") @PathVariable("roleId") long roleId) throws Exception {
+            @ApiParam(value = "The role identifier") @RequestParam(name = "id", required = true) long id) throws Exception {
 
-        service.delete(roleId);
+        try {
+            Role role = service.deleteRole(id);
+        } catch (Exception ex) {
+            ex.getMessage();
+        }
     }
 
     /**
-     * Adds a permission to a role
      *
      * @param authToken
-     * @param roleId
-     * @param permissionEnum
+     * @param id
+     * @param permission
      * @return
-     * @throws java.lang.Exception
+     * @throws Exception
      */
     @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("hasAnyAuthority('SUPER','ALL_ROLE','UPDATE_ROLE','CREATE_ROLE')")
-    @RequestMapping(value = "/{roleId}/permissions/{permissionEnum}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyAuthority('SUPER','ALL_ROLE','UPDATE_ROLE')")
+    @RequestMapping(name = "addPermission", value = "/addPermission", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(tags = "Roles", httpMethod = "POST", value = "Add permission", notes = "Add permission to a role")
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK", response = Role.class)
@@ -204,10 +220,10 @@ public class RoleController {
         @ApiResponse(code = 404, message = "Not found", response = ErrorResponse.class)})
     public Role addPermission(
             @ApiParam(value = "The authentication token") @RequestHeader(value = "X-Auth-Token", required = true) String authToken,
-            @ApiParam(value = "The role identifier") @PathVariable("roleId") long roleId,
-            @ApiParam(value = "The permission enum to be added") @PathVariable("permissionEnum") PermissionEnum permissionEnum) throws Exception {
+            @ApiParam(value = "The role identifier") @RequestParam(name = "id", required = true) long id,
+            @ApiParam(value = "The permission enum to be added") @RequestParam(name = "permission", required = true) PermissionEnum permission) throws Exception {
 
-        return service.addPermission(roleId, permissionEnum);
+        return service.addPermission(id, permission);
 
     }
 
@@ -215,14 +231,14 @@ public class RoleController {
      * Removes a permission from a role
      *
      * @param authToken
-     * @param roleId
-     * @param permissionEnum
+     * @param id
+     * @param permission
      * @return
-     * @throws java.lang.Exception
+     * @throws Exception
      */
     @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("hasAnyAuthority('SUPER','ALL_ROLE','UPDATE_ROLE','CREATE_ROLE')")
-    @RequestMapping(value = "/{roleId}/permissions/{permissionEnum}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyAuthority('SUPER','ALL_ROLE','UPDATE_ROLE')")
+    @RequestMapping(name = "removePermission", value = "/removePermission", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(tags = "Roles", httpMethod = "DELETE", value = "Delete permission", notes = "Delete permission from a role")
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK", response = Role.class)
@@ -234,10 +250,10 @@ public class RoleController {
         @ApiResponse(code = 404, message = "Not found", response = ErrorResponse.class)})
     public Role removePermission(
             @ApiParam(value = "The authentication token") @RequestHeader(value = "X-Auth-Token", required = true) String authToken,
-            @ApiParam(value = "The role identifier") @PathVariable("roleId") long roleId,
-            @ApiParam(value = "The permission enum to be removed") @PathVariable("permissionEnum") PermissionEnum permissionEnum) throws Exception {
+            @ApiParam(value = "The role identifier") @RequestParam(name = "id", required = true) long id,
+            @ApiParam(value = "The permission enum to be removed") @RequestParam(name = "permission", required = true) PermissionEnum permission) throws Exception {
 
-        return service.removePermission(roleId, permissionEnum);
+        return service.removePermission(id, permission);
     }
 
     /**
@@ -249,9 +265,10 @@ public class RoleController {
      * @return
      * @throws java.lang.Exception
      */
+    
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('SUPER','ALL_ROLE','READ_ROLE','UPDATE_ROLE','CREATE_ROLE')")
-    @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(name = "getRoles", value = "/getRoles", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(tags = "Roles", httpMethod = "GET", value = "List roles", notes = "Lists roles. Will return 50 records if no paging parameters defined", response = Role.class, responseContainer = "List")
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK")
@@ -281,7 +298,7 @@ public class RoleController {
      */
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('SUPER','ALL_ROLE','READ_ROLE','UPDATE_ROLE','CREATE_ROLE')")
-    @RequestMapping(name = "Search", value = "/search", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(name = "search", value = "/search", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(tags = "Roles", httpMethod = "GET", value = "Search roles", notes = "Search roles that match a given filter. Will return 50 records if no paging parameters defined", response = Role.class, responseContainer = "List")
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK")
@@ -293,7 +310,7 @@ public class RoleController {
         @ApiResponse(code = 404, message = "Not found", response = ErrorResponse.class)})
     public List<Role> search(
             @ApiParam(value = "The authentication token") @RequestHeader(value = "X-Auth-Token", required = true) String authToken,
-            @ApiParam(value = "The search filter", required = true) @RequestParam(value = "filter", required = true) String filter,
+            @ApiParam(value = "The search filter", required = false) @RequestParam(value = "filter", required = false) String filter,
             @ApiParam(value = "The page number", defaultValue = "1") @RequestParam(value = "pageNumber", required = false, defaultValue = "1") Integer pageNumber,
             @ApiParam(value = "The rows per page", defaultValue = "50") @RequestParam(value = "rowsPerPage", required = false, defaultValue = "50") Integer rowsPerPage) throws Exception {
 

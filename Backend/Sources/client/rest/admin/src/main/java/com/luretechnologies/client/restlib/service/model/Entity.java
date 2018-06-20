@@ -53,11 +53,11 @@ public class Entity {
     protected String description = null;
     protected String name = null;
     protected String entityId = null;
-    protected EntityTypeEnum type = null; 
+    protected EntityTypeEnum type = null;
     protected Long parentId = null;
-    protected Boolean active = null;
+    protected Boolean available = null;
     private final List<Entity> childrenEntities = null;
-    
+
     /**
      *
      * @return
@@ -67,7 +67,7 @@ public class Entity {
     public Long getId() {
         return id;
     }
-    
+
     /**
      *
      * @return
@@ -121,7 +121,7 @@ public class Entity {
     public void setEntityId(String entityId) {
         this.entityId = entityId;
     }
-        
+
     /**
      *
      * @return
@@ -131,7 +131,7 @@ public class Entity {
     public EntityTypeEnum getType() {
         return type;
     }
-    
+
     public void setType(EntityTypeEnum type) {
         this.type = type;
     }
@@ -149,21 +149,7 @@ public class Entity {
     public void setParentId(Long parentId) {
         this.parentId = parentId;
     }
-    
-    /**
-     *
-     * @return
-     */
-    @ApiModelProperty(value = "")
-    @JsonProperty("active")
-    public Boolean getActive() {
-        return active;
-    }
 
-    public void setActive(Boolean active) {
-        this.active = active;
-    }
-    
     /**
      *
      * @return
@@ -172,6 +158,20 @@ public class Entity {
     @JsonProperty("childrenEntities")
     public List<Entity> getChildrenEntities() {
         return childrenEntities;
+    }
+
+    /**
+     * @return the available
+     */
+    public Boolean getAvailable() {
+        return available;
+    }
+
+    /**
+     * @param available the available to set
+     */
+    public void setAvailable(Boolean available) {
+        this.available = available;
     }
 
     @Override

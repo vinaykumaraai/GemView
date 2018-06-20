@@ -52,10 +52,11 @@ public class User {
     private String username = null;
     private String email = null;
     private Entity entity = null;
-    private Boolean active = null;
+    private Boolean available = null;
     private Role role = null;
     private String firstName = null;
     private String password = null;
+    private Integer passwordFrequency = 30;
 
     /**
      *
@@ -143,18 +144,18 @@ public class User {
      *
      * @return
      */
-    @ApiModelProperty(value = "")
-    @JsonProperty("active")
-    public Boolean getActive() {
-        return active;
+    @ApiModelProperty(value = "Available")
+    @JsonProperty("available")
+    public Boolean getAvailable() {
+        return available;
     }
 
     /**
      *
-     * @param active
+     * @param available
      */
-    public void setActive(Boolean active) {
-        this.active = active;
+    public void setAvailable(Boolean available) {
+        this.available = available;
     }
 
     /**
@@ -201,6 +202,20 @@ public class User {
         this.password = password;
     }
 
+    /**
+     * @return the passwordFrequency
+     */
+    public Integer getPasswordFrequency() {
+        return passwordFrequency;
+    }
+
+    /**
+     * @param passwordFrequency the passwordFrequency to set
+     */
+    public void setPasswordFrequency(Integer passwordFrequency) {
+        this.passwordFrequency = passwordFrequency;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -211,10 +226,11 @@ public class User {
         sb.append("    username: ").append(StringUtil.toIndentedString(username)).append("\n");
         sb.append("    email: ").append(StringUtil.toIndentedString(email)).append("\n");
         sb.append("    entity: ").append(StringUtil.toIndentedString(entity)).append("\n");
-        sb.append("    active: ").append(StringUtil.toIndentedString(active)).append("\n");
+        sb.append("    active: ").append(StringUtil.toIndentedString(available)).append("\n");
         sb.append("    role: ").append(StringUtil.toIndentedString(role)).append("\n");
         sb.append("    firstName: ").append(StringUtil.toIndentedString(firstName)).append("\n");
         sb.append("    password: ").append(StringUtil.toIndentedString(password)).append("\n");
+        sb.append("    passwordFrequency: ").append(StringUtil.toIndentedString(passwordFrequency)).append("\n");
         sb.append("}");
         return sb.toString();
     }

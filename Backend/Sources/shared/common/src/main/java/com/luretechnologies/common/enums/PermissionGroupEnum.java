@@ -20,7 +20,14 @@ public enum PermissionGroupEnum {
     ENTITY(500),
     HOST(600),
     SETTING(700),
-    DASHBOARD(800);
+    DASHBOARD(800),
+    AUDIT(900),
+    APPSTORE(1000),
+    SYSTEM(1100),
+    ODOMETER(1200),
+    ASSET(1300),
+    HEARTBEAT(1400),
+    PERSONALIZATION(1500);
     
     private final int id;
 

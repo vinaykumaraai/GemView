@@ -31,17 +31,42 @@
  */
 package com.luretechnologies.server.front.tms.controller;
 
-import com.luretechnologies.server.data.model.tms.DownloadInfo;
-import com.luretechnologies.server.data.model.tms.Heartbeat;
-import com.luretechnologies.server.data.model.tms.HeartbeatResponse;
+import com.luretechnologies.server.common.utils.Utils;
+import com.luretechnologies.server.data.display.ErrorResponse;
+import com.luretechnologies.server.data.display.tms.HeartbeatDisplay;
+import com.luretechnologies.server.data.display.tms.HeartbeatAlertDisplay;
+import com.luretechnologies.server.data.display.tms.HeartbeatAuditDisplay;
+import com.luretechnologies.server.data.display.tms.HeartbeatOdometerDisplay;
+import com.luretechnologies.server.data.display.tms.HeartbeatResponseDisplay;
+import com.luretechnologies.server.jms.utils.CorrelationIdPostProcessor;
+import com.luretechnologies.server.service.HeartbeatAlertService;
+import com.luretechnologies.server.service.HeartbeatAuditService;
+import com.luretechnologies.server.service.HeartbeatOdometerService;
+import com.luretechnologies.server.service.HeartbeatResponseService;
+import com.luretechnologies.server.service.HeartbeatService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.jms.core.JmsTemplate;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -55,6 +80,25 @@ import org.springframework.web.bind.annotation.RestController;
 @Api(value = "Heartbeats")
 public class HeartbeatController {
 
+    @Autowired
+    HeartbeatOdometerService heartbeatOdometerService;
+
+    @Autowired
+    HeartbeatAlertService heartbeatAlertService;
+
+    @Autowired
+    HeartbeatAuditService heartbeatAuditService;
+
+    @Autowired
+    HeartbeatService heartbeatService;
+
+    @Autowired
+    HeartbeatResponseService heartbeatResponseService;
+
+    @Autowired
+    @Qualifier("jmsHeartbeatTemplate")
+    JmsTemplate jmsHeartbeatTemplate;
+
     /**
      * Creates a new heartbeat
      *
@@ -63,18 +107,331 @@ public class HeartbeatController {
      * @throws java.lang.Exception
      */
     @ResponseStatus(HttpStatus.CREATED)
-    @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(name = "create", value = "/create", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(tags = "Heartbeats", httpMethod = "POST", value = "Create heartbeat", notes = "Creates a new heartbeat")
-    public HeartbeatResponse create(@ApiParam(value = "Heartbeat object", required = true) @RequestBody Heartbeat heartbeat) throws Exception {
+    public HeartbeatResponseDisplay create(@ApiParam(value = "Heartbeat object", required = true) @RequestBody HeartbeatDisplay heartbeat) throws Exception {
 
-        DownloadInfo dl = new DownloadInfo();
-        dl.setUsername("0fVoCdSvlD0Zw7AI");
-        dl.setPassword("S6JD$AYRLihz@5H7ftKLZF4-4iEpnv!TMVe5");
-        dl.setFilename("Gtt4SuzVxUpxUdI4jbSix4KYaEni39PK.zip");
-        dl.setFtpsUrl("downloadcentral.lure68.net:8022");
-        dl.setHttpsUrl(null);
-        dl.setWindow(8329251L);
+        try {
+            jmsHeartbeatTemplate.convertAndSend(heartbeat, new CorrelationIdPostProcessor(Utils.generateGUID()));
+        } catch (Exception exception) {
+            //TODO it is cause it doesn't work fo me (remove this comment latter)
+            heartbeatService.create(heartbeat);
+        }
 
-        return new HeartbeatResponse(1L, "OK", 86400L, false, dl);
+        HeartbeatResponseDisplay heartbeatResponse = heartbeatResponseService.getLastOne(heartbeat.getSerialNumber());
+        if (heartbeatResponse != null) {
+            heartbeatResponseService.delete(heartbeatResponse.getId());
+            return heartbeatResponse;
+        } else {
+            return new HeartbeatResponseDisplay(0, "OK", Utils.MS_MINUTE * 15, false, null);
+        }
     }
+
+    /**
+     *
+     * @param terminalSerialNumber
+     * @param heartbeatResponse
+     * @return
+     * @throws Exception
+     */
+    @ResponseStatus(HttpStatus.CREATED)
+    @RequestMapping(name = "createHeartbeatResponse", value = "/createHeartbeatResponse", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(tags = "Heartbeats", httpMethod = "POST", value = "(It is test purpose) Create heartbeat reponse ", notes = "Creates a new heartbeat response (test purpose)")
+    public HeartbeatResponseDisplay createHeartResponse(
+            @ApiParam(value = "The entity (Terminal's serial number)", required = true) @RequestParam(value = "terminalSerialNumber", required = true) String terminalSerialNumber,
+            @ApiParam(value = "Heartbeat Response  object", required = true) @RequestBody HeartbeatResponseDisplay heartbeatResponse
+    ) throws Exception {
+        return heartbeatResponseService.create(terminalSerialNumber, heartbeatResponse);
+    }
+
+    /**
+     *
+     * @param entityId
+     * @param filter
+     * @param pageNumber
+     * @param rowsPerPage
+     * @param dateFrom
+     * @param dateTo
+     * @return
+     * @throws Exception
+     */
+    @ResponseStatus(HttpStatus.OK)
+    //@PreAuthorize("hasAnyAuthority('SUPER','ALL_ODOMETER','READ_ODOMETER')")
+    @RequestMapping(name = "searchOdometers", value = "/searchOdometers", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(tags = "Heartbeats", httpMethod = "GET", value = "Search heartbeat Odometers", notes = "Search odometers that match a given filter. Will return 50 records if no paging parameters defined", response = HeartbeatOdometerDisplay.class, responseContainer = "List")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK")
+        ,
+        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class)
+        ,
+        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class)
+        ,
+        @ApiResponse(code = 404, message = "Not found", response = ErrorResponse.class)})
+    public List<HeartbeatOdometerDisplay> searchOdometers(
+            //@ApiParam(value = "The authentication token") @RequestHeader(value = "X-Auth-Token", required = true) String authToken,
+            @ApiParam(value = "The entity (String ID)", required = true) @RequestParam(value = "entityId", required = true) String entityId,
+            @ApiParam(value = "The search filter", required = false) @RequestParam(value = "filter", required = false) String filter,
+            @ApiParam(value = "The page number", defaultValue = "1", required = false) @RequestParam(value = "pageNumber", required = true, defaultValue = "1") Integer pageNumber,
+            @ApiParam(value = "The rows per page", defaultValue = "50", required = false) @RequestParam(value = "rowsPerPage", required = true, defaultValue = "50") Integer rowsPerPage,
+            @ApiParam(value = "The starting date, format:yyMMdd") @RequestParam(value = "dateFrom", required = false) String dateFrom,
+            @ApiParam(value = "The ending date, format:yyMMdd") @RequestParam(value = "dateTo", required = false) String dateTo
+    ) throws Exception {
+
+        if (pageNumber == null) {
+            pageNumber = 1;
+        }
+        if (rowsPerPage == null) {
+            rowsPerPage = Integer.MAX_VALUE;
+        }
+        DateFormat formatHour = new SimpleDateFormat("yyMMddHHmm");
+        DateFormat format = new SimpleDateFormat("yyMMdd");
+        if (dateTo == null || dateTo.isEmpty()) {
+            Date a = new Date();
+            dateTo = format.format(a);
+        }
+
+        if (dateFrom == null || dateFrom.isEmpty()) {
+            dateFrom = "180501";
+        }
+        Date formatDateFrom = format.parse(dateFrom);
+        Date formatDateTo = formatHour.parse(dateTo + "2359");
+
+        return heartbeatOdometerService.search(entityId, filter, pageNumber, rowsPerPage, formatDateFrom, formatDateTo);
+    }
+
+    /**
+     *
+     * @param entityId
+     * @param filter
+     * @param pageNumber
+     * @param rowsPerPage
+     * @param dateFrom
+     * @param dateTo
+     * @return
+     * @throws Exception
+     */
+    @ResponseStatus(HttpStatus.OK)
+    //@PreAuthorize("hasAnyAuthority('SUPER','ALL_ASSET','READ_ASSET')")
+    @RequestMapping(name = "searchAlerts", value = "/searchAlerts", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(tags = "Heartbeats", httpMethod = "GET", value = "Search heartbeat Alerts", notes = "Search alerts that match a given filter. Will return 50 records if no paging parameters defined", response = HeartbeatAlertDisplay.class, responseContainer = "List")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK")
+        ,
+        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class)
+        ,
+        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class)
+        ,
+        @ApiResponse(code = 404, message = "Not found", response = ErrorResponse.class)})
+    public List<HeartbeatAlertDisplay> searchAlerts(
+            //@ApiParam(value = "The authentication token") @RequestHeader(value = "X-Auth-Token", required = true) String authToken,
+            @ApiParam(value = "The entity (String ID)", required = true) @RequestParam(value = "entityId", required = true) String entityId,
+            @ApiParam(value = "The search filter", required = false) @RequestParam(value = "filter", required = false) String filter,
+            @ApiParam(value = "The page number", defaultValue = "1") @RequestParam(value = "pageNumber", required = false, defaultValue = "1") Integer pageNumber,
+            @ApiParam(value = "The rows per page", defaultValue = "50") @RequestParam(value = "rowsPerPage", required = false, defaultValue = "50") Integer rowsPerPage,
+            @ApiParam(value = "The starting date, format:yyMMdd") @RequestParam(value = "dateFrom", required = false) String dateFrom,
+            @ApiParam(value = "The ending date format:yyMMdd") @RequestParam(value = "dateTo", required = false) String dateTo
+    ) throws Exception {
+
+        DateFormat formatHour = new SimpleDateFormat("yyMMddHHmm");
+        DateFormat format = new SimpleDateFormat("yyMMdd");
+        if (dateTo == null || dateTo.isEmpty()) {
+            Date a = new Date();
+            dateTo = format.format(a);
+        }
+        if (dateFrom == null || dateFrom.isEmpty()) {
+            dateFrom = "180501";
+        }
+        Date formatDateFrom = format.parse(dateFrom);
+        Date formatDateTo = formatHour.parse(dateTo + "2359");
+
+        return heartbeatAlertService.search(entityId, filter, pageNumber, rowsPerPage, formatDateFrom, formatDateTo);
+    }
+
+    /**
+     *
+     * @param entityId
+     * @param filter
+     * @param pageNumber
+     * @param rowsPerPage
+     * @param dateFrom
+     * @param dateTo
+     * @return
+     * @throws Exception
+     */
+    @ResponseStatus(HttpStatus.OK)
+    //@PreAuthorize("hasAnyAuthority('SUPER','ALL_ASSET','READ_ASSET')")
+    @RequestMapping(name = "searchAudits", value = "/searchAudits", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(tags = "Heartbeats", httpMethod = "GET", value = "Search heartbeat audits", notes = "Search audits that match a given filter. Will return 50 records if no paging parameters defined", response = HeartbeatAuditDisplay.class, responseContainer = "List")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK")
+        ,
+        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class)
+        ,
+        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class)
+        ,
+        @ApiResponse(code = 404, message = "Not found", response = ErrorResponse.class)})
+    public List<HeartbeatAuditDisplay> searchAudits(
+            //@ApiParam(value = "The authentication token") @RequestHeader(value = "X-Auth-Token", required = true) String authToken,
+            @ApiParam(value = "The entity (String ID)", required = true) @RequestParam(value = "entityId", required = true) String entityId,
+            @ApiParam(value = "The search filter", required = false) @RequestParam(value = "filter", required = false) String filter,
+            @ApiParam(value = "The page number", defaultValue = "1") @RequestParam(value = "pageNumber", required = false, defaultValue = "1") Integer pageNumber,
+            @ApiParam(value = "The rows per page", defaultValue = "50") @RequestParam(value = "rowsPerPage", required = false, defaultValue = "50") Integer rowsPerPage,
+            @ApiParam(value = "The starting date format:yyMMdd") @RequestParam(value = "dateFrom", required = false) String dateFrom,
+            @ApiParam(value = "The ending date format:yyMMdd") @RequestParam(value = "dateTo", required = false) String dateTo
+    ) throws Exception {
+
+        DateFormat format = new SimpleDateFormat("yyMMdd");
+        if (dateTo == null || dateTo.isEmpty()) {
+            Date a = new Date();
+            dateTo = format.format(a);
+        }
+        if (dateFrom == null || dateFrom.isEmpty()) {
+            dateFrom = "180501";
+        }
+        Date formatDateFrom = format.parse(dateFrom);
+        Date formatDateTo = format.parse(dateTo);
+
+        return heartbeatAuditService.search(entityId, filter, pageNumber, rowsPerPage, formatDateFrom, formatDateTo);
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    //@PreAuthorize("hasAnyAuthority('SUPER','ALL_HEARTBEAT','READ_HEARTBEAT')")
+    @RequestMapping(name = "searchHeartbeats", value = "/searchHeartbeats", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(tags = "Heartbeats", httpMethod = "GET", value = "Search heartbeat ", notes = "Search heartbeats that match a given filter. Will return 50 records if no paging parameters defined", response = HeartbeatDisplay.class, responseContainer = "List")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK")
+        ,
+        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class)
+        ,
+        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class)
+        ,
+        @ApiResponse(code = 404, message = "Not found", response = ErrorResponse.class)})
+    public List<HeartbeatDisplay> searchHeartbeats(
+            //@ApiParam(value = "The authentication token") @RequestHeader(value = "X-Auth-Token", required = true) String authToken,
+            @ApiParam(value = "The entity (String ID)", required = true) @RequestParam(value = "entityId", required = true) String entityId,
+            @ApiParam(value = "The search filter", required = false) @RequestParam(value = "filter", required = false) String filter,
+            @ApiParam(value = "The page number", defaultValue = "1") @RequestParam(value = "pageNumber", required = false, defaultValue = "1") Integer pageNumber,
+            @ApiParam(value = "The rows per page", defaultValue = "50") @RequestParam(value = "rowsPerPage", required = false, defaultValue = "50") Integer rowsPerPage,
+            @ApiParam(value = "The starting date format:yyMMdd") @RequestParam(value = "dateFrom", required = false) String dateFrom,
+            @ApiParam(value = "The ending date format:yyMMdd") @RequestParam(value = "dateTo", required = false) String dateTo
+    ) throws Exception {
+
+        DateFormat format = new SimpleDateFormat("yyMMdd");
+        if (dateTo == null || dateTo.isEmpty()) {
+            Date a = new Date();
+            dateTo = format.format(a);
+        }
+        if (dateFrom == null || dateFrom.isEmpty()) {
+            dateFrom = "180501";
+        }
+        Date formatDateFrom = format.parse(dateFrom);
+        Date formatDateTo = format.parse(dateTo);
+
+        return heartbeatService.search(entityId, filter, pageNumber, rowsPerPage, formatDateFrom, formatDateTo);
+    }
+
+    /**
+     * Delete an odometer.
+     *
+     * @param authToken
+     * @param id
+     * @throws Exception
+     */
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    //@PreAuthorize("hasAnyAuthority('SUPER')")
+    @RequestMapping(value = "deleteOdometer/{id}", method = RequestMethod.DELETE)
+    @ApiOperation(tags = "Heartbeats", httpMethod = "DELETE", value = "Delete an odometer", notes = "Delete an odometer")
+    @ApiResponses(value = {
+        @ApiResponse(code = 204, message = "Deleted")
+        ,
+        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class)
+        ,
+        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class)
+        ,
+        @ApiResponse(code = 404, message = "Not found", response = ErrorResponse.class)})
+    public void deleteOdometer(
+            @ApiParam(value = "The authentication token") @RequestHeader(value = "X-Auth-Token", required = true) String authToken,
+            @ApiParam(value = "The odometer identifier (id)") @PathVariable("id") long id) throws Exception {
+        heartbeatOdometerService.delete(id);
+    }
+
+    /**
+     * Delete all heartbeat audit older than date
+     * @param authToken
+     * @param date Death line
+     * @throws Exception
+     */
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    //@PreAuthorize("hasAnyAuthority('SUPER')")
+    @RequestMapping(value = "deleteAudits/{date}", method = RequestMethod.DELETE)
+    @ApiOperation(tags = "Heartbeats", httpMethod = "DELETE", value = "Delete heartbeat audits older than date", notes = "Delete heartbeat audits older than date")
+    @ApiResponses(value = {
+        @ApiResponse(code = 204, message = "Deleted")
+        ,
+        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class)
+        ,
+        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class)
+        ,
+        @ApiResponse(code = 404, message = "Not found", response = ErrorResponse.class)})
+    public void deleteAudits(
+            @ApiParam(value = "The authentication token") @RequestHeader(value = "X-Auth-Token", required = true) String authToken,
+            @ApiParam(value = "Death line, format:yyMMdd") @PathVariable("date") String date) throws Exception {
+
+        DateFormat format = new SimpleDateFormat("yyMMdd");
+        if (date == null) {
+            throw new Exception("The has be int the parameters");
+        }
+        Date formatDateFrom = format.parse(date);
+
+        heartbeatAuditService.delete(formatDateFrom);
+    }
+   /**
+     * Delete an alert.
+     *
+     * @param authToken
+     * @param id
+     * @throws Exception
+     */
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    //@PreAuthorize("hasAnyAuthority('SUPER')")
+    @RequestMapping(value = "deleteAlert/{id}", method = RequestMethod.DELETE)
+    @ApiOperation(tags = "Heartbeats", httpMethod = "DELETE", value = "Delete a heartbeat alert", notes = "Delete a heartbeat alert")
+    @ApiResponses(value = {
+        @ApiResponse(code = 204, message = "Deleted")
+        ,
+        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class)
+        ,
+        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class)
+        ,
+        @ApiResponse(code = 404, message = "Not found", response = ErrorResponse.class)})
+    public void deleteAlert(
+            @ApiParam(value = "The authentication token") @RequestHeader(value = "X-Auth-Token", required = true) String authToken,
+            @ApiParam(value = "The odometer identifier (id)") @PathVariable("id") long id) throws Exception {
+        heartbeatAlertService.delete(id);
+    }    
+    
+       /**
+     * Delete an audit.
+     *
+     * @param authToken
+     * @param id
+     * @throws Exception
+     */
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    //@PreAuthorize("hasAnyAuthority('SUPER')")
+    @RequestMapping(value = "deleteAudit/{id}", method = RequestMethod.DELETE)
+    @ApiOperation(tags = "Heartbeats", httpMethod = "DELETE", value = "Delete a heartbeat audit log", notes = "Delete a heartbeat audit log")
+    @ApiResponses(value = {
+        @ApiResponse(code = 204, message = "Deleted")
+        ,
+        @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class)
+        ,
+        @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class)
+        ,
+        @ApiResponse(code = 404, message = "Not found", response = ErrorResponse.class)})
+    public void deleteAudit(
+            @ApiParam(value = "The authentication token") @RequestHeader(value = "X-Auth-Token", required = true) String authToken,
+            @ApiParam(value = "The odometer identifier (id)") @PathVariable("id") long id) throws Exception {
+        heartbeatAuditService.delete(id);
+    }    
 }

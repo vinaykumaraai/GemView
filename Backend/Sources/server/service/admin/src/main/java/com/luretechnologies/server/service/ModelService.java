@@ -31,45 +31,37 @@
  */
 package com.luretechnologies.server.service;
 
-import com.luretechnologies.server.data.model.Model;
+import com.luretechnologies.server.data.display.ModelDisplay;
 import java.util.List;
 
 /**
  *
+ * @author
  */
 public interface ModelService {
 
-    /**
-     *
-     * @param model
-     * @return
-     * @throws Exception
-     */
-    public Model save(Model model) throws Exception;
-
-    /**
-     *
-     * @param id
-     * @throws Exception
-     */
-    public void delete(long id) throws Exception;
-
-    /**
+        /**
      *
      * @param id
      * @return
      * @throws Exception
      */
-    public Model get(long id) throws Exception;
-
+    public ModelDisplay get(Long id) throws Exception;
     /**
      *
-     * @param pageNumber
-     * @param rowsPerPage
+     * @param modelDisplay
      * @return
      * @throws Exception
      */
-    public List<Model> list(int pageNumber, int rowsPerPage) throws Exception;
+    public ModelDisplay create(ModelDisplay modelDisplay) throws Exception;
+
+    /**
+     *
+     * @param modelDisplay
+     * @return
+     * @throws Exception
+     */
+    public ModelDisplay update(ModelDisplay modelDisplay) throws Exception;
 
     /**
      *
@@ -79,25 +71,30 @@ public interface ModelService {
      * @return
      * @throws Exception
      */
-    public List<Model> search(String filter, int pageNumber, int rowsPerPage) throws Exception;
+    public List<ModelDisplay> search(String filter, int pageNumber, int rowsPerPage) throws Exception;
 
     /**
      *
-     * @param filter
-     * @param rowsPerPage
+     * @param firstResult
+     * @param lastResult
      * @return
      * @throws Exception
      */
-    public int getSearchTotalPages(String filter, int rowsPerPage) throws Exception;
+    public List<ModelDisplay> list(int firstResult, int lastResult) throws Exception;
 
     /**
      *
      * @param name
-     * @param multiApp
-     * @param pageNumber
-     * @param rowsPerPage
      * @return
      * @throws Exception
      */
-    public List<Model> list(String name, Boolean multiApp, int pageNumber, int rowsPerPage) throws Exception;
+    public ModelDisplay findByName(String name) throws Exception;
+
+    /**
+     *
+     * @param id
+     * @throws Exception
+     */
+    public void delete(Long id) throws Exception;
+
 }

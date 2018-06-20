@@ -21,7 +21,7 @@ import javax.annotation.Generated;
 @ApiModel(description = "")
 @Generated(value = "class io.swagger.codegen.languages.JavaClientCodegen", date = "2015-09-15T15:20:45.337-04:00")
 public class HostModeOperation {
-    
+
     private final Long id = null;
     private Host host = null;
     private ModeEnum mode = null;
@@ -36,7 +36,7 @@ public class HostModeOperation {
     public Long getId() {
         return id;
     }
-    
+
     /**
      *
      * @return
@@ -78,7 +78,5 @@ public class HostModeOperation {
     public void setOperation(OperationEnum operation) {
         this.operation = operation;
     }
-    
-    
-    
+
 }

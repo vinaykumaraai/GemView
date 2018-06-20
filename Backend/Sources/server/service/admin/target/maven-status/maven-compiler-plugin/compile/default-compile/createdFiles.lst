@@ -3,9 +3,11 @@ com\luretechnologies\server\service\impl\AddressServiceImpl.class
 com\luretechnologies\server\service\impl\DeviceServiceImpl.class
 com\luretechnologies\server\service\impl\UserServiceImpl.class
 com\luretechnologies\server\service\UserService.class
+com\luretechnologies\server\service\impl\AuditUserLogServiceImpl.class
 com\luretechnologies\server\service\TelephoneService.class
 com\luretechnologies\server\service\impl\VerificationCodeServiceImpl.class
 com\luretechnologies\server\service\RegionService.class
+com\luretechnologies\server\service\SystemParamsService.class
 com\luretechnologies\server\service\EntityService.class
 com\luretechnologies\server\service\TerminalService.class
 com\luretechnologies\server\service\TransactionService.class
@@ -25,6 +27,8 @@ com\luretechnologies\server\service\ModelService.class
 com\luretechnologies\server\service\impl\HostServiceImpl.class
 com\luretechnologies\server\service\SessionService.class
 com\luretechnologies\server\service\impl\MerchantServiceImpl.class
+com\luretechnologies\server\service\AuditUserLogService.class
+com\luretechnologies\server\service\impl\SystemParamsServiceImpl.class
 com\luretechnologies\server\service\HostService.class
 com\luretechnologies\server\service\OrganizationService.class
 com\luretechnologies\server\service\impl\AuditServiceImpl.class

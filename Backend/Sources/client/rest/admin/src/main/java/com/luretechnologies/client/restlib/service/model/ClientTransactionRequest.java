@@ -90,7 +90,7 @@ public class ClientTransactionRequest {
     private Integer sequenceNumber = null;
     private String serialNumber = null;
     private String terminalId = null;
-    
+
     private String approvalCode = null;
     private String approvalNumber = null;
     private String eventData = null;
@@ -101,7 +101,7 @@ public class ClientTransactionRequest {
     private String merchantTransactionId = null;
     private String originalMerchantTransactionId = null;
     private String debugInfo = null;
-    
+
     // ecommerce 
     private String billingStreet1 = null;
     private String billingStreet2 = null;
@@ -111,8 +111,8 @@ public class ClientTransactionRequest {
     private String billingPhoneNumber = null;
     private String billingCity = null;
     private String billingZip = null;
-    private Lodging lodging = null; 
-    protected EBT ebt = null; 
+    private Lodging lodging = null;
+    protected EBT ebt = null;
 
     /**
      *
@@ -149,7 +149,7 @@ public class ClientTransactionRequest {
     public void setAmount(String amount) {
         this.amount = amount;
     }
-    
+
     /**
      * @return the debitSurchargeAmount
      */
@@ -164,7 +164,7 @@ public class ClientTransactionRequest {
      */
     public void setDebitSurchargeAmount(String debitSurchargeAmount) {
         this.debitSurchargeAmount = debitSurchargeAmount;
-    }    
+    }
 
     /**
      *
@@ -723,8 +723,8 @@ public class ClientTransactionRequest {
     public void setApprovalCode(String approvalCode) {
         this.approvalCode = approvalCode;
     }
-    
-        /**
+
+    /**
      *
      * @return
      */
@@ -889,7 +889,7 @@ public class ClientTransactionRequest {
      * @return the merchantTransactionId
      */
     @ApiModelProperty(value = "")
-    @JsonProperty("merchantTransactionId")    
+    @JsonProperty("merchantTransactionId")
     public String getMerchantTransactionId() {
         return merchantTransactionId;
     }
@@ -905,17 +905,19 @@ public class ClientTransactionRequest {
      * @return the originalMerchantTransactionId
      */
     @ApiModelProperty(value = "")
-    @JsonProperty("originalMerchantTransactionId")    
+    @JsonProperty("originalMerchantTransactionId")
     public String getOriginalMerchantTransactionId() {
         return originalMerchantTransactionId;
     }
 
     /**
-     * @param originalMerchantTransactionId the originalMerchantTransactionId to set
+     * @param originalMerchantTransactionId the originalMerchantTransactionId to
+     * set
      */
     public void setOriginalMerchantTransactionId(String originalMerchantTransactionId) {
         this.originalMerchantTransactionId = originalMerchantTransactionId;
     }
+
     /**
      * @return the debugInfo
      */
@@ -928,13 +930,13 @@ public class ClientTransactionRequest {
      */
     public void setDebugInfo(String debugInfo) {
         this.debugInfo = debugInfo;
-    }    
+    }
 
     /**
      * @return the billingStreet1
      */
     @ApiModelProperty(value = "")
-    @JsonProperty("billingStreet1")    
+    @JsonProperty("billingStreet1")
     public String getBillingStreet1() {
         return billingStreet1;
     }
@@ -950,7 +952,7 @@ public class ClientTransactionRequest {
      * @return the billingStreet2
      */
     @ApiModelProperty(value = "")
-    @JsonProperty("billingStreet2")        
+    @JsonProperty("billingStreet2")
     public String getBillingStreet2() {
         return billingStreet2;
     }
@@ -966,7 +968,7 @@ public class ClientTransactionRequest {
      * @return the billingCountry
      */
     @ApiModelProperty(value = "")
-    @JsonProperty("billingCountry")    
+    @JsonProperty("billingCountry")
     public String getBillingCountry() {
         return billingCountry;
     }
@@ -1046,7 +1048,7 @@ public class ClientTransactionRequest {
      * @return the billingZip
      */
     @ApiModelProperty(value = "")
-    @JsonProperty("billingZip")    
+    @JsonProperty("billingZip")
     public String getBillingZip() {
         return billingZip;
     }
@@ -1057,11 +1059,12 @@ public class ClientTransactionRequest {
     public void setBillingZip(String billingZip) {
         this.billingZip = billingZip;
     }
+
     /**
      * @return the lodging
      */
     @ApiModelProperty(value = "")
-    @JsonProperty("lodging")     
+    @JsonProperty("lodging")
     public Lodging getLodging() {
         return lodging;
     }
@@ -1072,7 +1075,7 @@ public class ClientTransactionRequest {
     public void setLodging(Lodging lodging) {
         this.lodging = lodging;
     }
-    
+
     /**
      * @return the ebt
      */

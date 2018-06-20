@@ -47,6 +47,16 @@ import java.util.Map;
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.JavaClientCodegen", date = "2015-09-15T15:20:45.337-04:00")
 public class RolesApi extends BaseApi {
 
+    private static final String ROLES_CREATE = "/roles/create";
+    private static final String ROLES_GET_BY_NAME = "/roles/getByName";
+    private static final String ROLES_DELETE = "/roles/delete";
+    private static final String ROLES_UPDATE = "/roles/update";
+    private static final String ROLES_GET_ROLES = "/roles/getRoles";
+    private static final String ROLES_GET = "/roles/get";
+    private static final String ROLES_ADD_PERMISSION = "/roles/addPermission";
+    private static final String ROLES_REMOVE_PERMISSION = "/roles/removePermission";
+    private static final String ROLES_SEARCH = "/roles/search";
+
     /**
      *
      * @param apiClient
@@ -68,7 +78,7 @@ public class RolesApi extends BaseApi {
         byte[] postBinaryBody = null;
 
         // create path and map variables
-        String path = "/roles".replaceAll("\\{format\\}", "json");
+        String path = ROLES_GET_ROLES.replaceAll("\\{format\\}", "json");
 
         // query params
         List<Pair> queryParams = new ArrayList<>();
@@ -107,7 +117,7 @@ public class RolesApi extends BaseApi {
         byte[] postBinaryBody = null;
 
         // create path and map variables
-        String path = "/roles".replaceAll("\\{format\\}", "json");
+        String path = ROLES_CREATE.replaceAll("\\{format\\}", "json");
 
         // query params
         List<Pair> queryParams = new ArrayList<>();
@@ -143,13 +153,8 @@ public class RolesApi extends BaseApi {
         Object postBody = null;
         byte[] postBinaryBody = null;
 
-        // verify the required parameter 'filter' is set
-        if (filter == null) {
-            throw new ApiException(400, "Missing the required parameter 'filter' when calling searchUsingPOST5");
-        }
-
         // create path and map variables
-        String path = "/roles/search".replaceAll("\\{format\\}", "json");
+        String path = ROLES_SEARCH.replaceAll("\\{format\\}", "json");
 
         // query params
         List<Pair> queryParams = new ArrayList<>();
@@ -174,7 +179,46 @@ public class RolesApi extends BaseApi {
 
         TypeRef returnType = new TypeRef<List<Role>>() {
         };
-        return apiClient.invokeAPI(path, CommonConstants.METHOD_POST, queryParams, postBody, postBinaryBody, headerParams, formParams, accept, contentType, returnType);
+        return apiClient.invokeAPI(path, CommonConstants.METHOD_GET, queryParams, postBody, postBinaryBody, headerParams, formParams, accept, contentType, returnType);
+
+    }
+
+    /**
+     *
+     * @param name
+     * @return
+     * @throws ApiException
+     */
+    public Role getRolebyName(String name) throws ApiException {
+        Object postBody = null;
+        byte[] postBinaryBody = null;
+
+        if (name == null) {
+            throw new ApiException(400, "Missing the required parameter 'id' when calling getUsingGET6");
+        }
+
+        String path = ROLES_GET_BY_NAME.replaceAll("\\{format\\}", "json")
+                .replaceAll("\\{" + "id" + "\\}", apiClient.escapeString(name.toString()));
+
+        List<Pair> queryParams = new ArrayList<>();
+        Map<String, String> headerParams = new HashMap<>();
+        Map<String, Object> formParams = new HashMap<>();
+
+        queryParams.addAll(apiClient.parameterToPairs("", CommonConstants.FIELD_NAME, name));
+
+        final String[] accepts = {
+            CommonConstants.HEADER_APP_JSON
+        };
+        final String accept = apiClient.selectHeaderAccept(accepts);
+
+        final String[] contentTypes = {
+            CommonConstants.HEADER_APP_JSON
+        };
+        final String contentType = apiClient.selectHeaderContentType(contentTypes);
+
+        TypeRef returnType = new TypeRef<Role>() {
+        };
+        return apiClient.invokeAPI(path, CommonConstants.METHOD_GET, queryParams, postBody, postBinaryBody, headerParams, formParams, accept, contentType, returnType);
 
     }
 
@@ -193,12 +237,13 @@ public class RolesApi extends BaseApi {
             throw new ApiException(400, "Missing the required parameter 'id' when calling getUsingGET6");
         }
 
-        String path = "/roles/{id}".replaceAll("\\{format\\}", "json")
-                .replaceAll("\\{" + "id" + "\\}", apiClient.escapeString(id.toString()));
+        String path = ROLES_GET.replaceAll("\\{format\\}", "json");
 
         List<Pair> queryParams = new ArrayList<>();
         Map<String, String> headerParams = new HashMap<>();
         Map<String, Object> formParams = new HashMap<>();
+
+        queryParams.addAll(apiClient.parameterToPairs("", CommonConstants.FIELD_ID, id));
 
         final String[] accepts = {
             CommonConstants.HEADER_APP_JSON
@@ -232,12 +277,13 @@ public class RolesApi extends BaseApi {
             throw new ApiException(400, "Missing the required parameter 'id' when calling updateUsingPUT5");
         }
 
-        String path = "/roles/{id}".replaceAll("\\{format\\}", "json")
-                .replaceAll("\\{" + "id" + "\\}", apiClient.escapeString(id.toString()));
+        String path = ROLES_UPDATE.replaceAll("\\{format\\}", "json");
 
         List<Pair> queryParams = new ArrayList<>();
         Map<String, String> headerParams = new HashMap<>();
         Map<String, Object> formParams = new HashMap<>();
+
+        queryParams.addAll(apiClient.parameterToPairs("", CommonConstants.FIELD_ID, id));
 
         final String[] accepts = {
             CommonConstants.HEADER_APP_JSON
@@ -269,12 +315,13 @@ public class RolesApi extends BaseApi {
             throw new ApiException(400, "Missing the required parameter 'id' when calling deleteUsingDELETE5");
         }
 
-        String path = "/roles/{id}".replaceAll("\\{format\\}", "json")
-                .replaceAll("\\{" + "id" + "\\}", apiClient.escapeString(id.toString()));
+        String path = ROLES_DELETE.replaceAll("\\{format\\}", "json");
 
         List<Pair> queryParams = new ArrayList<>();
         Map<String, String> headerParams = new HashMap<>();
         Map<String, Object> formParams = new HashMap<>();
+
+        queryParams.addAll(apiClient.parameterToPairs("", CommonConstants.FIELD_ID, id));
 
         final String[] accepts = {
             CommonConstants.HEADER_ALL
@@ -310,13 +357,15 @@ public class RolesApi extends BaseApi {
             throw new ApiException(400, "Missing the required parameter 'permission' when calling addPermissionUsingPOST");
         }
 
-        String path = "/roles/{id}/permissions/{permission}".replaceAll("\\{format\\}", "json")
-                .replaceAll("\\{" + "id" + "\\}", apiClient.escapeString(id.toString()))
-                .replaceAll("\\{" + "permission" + "\\}", apiClient.escapeString(permission));
+        String path = ROLES_ADD_PERMISSION.replaceAll("\\{format\\}", "json");
 
         List<Pair> queryParams = new ArrayList<>();
         Map<String, String> headerParams = new HashMap<>();
         Map<String, Object> formParams = new HashMap<>();
+
+        queryParams.addAll(apiClient.parameterToPairs("", CommonConstants.FIELD_ID, id));
+
+        queryParams.addAll(apiClient.parameterToPairs("", CommonConstants.FIELD_PERMISSION, permission));
 
         final String[] accepts = {
             CommonConstants.HEADER_APP_JSON
@@ -357,14 +406,16 @@ public class RolesApi extends BaseApi {
         }
 
         // create path and map variables
-        String path = "/roles/{id}/permissions/{permission}".replaceAll("\\{format\\}", "json")
-                .replaceAll("\\{" + "id" + "\\}", apiClient.escapeString(id.toString()))
-                .replaceAll("\\{" + "permission" + "\\}", apiClient.escapeString(permission));
+        String path = ROLES_REMOVE_PERMISSION.replaceAll("\\{format\\}", "json");
 
         // query params
         List<Pair> queryParams = new ArrayList<>();
         Map<String, String> headerParams = new HashMap<>();
         Map<String, Object> formParams = new HashMap<>();
+
+        queryParams.addAll(apiClient.parameterToPairs("", CommonConstants.FIELD_ID, id));
+
+        queryParams.addAll(apiClient.parameterToPairs("", CommonConstants.FIELD_PERMISSION, permission));
 
         final String[] accepts = {
             CommonConstants.HEADER_APP_JSON

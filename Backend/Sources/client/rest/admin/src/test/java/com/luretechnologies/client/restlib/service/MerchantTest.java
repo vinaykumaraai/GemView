@@ -36,9 +36,11 @@ import com.luretechnologies.client.restlib.service.model.Merchant;
 import com.luretechnologies.client.restlib.Utils;
 import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.client.restlib.common.CommonConstants;
+import com.luretechnologies.client.restlib.service.model.Organization;
 import com.luretechnologies.client.restlib.service.model.UserSession;
+import org.hamcrest.core.IsInstanceOf;
 import org.junit.Assert;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeNotNull;
 import org.junit.BeforeClass;
@@ -46,265 +48,111 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
-/**
- *
- */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class MerchantTest {
 
     private static RestClientService service;
     private static UserSession userSession;
 
-    /**
-     *
-     */
     @BeforeClass
     public static void createService() {
 
-        service = new RestClientService(Utils.serviceUrl + "/admin/api", Utils.serviceUrl + "/payment/api");
+        service = new RestClientService(Utils.ADMIN_SERVICE_URL, Utils.TMS_SERVICE_URL);
 
         assumeNotNull(service);
 
         try {
             userSession = service.getAuthApi().login(CommonConstants.testStandardUsername, CommonConstants.testStandardPassword);
-            assertTrue("User logged in", userSession != null);
+            assertNotNull("User failed login", userSession);
         } catch (ApiException ex) {
             fail(ex.getResponseBody());
         }
 
     }
 
-//    @Test
-//    public void createMerchant() {
-//        Merchant merchant = new Merchant();
-//        merchant.setName("Testing Merchant for TSYS");
-//        merchant.setDescription("Testing Merchant for TSYS"); 
-//        try {
-//            List<Organization> organizations = service.getOrganizationApi().getOrganizations(1, 1);
-//            if (!organizations.isEmpty()) {
-//                merchant.setParentId(organizations.get(0).getId());
-//            }
-//            merchant = service.getMerchantApi().createMerchant(merchant);
-//            assertThat(merchant, IsInstanceOf.instanceOf(Merchant.class));
-//            assertNotNull(merchant.getEntityId());
-//        } catch (ApiException ex) {
-//            fail(ex.getResponseBody());
-//        }
-//    }
+    @Test
+    public void createAndDeleteMerchant() {
+        Merchant merchant = new Merchant();
+        merchant.setName("Testing Merchant for TSYS");
+        merchant.setDescription("Testing Merchant for TSYS");
+        try {
+            List<Organization> organizations = service.getOrganizationApi().getOrganizations(1, 1);
+            if (!organizations.isEmpty()) {
+                merchant.setParentId(organizations.get(0).getId());
+            }
+            merchant = service.getMerchantApi().createMerchant(merchant);
+            Assert.assertThat(merchant, IsInstanceOf.instanceOf(Merchant.class));
+            assertNotNull(merchant.getEntityId());
+            
+            service.getMerchantApi().deleteMerchant(merchant.getEntityId());
+            //merchant = service.getMerchantApi().getMerchant(merchant.getEntityId());
+           // Assert.assertEquals( merchant, null );
+            
+        } catch (ApiException ex) {
+            fail(ex.getResponseBody());
+        }
+    }
 
-//    @Test
-//    public void editMerchant() {
-//        try {
-//            if (merchantId != null) {
-//                Merchant merchant = service.getMerchant(merchantId);
-//                if (merchant != null) {
-//                    assertEquals("Testing Merchant", merchant.getDescription());
-//                    merchant.setDescription("UPDATED");                   
-//                  
-//                    merchant = service.updateMerchant(merchant.getEntityId(), merchant);
-//                    assertEquals("UPDATED", merchant.getDescription());
-//                }
-//            }
-//        } catch (ApiException ex) {
-//            fail(ex.getResponseBody());
-//        }
-//
-//    }
-//
-//    @Test
-//    public void getMerchant() {
-//        try {
-//            if (merchantId != null) {
-//                Merchant merchant = service.getMerchant(merchantId);
-//                assertNotNull(merchant);
-//            }
-//        } catch (ApiException ex) {
-//            fail(ex.getResponseBody());
-//        }
-//    }
+    @Test
+    public void editMerchant() {
+        try {
+            String merchantId = "MERY0DA74ARN4";
+            Merchant merchant = service.getMerchantApi().getMerchant(merchantId);
+            if (merchant != null) {
+                // Assert.assertEquals("Testing Merchant", merchant.getDescription());
+                merchant.setDescription("UPDATED");
+
+                merchant = service.getMerchantApi().updateMerchant(merchant.getEntityId(), merchant);
+                Assert.assertEquals("UPDATED", merchant.getDescription());
+            }
+        } catch (ApiException ex) {
+            fail(ex.getResponseBody());
+        }
+
+    }
+
+    @Test
+    public void getMerchant() {
+        try {
+            String merchantId = "MERY0DA74ARN4";
+            if (merchantId != null) {
+                Merchant merchant = service.getMerchantApi().getMerchant(merchantId);
+                assertNotNull(merchant);
+                
+            }
+        } catch (ApiException ex) {
+            fail(ex.getResponseBody());
+        }
+    }
 
     @Test
     public void listMerchants() {
         try {
             List<Merchant> merchants = service.getMerchantApi().getMerchants(1, 10);
             Assert.assertNotNull(merchants);
+            for (Merchant temp : merchants) {
+                System.out.println(temp.toString());
+            }
+            
         } catch (ApiException ex) {
             fail(ex.getResponseBody());
         }
 
     }
 
-//    @Test
-//    public void findMerchants() {
-//        try {
-//            List<Merchant> merchants = service.searchMerchants("Testing Merchant", 1, 20);
-//            assertNotNull(merchants);
-//            assertTrue(merchants.size()>0);
-//        } catch (ApiException ex) {
-//            fail(ex.getResponseBody());
-//        }
-//    }
-//    
-//    @Test
-//    public void mAddHostAMerchant() {
-//        try {
-//            if (merchantId!= null){
-//            //Merchant merchant = service.getMerchant(merchantId);
-//                assertNotNull(service.addHostMerchant(merchantId, HostEnum.WORLDPAY_TCMP));
-//            }
-//        } catch (ApiException ex) {
-//            fail(ex.getResponseBody());
-//        }
-//    }
-//    
-//    @Test
-//    public void mAddHostSettingMerchant() {
-//        try {
-//            if (merchantId!= null){
-//            //Merchant merchant = service.getMerchant(merchantId);
-//                MerchantHostSettingValue value = new MerchantHostSettingValue();
-//                value.setDefaultValue("Default");
-//                value.setSetting(MerchantHostSettingEnum.HOST_MERCHANT_NUMBER);
-//                value.setValue("Value");
-//                assertNotNull(service.addHostSettingMerchant(merchantId, HostEnum.WORLDPAY_TCMP, value));
-//            }
-//        } catch (ApiException ex) {
-//            fail(ex.getResponseBody());
-//        }
-//    }
-//    
-//    @Test
-//    public void mEditHostSettingMerchant() {
-//        try {
-//            if (merchantId!= null){
-//            //Merchant merchant = service.getMerchant(merchantId);
-//                MerchantHostSettingValue value = new MerchantHostSettingValue();
-//                value.setDefaultValue("DefaultUpdate");
-//                value.setSetting(MerchantHostSettingEnum.HOST_MERCHANT_NUMBER);
-//                value.setValue("ValueUpdate");
-//                assertNotNull(service.updateHostSettingMerchant(HostEnum.WORLDPAY_TCMP, merchantId, value));
-//            }
-//        } catch (ApiException ex) {
-//            fail(ex.getResponseBody());
-//        }
-//    }
-//    
-//    @Test
-//    public void listAvailableHostsMerchant() {
-//        try {
-//            //Merchant merchant = service.getMerchant(id);            
-//            if (merchantId!= null){
-//                assertNotNull(service.listAvailableHostsMerchant(merchantId));
-//            }
-//        } catch (ApiException ex) {
-//            fail(ex.getResponseBody());
-//        }
-//    }
-//    
-//    @Test
-//    public void listHostSettingsMerchant() {
-//        try {
-//            //Merchant merchant = service.getMerchant(id);      
-//            if (merchantId!= null){
-//                assertNotNull(service.listHostSettingsMerchant(merchantId, HostEnum.WORLDPAY_TCMP));
-//            }
-//        } catch (ApiException ex) {
-//            fail(ex.getResponseBody());
-//        }
-//    }
-//    
-//    @Test
-//    public void mAddSettingMerchant() {
-//        try {
-//            if (merchantId!= null){
-//            //Merchant merchant = service.getMerchant(merchantId);
-//                MerchantSettingValue value = new MerchantSettingValue();
-//                value.setDefaultValue("Default");
-//                value.setMerchantSetting(MerchantSettingEnum.GRATUITY_RATE_1);
-//                value.setMerchantSettingGroup(MerchantSettingGroupEnum.DEFAULT);
-//                value.setValue("Value");
-//                assertNotNull(service.addSettingMerchant(merchantId, value));
-//            }
-//        } catch (ApiException ex) {
-//            fail(ex.getResponseBody());
-//        }
-//    }
-//    
-//    @Test
-//    public void mEditSettingMerchant() {
-//        try {
-//            if (merchantId!= null){
-//            //Merchant merchant = service.getMerchant(merchantId);
-//                MerchantSettingValue value = new MerchantSettingValue();
-//                value.setDefaultValue("DefaultUpdate");
-//                value.setMerchantSetting(MerchantSettingEnum.GRATUITY_RATE_1);
-//                value.setMerchantSettingGroup(MerchantSettingGroupEnum.DEFAULT);
-//                value.setValue("ValueUpdate");
-//                assertNotNull(service.updateSettingMerchant(merchantId, value));
-//            }
-//        } catch (ApiException ex) {
-//            fail(ex.getResponseBody());
-//        }
-//    }
-//    
-//    @Test
-//    public void listAvailableSettingsMerchant() {
-//        try {
-//            if (merchantId!= null){
-//                assertNotNull(service.listAvailableSettingsMerchant(merchantId));
-//            }
-//        } catch (ApiException ex) {
-//            fail(ex.getResponseBody());
-//        }
-//    }
-//    
-//    @Test
-//    public void removeHostASettingMerchant() {
-//        try {
-//            if (merchantId!= null){
-//                service.deleteHostSettingMerchant(merchantId, HostEnum.WORLDPAY_TCMP, MerchantHostSettingEnum.HOST_MERCHANT_NUMBER);
-//            }
-//        } catch (ApiException ex) {
-//            fail(ex.getResponseBody());
-//        }
-//    }
-//    
-//    @Test
-//    public void removeASettingMerchant() {
-//        try {
-//            if (merchantId!= null){
-//                service.deleteSettingMerchant(merchantId, MerchantSettingEnum.GRATUITY_RATE_1);
-//            }
-//        } catch (ApiException ex) {
-//            fail(ex.getResponseBody());
-//        }
-//    }
-//    
-//    @Test
-//    public void removeHostMerchant() {
-//        try {
-//            //Merchant merchant = service.getMerchant(id);
-//            if (merchantId!= null){
-//                service.deleteHostMerchant(merchantId, HostEnum.WORLDPAY_TCMP);
-//            }
-//        } catch (ApiException ex) {
-//            fail(ex.getResponseBody());
-//        }
-//    }
-//
-//    @Test
-//    public void removeMerchant() {
-//        try {
-//            if (merchantId != null) {
-//                Merchant merchant = service.getMerchant(merchantId);
-//                if (merchant != null) {
-//                    assertEquals("Testing Merchant", merchant.getName());
-//                    service.deleteMerchant(merchant.getEntityId());
-//                }
-//            }
-//        } catch (ApiException ex) {
-//            fail(ex.getResponseBody());
-//        }
-//    }
+    @Test
+    public void findMerchants() {
+        try {
+            List<Merchant> merchants = service.getMerchantApi().searchMerchants("Testing Merchant", 1, 20);
+            assertNotNull(merchants);
+            Assert.assertTrue(merchants.size() > 0);
+            for (Merchant temp : merchants) {
+                System.out.println(temp.toString());
+            }
+            
+        } catch (ApiException ex) {
+            fail(ex.getResponseBody());
+        }
+    }
 
 }

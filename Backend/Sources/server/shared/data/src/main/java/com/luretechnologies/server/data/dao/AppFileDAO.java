@@ -43,10 +43,11 @@ public interface AppFileDAO extends BaseDAO<AppFile, Long> {
     
     /**
      *
-     * @param ID
+     * @param firstResult
+     * @param lastResult
      * @return
      */
-    public List<AppFile> getAppFileList(List<Long> ID)throws PersistenceException;
+    public List<AppFile> getAppFileList(int firstResult, int lastResult)throws PersistenceException;
     
     public AppFile getAppFileByID(Long ID)throws PersistenceException;
     

@@ -58,10 +58,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserDAOImpl extends BaseDAOImpl<User, Long> implements UserDAO {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserDAO.class);
+    private static final String SUPER_ADMIN = "super";
 
     @Autowired
     EntityDAO entityDAO;
-    
+
     @Override
     protected Root getRoot(CriteriaQuery cq) {
 
@@ -77,6 +78,9 @@ public class UserDAOImpl extends BaseDAOImpl<User, Long> implements UserDAO {
         try {
             CriteriaQuery<User> cq = criteriaQuery();
             Root<User> root = getRoot(cq);
+            if (userId.equals(1)) {
+                return null;
+            }
 
             return (User) query(cq.where(criteriaBuilder().equal(root.get("id"), userId))).getSingleResult();
         } catch (NoResultException e) {
@@ -84,13 +88,16 @@ public class UserDAOImpl extends BaseDAOImpl<User, Long> implements UserDAO {
             return null;
         }
     }
-    
+
     @Override
     public User getByUserName(String username) throws PersistenceException {
         try {
             CriteriaQuery<User> cq = criteriaQuery();
             Root<User> root = getRoot(cq);
 
+            if (username.equals(SUPER_ADMIN)) {
+                return null;
+            }
             return (User) query(cq.where(criteriaBuilder().like(root.<String>get("username"), username))).getSingleResult();
         } catch (NoResultException e) {
             LOGGER.info("User not found. username: " + username, e);
@@ -104,36 +111,60 @@ public class UserDAOImpl extends BaseDAOImpl<User, Long> implements UserDAO {
         try {
             CriteriaQuery<User> cq = criteriaQuery();
             Root<User> root = getRoot(cq);
-
+            if (username.equals(SUPER_ADMIN)) {
+                return null;
+            }
             return (User) query(cq.where(criteriaBuilder().equal(root.get("username"), username))).getSingleResult();
         } catch (NoResultException e) {
             LOGGER.info("User not found. userName: " + username, e);
             return null;
         }
     }
-    
+
     @Override
     public List<User> list(Entity entity) throws PersistenceException {
 
         CriteriaQuery<User> cq = criteriaQuery();
         Root<User> root = getRoot(cq);
 
-        List<Predicate> predicates = wherePredicate(root, entity);
-        cq.where(criteriaBuilder().and(predicates.toArray(new Predicate[predicates.size()])));
+        Predicate predicate = criteriaBuilder().conjunction();
+
+        if (entity != null) {
+            predicate.getExpressions().add(criteriaBuilder().equal(root.<Long>get("entity"), entity.getId()));
+        }
+
+        predicate.getExpressions().add(criteriaBuilder().equal(root.<Boolean>get("available"), true));
+
+        predicate.getExpressions().add(criteriaBuilder().equal(root.<Boolean>get("active"), true));
+
+        predicate.getExpressions().add(criteriaBuilder().notLike(criteriaBuilder().upper((Expression) root.get("username")), SUPER_ADMIN));
+
+        cq.where(predicate).orderBy(criteriaBuilder().asc(root.get("lastName")));
 
         return query(cq).getResultList();
     }
 
     @Override
     public List<User> list(Entity entity, int firstResult, int lastResult) throws PersistenceException {
-
         CriteriaQuery<User> cq = criteriaQuery();
         Root<User> root = getRoot(cq);
 
-        List<Predicate> predicates = wherePredicate(root, entity);
-        cq.where(criteriaBuilder().and(predicates.toArray(new Predicate[predicates.size()])));
+        Predicate predicate = criteriaBuilder().conjunction();
+
+        if (entity != null) {
+            predicate.getExpressions().add(criteriaBuilder().equal(root.<Long>get("entity"), entity.getId()));
+        }
+
+        predicate.getExpressions().add(criteriaBuilder().equal(root.<Boolean>get("available"), true));
+
+        predicate.getExpressions().add(criteriaBuilder().equal(root.<Boolean>get("active"), true));
+
+        predicate.getExpressions().add(criteriaBuilder().notLike(criteriaBuilder().upper((Expression) root.get("username")), SUPER_ADMIN));
+
+        cq.where(predicate).orderBy(criteriaBuilder().asc(root.get("lastName")));
 
         return query(cq).setFirstResult(firstResult).setMaxResults(lastResult).getResultList();
+
     }
 
     @Override
@@ -142,15 +173,26 @@ public class UserDAOImpl extends BaseDAOImpl<User, Long> implements UserDAO {
             CriteriaQuery<User> cq = criteriaQuery();
             Root<User> root = getRoot(cq);
 
-            Predicate filterPredicate = criteriaBuilder().or(
-                    criteriaBuilder().like(criteriaBuilder().upper((Expression) root.get("username")), "%" + filter.toUpperCase() + "%"),
-                    criteriaBuilder().like(criteriaBuilder().upper((Expression) root.get("firstName")), "%" + filter.toUpperCase() + "%"),
-                    criteriaBuilder().like(criteriaBuilder().upper((Expression) root.get("lastName")), "%" + filter.toUpperCase() + "%"));
+            Predicate predicate = criteriaBuilder().conjunction();
 
-            List<Predicate> wherePredicate = wherePredicate(root, entity);
-            wherePredicate.add(filterPredicate);
+            if (filter != null && !filter.isEmpty()) {
+                predicate.getExpressions().add(criteriaBuilder().or(
+                        criteriaBuilder().like(criteriaBuilder().upper((Expression) root.get("username")), "%" + filter.toUpperCase() + "%"),
+                        criteriaBuilder().like(criteriaBuilder().upper((Expression) root.get("firstName")), "%" + filter.toUpperCase() + "%"),
+                        criteriaBuilder().like(criteriaBuilder().upper((Expression) root.get("lastName")), "%" + filter.toUpperCase() + "%")));
+            }
 
-            cq.where(criteriaBuilder().and(wherePredicate.toArray(new Predicate[wherePredicate.size()])));
+            if (entity != null) {
+                predicate.getExpressions().add(criteriaBuilder().equal(root.<Long>get("entity"), entity.getId()));
+            }
+
+            predicate.getExpressions().add(criteriaBuilder().equal(root.<Boolean>get("available"), true));
+
+            predicate.getExpressions().add(criteriaBuilder().equal(root.<Boolean>get("active"), true));
+
+            predicate.getExpressions().add(criteriaBuilder().notLike(criteriaBuilder().upper((Expression) root.get("username")), SUPER_ADMIN));
+
+            cq.where(predicate).orderBy(criteriaBuilder().asc(root.get("lastName")));
 
             return query(cq).setFirstResult(firstResult).setMaxResults(lastResult).getResultList();
 
@@ -161,41 +203,33 @@ public class UserDAOImpl extends BaseDAOImpl<User, Long> implements UserDAO {
     }
 
     @Override
-    public List<User> list(Entity entity, String username, String firstname, String lastname, Boolean active, int firstResult, int lastResult) throws PersistenceException {
+    public List<User> list(Entity entity, String name, Boolean available, int firstResult, int lastResult) throws PersistenceException {
         try {
-
             CriteriaQuery<User> cq = criteriaQuery();
             Root<User> root = getRoot(cq);
-            Predicate filterPredicate = null;
 
-            if (username != null) {
-                filterPredicate = criteriaBuilder().and(criteriaBuilder().equal(root.get("username"), username));
-            }
-            if (firstname != null) {
-                if (filterPredicate != null) {
-                    filterPredicate.getExpressions().add(criteriaBuilder().equal(root.get("firstName"), firstname));
-                } else {
-                    filterPredicate = criteriaBuilder().equal(root.get("firstName"), firstname);
-                }
-            }
-            if (lastname != null) {
-                if (filterPredicate != null) {
-                    filterPredicate.getExpressions().add(criteriaBuilder().equal(root.get("lastName"), lastname));
-                } else {
-                    filterPredicate = criteriaBuilder().equal(root.get("lastName"), lastname);
-                }
-            }
-            if (active != null) {
-                if (filterPredicate != null) {
-                    filterPredicate.getExpressions().add(criteriaBuilder().equal(root.get("active"), active));
-                } else {
-                    filterPredicate = criteriaBuilder().equal(root.get("active"), active);
-                }
+            Predicate predicate = criteriaBuilder().conjunction();
+
+            if (name != null && !name.isEmpty()) {
+                predicate.getExpressions().add(criteriaBuilder().or(
+                        criteriaBuilder().like(criteriaBuilder().upper((Expression) root.get("username")), "%" + name.toUpperCase() + "%"),
+                        criteriaBuilder().like(criteriaBuilder().upper((Expression) root.get("firstName")), "%" + name.toUpperCase() + "%"),
+                        criteriaBuilder().like(criteriaBuilder().upper((Expression) root.get("lastName")), "%" + name.toUpperCase() + "%")));
             }
 
-            List<Predicate> wherePredicate = wherePredicate(root, entity);
-            wherePredicate.add(filterPredicate);
-            cq.where(criteriaBuilder().and(wherePredicate.toArray(new Predicate[wherePredicate.size()])));
+            if (entity != null) {
+                predicate.getExpressions().add(criteriaBuilder().equal(root.<Long>get("entity"), entity.getId()));
+            }
+
+            if (available != null) {
+                predicate.getExpressions().add(criteriaBuilder().equal(root.<Boolean>get("available"), available));
+            }
+
+            predicate.getExpressions().add(criteriaBuilder().notLike(criteriaBuilder().upper((Expression) root.get("username")), SUPER_ADMIN));
+
+            predicate.getExpressions().add(criteriaBuilder().equal(root.<Boolean>get("active"), true));
+
+            cq.where(predicate).orderBy(criteriaBuilder().asc(root.get("lastName")));
 
             return query(cq).setFirstResult(firstResult).setMaxResults(lastResult).getResultList();
 
@@ -227,23 +261,35 @@ public class UserDAOImpl extends BaseDAOImpl<User, Long> implements UserDAO {
             return null;
         }
     }
-    
+
     private List<Predicate> wherePredicate(Root root, Entity entity) {
         List<Predicate> wherePredicate = new ArrayList<>();
         Predicate entPredicate = criteriaBuilder().disjunction();
-                
+
         entPredicate.getExpressions().add(criteriaBuilder().equal(root.get("entity").<Long>get("id"), entity.getId()));
         entPredicate.getExpressions().add(criteriaBuilder().like(root.get("entity").<String>get("path"), "%-" + String.valueOf(entity.getId()) + "-%"));
         wherePredicate.add(entPredicate);
-        
+
         Expression<String> roleName = criteriaBuilder().upper((Expression) root.get("role").get("name"));
         wherePredicate.add(criteriaBuilder().and(criteriaBuilder().notLike(roleName, "%" + Role.SUPER_ADMIN + "%")));
-        
+
         return wherePredicate;
     }
-    
+
+    /**
+     *
+     * @param emailId
+     * @return
+     */
+    @Override
     public User findUserByEmailId(String emailId) {
-        System.out.println("email id ..." + emailId);
-        return (User) findByProperty("email", emailId).getSingleResult();
+        try {
+            CriteriaQuery<User> cq = criteriaQuery();
+            Root<User> root = getRoot(cq);
+            return (User) query(cq.where(criteriaBuilder().equal(root.get("email"), emailId))).getSingleResult();
+        } catch (NoResultException e) {
+            LOGGER.info("User not found. emai: " + emailId, e);
+            return null;
+        }
     }
 }

@@ -12,13 +12,9 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
-/**
- *
- * @author carlos
- */
 public class StringUtilsTest {
 
     String xml1 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -72,7 +68,6 @@ public class StringUtilsTest {
         fields.add(new MaskItem("postalCode", 0, 0));
         fields.add(new MaskItem("cardPan", 6, 4));
         fields.add(new MaskItem("trackData", 5, 1));
-
         String result = maskXmlFields(xml1, fields);
         System.out.println(result);
     }

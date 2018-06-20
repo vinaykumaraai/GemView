@@ -137,6 +137,9 @@ public class MerchantDAOImpl extends BaseDAOImpl<Merchant, Long> implements Merc
             } else {
                 wherePredicate = wherePredicate(root, entity);
             }
+            
+            wherePredicate.add(criteriaBuilder().equal(root.<Boolean>get("active"), true));
+            
             cq.where(criteriaBuilder().and(wherePredicate.toArray(new Predicate[wherePredicate.size()])));
 
             return query(cq).setFirstResult(firstResult).setMaxResults(lastResult).getResultList();
@@ -163,6 +166,8 @@ public class MerchantDAOImpl extends BaseDAOImpl<Merchant, Long> implements Merc
             Expression<String> upperName = criteriaBuilder().upper((Expression) root.get("name"));
             Expression<String> upperDescription = criteriaBuilder().upper((Expression) root.get("description"));
             Predicate filterPredicate = criteriaBuilder().or(criteriaBuilder().like(upperName, "%" + filter.toUpperCase() + "%"), criteriaBuilder().like(upperDescription, "%" + filter.toUpperCase() + "%"));
+            
+            wherePredicate.add(criteriaBuilder().equal(root.<Boolean>get("active"), true));
             wherePredicate.add(filterPredicate);
 
             cq.where(criteriaBuilder().and(wherePredicate.toArray(new Predicate[wherePredicate.size()])));

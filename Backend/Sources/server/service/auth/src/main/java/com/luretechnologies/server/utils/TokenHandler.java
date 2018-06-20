@@ -63,27 +63,31 @@ public class TokenHandler {
     /**
      *
      * @param user
+     * @param accessIP
      * @param audience
      * @return
      * @throws ExpiredJwtException
      * @throws MalformedJwtException
      * @throws SignatureException
      */
-    public String createTokenForUser(User user, String audience) throws ExpiredJwtException, MalformedJwtException, SignatureException {
+    public String createTokenForUser(User user, String accessIP, String audience) throws ExpiredJwtException, MalformedJwtException, SignatureException {
 
         JwtBuilder builder = Jwts.builder()
+                .setId(user.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setSubject(user.getUsername())
+                .setSubject(accessIP)
                 .setAudience(audience)
                 .signWith(SignatureAlgorithm.HS512, secret_key)
-                .setExpiration(new Date(Utils.fromNow(Utils.USER_SESSION_TIME_LIMIT)));
+                .setExpiration(new Date(Utils.fromNow(Utils.USER_SESSION_TIME_LIMIT)))
+                .claim("Timestamp", System.currentTimeMillis());
 
         //Builds the JWT and serializes it to a compact, URL-safe string
         String token = builder.compact();
 
         logger.info("--------------------------------------------------------");
         logger.info("GENERATING TOKEN: " + token);
-        logger.info("SUBJECT: " + user.getUsername());
+        logger.info("ID: " + user.getUsername());
+        logger.info("SUBJECT: " + accessIP);
         logger.info("AUDIENCE: " + audience);
         logger.info("--------------------------------------------------------");
 
@@ -106,23 +110,26 @@ public class TokenHandler {
                 .parseClaimsJws(token).getBody();
 
         JwtBuilder builder = Jwts.builder()
+                .setId(claims.getId())
                 .setIssuedAt(claims.getIssuedAt())
                 .setSubject(claims.getSubject())
                 .setAudience(audience)
                 .signWith(SignatureAlgorithm.HS512, secret_key)
-                .setExpiration(new Date(Utils.fromNow(Utils.USER_SESSION_TIME_LIMIT)));
+                .setExpiration(new Date(Utils.fromNow(Utils.USER_SESSION_TIME_LIMIT)))
+                .claim("Timestamp", System.currentTimeMillis());
 
         //Builds the JWT and serializes it to a compact, URL-safe string
         String newToken = builder.compact();
 
-        logger.info("r--------------------------------------------------------");
-        logger.info("SUBJECT: " + claims.getSubject());
+        logger.info("--------------------------------------------------------");
         logger.info("REFRESHING TOKEN: (old) --> " + token);
+        logger.info("ID: " + claims.getId());
         logger.info("AUDIENCE: (old) --> " + claims.getAudience());
         logger.info("--------------");
         logger.info("REFRESHING TOKEN: (new) --> " + newToken);
+        logger.info("ID: " + claims.getId());
         logger.info("AUDIENCE: (new) --> " + audience);
-        logger.info("r--------------------------------------------------------");
+        logger.info("--------------------------------------------------------");
 
         return newToken;
     }
@@ -183,7 +190,7 @@ public class TokenHandler {
                 .setSigningKey(secret_key)
                 .parseClaimsJws(token)
                 .getBody()
-                .getSubject();
+                .getId();
         return username;
     }
 
@@ -218,14 +225,29 @@ public class TokenHandler {
 
         logger.info("--------------------------------------------------------");
         logger.info("AUTHORIZING TOKEN: " + token);
+        logger.info("ID: " + claims.getId());
         logger.info("SUBJECT: " + claims.getSubject());
         logger.info("AUDIENCE: " + claims.getAudience());
         logger.info("ISSUED_AT: " + claims.getIssuedAt());
         logger.info("EXPIRATION: " + claims.getExpiration());
         logger.info("--------------------------------------------------------");
 
-        String username = claims.getSubject();
+        String username = claims.getId();
         return userAuthService.loadUserByUsername(username);
+    }
 
+    /**
+     *
+     * @param token
+     * @return
+     * @throws SignatureException
+     */
+    public String getAccessIPFromToken(String token) throws ExpiredJwtException, MalformedJwtException, SignatureException {
+        String accessIP = Jwts.parser()
+                .setSigningKey(secret_key)
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
+        return accessIP;
     }
 }

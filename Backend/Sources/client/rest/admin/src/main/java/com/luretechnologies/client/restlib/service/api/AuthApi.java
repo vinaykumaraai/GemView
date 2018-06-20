@@ -34,7 +34,9 @@ import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.client.restlib.common.CommonConstants;
 import com.luretechnologies.client.restlib.common.Pair;
 import com.luretechnologies.client.restlib.common.TypeRef;
+import com.luretechnologies.client.restlib.service.model.LoginRequest;
 import com.luretechnologies.client.restlib.service.model.LoginResponse;
+import com.luretechnologies.client.restlib.service.model.PasswordUpdate;
 import com.luretechnologies.client.restlib.service.model.UserSession;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,10 +48,13 @@ import javax.annotation.Generated;
 public class AuthApi extends BaseApi {
 
     private static final String METHOD_LOGIN = "/auth/login";
-    private static final String METHOD_LOGOUT = "/auth/logout";
+    private static final String METHOD_LOGIN_EX = "/auth/loginEx";
+    private static final String METHOD_LOGOUT = "/auth/userlogout";
     private static final String METHOD_FORGOT_PASSWORD = "/auth/forgotPassword";
     private static final String METHOD_FORGOT_USERNAME = "/auth/forgotUsername";
+    private static final String METHOD_RESEND_CODE = "/auth/resendCode";
     private static final String METHOD_UPDATE_PASSWORD = "/auth/updatePassword";
+    private static final String METHOD_UPDATE_PASSWORD_EX = "/auth/updatePasswordEx";
     private static final String METHOD_VERIFY_CODE = "/auth/verifyCode";
 
     /**
@@ -113,6 +118,56 @@ public class AuthApi extends BaseApi {
     }
 
     /**
+     * Login user Logs user into the system
+     *
+     * @param username Username
+     * @param password Password
+     * @return the user session
+     * @throws com.luretechnologies.client.restlib.common.ApiException
+     */
+    public UserSession loginEx(String username, String password) throws ApiException {
+
+        Object postBody = new LoginRequest(username, password);
+        byte[] postBinaryBody = null;
+
+        if (username == null) {
+            throw new ApiException(400, "Missing the required parameter 'username' when calling loginEx");
+        }
+
+        if (password == null) {
+            throw new ApiException(400, "Missing the required parameter 'password' when calling loginEx");
+        }
+
+        String path = METHOD_LOGIN_EX.replaceAll("\\{format\\}", "json");
+
+        List<Pair> queryParams = new ArrayList<>();
+        Map<String, String> headerParams = new HashMap<>();
+        Map<String, Object> formParams = new HashMap<>();
+
+        final String[] accepts = {
+            CommonConstants.HEADER_APP_JSON
+        };
+        final String accept = apiClient.selectHeaderAccept(accepts);
+
+        final String[] contentTypes = {
+            CommonConstants.HEADER_APP_JSON
+        };
+
+        final String contentType = apiClient.selectHeaderContentType(contentTypes);
+
+        TypeRef returnType = new TypeRef<LoginResponse>() {
+        };
+
+        LoginResponse loginResponse = apiClient.invokeAPI(path, CommonConstants.METHOD_POST, queryParams, postBody, postBinaryBody, headerParams, formParams, accept, contentType, returnType);
+
+        if (loginResponse == null || !apiClient.hasAuthToken()) {
+            throw new ApiException(401, "Authentication failed.");
+        }
+
+        return new UserSession(loginResponse);
+    }
+
+    /**
      * Resets password and sends email with temporary password
      *
      * @param email User email
@@ -124,7 +179,7 @@ public class AuthApi extends BaseApi {
         byte[] postBinaryBody = null;
 
         if (email == null) {
-            throw new ApiException(400, "Missing the required parameter 'emailId' when calling forgotPassword");
+            throw new ApiException(400, "Missing the required parameter 'emailAddress' when calling forgotPassword");
         }
 
         String path = METHOD_FORGOT_PASSWORD.replaceAll("\\{format\\}", "json");
@@ -170,6 +225,35 @@ public class AuthApi extends BaseApi {
         Map<String, Object> formParams = new HashMap<>();
 
         queryParams.addAll(apiClient.parameterToPairs("", CommonConstants.FIELD_EMAIL, email));
+
+        final String[] accepts = {
+            CommonConstants.HEADER_APP_JSON
+        };
+        final String accept = apiClient.selectHeaderAccept(accepts);
+
+        final String[] contentTypes = {
+            CommonConstants.HEADER_APP_URLENCODED
+        };
+        final String contentType = apiClient.selectHeaderContentType(contentTypes);
+
+        apiClient.invokeAPI(path, CommonConstants.METHOD_POST, queryParams, postBody, postBinaryBody, headerParams, formParams, accept, contentType, null);
+    }
+
+    /**
+     * Resends verification code to user
+     *
+     * @throws com.luretechnologies.client.restlib.common.ApiException
+     */
+    public void resendCode() throws ApiException {
+
+        Object postBody = null;
+        byte[] postBinaryBody = null;
+
+        String path = METHOD_RESEND_CODE.replaceAll("\\{format\\}", "json");
+
+        List<Pair> queryParams = new ArrayList<>();
+        Map<String, String> headerParams = new HashMap<>();
+        Map<String, Object> formParams = new HashMap<>();
 
         final String[] accepts = {
             CommonConstants.HEADER_APP_JSON
@@ -270,6 +354,50 @@ public class AuthApi extends BaseApi {
     /**
      * Updates current password
      *
+     * @param email
+     * @param currentPassword
+     * @param newPassword
+     * @throws com.luretechnologies.client.restlib.common.ApiException
+     */
+    public void updatePasswordEx(String email, String currentPassword, String newPassword) throws ApiException {
+
+        Object postBody = new PasswordUpdate(email, currentPassword, newPassword);
+        byte[] postBinaryBody = null;
+
+        if (email == null) {
+            throw new ApiException(400, "Missing the required parameter 'email' when calling updatePassword");
+        }
+
+        if (currentPassword == null) {
+            throw new ApiException(400, "Missing the required parameter 'currentPassword' when calling updatePassword");
+        }
+
+        if (newPassword == null) {
+            throw new ApiException(400, "Missing the required parameter 'newPassword' when calling updatePassword");
+        }
+
+        String path = METHOD_UPDATE_PASSWORD_EX.replaceAll("\\{format\\}", "json");
+
+        List<Pair> queryParams = new ArrayList<>();
+        Map<String, String> headerParams = new HashMap<>();
+        Map<String, Object> formParams = new HashMap<>();
+
+        final String[] accepts = {
+            CommonConstants.HEADER_APP_JSON
+        };
+        final String accept = apiClient.selectHeaderAccept(accepts);
+
+        final String[] contentTypes = {
+            CommonConstants.HEADER_APP_JSON
+        };
+        final String contentType = apiClient.selectHeaderContentType(contentTypes);
+
+        apiClient.invokeAPI(path, CommonConstants.METHOD_POST, queryParams, postBody, postBinaryBody, headerParams, formParams, accept, contentType, null);
+    }
+
+    /**
+     * Updates current password
+     *
      * @throws com.luretechnologies.client.restlib.common.ApiException
      */
     public void logout() throws ApiException {
@@ -293,6 +421,6 @@ public class AuthApi extends BaseApi {
         };
         final String contentType = apiClient.selectHeaderContentType(contentTypes);
 
-        apiClient.invokeAPI(path, CommonConstants.METHOD_PUT, queryParams, postBody, postBinaryBody, headerParams, formParams, accept, contentType, null);
+        apiClient.invokeAPI(path, CommonConstants.METHOD_POST, queryParams, postBody, postBinaryBody, headerParams, formParams, accept, contentType, null);
     }
 }

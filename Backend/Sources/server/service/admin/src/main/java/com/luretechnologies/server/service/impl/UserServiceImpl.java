@@ -32,23 +32,28 @@
 package com.luretechnologies.server.service.impl;
 
 import com.luretechnologies.common.Constants;
+import com.luretechnologies.common.enums.TwoFactorFreqEnum;
 import com.luretechnologies.server.common.Messages;
 import com.luretechnologies.server.common.utils.Utils;
 import com.luretechnologies.server.common.utils.exceptions.CustomException;
 import com.luretechnologies.server.data.dao.EntityDAO;
+import com.luretechnologies.server.data.dao.RoleDAO;
 import com.luretechnologies.server.data.dao.UserDAO;
 import com.luretechnologies.server.data.dao.UserLastPasswordDAO;
 import com.luretechnologies.server.data.model.Entity;
+import com.luretechnologies.server.data.model.Role;
 import com.luretechnologies.server.data.model.User;
 import com.luretechnologies.server.data.model.UserLastPassword;
 import com.luretechnologies.server.data.model.tms.Email;
 import com.luretechnologies.server.jms.utils.CorrelationIdPostProcessor;
 import com.luretechnologies.server.service.UserService;
 import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.persistence.PersistenceException;
-import org.springframework.beans.BeanUtils;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -71,6 +76,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserLastPasswordDAO userLastPasswordDAO;
+
+    @Autowired
+    private RoleDAO roleDAO;
 
     @Autowired
     @Qualifier("jmsEmailTemplate")
@@ -123,6 +131,19 @@ public class UserServiceImpl implements UserService {
         String tempPassword = Utils.generatePassword(PASSWORD_MIN_LEN);
         user.setPassword(Utils.encryptPassword(tempPassword));
         user.setLogoutTime(new Timestamp(System.currentTimeMillis()));
+
+        DateFormat format = new SimpleDateFormat("yyyyMMdd");
+        Date date = format.parse("19800101");
+        user.setTwoFactorAt(new Timestamp(date.getTime()));
+        user.setTwoFactorFrequency(TwoFactorFreqEnum.OFF);
+        user.setActive(true);
+
+        if (user.getAvailable() == null) {
+            user.setAvailable(true);
+        }
+        if (user.getPasswordFrequency() == null || user.getPasswordFrequency() > 0) {
+            user.setPasswordFrequency(30); // 30 days
+        }
         userDAO.persist(user);
 
         sendTemporaryPassword(user, tempPassword);
@@ -218,8 +239,30 @@ public class UserServiceImpl implements UserService {
         }
 
         // Copy properties from -> to
-        BeanUtils.copyProperties(user, existentUser);
+        //BeanUtils.copyProperties(user, existentUser);
+        existentUser.setAssignedIP(user.getAssignedIP());
+        if (user.getAvailable() != null) {
+            existentUser.setAvailable(user.getAvailable());
+        }
+        existentUser.setFirstName(user.getFirstName());
+        existentUser.setLastName(user.getLastName());
+        existentUser.setLastAccessIP(user.getLastAccessIP());
+        // update user Role
+        if (user.getRole() != null && existentUser.getRole().getId() != user.getRole().getId()) {
+            try {
+                Role role = roleDAO.findById(user.getRole().getId());
+                if (role != null) {
+                    existentUser.setRole(role);
+                }
+            } catch (Exception ex) {
+                ex.getMessage();
+            }
+        }
+        if (user.getPasswordFrequency() != null && user.getPasswordFrequency() > 0) {
+            existentUser.setPasswordFrequency(user.getPasswordFrequency()); // 30 days
+        }
 
+        existentUser.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
         try {
             User user2 = userDAO.merge(existentUser);
             return user2;
@@ -236,13 +279,16 @@ public class UserServiceImpl implements UserService {
     @Override
     public void delete(long id) throws Exception {
         User user = userDAO.findById(id);
-
         // Do not let delete the Admin user
         if (user.getId() == userDAO.getFirstResult().getId()) {
             throw new CustomException(Constants.CODE_CANNOT_BE_DELETED, Messages.CANNOT_BE_DELETED);
         }
-
-        userDAO.delete(user.getId());
+        if (user.getActive() == true) {
+            user.setActive(false);
+            user.setUsername(user.getUsername() + "_" + Long.toString(System.currentTimeMillis()));
+            user.setEmail(Long.toString(System.currentTimeMillis()) + "_" + user.getEmail());
+            userDAO.merge(user);
+        }
     }
 
     /**
@@ -277,8 +323,8 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public List<User> list(Entity entity, int pageNumber, int rowsPerPage) throws Exception {
-        int firstResult = (pageNumber - 1) * rowsPerPage;
-        return userDAO.list(entity, firstResult, rowsPerPage);
+        int firstResult = (((pageNumber - 1) >= 0) ? (pageNumber - 1) : 0) * rowsPerPage;
+        return userDAO.list(entity, firstResult, firstResult + rowsPerPage);
     }
 
     /**
@@ -303,8 +349,8 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public List<User> search(Entity entity, String filter, int pageNumber, int rowsPerPage) throws Exception {
-        int firstResult = (pageNumber - 1) * rowsPerPage;
-        return userDAO.search(entity, filter, firstResult, rowsPerPage);
+        int firstResult = (((pageNumber - 1) >= 0) ? (pageNumber - 1) : 0) * rowsPerPage;
+        return userDAO.search(entity, filter, firstResult, firstResult + rowsPerPage);
     }
 
     /**
@@ -323,25 +369,17 @@ public class UserServiceImpl implements UserService {
     /**
      *
      * @param entity
-     * @param username
-     * @param firstname
-     * @param lastname
-     * @param active
+     * @param name
+     * @param available
      * @param pageNumber
      * @param rowsPerPage
      * @return
      * @throws Exception
      */
     @Override
-    public List<User> list(Entity entity, String username, String firstname, String lastname, Boolean active, int pageNumber, int rowsPerPage) throws Exception {
-
-        int firstResult = (pageNumber - 1) * rowsPerPage;
-        if (username == null && firstname == null && lastname == null && active == null) {
-
-            return userDAO.list(entity, firstResult, rowsPerPage);
-        } else {
-            return userDAO.list(entity, username, firstname, lastname, active, firstResult, rowsPerPage);
-        }
+    public List<User> list(Entity entity, String name, Boolean available, int pageNumber, int rowsPerPage) throws Exception {
+        int firstResult = (((pageNumber - 1) >= 0) ? (pageNumber - 1) : 0) * rowsPerPage;
+        return userDAO.list(entity, name, available, firstResult, firstResult + rowsPerPage);
     }
 
     /**
@@ -433,8 +471,8 @@ public class UserServiceImpl implements UserService {
         if (!updateUser.getPassword().equalsIgnoreCase(Utils.encryptPassword(tempPassword))) {
             throw new Exception("Failed to authenticate.");
         } else {
-            user.setPassword(newPassword);
-            return update(updateUser.getId(), user);
+            updateUser.setPassword(newPassword);
+            return update(updateUser.getId(), updateUser);
         }
     }
 }

@@ -6,7 +6,6 @@
 package com.luretechnologies.client.restlib.service.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.luretechnologies.common.enums.ModeEnum;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import javax.annotation.Generated;
@@ -46,7 +45,7 @@ public class MerchantHostModeOperation {
     }
 
     public void setMerchant(Merchant merchant) {
-        this.merchant = merchant; 
+        this.merchant = merchant;
     }
 
     /**

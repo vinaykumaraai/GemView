@@ -31,18 +31,18 @@
  */
 package com.luretechnologies.server.data.dao.impl;
 
-import com.luretechnologies.server.data.dao.AppProfileParamValueDAO;
-import com.luretechnologies.server.data.model.tms.AppParam;
 import com.luretechnologies.server.data.model.tms.AppProfileParamValue;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.PersistenceException;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import org.springframework.stereotype.Repository;
+import com.luretechnologies.server.data.dao.AppProfileParamValueDAO;
+import javax.persistence.NoResultException;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Root;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -51,13 +51,15 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class AppProfileParamValueDAOImpl extends BaseDAOImpl<AppProfileParamValue, Long> implements AppProfileParamValueDAO{
     
+    private static final Logger LOGGER = LoggerFactory.getLogger(AppProfileParamValueDAOImpl.class);
+    
     @Override
-    public List<AppProfileParamValue> getAppProfileParamList(List<Long> IDS)throws PersistenceException{
-        List<AppProfileParamValue> appProfileParamList = new ArrayList<>();
+    public List<AppProfileParamValue> getAppProfileParamValueList(List<Long> IDS)throws PersistenceException{
+        List<AppProfileParamValue> appProfileParamValueList = new ArrayList<>();
         for(Long ID : IDS) {
-            appProfileParamList.add(getEntityManager().find(AppProfileParamValue.class, ID));
+            appProfileParamValueList.add(getEntityManager().find(AppProfileParamValue.class, ID));
         }
-        return appProfileParamList;
+        return appProfileParamValueList;
     }
 
     /**
@@ -67,7 +69,7 @@ public class AppProfileParamValueDAOImpl extends BaseDAOImpl<AppProfileParamValu
      * @throws PersistenceException
      */
     @Override
-    public AppProfileParamValue getAppProfileParamByID(Long ID) throws PersistenceException{
+    public AppProfileParamValue getAppProfileParamValueByID(Long ID) throws PersistenceException{
        return  getEntityManager().find(AppProfileParamValue.class, ID);
         
     }
@@ -82,4 +84,18 @@ public class AppProfileParamValueDAOImpl extends BaseDAOImpl<AppProfileParamValu
         
     }
     
+    @Override
+    public AppProfileParamValue findByAppProfileAndAppParam(Long appProfileId, Long appParamId) {
+        try {
+            CriteriaQuery q = criteriaBuilder().createQuery(AppProfileParamValue.class);
+            Root root = q.from(AppProfileParamValue.class);
+            q.where(criteriaBuilder().and(criteriaBuilder().equal(root.get("appProfileId"), appProfileId),
+                    criteriaBuilder().equal(root.get("appParamId"), appParamId)));
+
+            return (AppProfileParamValue) query(q).getSingleResult();
+        } catch (NoResultException e) {
+            LOGGER.info("AppProfileParamValue findByAppProfileAndAppParam.", e);
+            return null;
+        }
+    }
 }

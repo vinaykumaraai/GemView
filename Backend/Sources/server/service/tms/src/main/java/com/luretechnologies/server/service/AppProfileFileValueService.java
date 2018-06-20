@@ -42,26 +42,27 @@ public interface AppProfileFileValueService {
     
       /**
      *
-     * @param appProfileFile
+     * @param appProfileFileValue
      * @return
      * @throws Exception
      */
-    public AppProfileFileValue createAppProfileFile(AppProfileFileValue appProfileFile) throws Exception;
+    public AppProfileFileValue createAppProfileFileValue(AppProfileFileValue appProfileFileValue) throws Exception;
 
     /**
      *
      * @param id
+     * @param appProfileFileValue
      * @return
      * @throws Exception
      */
-    public AppProfileFileValue updateAppProfileFile(long id) throws Exception;
+    public AppProfileFileValue updateAppProfileFileValue(long id, AppProfileFileValue appProfileFileValue) throws Exception;
 
    /**
      *
      * @param id
      * @throws Exception
      */
-    public void deleteAppProfileFile(long id) throws Exception;
+    public void deleteAppProfileFileValue(long id) throws Exception;
     
     /**
      *
@@ -77,7 +78,7 @@ public interface AppProfileFileValueService {
      * @return 
      * @throws Exception
      */
-    public List<AppProfileFileValue> getAppProfileFileList(List<Long>  ids) throws Exception;
+    public List<AppProfileFileValue> getAppProfileFileValueList(List<Long>  ids) throws Exception;
     
     /**
      *
@@ -85,5 +86,5 @@ public interface AppProfileFileValueService {
      * @return 
      * @throws Exception
      */
-    public AppProfileFileValue getAppProfileFileByID(Long id) throws Exception;
+    public AppProfileFileValue getAppProfileFileValueByID(Long id) throws Exception;
 }

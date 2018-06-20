@@ -60,7 +60,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Api(value = "AppParam")
 public class AppParamController {
     
-    @Autowired(required = true)
+    @Autowired
     AppParamService appParamService;
     
      /**
@@ -73,7 +73,8 @@ public class AppParamController {
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(tags = "AppParam", httpMethod = "POST",value = "Create AppParam")
-    public AppParam createAppParam(@RequestBody AppParam appParam) throws Exception {
+    public AppParam createAppParam(
+            @RequestBody AppParam appParam) throws Exception {
 
         return appParamService.createAppParam(appParam);
     }
@@ -126,15 +127,18 @@ public class AppParamController {
     /**
      * Retrieve an List of AppFile  information
      *
-     * @param ids
+     * @param pageNumber
+     * @param rowsPerPage
      * @return
      * @throws java.lang.Exception
      */
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(tags = "AppParam", httpMethod = "GET", value = "Get AppParam List", notes = "Get list of AppParam by ID's")
-    public List<AppParam> getAppProfileFileList(@ApiParam(value = "AppParam ID", required = true) @PathVariable List<Long> ids) throws Exception {
+    public List<AppParam> getAppParamList(
+            @ApiParam(value = "Page number", required = false, defaultValue = "1") @RequestParam(name = "pageNumber", defaultValue = "1") Integer pageNumber,
+            @ApiParam(value = "Rows per page", required = false, defaultValue = "50") @RequestParam(name = "rowsPerPage", defaultValue = "50") Integer rowsPerPage) throws Exception {
 
-        return appParamService.getAppParamList(ids);
+        return appParamService.getAppParamList(pageNumber, rowsPerPage);
     }
     
     /**

@@ -32,12 +32,23 @@
 package com.luretechnologies.server.service.impl;
 
 import com.luretechnologies.server.data.dao.AppDAO;
+import com.luretechnologies.server.data.dao.AppParamDAO;
 import com.luretechnologies.server.data.dao.AppProfileDAO;
+import com.luretechnologies.server.data.dao.AppProfileParamValueDAO;
+import com.luretechnologies.server.data.dao.EntityAppProfileDAO;
+import com.luretechnologies.server.data.dao.EntityAppProfileParamDAO;
+import com.luretechnologies.server.data.dao.EntityDAO;
+import com.luretechnologies.server.data.model.Entity;
 import com.luretechnologies.server.data.model.tms.App;
-import com.luretechnologies.server.data.model.tms.AppFileFormat;
+import com.luretechnologies.server.data.model.tms.AppParam;
 import com.luretechnologies.server.data.model.tms.AppProfile;
+import com.luretechnologies.server.data.model.tms.AppProfileParamValue;
+import com.luretechnologies.server.data.model.tms.EntityAppProfile;
+import com.luretechnologies.server.data.model.tms.EntityAppProfileParam;
 import com.luretechnologies.server.service.AppProfileService;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.ObjectRetrievalFailureException;
@@ -51,11 +62,28 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 public class AppProfileServiceImpl implements AppProfileService{
-    @Autowired(required = true)
+    private static final long TYPE_FILE = 1; //type file on AppParamFormat
+    
+    @Autowired
     AppProfileDAO appProfileDAO;
     
     @Autowired
     AppDAO appDAO;
+    
+    @Autowired
+    AppProfileParamValueDAO appProfileParamValueDAO;
+    
+    @Autowired
+    AppParamDAO appParamDAO;
+    
+    @Autowired
+    EntityDAO entityDAO;
+    
+    @Autowired
+    EntityAppProfileDAO entityAppProfileDAO;
+    
+    @Autowired
+    EntityAppProfileParamDAO entityAppProfileParamDAO;
     
     /**
      *
@@ -64,26 +92,20 @@ public class AppProfileServiceImpl implements AppProfileService{
      * @throws Exception
      */
     @Override
-    public AppProfile createAppProfile(AppProfile appProfile) throws Exception{
-        //AppProfile newAppProfile = new AppProfile();
-        App app = appProfile.getApp();
-
+    public AppProfile createAppProfile(AppProfile appProfile) throws Exception {
+        AppProfile newAppProfile = new AppProfile();
+        
         // Check app existence
-        if (app != null) {
-            App existentApp = appDAO.getAppByID(appProfile.getApp().getId());
+        App existentApp = appDAO.getAppByID(appProfile.getAppId());
 
-            if (existentApp == null) {
-                throw new ObjectRetrievalFailureException(App.class, appProfile.getApp().getId());
-            }
-            appProfile.setApp(existentApp);
-        } else {
-            // If not App defined throw Exception
-            throw new Exception("The AppProfile need to associated with some valid App.");
+        if (existentApp == null) {
+            throw new ObjectRetrievalFailureException(App.class, appProfile.getAppId());
         }
+        appProfile.setAppId(existentApp.getId());
         
         
          // Copy properties from -> to
-        //BeanUtils.copyProperties(appProfile , newAppProfile);
+        BeanUtils.copyProperties(appProfile , newAppProfile);
         appProfileDAO.persist(appProfile);
         return appProfile;
         
@@ -99,22 +121,14 @@ public class AppProfileServiceImpl implements AppProfileService{
     @Override
     public AppProfile updateAppProfile(long ID, AppProfile appProfile) throws Exception{
         AppProfile existentAppProfile = appProfileDAO.getAppProfileByID(ID);
-        App app = appProfile.getApp();
-
-        // Check app existence
-        if (app != null) {
-            App existentApp = appDAO.getAppByID(appProfile.getApp().getId());
-
-            if (existentApp == null) {
-                throw new ObjectRetrievalFailureException(App.class, appProfile.getApp().getId());
-            }
-            appProfile.setApp(existentApp);
-        } else {
-            // If not App defined throw Exception
-            throw new Exception("The AppProfile need to associated with some valid App.");
-        }
         
-        //AppProfile updatedAppProfile=  updateAppProfile(appProfile);
+        // Check app existence
+        App existentApp = appDAO.getAppByID(appProfile.getAppId());
+
+        if (existentApp == null) {
+            throw new ObjectRetrievalFailureException(App.class, appProfile.getAppId());
+        }
+        appProfile.setAppId(existentApp.getId());
         
          // Copy properties from -> to
         BeanUtils.copyProperties(appProfile , existentAppProfile);
@@ -125,7 +139,6 @@ public class AppProfileServiceImpl implements AppProfileService{
     /**
      *
      * @param ID
-     * @return
      * @throws Exception
      */
     @Override
@@ -161,9 +174,609 @@ public class AppProfileServiceImpl implements AppProfileService{
         
     }
     
-    private AppProfile updateAppProfile(AppProfile appProfile)throws Exception{
+    /*private AppProfile updateAppProfile(AppProfile appProfile)throws Exception{
         appProfile.setName("Updated");
         appProfileDAO.merge(appProfile);
         return appProfile;
+    }*/
+    
+    /**
+     *
+     * @param id
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public List<AppParam> getAppParamListByAppProfile(Long id) throws Exception {
+        // Throw error if the AppProfile does not exists.
+        AppProfile appProfile = appProfileDAO.getAppProfileByID(id);
+        if (appProfile == null) {
+            throw new ObjectRetrievalFailureException(AppProfile.class, id);
+        }
+        List<AppParam> appParamList = appProfileDAO.getAppParamList(appProfile.getId());
+        return appParamList;
+    }
+    
+    /**
+     *
+     * @param id
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public List<AppParam> getAppParamListWithoutAppProfile(Long id) throws Exception {
+        // Throw error if the AppProfile does not exists.
+        AppProfile appProfile = appProfileDAO.getAppProfileByID(id);
+        List<AppParam> appParamList = new ArrayList<>();
+        if (appProfile == null) {
+            throw new ObjectRetrievalFailureException(AppProfile.class, id);
+        }
+        App app = appDAO.getAppByID(appProfile.getAppId());
+        List<AppParam> existentAppParamList = getAppParamListByAppProfile(appProfile.getId());
+        for (AppParam appParam : app.getAppParamCollection()) {
+            if(!existentAppParamList.contains(appParam) && 
+                    !appParam.getAppParamFormat().getId().equals(TYPE_FILE))
+                appParamList.add(appParam);
+        }
+        return appParamList;
+    }
+    
+    /**
+     *
+     * @param id
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public List<AppParam> getAppFileListByAppProfile(Long id) throws Exception {
+        // Throw error if the AppProfile does not exists.
+        AppProfile appProfile = appProfileDAO.getAppProfileByID(id);
+        if (appProfile == null) {
+            throw new ObjectRetrievalFailureException(AppProfile.class, id);
+        }
+        List<AppParam> appParamList = appProfileDAO.getAppFileList(appProfile.getId());
+        return appParamList;
+    }
+    
+    /**
+     *
+     * @param id
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public List<AppParam> getAppFileListWithoutAppProfile(Long id) throws Exception {
+        // Throw error if the AppProfile does not exists.
+        AppProfile appProfile = appProfileDAO.getAppProfileByID(id);
+        List<AppParam> appParamList = new ArrayList<>();
+        if (appProfile == null) {
+            throw new ObjectRetrievalFailureException(AppProfile.class, id);
+        }
+        App app = appDAO.getAppByID(appProfile.getAppId());
+        List<AppParam> existentAppParamList = getAppFileListByAppProfile(appProfile.getId());
+        for (AppParam appParam : app.getAppParamCollection()) {
+            if(!existentAppParamList.contains(appParam) &&
+                    appParam.getAppParamFormat().getId().equals(TYPE_FILE))
+                appParamList.add(appParam);
+        }
+        return appParamList;
+    }
+    
+    /**
+     *
+     * @param id
+     * @param appParamId 
+     * @return
+     * @throws java.lang.Exception
+     */
+    @Override
+    public AppProfileParamValue addAppProfileParamValue(Long id, Long appParamId) throws Exception {
+        // Throw error if the AppProfile does not exists.
+        AppProfile appProfile = appProfileDAO.getAppProfileByID(id);
+        if (appProfile == null) {
+            throw new ObjectRetrievalFailureException(AppProfile.class, id);
+        }
+        
+        AppProfileParamValue appProfileParamValue = appProfileParamValueDAO.findByAppProfileAndAppParam(appProfile.getId(), appParamId);
+        if (appProfileParamValue != null) {
+            throw new Exception("Already exists");
+        }
+        
+        AppParam appParam = appParamDAO.findById(appParamId);
+        if (appParam == null) {
+            throw new ObjectRetrievalFailureException(AppParam.class, appParamId);
+        }
+        
+        appProfileParamValue = new AppProfileParamValue();
+        appProfileParamValue.setAppParamId(appParam.getId());
+        appProfileParamValue.setDefaultValue(appParam.getDefaultValue());
+        appProfileParamValue.setAppProfileId(appProfile.getId());        
+        appProfileParamValueDAO.persist(appProfileParamValue);
+        
+        return appProfileParamValue;
+    }
+    
+    /**
+     *
+     * @param id
+     * @param appProfileParamValue 
+     * @return
+     * @throws java.lang.Exception
+     */
+    @Override
+    public AppProfileParamValue updateAppProfileParamValue(Long id, AppProfileParamValue appProfileParamValue) throws Exception {
+        
+        // Throw error if the AppProfile does not exists.
+        AppProfile appProfile = appProfileDAO.getAppProfileByID(id);
+        if (appProfile == null) {
+            throw new ObjectRetrievalFailureException(AppProfile.class, id);
+        }
+        
+        // If the appProfileParamValue is already set up for this AppProfile  --> UPDATE
+        for (AppProfileParamValue existentAppProfileParamValue : appProfile.getAppProfileParamValueCollection()) {
+            if (existentAppProfileParamValue.getAppParamId().equals(appProfileParamValue.getAppParamId())) {
+
+                appProfile.getAppProfileParamValueCollection().remove(existentAppProfileParamValue);
+                BeanUtils.copyProperties(appProfileParamValue, existentAppProfileParamValue, "id", "app_param", "app_profile");
+                appProfile.getAppProfileParamValueCollection().add(existentAppProfileParamValue);
+
+                appProfileDAO.merge(appProfile);
+                return existentAppProfileParamValue;
+            }
+        }
+        // Throw error if the AppProfile does not exists.
+        throw new ObjectRetrievalFailureException(AppProfile.class, id);
+    }
+    
+    /**
+     *
+     * @param id
+     * @param appParamId
+     * @throws Exception
+     */
+    @Override
+    public void deleteAppProfileParamValue(Long id, Long appParamId) throws Exception {
+
+        // Throw error if the AppProfile does not exists.
+        AppProfile appProfile = appProfileDAO.getAppProfileByID(id);
+        if (appProfile == null) {
+            throw new ObjectRetrievalFailureException(AppProfile.class, id);
+        }
+        AppProfileParamValue appProfileParamValue = appProfileParamValueDAO.findByAppProfileAndAppParam(appProfile.getId(), appParamId);
+        if (appProfileParamValue == null) {
+            throw new ObjectRetrievalFailureException(AppParam.class, appParamId);
+        }
+        appProfileParamValueDAO.delete(appProfileParamValue);
+    }
+    
+    /**
+     *
+     * @param appId
+     * @param entityId
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public List<AppProfile> getAppProfileListByEntity(Long appId, Long entityId) throws Exception {
+        // Throw error if the App does not exists.
+        App app = appDAO.getAppByID(appId);
+        if (app == null) {
+            throw new ObjectRetrievalFailureException(App.class, appId);
+        }
+        
+        // Throw error if the Entity does not exists.
+        Entity entity = entityDAO.findById(entityId);
+        if (entity == null) {
+            throw new ObjectRetrievalFailureException(Entity.class, entityId);
+        }
+        
+        return appProfileDAO.getAppProfileList(appId, entityId);
+    }
+    
+    /**
+     *
+     * @param appId
+     * @param entityId
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public List<AppProfile> getAppProfileListWithoutEntity(Long appId, Long entityId) throws Exception {
+        List<AppProfile> appProfileList = new ArrayList<>();
+        // get the list of appProfile associate to entity.
+        List<AppProfile> existentAppProfileList = getAppProfileListByEntity(appId, entityId);
+        App app = appDAO.getAppByID(appId);
+        
+        for (AppProfile appProfile : app.getAppProfileCollection()) {
+            if(!existentAppProfileList.contains(appProfile))
+                appProfileList.add(appProfile);
+        }
+        return appProfileList;
+    }
+    
+    /**
+     *
+     * @param appProfileId
+     * @param entityId 
+     * @return
+     * @throws java.lang.Exception
+     */
+    @Override
+    public EntityAppProfile addEntityAppProfile(Long appProfileId, Long entityId) throws Exception {
+        // Throw error if the AppProfile does not exists.
+        AppProfile appProfile = appProfileDAO.getAppProfileByID(appProfileId);
+        if (appProfile == null) {
+            throw new ObjectRetrievalFailureException(AppProfile.class, appProfileId);
+        }
+        
+        // Throw error if the Entity does not exists
+        Entity entity = entityDAO.findById(entityId);
+        if (entity == null) {
+            throw new ObjectRetrievalFailureException(Entity.class, entityId);
+        }
+        
+        EntityAppProfile entityAppProfile = entityAppProfileDAO.findByAppProfileAndEntity(appProfile.getId(), entityId);
+        if (entityAppProfile != null) {
+            throw new Exception("Already exists");
+        }
+        
+        entityAppProfile = new EntityAppProfile();
+        entityAppProfile.setAppProfileId(appProfile.getId());
+        entityAppProfile.setEntity(entity);        
+        entityAppProfileDAO.persist(entityAppProfile);
+        
+        return entityAppProfile;
+    }
+    
+    /**
+     *
+     * @param appProfileId
+     * @param entityAppProfile 
+     * @return
+     * @throws java.lang.Exception
+     */
+    @Override
+    public EntityAppProfile updateEntityAppProfile(Long appProfileId, EntityAppProfile entityAppProfile) throws Exception {
+        
+        // Throw error if the AppProfile does not exists.
+        AppProfile appProfile = appProfileDAO.getAppProfileByID(appProfileId);
+        if (appProfile == null) {
+            throw new ObjectRetrievalFailureException(AppProfile.class, appProfileId);
+        }
+        
+        // If the entityAppProfile is already set up for this AppProfile  --> UPDATE
+        for (EntityAppProfile existentEntityAppProfile : appProfile.getEntityAppProfileCollection()) {
+            if (existentEntityAppProfile.getEntity().getId() == entityAppProfile.getEntity().getId()) {
+
+                appProfile.getEntityAppProfileCollection().remove(existentEntityAppProfile);
+                BeanUtils.copyProperties(entityAppProfile, existentEntityAppProfile, "id", "entity", "app_profile");
+                appProfile.getEntityAppProfileCollection().add(existentEntityAppProfile);
+
+                appProfileDAO.merge(appProfile);
+                return existentEntityAppProfile;
+            }
+        }
+        // Throw error if the AppProfile does not exists.
+        throw new ObjectRetrievalFailureException(AppProfile.class, appProfileId);
+    }
+    
+    /**
+     *
+     * @param appProfileId
+     * @param entityId
+     * @throws Exception
+     */
+    @Override
+    public void deleteEntityAppProfile(Long appProfileId, Long entityId) throws Exception {
+
+        // Throw error if the AppProfile does not exists.
+        AppProfile appProfile = appProfileDAO.getAppProfileByID(appProfileId);
+        if (appProfile == null) {
+            throw new ObjectRetrievalFailureException(AppProfile.class, appProfileId);
+        }
+        EntityAppProfile entityAppProfile = entityAppProfileDAO.findByAppProfileAndEntity(appProfile.getId(), entityId);
+        if (entityAppProfile == null) {
+            throw new ObjectRetrievalFailureException(Entity.class, entityId);
+        }
+        entityAppProfileDAO.delete(entityAppProfile);
+    }
+    
+    /**
+     *
+     * @param appProfileId
+     * @param entityId
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public List<AppParam> getAppParamListByEntity(Long appProfileId, Long entityId) throws Exception {
+        // Throw error if the AppProfile does not exists.
+        AppProfile appProfile = appProfileDAO.getAppProfileByID(appProfileId);
+        if (appProfile == null) {
+            throw new ObjectRetrievalFailureException(AppProfile.class, appProfileId);
+        }
+        
+        // Throw error if the Entity does not exists.
+        Entity entity = entityDAO.findById(entityId);
+        if (entity == null) {
+            throw new ObjectRetrievalFailureException(Entity.class, entityId);
+        }
+        
+        EntityAppProfile entityAppProfile = entityAppProfileDAO.findByAppProfileAndEntity(appProfile.getId(), entityId);
+        if (entityAppProfile == null) {
+            throw new ObjectRetrievalFailureException(EntityAppProfile.class, entityId);
+        }
+        
+        List<AppParam> appParamList = new ArrayList<>();
+        for (EntityAppProfileParam entityAppProfileParam : entityAppProfile.getEntityappprofileparamCollection()) {
+            AppProfileParamValue appProfileParamValue = appProfileParamValueDAO.getAppProfileParamValueByID(entityAppProfileParam.getAppProfileParamValueId());
+            AppParam appParam = appParamDAO.getAppParamByID(appProfileParamValue.getAppParamId());
+            if(!appParam.getAppParamFormat().getId().equals(TYPE_FILE))
+                appParamList.add(appParam);
+        }
+        
+        return appParamList;
+    }
+    
+    /**
+     *
+     * @param appProfileId
+     * @param entityId
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public List<AppParam> getAppParamListWithoutEntity(Long appProfileId, Long entityId) throws Exception{
+        List<AppParam> appParamList = new ArrayList<>();
+        // get the list of appParam associate to entity.
+        List<AppParam> existentAppParamList = getAppParamListByEntity(appProfileId, entityId);
+        AppProfile appProfile = appProfileDAO.getAppProfileByID(appProfileId);
+        
+        
+        for (AppProfileParamValue existentAppProfileParamValue : appProfile.getAppProfileParamValueCollection()) {
+            AppParam appParam = appParamDAO.getAppParamByID(existentAppProfileParamValue.getAppParamId());
+            if(!existentAppParamList.contains(appParam) && !appParam.getAppParamFormat().getId().equals(TYPE_FILE))
+                appParamList.add(appParam);
+        }
+        return appParamList;
+    }
+    
+    /**
+     *
+     * @param appProfileId
+     * @param entityId
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public List<AppParam> getAppFileListByEntity(Long appProfileId, Long entityId) throws Exception {
+        // Throw error if the AppProfile does not exists.
+        AppProfile appProfile = appProfileDAO.getAppProfileByID(appProfileId);
+        if (appProfile == null) {
+            throw new ObjectRetrievalFailureException(AppProfile.class, appProfileId);
+        }
+        
+        // Throw error if the Entity does not exists.
+        Entity entity = entityDAO.findById(entityId);
+        if (entity == null) {
+            throw new ObjectRetrievalFailureException(Entity.class, entityId);
+        }
+        
+        EntityAppProfile entityAppProfile = entityAppProfileDAO.findByAppProfileAndEntity(appProfile.getId(), entityId);
+        if (entityAppProfile == null) {
+            throw new ObjectRetrievalFailureException(EntityAppProfile.class, entityId);
+        }
+        
+        List<AppParam> appParamList = new ArrayList<>();
+        for (EntityAppProfileParam entityAppProfileParam : entityAppProfile.getEntityappprofileparamCollection()) {
+            AppProfileParamValue appProfileParamValue = appProfileParamValueDAO.getAppProfileParamValueByID(entityAppProfileParam.getAppProfileParamValueId());
+            AppParam appParam = appParamDAO.getAppParamByID(appProfileParamValue.getAppParamId());
+            if(appParam.getAppParamFormat().getId().equals(TYPE_FILE))
+                appParamList.add(appParam);
+        }
+        
+        return appParamList;
+    }
+    
+    /**
+     *
+     * @param appProfileId
+     * @param entityId
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public List<AppParam> getAppFileListWithoutEntity(Long appProfileId, Long entityId) throws Exception{
+        List<AppParam> appParamList = new ArrayList<>();
+        // get the list of appParam associate to entity.
+        List<AppParam> existentAppParamList = getAppFileListByEntity(appProfileId, entityId);
+        AppProfile appProfile = appProfileDAO.getAppProfileByID(appProfileId);
+        
+        
+        for (AppProfileParamValue existentAppProfileParamValue : appProfile.getAppProfileParamValueCollection()) {
+            AppParam appParam = appParamDAO.getAppParamByID(existentAppProfileParamValue.getAppParamId());
+            if(!existentAppParamList.contains(appParam) && appParam.getAppParamFormat().getId().equals(TYPE_FILE))
+                appParamList.add(appParam);
+        }
+        return appParamList;
+    }
+    
+    /**
+     *
+     * @param appProfileId
+     * @param entityId 
+     * @param appParamId 
+     * @return
+     * @throws java.lang.Exception
+     */
+    @Override
+    public EntityAppProfileParam addEntityAppProfileParam(Long appProfileId, Long entityId, Long appParamId) throws Exception {
+        // Throw error if the AppProfile does not exists.
+        AppProfile appProfile = appProfileDAO.getAppProfileByID(appProfileId);
+        if (appProfile == null) {
+            throw new ObjectRetrievalFailureException(AppProfile.class, appProfileId);
+        }
+        
+        // Throw error if the Entity does not exists
+        Entity entity = entityDAO.findById(entityId);
+        if (entity == null) {
+            throw new ObjectRetrievalFailureException(Entity.class, entityId);
+        }
+        
+        EntityAppProfile entityAppProfile = entityAppProfileDAO.findByAppProfileAndEntity(appProfile.getId(), entityId);
+        if (entityAppProfile == null) {
+            throw new Exception("EntityAppProfile not exists");
+        }
+        
+        AppProfileParamValue appProfileParamValue = appProfileParamValueDAO.findByAppProfileAndAppParam(appProfileId, appParamId);
+        if (appProfileParamValue == null) {
+            throw new Exception("AppProfileParamValue not exists");
+        }
+        
+        EntityAppProfileParam entityAppProfileParam = entityAppProfileParamDAO.findByEntityAppProfileAndAppProfileParamValue(entityAppProfile.getId(), appProfileParamValue.getId());
+        if (entityAppProfileParam != null) {
+            throw new Exception("EntityAppProfileParam Already exists");
+        }
+        
+        entityAppProfileParam = new EntityAppProfileParam();
+        entityAppProfileParam.setEntityAppProfileId(entityAppProfile.getId());
+        entityAppProfileParam.setAppProfileParamValueId(appProfileParamValue.getId());  
+        entityAppProfileParam.setValue(appProfileParamValue.getDefaultValue()); 
+        entityAppProfileParamDAO.persist(entityAppProfileParam);
+        
+        return entityAppProfileParam;
+    }
+    
+    /**
+     *
+     * @param appProfileId 
+     * @param entityId 
+     * @param entityAppProfileParam 
+     * @return
+     * @throws java.lang.Exception
+     */
+    @Override
+    public EntityAppProfileParam updateEntityAppProfileParam(Long appProfileId, Long entityId, EntityAppProfileParam entityAppProfileParam) throws Exception {
+        
+        // Throw error if the AppProfile does not exists.
+        AppProfile appProfile = appProfileDAO.getAppProfileByID(appProfileId);
+        if (appProfile == null) {
+            throw new ObjectRetrievalFailureException(AppProfile.class, appProfileId);
+        }
+        
+        // Throw error if the Entity does not exists
+        Entity entity = entityDAO.findById(entityId);
+        if (entity == null) {
+            throw new ObjectRetrievalFailureException(Entity.class, entityId);
+        }
+        
+        EntityAppProfile entityAppProfile = entityAppProfileDAO.findByAppProfileAndEntity(appProfile.getId(), entityId);
+        if (entityAppProfile == null) {
+            throw new Exception("EntityAppProfile not exists");
+        }
+        
+        // If the entityAppProfileParam is already set up for this EntityAppProfile  --> UPDATE
+        for (EntityAppProfileParam existentEntityAppProfileParam : entityAppProfile.getEntityappprofileparamCollection()) {
+            if(Objects.equals(existentEntityAppProfileParam.getAppProfileParamValueId(), entityAppProfileParam.getAppProfileParamValueId())){
+                entityAppProfile.getEntityappprofileparamCollection().remove(existentEntityAppProfileParam);
+                BeanUtils.copyProperties(entityAppProfileParam, existentEntityAppProfileParam, "id", "entity_app_profile", "app_profile_param_value");
+                entityAppProfile.getEntityappprofileparamCollection().add(existentEntityAppProfileParam);
+
+                entityAppProfileDAO.merge(entityAppProfile);
+                return existentEntityAppProfileParam;   
+            }
+        }
+            
+        // Throw error if the AppProfile does not exists.
+        throw new ObjectRetrievalFailureException(AppProfile.class, appProfileId);
+    }
+    
+    /**
+     *
+     * @param appProfileId
+     * @param entityId
+     * @param appParamId
+     * @throws Exception
+     */
+    @Override
+    public void deleteEntityAppProfileParam(Long appProfileId, Long entityId, Long appParamId) throws Exception {
+
+        // Throw error if the AppProfile does not exists.
+        AppProfile appProfile = appProfileDAO.getAppProfileByID(appProfileId);
+        if (appProfile == null) {
+            throw new ObjectRetrievalFailureException(AppProfile.class, appProfileId);
+        }
+        EntityAppProfile entityAppProfile = entityAppProfileDAO.findByAppProfileAndEntity(appProfile.getId(), entityId);
+        if (entityAppProfile == null) {
+            throw new ObjectRetrievalFailureException(Entity.class, entityId);
+        }
+        
+        AppProfileParamValue appProfileParamValue = appProfileParamValueDAO.findByAppProfileAndAppParam(appProfileId, appParamId);
+        if (appProfileParamValue == null) {
+            throw new Exception("AppProfileParamValue not exists");
+        }
+        
+        EntityAppProfileParam entityAppProfileParam = entityAppProfileParamDAO.findByEntityAppProfileAndAppProfileParamValue(entityAppProfile.getId(), appProfileParamValue.getId());
+        if (entityAppProfileParam == null) {
+            throw new Exception("EntityAppProfileParam not exists");
+        }
+        
+        entityAppProfileParamDAO.delete(entityAppProfileParam);
+    }
+    
+    /**
+     *
+     * @param appProfileId
+     * @param filter
+     * @param pageNumber
+     * @param rowsPerPage
+     * @return 
+     * @throws Exception
+     */
+    @Override
+    public List<AppParam> searchAppParamByProfile(Long appProfileId, String filter, int pageNumber, int rowsPerPage) throws Exception {
+        // Throw error if the AppProfile does not exists.
+        AppProfile appProfile = appProfileDAO.getAppProfileByID(appProfileId);
+        if (appProfile == null) {
+            throw new ObjectRetrievalFailureException(AppProfile.class, appProfileId);
+        }
+        
+        Long appId = appProfile.getAppId();
+        List<AppParam> appParamList = new ArrayList<>();
+        List<AppParam> defaultParamList = appDAO.searchAppParam(appId, filter, rowsPerPage, pageNumber);
+        List<AppParam> profileParamList = appProfileDAO.getAppParamList(appProfileId);
+        for (AppParam appParam : defaultParamList) {
+            if(profileParamList.contains(appParam))
+                appParamList.add(appParam);
+        }
+        return appParamList;
+    }
+    
+    /**
+     *
+     * @param appProfileId
+     * @param filter
+     * @param pageNumber
+     * @param rowsPerPage
+     * @return 
+     * @throws Exception
+     */
+    @Override
+    public List<AppParam> searchAppFileByProfile(Long appProfileId, String filter, int pageNumber, int rowsPerPage) throws Exception {
+        // Throw error if the AppProfile does not exists.
+        AppProfile appProfile = appProfileDAO.getAppProfileByID(appProfileId);
+        if (appProfile == null) {
+            throw new ObjectRetrievalFailureException(AppProfile.class, appProfileId);
+        }
+        
+        Long appId = appProfile.getAppId();
+        List<AppParam> appFileList = new ArrayList<>();
+        List<AppParam> defaultParamList = appDAO.searchAppParam(appId, filter, rowsPerPage, pageNumber);
+        List<AppParam> profileFileList = appProfileDAO.getAppFileList(appProfileId);
+        for (AppParam appParam : defaultParamList) {
+            if(profileFileList.contains(appParam))
+                appFileList.add(appParam);
+        }
+        return appFileList;
     }
 }
