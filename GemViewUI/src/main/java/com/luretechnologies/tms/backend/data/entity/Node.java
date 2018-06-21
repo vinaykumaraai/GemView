@@ -64,7 +64,7 @@ public class Node {
 	
 	public String update;
 	
-	public App app;
+	public AppMock app;
 	
 	public Profile profile;
 	
@@ -170,11 +170,11 @@ public class Node {
 		this.update = update;
 	}
 
-	public App getApp() {
+	public AppMock getApp() {
 		return app;
 	}
 
-	public void setApp(App app) {
+	public void setApp(AppMock app) {
 		this.app = app;
 	}
 

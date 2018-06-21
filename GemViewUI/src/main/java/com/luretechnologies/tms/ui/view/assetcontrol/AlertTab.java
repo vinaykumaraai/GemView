@@ -41,6 +41,7 @@ import com.luretechnologies.tms.backend.data.entity.Alert;
 import com.luretechnologies.tms.backend.data.entity.AlertType;
 import com.luretechnologies.tms.backend.data.entity.ExtendedNode;
 import com.luretechnologies.tms.backend.data.entity.Node;
+import com.luretechnologies.tms.backend.data.entity.TreeNode;
 import com.luretechnologies.tms.backend.service.AlertService;
 import com.luretechnologies.tms.backend.service.TreeDataService;
 import com.luretechnologies.tms.ui.ComponentUtil;
@@ -71,11 +72,11 @@ public class AlertTab {
 	Button createAlertGridRow, editAlertGridRow, deleteAlertGridRow, saveAlertForm, cancelAlertForm;
 	Grid<Alert> alertGrid;
 	AlertService alertService;
-	Tree<ExtendedNode> nodeTree;
+	Tree<TreeNode> nodeTree;
 	UI assetControlUI;
 	TreeDataService treeDataService;
 	//public AssetControlView assetView ;
-	public AlertTab(Grid<Alert> alertGrid, AlertService alertService,Tree<ExtendedNode> nodeTree,UI assetControlUI, TreeDataService treeDataService, Button... buttons) {
+	public AlertTab(Grid<Alert> alertGrid, AlertService alertService,Tree<TreeNode> nodeTree,UI assetControlUI, TreeDataService treeDataService, Button... buttons) {
 		createAlertGridRow = buttons[0];
 		editAlertGridRow = buttons[1];
 		deleteAlertGridRow = buttons[2];
@@ -99,6 +100,7 @@ public class AlertTab {
 		
 		VerticalLayout alertLayout = new VerticalLayout();
 		alertLayout.setWidth("100%");
+		//alertLayout.addStyleName(ValoTheme.LAYOUT_CARD);
 		alertLayout.addStyleName("audit-DeviceVerticalAlignment");
 		VerticalLayout alertVerticalButtonLayout = new VerticalLayout();
 		HorizontalLayout alertCommandLabel = new HorizontalLayout();
@@ -221,8 +223,8 @@ public class AlertTab {
 	private void loadAlertGrid() {
 		treeDataService.getTreeDataForDebugAndAlert();
 		List<ExtendedNode> nodeList = treeDataService.getDebugAndAlertNodeList();
-		Set<ExtendedNode> nodeSet = nodeTree.getSelectionModel().getSelectedItems();
-		ExtendedNode nodeSelected = nodeSet.iterator().next();
+		Set<TreeNode> nodeSet = nodeTree.getSelectionModel().getSelectedItems();
+		TreeNode nodeSelected = nodeSet.iterator().next();
 		for(ExtendedNode node : nodeList) {
 			if(node.getLabel().equals(nodeSelected.getLabel())) {
 				DataProvider data = new ListDataProvider(node.getExtendedList());

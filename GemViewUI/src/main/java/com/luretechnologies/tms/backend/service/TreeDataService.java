@@ -42,7 +42,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.luretechnologies.tms.backend.data.entity.Alert;
-import com.luretechnologies.tms.backend.data.entity.App;
+import com.luretechnologies.tms.backend.data.entity.AppMock;
 import com.luretechnologies.tms.backend.data.entity.Debug;
 import com.luretechnologies.tms.backend.data.entity.Devices;
 import com.luretechnologies.tms.backend.data.entity.ExtendedNode;
@@ -468,7 +468,7 @@ public TreeData<ExtendedNode> getTreeDataForDebugAndAlert() {
 		}
 		persliztnNodeList = new ArrayList();
 		List<Devices> deviceList = new ArrayList<Devices>(mockOdometerDeviceService.getRepository().values());
-		List<App> appList = new ArrayList<App>(mockAppService.getRepository().values());
+		List<AppMock> appList = new ArrayList<AppMock>(mockAppService.getRepository().values());
 		
 		Node node = new Node();
 		node.setLabel("Enterprise Entity");

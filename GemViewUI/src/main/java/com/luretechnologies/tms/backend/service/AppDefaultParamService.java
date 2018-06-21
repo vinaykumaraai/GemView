@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.luretechnologies.tms.backend.data.entity.Alert;
-import com.luretechnologies.tms.backend.data.entity.App;
+import com.luretechnologies.tms.backend.data.entity.AppMock;
 import com.luretechnologies.tms.backend.data.entity.AppDefaultParam;
 import com.vaadin.data.provider.ListDataProvider;
 

@@ -45,7 +45,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.vaadin.dialogs.ConfirmDialog;
 
-import com.luretechnologies.tms.backend.data.entity.App;
+import com.luretechnologies.tms.backend.data.entity.AppMock;
 import com.luretechnologies.tms.backend.data.entity.AppDefaultParam;
 import com.luretechnologies.tms.backend.data.entity.Devices;
 import com.luretechnologies.tms.backend.data.entity.ExtendedNode;
@@ -113,7 +113,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 							deleteParam, save, cancel;
 	private static TextField  entityName, entityDescription, entitySerialNum;
 	private static ComboBox<Devices> deviceDropDown;
-	private static ComboBox<App> appDropDown;
+	private static ComboBox<AppMock> appDropDown;
 	private static ComboBox<Profile> profileDropDown;
 	private static ComboBox<String> updateDropDown;
 	private static ComboBox<String> addtnlFilesDropDown;
@@ -754,7 +754,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		HorizontalLayout entityApplicationSelection = new HorizontalLayout();
 		entityApplicationSelection.addStyleNames("personlization-formAlignment", "personlization-applicationSelectionLayout");
 		entityApplicationSelection.setCaption("Application Selection");
-		appDropDown = new ComboBox<App>();
+		appDropDown = new ComboBox<AppMock>();
 		//frequencyDropDown.setDataProvider(new ListDataProvider<>(Arrays.asList("24 Hours", "1 Hour", " 30 Minutes")));
 		appDropDown.setCaption("");
 		appDropDown.setPlaceholder("Application");

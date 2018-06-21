@@ -17,7 +17,7 @@ public class RestServiceUtil {
 	private static UserSession SESSION;
 	private static RestClientService client;
 	private RestServiceUtil() {
-		client = new RestClientService("http://mia.lure68.net:54071/admin/api", "");
+		client = new RestClientService("http://mia.lure68.net:54071/admin/api", "http://mia.lure68.net:54071/tms/api");
 	}
 	
 	public static UserSession getSESSION() {

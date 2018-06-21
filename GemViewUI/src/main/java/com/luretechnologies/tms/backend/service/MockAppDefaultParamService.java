@@ -11,7 +11,7 @@ import javax.annotation.PostConstruct;
 
 import com.luretechnologies.tms.backend.data.entity.Alert;
 import com.luretechnologies.tms.backend.data.entity.AlertType;
-import com.luretechnologies.tms.backend.data.entity.App;
+import com.luretechnologies.tms.backend.data.entity.AppMock;
 import com.luretechnologies.tms.backend.data.entity.AppDefaultParam;
 import com.luretechnologies.tms.backend.data.entity.ParameterType;
 import com.vaadin.data.provider.Query;

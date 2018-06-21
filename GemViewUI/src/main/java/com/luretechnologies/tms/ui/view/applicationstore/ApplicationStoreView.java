@@ -46,8 +46,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.dialogs.ConfirmDialog;
 
-import com.luretechnologies.tms.backend.data.entity.App;
 import com.luretechnologies.tms.backend.data.entity.AppDefaultParam;
+import com.luretechnologies.tms.backend.data.entity.AppMock;
 import com.luretechnologies.tms.backend.data.entity.ApplicationFile;
 import com.luretechnologies.tms.backend.data.entity.Devices;
 import com.luretechnologies.tms.backend.data.entity.ParameterType;
@@ -115,8 +115,8 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 	private Grid<AppDefaultParam> appDefaultParamGrid;
 	private GridLayout appStoreGridLayout;
 	private static List<ApplicationFile> uploadedFileList = new ArrayList<>();
-	private Grid<App> appGrid;
-	private App selectedApp;
+	private Grid<AppMock> appGrid;
+	private AppMock selectedApp;
 	private Profile selectedProfile;
 	private ComboBox<User> applicationOwner;
 	private ComboBox<Devices> devices;
@@ -279,7 +279,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 	}
 
 	private VerticalLayout getApplicationListLayout() {
-		appGrid = new Grid<>(App.class);
+		appGrid = new Grid<>(AppMock.class);
 		appGrid.setWidth("100%");
 		appGrid.setDataProvider(appService.getListDataProvider());
 		appGrid.setColumns("packageName", "description", "packageVersion");
@@ -309,7 +309,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		});
 		applicationSearch.addValueChangeListener(valueChange -> {
 			String valueInLower = valueChange.getValue().toLowerCase();
-			ListDataProvider<App> appDataProvider = (ListDataProvider<App>) appGrid.getDataProvider();
+			ListDataProvider<AppMock> appDataProvider = (ListDataProvider<AppMock>) appGrid.getDataProvider();
 			appDataProvider.setFilter(filter -> {
 				String packageNameInLower = filter.getPackageName().toLowerCase();
 				String packageVersionInLower = filter.getPackageVersion().toLowerCase();
@@ -496,11 +496,11 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			if(applicationOwner.getValue()==null) {
 				Notification.show(NotificationUtil.SAVE, Type.ERROR_MESSAGE);
 			}
-			else {App app;
+			else {AppMock app;
 			if (appGrid.getSelectedItems().size() > 0) {
 				app = appGrid.getSelectedItems().iterator().next();
 			} else {
-				app = new App();
+				app = new AppMock();
 				app.setPackageName(packageName.getValue());
 				app.setDescription(description.getValue());
 				app.setPackageVersion(packageVersion.getValue());

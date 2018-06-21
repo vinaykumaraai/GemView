@@ -34,32 +34,29 @@ package com.luretechnologies.tms.backend.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.luretechnologies.client.restlib.common.ApiException;
-import com.luretechnologies.client.restlib.service.model.Entity;
+import com.luretechnologies.client.restlib.service.model.AuditUserLog;
+import com.luretechnologies.client.restlib.service.model.Heartbeat;
+import com.luretechnologies.client.restlib.service.model.HeartbeatAudit;
+import com.luretechnologies.tms.backend.data.entity.AssetHistory;
+import com.luretechnologies.tms.backend.data.entity.Audit;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
 import com.vaadin.data.TreeData;
-import com.vaadin.spring.annotation.SpringComponent;
 
-@SpringComponent
 @Service
-public class TreeDataNodeService {
+public class AssetControlService {
+
+	@Autowired
+	TreeDataNodeService treeDataNodeService;
 	
 	public TreeData<TreeNode> getTreeData() throws ApiException{
 		try {
 			if(RestServiceUtil.getSESSION()!=null) {
-				TreeData<TreeNode> treeData = new TreeData<>();
-				Entity entity = RestServiceUtil.getInstance().getClient().getEntityApi().getEntityHierarchy();
-				List<Entity> entityList = RestServiceUtil.getInstance().getClient().getEntityApi().getEntityChildren(entity.getId());
-				TreeNode node = new TreeNode(entity.getName(), entity.getId(), entity.getType(), entity.getEntityId());
-				List<TreeNode> treeNodeChildList = getChildNodes(entityList);
-				//sRestServiceUtil.getInstance().getClient().getEntityApi()				
-				treeData.addItems(null, node);
-				treeData.addItems(node, treeNodeChildList);
-				treeDataRecursive(treeNodeChildList, treeData);
-				
+			TreeData<TreeNode> treeData = treeDataNodeService.getTreeData();
 			return treeData;
 			}
 		}catch(Exception e) {
@@ -68,30 +65,48 @@ public class TreeDataNodeService {
 		return null;
 	}
 	
-	private void treeDataRecursive(List<TreeNode> entityList, TreeData<TreeNode> treeData) {
-		for(TreeNode entity : entityList) {
-			List<Entity> entityListSub;
-			try {
-				entityListSub = RestServiceUtil.getInstance().getClient().getEntityApi().getEntityChildren(entity.getId());
-				if(entityListSub!=null && !entityListSub.isEmpty()) {
-					List<TreeNode> subChildList = getChildNodes(entityListSub);
-					treeData.addItems(entity, subChildList);
-					treeDataRecursive(subChildList,treeData);
+	public List<AssetHistory> getHistoryGridData(String id) throws ApiException{
+		List<AssetHistory> assetHistoryListNew = new ArrayList<>();
+		try {
+			if(RestServiceUtil.getSESSION()!=null) {			
+				List<HeartbeatAudit> historyList = RestServiceUtil.getInstance().getClient().getHeartbeatApi().searchAudits(id, null, null, null, null, null);
+				if(historyList!=null && !historyList.isEmpty()) {
+					for(HeartbeatAudit heartbeatAudit: historyList) {
+						AssetHistory history = new AssetHistory(heartbeatAudit.getId(), heartbeatAudit.getComponent(), heartbeatAudit.getDescription());
+						assetHistoryListNew.add(history);
+						//RestServiceUtil.getInstance().getClient().getAppProfileApi().		
+						}
 				}
-			} catch (ApiException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				return assetHistoryListNew;
 			}
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return assetHistoryListNew;
+	}
+	
+	public void deleteHistoryGridData(Long id) throws ApiException{
+		try {
+			if(RestServiceUtil.getSESSION()!=null) {
+			
+				RestServiceUtil.getInstance().getClient().getAuditUserLogApi().delete(id);
+			}
+		}catch(Exception e) {
+			e.printStackTrace();
 		}
 	}
 	
-	private List<TreeNode> getChildNodes(List<Entity> entityList){
-		List<TreeNode> nodeChildList = new ArrayList<>();
-		for(Entity entity : entityList) {
-			TreeNode node = new TreeNode(entity.getName(), entity.getId(), entity.getType(), entity.getEntityId());
-			nodeChildList.add(node);
+	public List<AuditUserLog> searchGridDataByText(String filter) throws ApiException{
+		try {
+			if(RestServiceUtil.getSESSION()!=null) {
+			
+				List<AuditUserLog> auditList = RestServiceUtil.getInstance().getClient().getAuditUserLogApi().searchLogs(null, null, filter, 
+						null, null, null, null);
+				return auditList;
+			}
+		}catch(Exception e) {
+			e.printStackTrace();
 		}
-		return nodeChildList;
+		return null;
 	}
-
 }

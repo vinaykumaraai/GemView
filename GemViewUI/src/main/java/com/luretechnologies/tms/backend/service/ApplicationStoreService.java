@@ -29,59 +29,40 @@
  * Inquiries should be made to legal@luretechnologies.com
  *
  */
-package com.luretechnologies.tms.backend.data.entity;
+package com.luretechnologies.tms.backend.service;
 
-import java.util.Objects;
+import java.util.ArrayList;
+import java.util.List;
 
-public class DeviceOdometer {
-	private Long id;
-	private String statusType, description, statistics;
-	
-	public DeviceOdometer(Long id, String statusType, String description, String statistics) {
-		super();
-		Objects.requireNonNull(id);
-		Objects.requireNonNull(statusType);
-		Objects.requireNonNull(description);
-		Objects.requireNonNull(statistics);
-		this.id = id;
-		this.statusType = statusType;
-		this.description = description;
-		this.statistics = statistics;
-	}
+import org.springframework.stereotype.Service;
 
-	public Long getId() {
-		return id;
-	}
+import com.luretechnologies.client.restlib.common.ApiException;
+import com.luretechnologies.client.restlib.service.model.App;
+import com.luretechnologies.client.restlib.service.model.SystemParam;
+import com.luretechnologies.tms.backend.data.entity.Systems;
+import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
 
+@Service
+public class ApplicationStoreService {
 
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-
-
-	public String getStatusType() {
-		return statusType;
-	}
-
-	public void setStatusType(String statusType) {
-		this.statusType = statusType;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public String getStatistics() {
-		return statistics;
-	}
-
-	public void setStatistics(String statistics) {
-		this.statistics = statistics;
+	public List<App> getAllApps() throws ApiException{
+		List<App> appsList = new ArrayList<>();
+		try {
+			if(RestServiceUtil.getSESSION()!=null) {
+				
+				appsList = RestServiceUtil.getInstance().getClient().getAppApi().getApps();
+				//RestServiceUtil.getInstance().getClient().getAppApi().
+				/*List<Systems> systemsList = new ArrayList<>();
+				for(SystemParam systemParam : systemParamList) {
+					Systems selectedSystem = new Systems(systemParam.getId(), systemParam.getName().toUpperCase(), systemParam.getDescription(),
+							systemParam.getSystemParamType().getName(), systemParam.getValue());
+					systemsList.add(selectedSystem);
+				}*/
+				return appsList;
+			}
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return appsList;
 	}
 }

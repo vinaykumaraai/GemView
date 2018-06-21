@@ -31,6 +31,7 @@
  */
 package com.luretechnologies.tms.backend.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,9 +40,13 @@ import org.springframework.stereotype.Service;
 import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.client.restlib.service.model.AuditUserLog;
 import com.luretechnologies.client.restlib.service.model.HeartbeatOdometer;
+import com.luretechnologies.client.restlib.service.model.Terminal;
+import com.luretechnologies.tms.backend.data.entity.DeviceOdometer;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
 import com.vaadin.data.TreeData;
+import com.vaadin.data.provider.DataProvider;
+import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.ui.Tree.ItemClick;
 
@@ -62,18 +67,30 @@ public class OdometerService {
 		return null;
 	}
 	
-	public List<HeartbeatOdometer> getOdometerGridData(ItemClick<TreeNode> selection) throws ApiException{
+	public List<DeviceOdometer> getOdometerGridData(String id, String type) throws ApiException{
+		List<DeviceOdometer> odometerListNew = new ArrayList<>();
 		try {
 			if(RestServiceUtil.getSESSION()!=null) {
-	
-				List<HeartbeatOdometer> odometerList = RestServiceUtil.getInstance().getClient().getHeartbeatApi().searchOdometer(selection.getItem().getEntityId(),
-						null, null, null, 1, 20);
-				return odometerList;
+				if(type.equalsIgnoreCase("Terminal")) {
+					List<HeartbeatOdometer> odometerList = RestServiceUtil.getInstance().getClient().getHeartbeatApi().searchOdometer(id,
+							null, null, null, null, null);
+					
+					if(odometerList!=null && !odometerList.isEmpty()) {
+						for(HeartbeatOdometer heartbeatOdometer: odometerList) {
+							DeviceOdometer deviceOdodmeter = new DeviceOdometer(heartbeatOdometer.getId(), heartbeatOdometer.getLabel(), heartbeatOdometer.getDescription(), 
+									heartbeatOdometer.getValue());
+							odometerListNew.add(deviceOdodmeter);
+						}
+					}
+					
+					return odometerListNew;
+				}
+				
 			}
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
-		return null;
+		return odometerListNew;
 	}
 	
 	public void deleteGridData(Long id) throws ApiException{
@@ -87,18 +104,26 @@ public class OdometerService {
 		}
 	}
 	
-	public List<HeartbeatOdometer> searchOdometerGridData(String filter) throws ApiException{
+	public List<DeviceOdometer> searchOdometerGridData(String entityId, String filter) throws ApiException{
+		List<DeviceOdometer> odometerListSearch = new ArrayList<>();
 		try {
 			if(RestServiceUtil.getSESSION()!=null) {
 			
-				List<HeartbeatOdometer> searchList = RestServiceUtil.getInstance().getClient().getHeartbeatApi().searchOdometer(null, filter, 
+				List<HeartbeatOdometer> searchList = RestServiceUtil.getInstance().getClient().getHeartbeatApi().searchOdometer(entityId, filter, 
 						null, null, null, null);
-				return searchList;
+				if(searchList!=null && !searchList.isEmpty()) {
+					for(HeartbeatOdometer heartBeatOdometer: searchList) {
+						DeviceOdometer deviceOdometer = new DeviceOdometer(heartBeatOdometer.getId(), heartBeatOdometer.getLabel(), heartBeatOdometer.getDescription(), 
+							heartBeatOdometer.getValue());
+						odometerListSearch.add(deviceOdometer);
+				}
+				}
+				return odometerListSearch;
 			}
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
-		return null;
+		return odometerListSearch;
 	}
 	
 	public List<HeartbeatOdometer> searchTreeData(String filter) throws ApiException{
@@ -116,11 +141,11 @@ public class OdometerService {
 		return null;
 	}
 	
-	public List<HeartbeatOdometer> searchByDates(String startDate, String endDate) throws ApiException{
+	public List<HeartbeatOdometer> searchByDates(String entityId, String startDate, String endDate) throws ApiException{
 		try {
 			if(RestServiceUtil.getSESSION()!=null) {
 			
-				List<HeartbeatOdometer> odometerList = RestServiceUtil.getInstance().getClient().getHeartbeatApi().searchOdometer(null, null, 
+				List<HeartbeatOdometer> odometerList = RestServiceUtil.getInstance().getClient().getHeartbeatApi().searchOdometer(entityId, null, 
 						startDate, endDate, null, null);
 				return odometerList;
 			}

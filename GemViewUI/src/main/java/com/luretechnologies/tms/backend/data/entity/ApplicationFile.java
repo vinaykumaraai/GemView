@@ -7,7 +7,7 @@ import java.io.File;
 import java.net.URI;
 
 /**
- * @author sils
+ * @author Vinay
  *
  */
 public class ApplicationFile extends File {
