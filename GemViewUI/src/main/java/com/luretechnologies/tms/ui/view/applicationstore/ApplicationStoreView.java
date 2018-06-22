@@ -140,8 +140,6 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 	@Autowired
 	private AppService appService;
 	
-//	@Autowired
-//	private TestRestService testService;
 
 	@Autowired
 	private OdometerDeviceService deviceService;
@@ -858,8 +856,8 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 
 		Button saveProfile = new Button("Save", click -> {
 			if (profileType.getSelectedItem().isPresent() && StringUtils.isNotEmpty(profileName.getValue())) {
-				Profile pToSave = new Profile(profileType.getValue(), profileName.getValue());
-				profileService.saveProfile(pToSave);
+//				Profile pToSave = new Profile(profileType.getValue(), profileName.getValue());
+//				profileService.saveProfile(pToSave);
 				optionList.setDataProvider(profileService.getListDataProvider());
 				profileWindow.close();
 			}
@@ -895,11 +893,11 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		Button saveParameter = new Button("Save", click -> {
 			if (StringUtils.isNotEmpty(parameterType.getValue().name())
 					&& StringUtils.isNotEmpty(parameterName.getValue())) {
-				AppDefaultParam appDefaultParam = new AppDefaultParam(parameterName.getValue(),
-						parameterDescription.getValue(), parameterType.getValue(), parameterActive.getValue());
-				// appDefaultParamService.saveAppDefaultParam(appDefaultParam);
-				selectedApp.getAppDefaultParamList().add(appDefaultParam);
-				// appService.saveApp(app);
+//				AppDefaultParam appDefaultParam = new AppDefaultParam(parameterName.getValue(),
+//						parameterDescription.getValue(), parameterType.getValue(), parameterActive.getValue());
+//				// appDefaultParamService.saveAppDefaultParam(appDefaultParam);
+//				selectedApp.getAppDefaultParamList().add(appDefaultParam);
+//				// appService.saveApp(app);
 				appDefaultParamGrid.setDataProvider(new ListDataProvider<>(selectedApp.getAppDefaultParamList()));
 				appDefaultWindow.close();
 			}

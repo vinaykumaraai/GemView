@@ -61,20 +61,20 @@ public class MockUserService extends CrudService<User>{
 	@PostConstruct
 	public void createInitialUsers()
 	{
-		User user = new User("serafin@gmail.com", "serafin", passwordEncoder.encode("serafin"), Role.IT, "Serafin", "Fuente", true);
+		User user = new User(2L,"serafin@gmail.com", "serafin", passwordEncoder.encode("serafin"), Role.IT, "Serafin", "Fuente", true);
 		user.setLocked(true);
 		userDirectory.put(user.getId(), user);
 		users.add(user);
-		user = new User("vinay@gmail.com", "Vinay", passwordEncoder.encode("admin"), Role.ADMIN, "Vinay", "Raai", true);
+		user = new User(1L,"vinay@gmail.com", "Vinay", passwordEncoder.encode("admin"), Role.ADMIN, "Vinay", "Raai", true);
 		user.setLocked(true);
 		users.add(user);
 		userDirectory.put(user.getId(), user);
-		user = new User("admin@gemstonepay.com", "Admin", passwordEncoder.encode("admin"), Role.ADMIN, "Test", "Test", true);
+		user = new User(1L,"admin@gemstonepay.com", "Admin", passwordEncoder.encode("admin"), Role.ADMIN, "Test", "Test", true);
 		user.setLocked(true);
 		users.add(user);
 		userDirectory.put(user.getId(), user);
 		for(int j=1; j<=10;j++) {
-			user = new User("Mock"+j+"@gmail.com", "Mock"+j, passwordEncoder.encode("admin"), Role.HR, "Vinay", "Raai", true);
+			user = new User(2L,"Mock"+j+"@gmail.com", "Mock"+j, passwordEncoder.encode("admin"), Role.HR, "Vinay", "Raai", true);
 			users.add(user);
 			userDirectory.put(user.getId(), user);
 		}

@@ -24,13 +24,13 @@ public class MockAppDefaultParamService extends CrudService<AppDefaultParam>{
 	@PostConstruct
 	public void createInitialAppParams() throws ParseException
 	{
-		AppDefaultParam defaultParams = new AppDefaultParam("properties", "This is for properties", ParameterType.TEXT, true);
+		AppDefaultParam defaultParams = new AppDefaultParam(1L,"properties", "This is for properties", ParameterType.TEXT, true);
 		defaultParams.setId(defaultParams.getId()+2);
 		appDefaultParamDirectory.put(defaultParams.getId(), defaultParams);
-		defaultParams = new AppDefaultParam("flag", "This is for Flag", ParameterType.BOOLEAN, true);
+		defaultParams = new AppDefaultParam(2L,"flag", "This is for Flag", ParameterType.BOOLEAN, true);
 		defaultParams.setId(defaultParams.getId()+3);
 		appDefaultParamDirectory.put(defaultParams.getId(), defaultParams);
-		defaultParams = new AppDefaultParam("message", "This is for message", ParameterType.TEXT, true);
+		defaultParams = new AppDefaultParam(3L,"message", "This is for message", ParameterType.TEXT, true);
 		defaultParams.setId(defaultParams.getId()+4);
 		appDefaultParamDirectory.put(defaultParams.getId(), defaultParams);
 	}

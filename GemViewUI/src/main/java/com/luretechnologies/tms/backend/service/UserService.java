@@ -71,7 +71,7 @@ public class UserService extends CrudService<User>{
 			try {
 				List<com.luretechnologies.client.restlib.service.model.User> userList = RestServiceUtil.getInstance().getClient().getUserApi().getUsers();
 				for (com.luretechnologies.client.restlib.service.model.User user : userList) {
-					User clientUser = new User(user.getEmail(),user.getUsername(),"",user.getRole().getName(),user.getFirstName(), user.getLastName(),user.getAvailable());
+					User clientUser = new User(user.getId(),user.getEmail(),user.getUsername(),"",user.getRole().getName(),user.getFirstName(), user.getLastName(),user.getAvailable());
 					clientUser.setLocked(true);
 					users.add(clientUser);
 					userDirectory.put(clientUser.getId(), clientUser);

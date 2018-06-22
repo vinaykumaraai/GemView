@@ -8,22 +8,21 @@ import java.util.Objects;
  * @author Vinay
  *
  */
-public class App extends AbstractEntity {
+public class AppClient extends AbstractEntity {
 	private String packageName, description, packageVersion;
 	private boolean available;
 	private List<AppDefaultParam> appDefaultParamList;
 	private Devices device;
-	private Profile profile;
-	
+	private List<Profile> profileList;
+	private List<ApplicationFile> appFileList;
 	private User owner;
-	public App() {
+	public AppClient() {
 		// TODO Auto-generated constructor stub
 		super(false);
 	}
 //Add the device and owner to it App
-	public App(String packageName, String description, String packageVersion, boolean available,
-			List<AppDefaultParam> appDefaultParamList,Devices device,User owner, Profile profile) {
-		super(false);
+	public AppClient(Long id, String packageName, String description, String packageVersion, boolean available,
+			List<AppDefaultParam> appDefaultParamList,Devices device,User owner, List<Profile> profileList, List<ApplicationFile> appFileList) {
 		Objects.requireNonNull(packageName);
 		Objects.requireNonNull(description);
 		Objects.requireNonNull(packageVersion);
@@ -38,7 +37,9 @@ public class App extends AbstractEntity {
 		this.appDefaultParamList = appDefaultParamList;
 		this.device = device;
 		this.owner = owner;
-		this.profile = profile;
+		this.profileList = profileList;
+		this.setId(id);
+		this.appFileList = appFileList;
 
 	}
 
@@ -94,11 +95,11 @@ public class App extends AbstractEntity {
 	public void setOwner(User owner) {
 		this.owner = owner;
 	}
-	public Profile getProfile() {
-		return profile;
+	public List<Profile> getProfile() {
+		return profileList;
 	}
-	public void setProfile(Profile profile) {
-		this.profile = profile;
+	public void setProfile(List<Profile> profileList) {
+		this.profileList = profileList;
 	}
 	@Override
 	public int hashCode() {
@@ -119,7 +120,7 @@ public class App extends AbstractEntity {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		App other = (App) obj;
+		AppClient other = (AppClient) obj;
 		if (available != other.available)
 			return false;
 		if (description == null) {

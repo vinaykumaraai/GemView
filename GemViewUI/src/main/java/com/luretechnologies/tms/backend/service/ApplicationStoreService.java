@@ -32,37 +32,91 @@
 package com.luretechnologies.tms.backend.service;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
 import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.client.restlib.service.model.App;
-import com.luretechnologies.client.restlib.service.model.SystemParam;
-import com.luretechnologies.tms.backend.data.entity.Systems;
+import com.luretechnologies.client.restlib.service.model.AppFile;
+import com.luretechnologies.client.restlib.service.model.AppParam;
+import com.luretechnologies.client.restlib.service.model.AppProfile;
+import com.luretechnologies.tms.backend.data.entity.AppClient;
+import com.luretechnologies.tms.backend.data.entity.AppDefaultParam;
+import com.luretechnologies.tms.backend.data.entity.AppMock;
+import com.luretechnologies.tms.backend.data.entity.ApplicationFile;
+import com.luretechnologies.tms.backend.data.entity.ParameterType;
+import com.luretechnologies.tms.backend.data.entity.Profile;
+import com.luretechnologies.tms.backend.data.entity.ProfileType;
+import com.luretechnologies.tms.backend.data.entity.User;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
 
 @Service
 public class ApplicationStoreService {
 
-	public List<App> getAllApps() throws ApiException{
-		List<App> appsList = new ArrayList<>();
+	public List<AppClient> getAppListForGrid() throws ApiException{
+		List<AppClient> appClientList = new ArrayList<>();
 		try {
 			if(RestServiceUtil.getSESSION()!=null) {
 				
-				appsList = RestServiceUtil.getInstance().getClient().getAppApi().getApps();
-				//RestServiceUtil.getInstance().getClient().getAppApi().
-				/*List<Systems> systemsList = new ArrayList<>();
-				for(SystemParam systemParam : systemParamList) {
-					Systems selectedSystem = new Systems(systemParam.getId(), systemParam.getName().toUpperCase(), systemParam.getDescription(),
-							systemParam.getSystemParamType().getName(), systemParam.getValue());
-					systemsList.add(selectedSystem);
-				}*/
-				return appsList;
+				List<App> appsList = RestServiceUtil.getInstance().getClient().getAppApi().getApps();
+				for(App app : appsList) {
+					AppClient appClient = new AppClient(app.getId(),app.getName(), app.getDescription(), app.getVersion(), app.getAvailable(), getAppDefaultParamList(app.getAppparamCollection()), null, getOwner(app.getOwnerId()), getAppProfileList(app.getAppprofileCollection()), getApplicationFileList(app.getAppfileCollection()));
+				}
 			}
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
-		return appsList;
+		return appClientList;
+	}
+	private List<AppDefaultParam> getAppDefaultParamList(List<AppParam> appParamList){
+		List<AppDefaultParam> appDefaultParamList = new ArrayList<>();
+		for (AppParam appParam : appParamList) {
+			AppDefaultParam appDefaultParam = new AppDefaultParam(appParam.getId(),appParam.getName(), appParam.getDescription(), ParameterType.BOOLEAN, appParam.getModifiable());
+			appDefaultParamList.add(appDefaultParam);
+		}
+		return appDefaultParamList;
+	}
+	
+	private User getOwner(Long id) {
+		User owner = null;
+		try {
+			if(RestServiceUtil.getSESSION()!=null) {
+				com.luretechnologies.client.restlib.service.model.User serverUser = RestServiceUtil.getInstance().getClient().getUserApi().getUser(id);
+				owner = new User(serverUser.getId(),serverUser.getEmail(), serverUser.getUsername(), null, serverUser.getRole().getName(), serverUser.getFirstName(), serverUser.getLastName(), serverUser.getAvailable());
+				
+			}
+		}
+			catch (Exception e) {
+				e.printStackTrace();
+			}
+		return owner;
+		
+	}
+	
+	private List<Profile> getAppProfileList(List<AppProfile> appProfileList){
+		List<Profile> profileList = new ArrayList<>();
+		for (AppProfile appProfile : appProfileList) {
+			Profile profile = new Profile(appProfile.getId(),ProfileType.MOTO, appProfile.getName());
+			profileList.add(profile);
+		}
+		return profileList;
+	}
+	
+	private List<ApplicationFile> getApplicationFileList(List<AppFile> appFileList){
+		List<ApplicationFile> fileList = new ArrayList<>();
+		for (AppFile appFile : appFileList) {
+			ApplicationFile file = new ApplicationFile(appFile.getId(),appFile.getName(),appFile.getDescription(),appFile.getDefaultValue());
+			fileList.add(file);
+		}
+		return fileList;
+	}
+	private List<AppMock> getSortedAppList(Collection<AppMock> unsortedCollection){
+		List<AppMock> sortedList = unsortedCollection.stream().sorted((o1,o2)->{
+			return o1.getPackageName().compareTo(o2.getPackageName());
+		}).collect(Collectors.toList());
+		return sortedList;
 	}
 }

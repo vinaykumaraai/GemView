@@ -61,8 +61,7 @@ public class User extends AbstractEntity {
 		// An empty constructor is needed for all beans
 	}
 
-	public User(String email, String name, String password, String role, String firstname, String lastname, boolean active) {
-		super(false);
+	public User(Long id,String email, String name, String password, String role, String firstname, String lastname, boolean active) {
 		Objects.requireNonNull(email);
 		Objects.requireNonNull(name);
 		Objects.requireNonNull(password);
@@ -78,6 +77,7 @@ public class User extends AbstractEntity {
 		this.firstname = firstname;
 		this.lastname= lastname;
 		this.active=active;
+		this.setId(id);
 	}
 
 	public String getPassword() {

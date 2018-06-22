@@ -11,6 +11,7 @@ import java.net.URI;
  *
  */
 public class ApplicationFile extends File {
+	String value,description;
 
 	public ApplicationFile(File parent, String child) {
 		super(parent, child);
@@ -37,4 +38,9 @@ public class ApplicationFile extends File {
 		// TODO Auto-generated method stub
 		return super.getName();
 	}
+public ApplicationFile(Long id,String name,String description,String value) {
+	super(name);
+	
+}
+
 }

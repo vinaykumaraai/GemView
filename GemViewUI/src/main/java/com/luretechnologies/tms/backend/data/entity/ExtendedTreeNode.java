@@ -29,39 +29,29 @@
  * Inquiries should be made to legal@luretechnologies.com
  *
  */
-
 package com.luretechnologies.tms.backend.data.entity;
 
-import java.util.Date;
-import java.util.Objects;
+import java.util.List;
 
-public class Profile extends AbstractEntity {
+import com.luretechnologies.common.enums.EntityTypeEnum;
 
-	private ProfileType type;
-	private String name;
-	public ProfileType getType() {
-		return type;
-	}
-	public void setType(ProfileType type) {
-		this.type = type;
-	}
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
+/**
+ * @author Vinay
+ *
+ */
+public class ExtendedTreeNode extends TreeNode {
+	
+	public ExtendedTreeNode(String label, Long id, EntityTypeEnum type, String entityId) {
+		super(label, id, type, entityId);
 	}
 
-	public Profile(Long id,ProfileType type, String name) {
-		Objects.requireNonNull(type);
-		Objects.requireNonNull(name);
-		this.type = type;
-		this.name = name;
-		this.setId(id);
-	}
-	@Override
-	public String toString() {
-		return type.toString();
-	}	
+	private List<? extends AbstractEntity> extendedList;
 
+	public List<? extends AbstractEntity> getExtendedList() {
+		return extendedList;
+	}
+
+	public void setExtendedList(List<? extends AbstractEntity> extendedList) {
+		this.extendedList = extendedList;
+	}
 }

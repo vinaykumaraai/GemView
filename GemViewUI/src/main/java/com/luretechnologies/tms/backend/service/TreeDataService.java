@@ -481,7 +481,7 @@ public TreeData<ExtendedNode> getTreeDataForDebugAndAlert() {
 		node.setFrequency("120 Seconds");
 		node.setApp(appList.get(0));
 		node.setAdditionaFiles("Entity Files ");
-		node.setProfile(new Profile(ProfileType.FOOD, "Subway"));
+		node.setProfile(new Profile(1L,ProfileType.FOOD, "Subway"));
 		node.setUpdate("update 1");
 		node.setOverRideParamList(paramList1);
 		persliztnNodeList.add(node);
@@ -497,7 +497,7 @@ public TreeData<ExtendedNode> getTreeDataForDebugAndAlert() {
 		node1.setFrequency("1 Hr");
 		node1.setApp(appList.get(1));
 		node1.setAdditionaFiles("Region Files ");
-		node1.setProfile(new Profile(ProfileType.FOOD, "Papa Jhones"));
+		node1.setProfile(new Profile(2L,ProfileType.FOOD, "Papa Jhones"));
 		node1.setUpdate("update 2");
 		node1.setOverRideParamList(paramList2);
 		persliztnNodeList.add(node1);
@@ -513,7 +513,7 @@ public TreeData<ExtendedNode> getTreeDataForDebugAndAlert() {
 		node2.setFrequency("24 Hr");
 		node2.setApp(appList.get(2));
 		node2.setAdditionaFiles("Merchant Files ");
-		node2.setProfile(new Profile(ProfileType.FOOD, "Star Bucks"));
+		node2.setProfile(new Profile(4L,ProfileType.FOOD, "Star Bucks"));
 		node2.setUpdate("update 4");
 		node2.setOverRideParamList(paramList3);
 		persliztnNodeList.add(node2);
@@ -529,7 +529,7 @@ public TreeData<ExtendedNode> getTreeDataForDebugAndAlert() {
 		node3.setFrequency("1 week");
 		node3.setApp(appList.get(0));
 		node3.setAdditionaFiles("Terminal Files");
-		node3.setProfile(new Profile(ProfileType.RETAIL, "Walmart"));
+		node3.setProfile(new Profile(5L,ProfileType.RETAIL, "Walmart"));
 		node3.setUpdate("update 5");
 		node3.setOverRideParamList(paramList4);
 		persliztnNodeList.add(node3);
@@ -545,7 +545,7 @@ public TreeData<ExtendedNode> getTreeDataForDebugAndAlert() {
 		node4.setFrequency("1 month");
 		node4.setApp(appList.get(2));
 		node4.setAdditionaFiles("Device Files");
-		node4.setProfile(new Profile(ProfileType.RETAIL, "Target"));
+		node4.setProfile(new Profile(6L,ProfileType.RETAIL, "Target"));
 		node4.setUpdate("update 6");
 		node4.setOverRideParamList(paramList5);
 		persliztnNodeList.add(node4);
