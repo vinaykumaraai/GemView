@@ -46,6 +46,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.dialogs.ConfirmDialog;
 
+import com.luretechnologies.tms.backend.data.entity.AppClient;
 import com.luretechnologies.tms.backend.data.entity.AppDefaultParam;
 import com.luretechnologies.tms.backend.data.entity.AppMock;
 import com.luretechnologies.tms.backend.data.entity.ApplicationFile;
@@ -57,6 +58,7 @@ import com.luretechnologies.tms.backend.data.entity.User;
 import com.luretechnologies.tms.backend.rest.util.TestRestService;
 import com.luretechnologies.tms.backend.service.AppDefaultParamService;
 import com.luretechnologies.tms.backend.service.AppService;
+import com.luretechnologies.tms.backend.service.ApplicationStoreService;
 import com.luretechnologies.tms.backend.service.MockUserService;
 import com.luretechnologies.tms.backend.service.OdometerDeviceService;
 import com.luretechnologies.tms.backend.service.ProfileService;
@@ -115,8 +117,9 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 	private Grid<AppDefaultParam> appDefaultParamGrid;
 	private GridLayout appStoreGridLayout;
 	private static List<ApplicationFile> uploadedFileList = new ArrayList<>();
-	private Grid<AppMock> appGrid;
-	private AppMock selectedApp;
+//	private Grid<AppMock> appGrid;
+	private Grid<AppClient> appGrid;
+	private AppClient selectedApp;
 	private Profile selectedProfile;
 	private ComboBox<User> applicationOwner;
 	private ComboBox<Devices> devices;
@@ -130,7 +133,6 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 	private VerticalLayout appGridMenuVerticalLayout;
 	private VerticalLayout applicationListLayout;
 	private HorizontalLayout appSearchLayout ;
-	//private TestRestService testService = new TestRestService();
 	
 	@Autowired
 	public ApplicationStoreView() {
@@ -140,7 +142,9 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 	@Autowired
 	private AppService appService;
 	
-
+	@Autowired
+	private ApplicationStoreService appStoreService;
+	
 	@Autowired
 	private OdometerDeviceService deviceService;
 
@@ -277,9 +281,11 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 	}
 
 	private VerticalLayout getApplicationListLayout() {
-		appGrid = new Grid<>(AppMock.class);
+//		appGrid = new Grid<>(AppMock.class);
+		appGrid = new Grid<>(AppClient.class);
 		appGrid.setWidth("100%");
-		appGrid.setDataProvider(appService.getListDataProvider());
+//		appGrid.setDataProvider(appService.getListDataProvider());
+		appGrid.setDataProvider(appStoreService.getAppListDataProvider());
 		appGrid.setColumns("packageName", "description", "packageVersion");
 		appGrid.getColumn("packageName").setCaption("Name");
 		appGrid.getColumn("description").setCaption("Description");
@@ -307,7 +313,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		});
 		applicationSearch.addValueChangeListener(valueChange -> {
 			String valueInLower = valueChange.getValue().toLowerCase();
-			ListDataProvider<AppMock> appDataProvider = (ListDataProvider<AppMock>) appGrid.getDataProvider();
+			ListDataProvider<AppClient> appDataProvider = (ListDataProvider<AppClient>) appGrid.getDataProvider();
 			appDataProvider.setFilter(filter -> {
 				String packageNameInLower = filter.getPackageName().toLowerCase();
 				String packageVersionInLower = filter.getPackageVersion().toLowerCase();
@@ -494,11 +500,11 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			if(applicationOwner.getValue()==null) {
 				Notification.show(NotificationUtil.SAVE, Type.ERROR_MESSAGE);
 			}
-			else {AppMock app;
+			else {AppClient app;
 			if (appGrid.getSelectedItems().size() > 0) {
 				app = appGrid.getSelectedItems().iterator().next();
 			} else {
-				app = new AppMock();
+				app = new AppClient();
 				app.setPackageName(packageName.getValue());
 				app.setDescription(description.getValue());
 				app.setPackageVersion(packageVersion.getValue());
@@ -508,10 +514,14 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 				// Check if Profile is set and get all Default Params to be set
 				app.setAppDefaultParamList(
 						appDefaultParamGrid.getDataProvider().fetch(new Query<>()).collect(Collectors.toList()));
-				if (selectedProfile != null)
-					app.setProfile(selectedProfile);
-				appService.saveApp(app);
-				appGrid.setDataProvider(appService.getListDataProvider());
+				if (selectedProfile != null) {
+					app.getProfile().stream().filter(profile -> profile.equals(selectedProfile)).findFirst().get().setActive(true);
+					
+//					app.setProfile(selectedProfile);
+				}
+				//FIXME: figureout how to set all the list of Profiles added. or save only one
+				appStoreService.saveApp(app);
+				appGrid.setDataProvider(appStoreService.getAppListDataProvider());
 				appGrid.getDataProvider().refreshAll();
 				appGrid.deselectAll();
 			}
@@ -676,7 +686,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 				ListSelect<Profile> optionList = (ListSelect<Profile>) ((VerticalLayout) openProfileWindow.getContent())
 						.getComponent(0);
 				if (selectedApp.getProfile() != null)
-					optionList.select(selectedApp.getProfile());
+					optionList.select(selectedApp.getProfile().stream().filter(profile -> profile.isActive()).findFirst().get());
 			}
 		});
 
@@ -723,8 +733,8 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 							// appService.removeApp(appGrid.getSelectedItems().iterator().next());
 							appSearch.clear();
 							setApplicationFormComponentsEnable(false);
-							appService.removeApp(appGrid.getSelectedItems().iterator().next());
-							appGrid.setDataProvider(appService.getListDataProvider());
+							appStoreService.removeApp(appGrid.getSelectedItems().iterator().next());
+							appGrid.setDataProvider(appStoreService.getAppListDataProvider());
 							appGrid.getDataProvider().refreshAll();
 							appGrid.deselectAll();
 							// TODO add Grid reload

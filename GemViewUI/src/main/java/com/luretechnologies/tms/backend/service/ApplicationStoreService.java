@@ -43,80 +43,208 @@ import com.luretechnologies.client.restlib.service.model.App;
 import com.luretechnologies.client.restlib.service.model.AppFile;
 import com.luretechnologies.client.restlib.service.model.AppParam;
 import com.luretechnologies.client.restlib.service.model.AppProfile;
+import com.luretechnologies.client.restlib.service.model.Device;
 import com.luretechnologies.tms.backend.data.entity.AppClient;
 import com.luretechnologies.tms.backend.data.entity.AppDefaultParam;
 import com.luretechnologies.tms.backend.data.entity.AppMock;
 import com.luretechnologies.tms.backend.data.entity.ApplicationFile;
+import com.luretechnologies.tms.backend.data.entity.Devices;
 import com.luretechnologies.tms.backend.data.entity.ParameterType;
 import com.luretechnologies.tms.backend.data.entity.Profile;
 import com.luretechnologies.tms.backend.data.entity.ProfileType;
 import com.luretechnologies.tms.backend.data.entity.User;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
+import com.vaadin.data.provider.ListDataProvider;
 
 @Service
 public class ApplicationStoreService {
 
-	public List<AppClient> getAppListForGrid() throws ApiException{
+	public List<AppClient> getAppListForGrid() throws ApiException {
 		List<AppClient> appClientList = new ArrayList<>();
 		try {
-			if(RestServiceUtil.getSESSION()!=null) {
-				
+			if (RestServiceUtil.getSESSION() != null) {
+
 				List<App> appsList = RestServiceUtil.getInstance().getClient().getAppApi().getApps();
-				for(App app : appsList) {
-					AppClient appClient = new AppClient(app.getId(),app.getName(), app.getDescription(), app.getVersion(), app.getAvailable(), getAppDefaultParamList(app.getAppparamCollection()), null, getOwner(app.getOwnerId()), getAppProfileList(app.getAppprofileCollection()), getApplicationFileList(app.getAppfileCollection()));
+				for (App app : appsList) {
+					AppClient appClient = new AppClient(app.getId(), app.getName(), app.getDescription(),
+							app.getVersion(), app.getAvailable(), getAppDefaultParamList(app.getAppparamCollection()),
+							null, getOwner(app.getOwnerId()), getAppProfileList(app.getAppprofileCollection()),
+							getApplicationFileList(app.getAppfileCollection()));
 				}
 			}
-		}catch(Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return appClientList;
 	}
-	private List<AppDefaultParam> getAppDefaultParamList(List<AppParam> appParamList){
+
+	private List<AppDefaultParam> getAppDefaultParamList(List<AppParam> appParamList) {
 		List<AppDefaultParam> appDefaultParamList = new ArrayList<>();
 		for (AppParam appParam : appParamList) {
-			AppDefaultParam appDefaultParam = new AppDefaultParam(appParam.getId(),appParam.getName(), appParam.getDescription(), ParameterType.BOOLEAN, appParam.getModifiable());
+			AppDefaultParam appDefaultParam = new AppDefaultParam(appParam.getId(), appParam.getName(),
+					appParam.getDescription(), ParameterType.BOOLEAN, appParam.getModifiable());
 			appDefaultParamList.add(appDefaultParam);
 		}
 		return appDefaultParamList;
 	}
-	
+
 	private User getOwner(Long id) {
 		User owner = null;
 		try {
-			if(RestServiceUtil.getSESSION()!=null) {
-				com.luretechnologies.client.restlib.service.model.User serverUser = RestServiceUtil.getInstance().getClient().getUserApi().getUser(id);
-				owner = new User(serverUser.getId(),serverUser.getEmail(), serverUser.getUsername(), null, serverUser.getRole().getName(), serverUser.getFirstName(), serverUser.getLastName(), serverUser.getAvailable());
-				
+			if (RestServiceUtil.getSESSION() != null) {
+				com.luretechnologies.client.restlib.service.model.User serverUser = RestServiceUtil.getInstance()
+						.getClient().getUserApi().getUser(id);
+				owner = new User(serverUser.getId(), serverUser.getEmail(), serverUser.getUsername(), null,
+						serverUser.getRole().getName(), serverUser.getFirstName(), serverUser.getLastName(),
+						serverUser.getAvailable());
+
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-			catch (Exception e) {
-				e.printStackTrace();
-			}
 		return owner;
-		
+
 	}
-	
-	private List<Profile> getAppProfileList(List<AppProfile> appProfileList){
+
+	private List<Profile> getAppProfileList(List<AppProfile> appProfileList) {
 		List<Profile> profileList = new ArrayList<>();
 		for (AppProfile appProfile : appProfileList) {
-			Profile profile = new Profile(appProfile.getId(),ProfileType.MOTO, appProfile.getName());
+			Profile profile = new Profile(appProfile.getId(), ProfileType.MOTO, appProfile.getName());
 			profileList.add(profile);
 		}
 		return profileList;
 	}
-	
-	private List<ApplicationFile> getApplicationFileList(List<AppFile> appFileList){
+
+	private List<ApplicationFile> getApplicationFileList(List<AppFile> appFileList) {
 		List<ApplicationFile> fileList = new ArrayList<>();
 		for (AppFile appFile : appFileList) {
-			ApplicationFile file = new ApplicationFile(appFile.getId(),appFile.getName(),appFile.getDescription(),appFile.getDefaultValue());
+			ApplicationFile file = new ApplicationFile(appFile.getId(), appFile.getName(), appFile.getDescription(),
+					appFile.getDefaultValue());
 			fileList.add(file);
 		}
 		return fileList;
 	}
-	private List<AppMock> getSortedAppList(Collection<AppMock> unsortedCollection){
-		List<AppMock> sortedList = unsortedCollection.stream().sorted((o1,o2)->{
+
+	private List<AppClient> getSortedAppClientList(Collection<AppClient> unsortedCollection) {
+		List<AppClient> sortedList = unsortedCollection.stream().sorted((o1, o2) -> {
 			return o1.getPackageName().compareTo(o2.getPackageName());
 		}).collect(Collectors.toList());
 		return sortedList;
 	}
+
+	public List<Profile> getAllAppProfileList(Long appId, Long entityId) {
+		List<Profile> appProfileList = new ArrayList<>();
+		try {
+			if (RestServiceUtil.getSESSION() != null) {
+				List<AppProfile> appProfileServerList = RestServiceUtil.getInstance().getClient().getAppProfileApi()
+						.getAppProfileListByEntity(appId, entityId);
+				for (AppProfile appProfile : appProfileServerList) {
+					Profile profile = new Profile(appProfile.getId(), ProfileType.MOTO, appProfile.getName());
+					appProfileList.add(profile);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return appProfileList;
+	}
+
+	public List<ApplicationFile> getAllAppFileList() {
+		List<ApplicationFile> applicationFileList = new ArrayList<>();
+		try {
+			if (RestServiceUtil.getSESSION() != null) {
+				List<AppFile> appFileList = RestServiceUtil.getInstance().getClient().getAppFileApi().getAppFiles();
+				for (AppFile appFile : appFileList) {
+					ApplicationFile file = new ApplicationFile(appFile.getId(), appFile.getName(),
+							appFile.getDescription(), appFile.getDefaultValue());
+					applicationFileList.add(file);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return applicationFileList;
+	}
+
+	public List<Devices> getAllDeviceList() {
+		List<Devices> deviceList = new ArrayList<>();
+		try {
+			if (RestServiceUtil.getSESSION() != null) {
+				List<Device> deviceServerList = RestServiceUtil.getInstance().getClient().getDeviceApi()
+						.getDevices(null, null);
+				for (Device device : deviceServerList) {
+					Devices deviceClient = new Devices(device.getId(), device.getName(), device.getDescription(),
+							device.getSerialNumber(), device.getAvailable());
+					deviceList.add(deviceClient);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return deviceList;
+	}
+
+	public ListDataProvider<AppClient> getAppListDataProvider() {
+		ListDataProvider<AppClient> appDataProvider = null;
+		try {
+			appDataProvider = new ListDataProvider<>(getSortedAppClientList(getAppListForGrid()));
+		} catch (ApiException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return appDataProvider;
+	}
+
+	public void saveApp(AppClient appClinet) {
+		if (appClinet != null) {
+			try {
+				if (RestServiceUtil.getSESSION() != null) {
+					App serverApp = new App();
+					serverApp.setAvailable(appClinet.isAvailable());
+					serverApp.setName(appClinet.getPackageName());
+					serverApp.setDescription(appClinet.getDescription());
+					serverApp.setVersion(appClinet.getPackageVersion());
+					// set the lists e.g appFile, appProfile
+					List<AppParam> appParamList = new ArrayList<>();
+					for (AppDefaultParam appDefaultParam : appClinet.getAppDefaultParamList()) {
+						AppParam appParam = new AppParam();
+						appParam.setId(appDefaultParam.getId());
+						appParam.setDescription(appDefaultParam.getDescription());
+						appParam.setName(appDefaultParam.getParameter());
+						// Add action and other params .. how to get them for UI
+						appParamList.add(appParam);
+					}
+					serverApp.setAppparamCollection(appParamList);
+					List<AppProfile> appProfileList = new ArrayList<>();
+					for (Profile profile : appClinet.getProfile()) {
+						AppProfile appProfile = new AppProfile();
+						appProfile.setId(profile.getId());
+						appProfile.setName(profile.getName());
+						// How to set appprofileparams and other elements
+						appProfileList.add(appProfile);
+					}
+					serverApp.setAppprofileCollection(appProfileList);
+					// Add all the other attributes. //FIXME: figure out how and what are the
+					// required attributes to be set
+					RestServiceUtil.getInstance().getClient().getAppApi().createApp(serverApp);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+		}
+	}
+
+	public void removeApp(AppClient appClient) {
+		if (appClient != null) {
+			try {
+				if (RestServiceUtil.getSESSION() != null) {
+					RestServiceUtil.getInstance().getClient().getAppApi().deleteApp(appClient.getId());
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
 }

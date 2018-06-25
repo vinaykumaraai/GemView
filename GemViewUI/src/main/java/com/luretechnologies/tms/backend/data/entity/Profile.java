@@ -39,6 +39,7 @@ public class Profile extends AbstractEntity {
 
 	private ProfileType type;
 	private String name;
+	private boolean active;
 	public ProfileType getType() {
 		return type;
 	}
@@ -58,6 +59,12 @@ public class Profile extends AbstractEntity {
 		this.type = type;
 		this.name = name;
 		this.setId(id);
+	}
+	public boolean isActive() {
+		return active;
+	}
+	public void setActive(boolean active) {
+		this.active = active;
 	}
 	@Override
 	public String toString() {

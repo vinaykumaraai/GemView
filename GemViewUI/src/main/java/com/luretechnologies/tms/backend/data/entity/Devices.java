@@ -90,7 +90,13 @@ public class Devices extends AbstractEntity{
 		this.statistics = statistics;
 		this.deviceName = deviceName;
 	}
-	
+	public Devices(Long id,String deviceName,String description,String serialNumber,boolean active) {
+		this.setId(id);
+		this.deviceName = deviceName;
+		this.description = description;
+		this.serialNumber = serialNumber;
+		this.active = active;
+	}
 	
 	
 	public List<OverRideParameters> getOverRideParamList() {
