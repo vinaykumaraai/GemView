@@ -32,25 +32,18 @@
 package com.luretechnologies.tms.automationtesting;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.Properties;
 
-import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.slf4j.LoggerFactory;
-import org.testng.Assert;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -73,6 +66,7 @@ public class LoginTest {
 			FileInputStream input = new FileInputStream("config.properties");
 			prop.load(input);
 			String location = prop.getProperty("location");
+			URL chromeLink = this.getClass().getClassLoader().getResource("chromedriver.exe");
 			System.setProperty("webdriver.chrome.driver", "C:\\Users\\Vinay\\eclipse-workspace\\AutomationTesting\\src\\main\\resource\\chromedriver.exe");
 			chromeDriver = new ChromeDriver();
 			chromeDriver.manage().window().maximize();
