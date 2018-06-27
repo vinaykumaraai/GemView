@@ -246,5 +246,67 @@ public class ApplicationStoreService {
 			}
 		}
 	}
+	
+	public void saveAppProfile(AppClient appClient, Profile profile) {
+		if (appClient != null && profile != null) {
+			try {
+				if (RestServiceUtil.getSESSION() != null) {
+					AppProfile serverProfile = new AppProfile();
+					serverProfile.setAppId(appClient.getId());
+					serverProfile.setId(profile.getId());
+					serverProfile.setName(profile.getName());
+					//FIXME: find the correct app profile create method
+//					RestServiceUtil.getInstance().getClient().getAppProfileApi().addEntityAppProfile(serverProfile.getId(), entityId);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public void removeAppProfile(AppClient appClient, Profile profile) {
+		if (appClient != null && profile != null) {
+			try {
+				if (RestServiceUtil.getSESSION() != null) {
+					//FIXME: find the correct app profile remove method
+//					RestServiceUtil.getInstance().getClient().getAppProfileApi().deleteEntityAppProfile(profile.getId(), entityId);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public void saveAppDefaultParam(AppClient appClient, AppDefaultParam defaultParam) {
+		if (appClient != null && defaultParam != null) {
+			try {
+				if (RestServiceUtil.getSESSION() != null) {
+					AppParam appParam = new AppParam();
+					appParam.setAppId(appClient.getId());
+					appParam.setDescription(defaultParam.getDescription());
+					appParam.setId(defaultParam.getId());
+					appParam.setName(defaultParam.getParameter());
+					//FIXME: find out App Default Param create 
+//					RestServiceUtil.getInstance().getClient().getApp
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public void removeAppDefaultParam(AppClient appClient, AppDefaultParam defaultParam) {
+		if (appClient != null && defaultParam != null) {
+			try {
+				if (RestServiceUtil.getSESSION() != null) {
+					//FIXME: No delete Param api is available
+//					RestServiceUtil.getInstance().getClient().getAppParamApi();
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
 
 }

@@ -53,6 +53,13 @@ public class Profile extends AbstractEntity {
 		this.name = name;
 	}
 
+	public Profile(ProfileType type, String name) {
+		super(false);
+		Objects.requireNonNull(type);
+		Objects.requireNonNull(name);
+		this.type = type;
+		this.name = name;
+	}
 	public Profile(Long id,ProfileType type, String name) {
 		Objects.requireNonNull(type);
 		Objects.requireNonNull(name);

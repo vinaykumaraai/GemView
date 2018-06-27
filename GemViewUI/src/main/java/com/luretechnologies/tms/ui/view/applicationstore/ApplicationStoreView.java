@@ -755,11 +755,13 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 							// Confirmed to continue
 							// appDefaultParamService.removeAppDefaultParam((AppDefaultParam)appDefaultParamGrid.getSelectionModel().getFirstSelectedItem().get());
 							// Save Form should take care what is deleted
-							selectedApp.getAppDefaultParamList().remove((AppDefaultParam) appDefaultParamGrid
-									.getSelectionModel().getFirstSelectedItem().get());
+							AppDefaultParam appDefaultParam = (AppDefaultParam) appDefaultParamGrid
+									.getSelectionModel().getFirstSelectedItem().get();
+							selectedApp.getAppDefaultParamList().remove(appDefaultParam);
 							appDefaultParamGrid
 									.setDataProvider(new ListDataProvider<>(selectedApp.getAppDefaultParamList()));
 							// appService.removeApp(appGrid.getSelectedItems().iterator().next());
+							appStoreService.removeAppDefaultParam(selectedApp, appDefaultParam);
 							appSearch.clear();
 							// TODO add Grid reload
 						} else {
@@ -828,9 +830,10 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 				if (optionList.getSelectedItems().size() == 1) {
 					// FIXME: call delete service of Profile checking if its instace of Profile
 					Profile selected = (Profile) optionList.getSelectedItems().iterator().next();
-					selectedApp.setProfile(null);
-					profileService.removeProfile(selected);
-					optionList.setDataProvider(profileService.getListDataProvider());
+					selectedApp.getProfile().remove(selected);
+					appStoreService.removeAppProfile(selectedApp, selected);
+					//FIXME: find out the entity id
+//					optionList.setDataProvider(new ListDataProvider<>(appStoreService.getAllAppProfileList(selectedApp.getId(), entityId)));
 					field.clear();
 
 				}
@@ -866,9 +869,10 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 
 		Button saveProfile = new Button("Save", click -> {
 			if (profileType.getSelectedItem().isPresent() && StringUtils.isNotEmpty(profileName.getValue())) {
-//				Profile pToSave = new Profile(profileType.getValue(), profileName.getValue());
-//				profileService.saveProfile(pToSave);
-				optionList.setDataProvider(profileService.getListDataProvider());
+				Profile pToSave = new Profile(profileType.getValue(), profileName.getValue());
+				appStoreService.saveAppProfile(selectedApp, pToSave);
+				//FIXME: what will be the entity id?
+//				optionList.setDataProvider(new ListDataProvider<>(appStoreService.getAllAppProfileList(selectedApp.getId(), entityId)));
 				profileWindow.close();
 			}
 		});
@@ -903,11 +907,11 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		Button saveParameter = new Button("Save", click -> {
 			if (StringUtils.isNotEmpty(parameterType.getValue().name())
 					&& StringUtils.isNotEmpty(parameterName.getValue())) {
-//				AppDefaultParam appDefaultParam = new AppDefaultParam(parameterName.getValue(),
-//						parameterDescription.getValue(), parameterType.getValue(), parameterActive.getValue());
-//				// appDefaultParamService.saveAppDefaultParam(appDefaultParam);
-//				selectedApp.getAppDefaultParamList().add(appDefaultParam);
-//				// appService.saveApp(app);
+				AppDefaultParam appDefaultParam = new AppDefaultParam(parameterName.getValue(),
+						parameterDescription.getValue(), parameterType.getValue(), parameterActive.getValue());
+				 appStoreService.saveAppDefaultParam(selectedApp, appDefaultParam);
+				selectedApp.getAppDefaultParamList().add(appDefaultParam);
+				 appStoreService.saveApp(selectedApp);
 				appDefaultParamGrid.setDataProvider(new ListDataProvider<>(selectedApp.getAppDefaultParamList()));
 				appDefaultWindow.close();
 			}

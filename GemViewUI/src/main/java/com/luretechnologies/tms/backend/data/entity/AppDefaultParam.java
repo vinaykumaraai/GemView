@@ -29,6 +29,18 @@ public class AppDefaultParam extends AbstractEntity {
 		this.setId(id);
 
 	}
+	public AppDefaultParam(String parameter, String description, ParameterType type, boolean value) {
+		super(false);
+		Objects.requireNonNull(parameter);
+		Objects.requireNonNull(description);
+		Objects.requireNonNull(type);
+		Objects.requireNonNull(value);
+		this.parameter = parameter;
+		this.description = description;
+		this.type = type;
+		this.value = value;
+
+	}
 
 	public String getParameter() {
 		return parameter;
