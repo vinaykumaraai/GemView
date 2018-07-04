@@ -2,12 +2,12 @@ package com.luretechnologies.tms.automationtesting;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.time.LocalDateTime;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -32,11 +32,12 @@ public class AutomationTest {
 			Properties prop = new Properties();
 			FileInputStream input = new FileInputStream("config.properties");
 			prop.load(input);
+			//FIXME: change the location in config.properties where you kept the driver.
 			String location = prop.getProperty("location");
-			//URL chromeLink = this.getClass().getClassLoader().getResource("chromedriver.exe");
 			//System.setProperty("webdriver.chrome.driver", "C:\\Users\\Vinay\\eclipse-workspace\\AutomationTesting\\src\\main\\resource\\chromedriver.exe");
-			System.getProperty("webdriver.chrome.driver",location);
+			System.setProperty("webdriver.chrome.driver",location);
 			chromeDriver = new ChromeDriver();
+//			chromeDriver = new FirefoxDriver();
 			chromeDriver.manage().window().maximize();
 			chromeDriver.get(LOGIN_URL);
 			assertEquals("Gem View", chromeDriver.getTitle());
