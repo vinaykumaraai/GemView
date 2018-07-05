@@ -133,9 +133,9 @@ public class TreeDataService {
 		for (int index = 0; index < 3; index++) {
 			userList1.remove(index);
 			userList2.remove(index + 1);
-			userList3.remove(index + 2);
-			userList4.remove(index + 3);
-			userList5.remove(index + 2);
+			userList3.remove(index + 0);
+			userList4.remove(index + 0);
+			userList5.remove(index + 0);
 
 		}
 		userNodeList = new ArrayList();

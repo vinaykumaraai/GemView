@@ -9,61 +9,50 @@ import java.util.Objects;
  */
 public class Alert extends AbstractEntity {
 
-	private AlertType type;
+	private String type;
 	private String description, name;
 	private boolean active;
 	private String email;
+	private Long id;
 
 	public Alert() {
 		// TODO Auto-generated constructor stub
 		super(false);
 	}
 
-	public Alert(AlertType type, String Name, String description, String email, boolean active) {
+	public Alert(Long id, String type, String Name, String description, boolean active, String email) {
 		super(false);
 		Objects.requireNonNull(type);
 		Objects.requireNonNull(Name);
 		Objects.requireNonNull(description);
 		Objects.requireNonNull(email);
 		Objects.requireNonNull(active);
+		Objects.requireNonNull(id);
 		this.type = type;
 		this.name=Name;
 		this.description = description;
 		this.email = email;
 		this.active = active;
+		this.id = id;
 
 	}
+	
+	public Long getId() {
+		return id;
+	}
 
-	public AlertType getType() {
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getType() {
 		return type;
 	}
 
-	public void setType(AlertType type) {
+	public void setType(String type) {
 		this.type = type;
 	}
-
-	public void setType(String type) {
-		switch (type.toLowerCase()) {
-		case "void":
-			this.setType(AlertType.VOID);
-			break;
-		case "not active":
-		case "notactive":
-			this.setType(AlertType.NOT_ACTIVE);
-			break;
-		case "reboot":
-			this.setType(AlertType.REBOOT);
-			break;
-		case "refund":
-			this.setType(AlertType.REFUND);
-			break;
-		default:
-			this.setType(AlertType.MISC);
-			break;
-
-		}
-	}
-
+	
 	public String getDescription() {
 		return description;
 	}

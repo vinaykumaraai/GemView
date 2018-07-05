@@ -63,6 +63,7 @@ import com.luretechnologies.tms.backend.service.MockUserService;
 import com.luretechnologies.tms.backend.service.OdometerDeviceService;
 import com.luretechnologies.tms.backend.service.ProfileService;
 import com.luretechnologies.tms.ui.NotificationUtil;
+import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.data.provider.Query;
 import com.vaadin.event.ShortcutAction.KeyCode;
@@ -281,16 +282,14 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 	}
 
 	private VerticalLayout getApplicationListLayout() {
-//		appGrid = new Grid<>(AppMock.class);
 		appGrid = new Grid<>(AppClient.class);
 		appGrid.setWidth("100%");
-//		appGrid.setDataProvider(appService.getListDataProvider());
-		appGrid.setDataProvider(appStoreService.getAppListDataProvider());
 		appGrid.setColumns("packageName", "description", "packageVersion");
 		appGrid.getColumn("packageName").setCaption("Name");
 		appGrid.getColumn("description").setCaption("Description");
 		appGrid.getColumn("packageVersion").setCaption("Version");
 		appGrid.addColumn("available").setCaption("Available");
+		appGrid.setDataProvider(appStoreService.getAppListDataProvider());
 		appGrid.setSelectionMode(SelectionMode.SINGLE);
 		
 		applicationSearch = new TextField();
@@ -313,14 +312,17 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		});
 		applicationSearch.addValueChangeListener(valueChange -> {
 			String valueInLower = valueChange.getValue().toLowerCase();
-			ListDataProvider<AppClient> appDataProvider = (ListDataProvider<AppClient>) appGrid.getDataProvider();
+			List<AppClient> appClientList = appStoreService.searchApps(valueInLower);
+			DataProvider data = new ListDataProvider(appClientList);
+			appGrid.setDataProvider(data);
+			/*ListDataProvider<AppClient> appDataProvider = (ListDataProvider<AppClient>) appGrid.getDataProvider();
 			appDataProvider.setFilter(filter -> {
 				String packageNameInLower = filter.getPackageName().toLowerCase();
 				String packageVersionInLower = filter.getPackageVersion().toLowerCase();
 				String fileInLower = filter.getDescription().toLowerCase();
 				return packageVersionInLower.equals(valueInLower) || packageNameInLower.contains(valueInLower)
 						|| fileInLower.contains(valueInLower);
-			});
+			});*/
 		});
 		Button createAppGridRow = new Button(VaadinIcons.FOLDER_ADD, click -> {
 			setApplicationFormComponentsEnable(true);
@@ -909,6 +911,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 					&& StringUtils.isNotEmpty(parameterName.getValue())) {
 				AppDefaultParam appDefaultParam = new AppDefaultParam(parameterName.getValue(),
 						parameterDescription.getValue(), parameterType.getValue(), parameterActive.getValue());
+				//FIXME: check for app is already created: make separate calls for create and update
 				 appStoreService.saveAppDefaultParam(selectedApp, appDefaultParam);
 				selectedApp.getAppDefaultParamList().add(appDefaultParam);
 				 appStoreService.saveApp(selectedApp);

@@ -53,9 +53,9 @@ public class TreeDataNodeService {
 				TreeData<TreeNode> treeData = new TreeData<>();
 				Entity entity = RestServiceUtil.getInstance().getClient().getEntityApi().getEntityHierarchy();
 				List<Entity> entityList = RestServiceUtil.getInstance().getClient().getEntityApi().getEntityChildren(entity.getId());
-				TreeNode node = new TreeNode(entity.getName(), entity.getId(), entity.getType(), entity.getEntityId());
-				List<TreeNode> treeNodeChildList = getChildNodes(entityList);
-				//sRestServiceUtil.getInstance().getClient().getEntityApi()				
+				TreeNode node = new TreeNode(entity.getName(), entity.getId(), entity.getType(), entity.getEntityId(), entity.getDescription()
+						, true);
+				List<TreeNode> treeNodeChildList = getChildNodes(entityList);		
 				treeData.addItems(null, node);
 				treeData.addItems(node, treeNodeChildList);
 				treeDataRecursive(treeNodeChildList, treeData);
@@ -88,7 +88,8 @@ public class TreeDataNodeService {
 	private List<TreeNode> getChildNodes(List<Entity> entityList){
 		List<TreeNode> nodeChildList = new ArrayList<>();
 		for(Entity entity : entityList) {
-			TreeNode node = new TreeNode(entity.getName(), entity.getId(), entity.getType(), entity.getEntityId());
+			TreeNode node = new TreeNode(entity.getName(), entity.getId(), entity.getType(), entity.getEntityId(), entity.getDescription()
+					,true);
 			nodeChildList.add(node);
 		}
 		return nodeChildList;

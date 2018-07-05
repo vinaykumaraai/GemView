@@ -440,8 +440,14 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		}		);
 		debugSearch.addValueChangeListener(valueChange -> {
 			String filter = debugSearch.getValue();
+			String endDate =null;
+			String startDate=null;
+			if(debugEndDateField.getValue()!=null && debugStartDateField!=null) {
+				endDate = debugEndDateField.getValue().format(dateFormatter1);
+				startDate = debugStartDateField.getValue().format(dateFormatter1);
+			}
 			try {
-				List<AuditUserLog> searchGridData = auditService.searchGridData(filter);
+				List<AuditUserLog> searchGridData = auditService.searchGridData(filter, startDate, endDate);
 				List<Audit> auditListSearch = new ArrayList<>();
 				for(AuditUserLog auditUserLog: searchGridData) {
 					Audit audit = new Audit(auditUserLog.getId(), auditUserLog.getAuditUserLogType().getName(), auditUserLog.getDescription(), auditUserLog.getDateAt().toString());
@@ -553,17 +559,17 @@ public class AuditView extends VerticalLayout implements Serializable, View {
         	 		if(change.getValue().compareTo(debugStartDateField.getValue()) >0 ) {
         	 			String endDate = debugEndDateField.getValue().format(dateFormatter1);
         	 			String startDate = debugStartDateField.getValue().format(dateFormatter1);
+        	 			String filter = debugSearch.getValue();
 						try {
 							List<Audit> auditListFilterBydates = new ArrayList<>();
 	        	 			List<AuditUserLog> auditList;
-							auditList = auditService.searchByDates(startDate, endDate);
+							auditList = auditService.searchByDates(filter, startDate, endDate);
 							for(AuditUserLog auditUserLog: auditList) {
 	    						Audit audit = new Audit(auditUserLog.getId(), auditUserLog.getAuditUserLogType().getName(), auditUserLog.getDescription(), auditUserLog.getDateAt().toString());
 	    						auditListFilterBydates.add(audit);
 	    					}
 	    					DataProvider data = new ListDataProvider(auditListFilterBydates);
 	    					debugGrid.setDataProvider(data);
-	    					debugSearch.clear();
 						} catch (ApiException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();

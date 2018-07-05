@@ -60,10 +60,10 @@ public class DebugService {
 		this.mockDebugService = mockRepository;
 	}
 	private List<Debug> getSortedUserList(Collection<Debug> unsortedCollection){
-		List<Debug> sortedList = unsortedCollection.stream().sorted((o1,o2)->{
+		/*List<Debug> sortedList = unsortedCollection.stream().sorted((o1,o2)->{
 			return o1.getType().compareTo(o2.getType());
-		}).collect(Collectors.toList());
-		return sortedList;
+		}).collect(Collectors.toList());*/
+		return null;
 	}
 	
 	public ListDataProvider<Debug> getListDataProvider(){

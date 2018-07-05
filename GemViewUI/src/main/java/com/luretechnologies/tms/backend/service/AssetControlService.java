@@ -31,18 +31,29 @@
  */
 package com.luretechnologies.tms.backend.service;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.luretechnologies.client.restlib.common.ApiException;
+import com.luretechnologies.client.restlib.service.model.AlertAction;
 import com.luretechnologies.client.restlib.service.model.AuditUserLog;
+import com.luretechnologies.client.restlib.service.model.DebugItem;
 import com.luretechnologies.client.restlib.service.model.Heartbeat;
+import com.luretechnologies.client.restlib.service.model.HeartbeatAlert;
 import com.luretechnologies.client.restlib.service.model.HeartbeatAudit;
+import com.luretechnologies.client.restlib.service.model.HeartbeatOdometer;
+import com.luretechnologies.tms.backend.data.entity.Alert;
 import com.luretechnologies.tms.backend.data.entity.AssetHistory;
 import com.luretechnologies.tms.backend.data.entity.Audit;
+import com.luretechnologies.tms.backend.data.entity.Debug;
+import com.luretechnologies.tms.backend.data.entity.DebugItems;
+import com.luretechnologies.tms.backend.data.entity.DeviceOdometer;
+import com.luretechnologies.tms.backend.data.entity.Terminal;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
 import com.vaadin.data.TreeData;
@@ -89,23 +100,252 @@ public class AssetControlService {
 		try {
 			if(RestServiceUtil.getSESSION()!=null) {
 			
-				RestServiceUtil.getInstance().getClient().getAuditUserLogApi().delete(id);
+				RestServiceUtil.getInstance().getClient().getHeartbeatApi().deleteAudit(id);
 			}
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
-	public List<AuditUserLog> searchGridDataByText(String filter) throws ApiException{
+	public List<AssetHistory> searchHistoryGridDataByText(String entityId, String filter, String startDate, String endDate) throws ApiException{
+		List<AssetHistory> historyListSearch = new ArrayList<>();
 		try {
 			if(RestServiceUtil.getSESSION()!=null) {
 			
-				List<AuditUserLog> auditList = RestServiceUtil.getInstance().getClient().getAuditUserLogApi().searchLogs(null, null, filter, 
-						null, null, null, null);
-				return auditList;
+				List<HeartbeatAudit> searchList = RestServiceUtil.getInstance().getClient().getHeartbeatApi().searchAudits(entityId, filter, 
+							startDate, endDate, null, null);
+				if(searchList!=null && !searchList.isEmpty()) {
+					for(HeartbeatAudit heartbeatAudit: searchList) {
+						AssetHistory assetHistory = new AssetHistory(heartbeatAudit.getId(), heartbeatAudit.getComponent(), heartbeatAudit.getDescription());
+						historyListSearch.add(assetHistory);
+					}
+				}
+				return historyListSearch;
 			}
 		}catch(Exception e) {
 			e.printStackTrace();
+		}
+		return historyListSearch;
+	}
+	
+	public List<HeartbeatAudit> searchTreeData(String filter) throws ApiException{
+		try {
+			if(RestServiceUtil.getSESSION()!=null) {
+			
+				List<HeartbeatAudit> odometerList = null;/*RestServiceUtil.getInstance().getClient().getAuditUserLogApi().searchLogs(null, null, filter, 
+						null, null, 1, 20);*/
+				//RestServiceUtil.getInstance().getClient().getAuditUserLogApi().searchLogs(userId, entityId, filter, dateFrom, dateTo, pageNumber, rowsPerPage)
+				return odometerList;
+			}
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public List<HeartbeatAudit> searchHistoryByDates(String entityId, String filter, String startDate, String endDate) throws ApiException{
+		try {
+			if(RestServiceUtil.getSESSION()!=null) {
+			if(filter!=null && !filter.isEmpty()) {
+				List<HeartbeatAudit> historySearchList = RestServiceUtil.getInstance().getClient().getHeartbeatApi().searchAudits(entityId, filter, 
+						startDate, endDate, null, null);
+				return historySearchList;
+			} else {
+				List<HeartbeatAudit> historySearchList = RestServiceUtil.getInstance().getClient().getHeartbeatApi().searchAudits(entityId, null, 
+						startDate, endDate, null, null);
+				return historySearchList;
+			}
+				
+			}
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public List<Alert> getAlertGridData(String id){
+		List<Alert> assetAlertListNew = new ArrayList<>();
+		try {
+			if(RestServiceUtil.getSESSION()!=null) {			
+				List<AlertAction> historyList = RestServiceUtil.getInstance().getClient().getAlertActionApi().search(id, null, null, null, null, null);
+					for(AlertAction alertAction: historyList) {
+						Alert alert = new Alert(alertAction.getId(), alertAction.getLabel(), alertAction.getName(), 
+								alertAction.getDescription(), alertAction.getAvailable(), alertAction.getEmail());
+						assetAlertListNew.add(alert);	
+						}
+				}
+				return assetAlertListNew;
+			}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		return assetAlertListNew;
+	}
+	
+	public Alert createAlertCommands(String entityId, AlertAction alertAction){
+		Alert newAlert = new Alert();
+		try {
+			if(RestServiceUtil.getSESSION()!=null) {			
+				AlertAction newAlertAction = RestServiceUtil.getInstance().getClient().getAlertActionApi().create(entityId,alertAction);
+					
+				newAlert = new Alert(newAlertAction.getId(), newAlertAction.getLabel(), newAlertAction.getName(), 
+						newAlertAction.getDescription(), newAlertAction.getAvailable(), newAlertAction.getEmail());
+						
+				}
+				return newAlert;
+			}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		return newAlert;
+	}
+	
+	public Alert updateAlertCommands(AlertAction alertAction){
+		Alert newAlert = new Alert();
+		try {
+			if(RestServiceUtil.getSESSION()!=null) {	
+				AlertAction newAlertAction = RestServiceUtil.getInstance().getClient().getAlertActionApi().update(alertAction);
+					
+				newAlert = new Alert(newAlertAction.getId(), newAlertAction.getLabel(), newAlertAction.getName(), 
+						newAlertAction.getDescription(), newAlertAction.getAvailable(), newAlertAction.getEmail());
+						
+				}
+				return newAlert;
+			}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		return newAlert;
+	}
+	
+	public void deleteAlertCommands(Long id){
+		try {
+			if(RestServiceUtil.getSESSION()!=null) {	
+				RestServiceUtil.getInstance().getClient().getAlertActionApi().delete(id);
+				}
+				
+			}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public List<DebugItems> getDeviceDebugList(String entityId, String type){
+		List<DebugItems> debugItemsList = new ArrayList<>();
+		try {
+			if(RestServiceUtil.getSESSION()!=null) {
+				if(type.equalsIgnoreCase("Terminal")) {
+				List<DebugItem> debugItemList = RestServiceUtil.getInstance().getClient().getDebugApi().searchDebugItems(entityId, null, null, null, null, null);
+				for(DebugItem debugItem : debugItemList) {
+					DebugItems debugItems = new DebugItems(debugItem.getId(), getType(debugItem.getLevel()), debugItem.getMessage());
+					debugItemsList.add(debugItems);
+				}
+				return debugItemsList;
+				}
+			}
+				
+			}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		return debugItemsList;
+	}
+	
+	public String getType(Integer level){
+		switch(level) {
+		case 3:
+			return "info";
+		case 6:
+			return "warn";
+		case 7:
+			return "error";
+		default:
+			return "";
+		}
+	}
+	
+	public List<DebugItems> getDeviceDebugBySearch(String entityId, String filter, String startDate, String endDate){
+		List<DebugItems> debugItemsList = new ArrayList<>();
+		try {
+			if(RestServiceUtil.getSESSION()!=null) {
+				List<DebugItem> debugItemList = RestServiceUtil.getInstance().getClient().getDebugApi().searchDebugItems(entityId, filter, startDate, endDate, null, null);
+				for(DebugItem debugItem : debugItemList) {
+					DebugItems debugItems = new DebugItems(debugItem.getId(), getType(debugItem.getLevel()), debugItem.getMessage());
+					debugItemsList.add(debugItems);
+				}
+				return debugItemsList;
+				}
+			}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		return debugItemsList;
+	}
+	
+	public List<DebugItem> searchDeviceDebugByDates(String entityId, String filter, String startDate, String endDate) throws ApiException{
+		try {
+			if(RestServiceUtil.getSESSION()!=null) {
+			if(filter!=null && !filter.isEmpty()) {
+				List<DebugItem> deviceDebugSearchList = RestServiceUtil.getInstance().getClient().getDebugApi().searchDebugItems(entityId, filter, 
+						startDate, endDate, null, null);
+				return deviceDebugSearchList;
+			} else {
+				List<DebugItem> deviceDebugSearchList = RestServiceUtil.getInstance().getClient().getDebugApi().searchDebugItems(entityId, null, 
+						startDate, endDate, null, null);
+				return deviceDebugSearchList;
+			}
+				
+			}
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public void deleteDeviceDebugItem(Long id) {
+		try {
+			if(RestServiceUtil.getSESSION()!=null) {
+				RestServiceUtil.getInstance().getClient().getDebugApi().deleteDebugItem(id);;
+			}
+				
+			}
+		catch(Exception e) {
+			e.printStackTrace();
+			
+		}
+	}
+	
+	public void saveDebugAndDuration(String entityId, boolean value, Date date) {
+		try {
+			if(RestServiceUtil.getSESSION()!=null) {
+				com.luretechnologies.client.restlib.service.model.Terminal terminal = RestServiceUtil.getInstance().getClient().getTerminalApi().getTerminal(entityId);
+				terminal.setAvailable(value);
+				terminal.setDebugExpirationDate(date);
+				RestServiceUtil.getInstance().getClient().getTerminalApi().updateTerminal(entityId, terminal);
+			}
+				
+			}
+		catch(Exception e) {
+			e.printStackTrace();
+			
+		}
+	}
+	
+	public Terminal getTerminal(String entityId){
+		try {
+			if(RestServiceUtil.getSESSION()!=null) {
+				com.luretechnologies.client.restlib.service.model.Terminal terminal = RestServiceUtil.getInstance().getClient().getTerminalApi().getTerminal(entityId);
+				if(terminal!=null) {
+					String date = new SimpleDateFormat("yyyy-MM-dd").format(terminal.getDebugExpirationDate());
+					Terminal mockTerminal = new Terminal(terminal.getSerialNumber(), terminal.getAvailable(), date);
+					return mockTerminal;
+				}
+			}
+				
+			}
+		catch(Exception e) {
+			e.printStackTrace();
+			
 		}
 		return null;
 	}

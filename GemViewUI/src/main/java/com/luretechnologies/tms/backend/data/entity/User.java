@@ -64,7 +64,7 @@ public class User extends AbstractEntity {
 	public User(Long id,String email, String name, String password, String role, String firstname, String lastname, boolean active) {
 		Objects.requireNonNull(email);
 		Objects.requireNonNull(name);
-		Objects.requireNonNull(password);
+		//Objects.requireNonNull(password);
 		Objects.requireNonNull(role);
 		Objects.requireNonNull(firstname);
 		Objects.requireNonNull(lastname);

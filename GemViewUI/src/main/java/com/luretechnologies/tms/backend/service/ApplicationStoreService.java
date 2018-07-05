@@ -70,7 +70,9 @@ public class ApplicationStoreService {
 							app.getVersion(), app.getAvailable(), getAppDefaultParamList(app.getAppparamCollection()),
 							null, getOwner(app.getOwnerId()), getAppProfileList(app.getAppprofileCollection()),
 							getApplicationFileList(app.getAppfileCollection()));
+					appClientList.add(appClient);
 				}
+				return appClientList;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -80,10 +82,13 @@ public class ApplicationStoreService {
 
 	private List<AppDefaultParam> getAppDefaultParamList(List<AppParam> appParamList) {
 		List<AppDefaultParam> appDefaultParamList = new ArrayList<>();
-		for (AppParam appParam : appParamList) {
-			AppDefaultParam appDefaultParam = new AppDefaultParam(appParam.getId(), appParam.getName(),
+		if(appParamList!=null) {
+			for (AppParam appParam : appParamList) {
+				AppDefaultParam appDefaultParam = new AppDefaultParam(appParam.getId(), appParam.getName(),
 					appParam.getDescription(), ParameterType.BOOLEAN, appParam.getModifiable());
-			appDefaultParamList.add(appDefaultParam);
+				appDefaultParamList.add(appDefaultParam);
+		}
+			return appDefaultParamList;
 		}
 		return appDefaultParamList;
 	}
@@ -91,10 +96,10 @@ public class ApplicationStoreService {
 	private User getOwner(Long id) {
 		User owner = null;
 		try {
-			if (RestServiceUtil.getSESSION() != null) {
+			if (RestServiceUtil.getSESSION() != null && id!=null) {
 				com.luretechnologies.client.restlib.service.model.User serverUser = RestServiceUtil.getInstance()
 						.getClient().getUserApi().getUser(id);
-				owner = new User(serverUser.getId(), serverUser.getEmail(), serverUser.getUsername(), null,
+				owner = new User(serverUser.getId(), serverUser.getEmail(), serverUser.getUsername(),null,
 						serverUser.getRole().getName(), serverUser.getFirstName(), serverUser.getLastName(),
 						serverUser.getAvailable());
 
@@ -108,20 +113,27 @@ public class ApplicationStoreService {
 
 	private List<Profile> getAppProfileList(List<AppProfile> appProfileList) {
 		List<Profile> profileList = new ArrayList<>();
-		for (AppProfile appProfile : appProfileList) {
-			Profile profile = new Profile(appProfile.getId(), ProfileType.MOTO, appProfile.getName());
-			profileList.add(profile);
+		if(appProfileList!=null) {
+			for (AppProfile appProfile : appProfileList) {
+				Profile profile = new Profile(appProfile.getId(), ProfileType.MOTO, appProfile.getName());
+				profileList.add(profile);
+			}
+			return profileList;
 		}
 		return profileList;
 	}
 
 	private List<ApplicationFile> getApplicationFileList(List<AppFile> appFileList) {
 		List<ApplicationFile> fileList = new ArrayList<>();
-		for (AppFile appFile : appFileList) {
-			ApplicationFile file = new ApplicationFile(appFile.getId(), appFile.getName(), appFile.getDescription(),
+		if(appFileList!=null) {
+			for (AppFile appFile : appFileList) {
+				ApplicationFile file = new ApplicationFile(appFile.getId(), appFile.getName(), appFile.getDescription(),
 					appFile.getDefaultValue());
-			fileList.add(file);
+				fileList.add(file);
+			}
+			return fileList;
 		}
+		
 		return fileList;
 	}
 
@@ -199,6 +211,8 @@ public class ApplicationStoreService {
 		if (appClinet != null) {
 			try {
 				if (RestServiceUtil.getSESSION() != null) {
+					App oldServerApp = RestServiceUtil.getInstance().getClient().getAppApi().getApp(appClinet.getId());
+					boolean isOld =  oldServerApp != null ? true : false;
 					App serverApp = new App();
 					serverApp.setAvailable(appClinet.isAvailable());
 					serverApp.setName(appClinet.getPackageName());
@@ -212,7 +226,15 @@ public class ApplicationStoreService {
 						appParam.setDescription(appDefaultParam.getDescription());
 						appParam.setName(appDefaultParam.getParameter());
 						// Add action and other params .. how to get them for UI
+						if(isOld) {
+							for(AppParam oldAppParam : oldServerApp.getAppparamCollection()) {
+								if(oldAppParam.getId() != appParam.getId()) {
+									appParamList.add(appParam);
+								}
+							}
+						}else {
 						appParamList.add(appParam);
+						}
 					}
 					serverApp.setAppparamCollection(appParamList);
 					List<AppProfile> appProfileList = new ArrayList<>();
@@ -221,12 +243,24 @@ public class ApplicationStoreService {
 						appProfile.setId(profile.getId());
 						appProfile.setName(profile.getName());
 						// How to set appprofileparams and other elements
-						appProfileList.add(appProfile);
+						if(isOld) {
+							for(AppProfile oldAppProfile : oldServerApp.getAppprofileCollection()) {
+								if(oldAppProfile.getId() != appProfile.getId()) {
+									appProfileList.add(appProfile);
+								}
+							}
+						}else {
+							appProfileList.add(appProfile);
+						}
 					}
 					serverApp.setAppprofileCollection(appProfileList);
 					// Add all the other attributes. //FIXME: figure out how and what are the
 					// required attributes to be set
-					RestServiceUtil.getInstance().getClient().getAppApi().createApp(serverApp);
+					if(isOld) {
+						RestServiceUtil.getInstance().getClient().getAppApi().updateApp(serverApp.getId(), serverApp);
+					}else {
+						RestServiceUtil.getInstance().getClient().getAppApi().createApp(serverApp);
+					}
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -256,7 +290,12 @@ public class ApplicationStoreService {
 					serverProfile.setId(profile.getId());
 					serverProfile.setName(profile.getName());
 					//FIXME: find the correct app profile create method
-//					RestServiceUtil.getInstance().getClient().getAppProfileApi().addEntityAppProfile(serverProfile.getId(), entityId);
+					if(RestServiceUtil.getInstance().getClient().getAppProfileApi().getAppProfile(serverProfile.getAppId())!=null) {
+						
+//					RestServiceUtil.getInstance().getClient().getAppProfileApi().updateEntityAppProfile(appProfileId, entityAppProfile)
+					}else {
+//					RestServiceUtil.getInstance().getClient().getAppProfileApi().addEntityAppProfile(appProfileId, entityId)
+					}
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -286,8 +325,14 @@ public class ApplicationStoreService {
 					appParam.setDescription(defaultParam.getDescription());
 					appParam.setId(defaultParam.getId());
 					appParam.setName(defaultParam.getParameter());
-					//FIXME: find out App Default Param create 
 //					RestServiceUtil.getInstance().getClient().getApp
+					if(RestServiceUtil.getInstance().getClient().getAppParamApi().getAppParam(appParam.getId())!= null) {
+						//FIXME: find out App Default Param create / save api
+//						RestServiceUtil.getInstance().getClient().getAppParamApi()
+					}
+					else {
+//						RestServiceUtil.getInstance().getClient().getAppParamApi()
+					}
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -307,6 +352,28 @@ public class ApplicationStoreService {
 			}
 		}
 	}
+	
+	public List<AppClient> searchApps(String filter) {
+		List<AppClient> appClientList = new ArrayList<>();
+			try {
+				if (RestServiceUtil.getSESSION() != null) {
+					//FIXME: No delete Param api is available
+					List<App> appList = RestServiceUtil.getInstance().getClient().getAppApi().searchApps(filter, null, null);
+					for (App app : appList) {
+						AppClient appClient = new AppClient(app.getId(), app.getName(), app.getDescription(),
+								app.getVersion(), app.getAvailable(), getAppDefaultParamList(app.getAppparamCollection()),
+								null, getOwner(app.getOwnerId()), getAppProfileList(app.getAppprofileCollection()),
+								getApplicationFileList(app.getAppfileCollection()));
+						appClientList.add(appClient);
+					}
+					return appClientList;
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return appClientList;
+		}
+
 
 
 }

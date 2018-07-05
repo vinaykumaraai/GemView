@@ -37,12 +37,14 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.dialogs.ConfirmDialog;
 
+import com.luretechnologies.client.restlib.service.model.AlertAction;
 import com.luretechnologies.tms.backend.data.entity.Alert;
 import com.luretechnologies.tms.backend.data.entity.AlertType;
 import com.luretechnologies.tms.backend.data.entity.ExtendedNode;
 import com.luretechnologies.tms.backend.data.entity.Node;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
 import com.luretechnologies.tms.backend.service.AlertService;
+import com.luretechnologies.tms.backend.service.AssetControlService;
 import com.luretechnologies.tms.backend.service.TreeDataService;
 import com.luretechnologies.tms.ui.ComponentUtil;
 import com.luretechnologies.tms.ui.NotificationUtil;
@@ -74,9 +76,9 @@ public class AlertTab {
 	AlertService alertService;
 	Tree<TreeNode> nodeTree;
 	UI assetControlUI;
-	TreeDataService treeDataService;
+	AssetControlService assetControlService;
 	//public AssetControlView assetView ;
-	public AlertTab(Grid<Alert> alertGrid, AlertService alertService,Tree<TreeNode> nodeTree,UI assetControlUI, TreeDataService treeDataService, Button... buttons) {
+	public AlertTab(Grid<Alert> alertGrid, AlertService alertService,Tree<TreeNode> nodeTree,UI assetControlUI, AssetControlService assetControlService, Button... buttons) {
 		createAlertGridRow = buttons[0];
 		editAlertGridRow = buttons[1];
 		deleteAlertGridRow = buttons[2];
@@ -86,7 +88,7 @@ public class AlertTab {
 		this.alertService = alertService;
 		this.nodeTree = nodeTree;
 		this.assetControlUI = assetControlUI;
-		this.treeDataService = treeDataService;
+		this.assetControlService = assetControlService;
 		
 	}
 	
@@ -162,7 +164,7 @@ public class AlertTab {
 		alertGrid.addItemClickListener(item -> {
 
 			if (item.getItem() != null) {
-				((TextField) alertFormComponentArray[0]).setValue(item.getItem().getType().name());
+				((TextField) alertFormComponentArray[0]).setValue(item.getItem().getType());
 				((TextField) alertFormComponentArray[1]).setValue(item.getItem().getName());
 				((TextField) alertFormComponentArray[2]).setValue(item.getItem().getDescription());
 				HorizontalLayout HL= (HorizontalLayout)alertFormComponentArray[3];
@@ -202,36 +204,10 @@ public class AlertTab {
 		return alertLayout;
 
 	}
-	
-	public void confirmAlertDialog() {
-		ConfirmDialog.show(assetView.getUI(), "Please Confirm:", "Are you sure you want to delete?",
-		        "Ok", "Cancel", new ConfirmDialog.Listener() {
 
-		            public void onClose(ConfirmDialog dialog) {
-		                if (dialog.isConfirmed()) {
-		                    // Confirmed to continue
-		                	alertService.removeAlert(alertGrid.getSelectedItems().iterator().next());
-		    				nodeTree.getDataProvider().refreshAll();
-		    				loadAlertGrid();
-		                } else {
-		                    // User did not confirm
-		                    
-		                }
-		            }
-		        });
-	}
-	private void loadAlertGrid() {
-		treeDataService.getTreeDataForDebugAndAlert();
-		List<ExtendedNode> nodeList = treeDataService.getDebugAndAlertNodeList();
-		Set<TreeNode> nodeSet = nodeTree.getSelectionModel().getSelectedItems();
-		TreeNode nodeSelected = nodeSet.iterator().next();
-		for(ExtendedNode node : nodeList) {
-			if(node.getLabel().equals(nodeSelected.getLabel())) {
-				DataProvider data = new ListDataProvider(node.getExtendedList());
-				alertGrid.setDataProvider(data);
-			}
-		}
-		
+	private void loadAlertGrid(String id) {
+		DataProvider data = new ListDataProvider(assetControlService.getAlertGridData(id));
+		alertGrid.setDataProvider(data);
 	}
 	
 	private Grid<Alert> getAlertGrid() {
@@ -243,7 +219,6 @@ public class AlertTab {
 		alertGrid.setSelectionMode(SelectionMode.SINGLE);
 		alertGrid.setColumns("type", "description", "active", "email");
 		alertGrid.getColumn("type").setCaption("Alert Type");
-		//alertGrid.setDataProvider(alertService.getListDataProvider());
 
 		return alertGrid;
 	}
@@ -261,14 +236,18 @@ public class AlertTab {
 				if (component instanceof TextField) {
 					TextField textField = (TextField) component;
 					textField.clear();
+					textField.setEnabled(true);
+					type.focus();
 				} else if (component instanceof HorizontalLayout) {
 					HorizontalLayout HL = (HorizontalLayout) component;
 					CheckBox checkbox = (CheckBox) HL.getComponent(1);
 					checkbox.clear();
+					type.focus();
 				}
 			}
 			saveAlertForm.setEnabled(true);
 			cancelAlertForm.setEnabled(true);
+			alertGrid.deselectAll();
 		});
 		createAlertGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY);
 		createAlertGridRow.addStyleName("v-button-customstyle");
@@ -277,9 +256,11 @@ public class AlertTab {
 				Notification.show(NotificationUtil.ASSET_ALERT_EDIT, Notification.Type.ERROR_MESSAGE);
 			}else {
 			if (alertGrid.getSelectedItems().size() > 0) {
+				TextField type = (TextField) componentArray[0];
 				for (Component component : componentArray) {
 					if (!component.isEnabled())
 						component.setEnabled(true);
+						type.focus();
 				}
 
 				deleteAlertGridRow.setEnabled(true);
@@ -300,14 +281,10 @@ public class AlertTab {
 			        "Ok", "Cancel", dialog -> 
 			            {
 			                if (dialog.isConfirmed()) {
-			    				alertService.removeAlert(alertGrid.getSelectedItems().iterator().next());
-			    				nodeTree.getDataProvider().refreshAll();
-			    				loadAlertGrid();
-//			    				ListDataProvider<Alert> refreshAlertDataProvider = alertService.getListDataProvider();
-//			    				alertGrid.setDataProvider(refreshAlertDataProvider);
-//			    				// Refreshing
-//			    				alertGrid.getDataProvider().refreshAll();
-//			    				deleteAlertGridRow.setEnabled(false);
+			    				Long id = alertGrid.getSelectedItems().iterator().next().getId();
+			    				String entityId = nodeTree.getSelectedItems().iterator().next().getEntityId();
+			    				assetControlService.deleteAlertCommands(id);
+			    				loadAlertGrid(entityId);
 			                } else {
 			                    // User did not confirm
 			                    
@@ -341,27 +318,34 @@ public class AlertTab {
 
 			}
 			saveAlertForm.addStyleName("v-button-customstyle");
-			Alert alert;
-			if (alertGrid.getSelectedItems().size() > 0) {
-				alert = alertGrid.getSelectedItems().iterator().next();
-			} else {
-				alert = new Alert();
-			}
-			alert.setType(((TextField) componentArray[0]).getValue());
+			AlertAction alert = new AlertAction();
+			alert.setLabel(((TextField) componentArray[0]).getValue());
 			alert.setName(((TextField) componentArray[1]).getValue());
 			alert.setDescription(((TextField) componentArray[2]).getValue());
 			CheckBox checkbox = (CheckBox) HL.getComponent(1);
-			alert.setActive(checkbox.getValue());
+			alert.setAvailable(checkbox.getValue());
 			alert.setEmail(((TextField) componentArray[4]).getValue());
 			cancelAlertForm.setEnabled(true);
 			editAlertGridRow.setEnabled(true);
 			deleteAlertGridRow.setEnabled(true);
 			saveAlertForm.setEnabled(true);
-			alertService.saveAlert(alert);
-			loadAlertGrid();
+			
+			Alert gridAlert = new Alert();
+			if (alertGrid.getSelectedItems().size() > 0) {
+				if(alertGrid.getSelectedItems().iterator().next().getId()!=null && 
+						!alertGrid.getSelectedItems().iterator().next().getId().toString().isEmpty()) {
+					alert.setId(alertGrid.getSelectedItems().iterator().next().getId());
+				}
+				gridAlert = assetControlService.updateAlertCommands(alert);
+			} else {
+				gridAlert = assetControlService.createAlertCommands(nodeTree.getSelectedItems().iterator().next().getEntityId(), alert);
+			}
+			
+			loadAlertGrid(nodeTree.getSelectedItems().iterator().next().getEntityId());
+			alertGrid.select(gridAlert);
 	
-			alertGrid.getDataProvider().refreshAll();
-			alertGrid.deselectAll();
+			/*alertGrid.getDataProvider().refreshAll();
+			alertGrid.deselectAll();*/
 			}
 			}
 		});

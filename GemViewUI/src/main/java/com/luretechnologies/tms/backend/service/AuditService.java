@@ -105,12 +105,12 @@ public class AuditService {
 		}
 	}
 	
-	public List<AuditUserLog> searchGridData(String filter) throws ApiException{
+	public List<AuditUserLog> searchGridData(String filter, String startDate, String endDate) throws ApiException{
 		try {
 			if(RestServiceUtil.getSESSION()!=null) {
 			
 				List<AuditUserLog> auditList = RestServiceUtil.getInstance().getClient().getAuditUserLogApi().searchLogs(null, null, filter, 
-						null, null, null, null);
+						startDate, endDate, null, null);
 				return auditList;
 			}
 		}catch(Exception e) {
@@ -134,11 +134,11 @@ public class AuditService {
 		return null;
 	}
 	
-	public List<AuditUserLog> searchByDates(String startDate, String endDate) throws ApiException{
+	public List<AuditUserLog> searchByDates(String filter, String startDate, String endDate) throws ApiException{
 		try {
 			if(RestServiceUtil.getSESSION()!=null) {
 			
-				List<AuditUserLog> auditList = RestServiceUtil.getInstance().getClient().getAuditUserLogApi().searchLogs(null, null, null, 
+				List<AuditUserLog> auditList = RestServiceUtil.getInstance().getClient().getAuditUserLogApi().searchLogs(null, null, filter, 
 						startDate, endDate, null, null);
 				//RestServiceUtil.getInstance().getClient().getSystemParamsApi().
 				return auditList;

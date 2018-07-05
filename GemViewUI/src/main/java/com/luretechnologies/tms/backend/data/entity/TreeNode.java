@@ -43,22 +43,29 @@ public class TreeNode {
 	
 	private String entityId;
 	
+	private String description;
+	
 	private Long id;
 	
 	private EntityTypeEnum type;
 	
 	public List<Entity> entityList;
+	
+	public boolean active;
 
-	public TreeNode(String label, Long id, EntityTypeEnum type, String entityId) {
+	public TreeNode(String label, Long id, EntityTypeEnum type, String entityId, String description, boolean active) {
 		super();
 		Objects.requireNonNull(label);
 		Objects.requireNonNull(id);
 		Objects.requireNonNull(type);
 		Objects.requireNonNull(entityId);
+		Objects.requireNonNull(description);
 		this.entityId = entityId;
 		this.label = label;
 		this.id = id;
 		this.type = type;
+		this.description=description;
+		this.active=active;
 	}
 
 	public String getLabel() {
@@ -99,6 +106,22 @@ public class TreeNode {
 
 	public void setEntityId(String entityId) {
 		this.entityId = entityId;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public boolean isActive() {
+		return active;
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
 	}
 
 	@Override

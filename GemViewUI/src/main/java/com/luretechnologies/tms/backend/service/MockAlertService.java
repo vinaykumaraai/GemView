@@ -26,7 +26,7 @@ public class MockAlertService extends CrudService<Alert>{
 	public void createInitialAlertss() throws ParseException
 	{
 		//TODO add the Date time
-		Alert alert = new Alert(AlertType.REBOOT,"Device 1","Reboot Happend","xyz@abc.com",true);
+		/*Alert alert = new Alert(AlertType.REBOOT,"Device 1","Reboot Happend","xyz@abc.com",true);
 		alert.setId(alert.getId()+2);
 		alertDirectory.put(alert.getId(), alert);
 		 alert = new Alert(AlertType.REFUND,"Device 2", "Refund Happend","abc@xyz.com",true);
@@ -46,7 +46,7 @@ public class MockAlertService extends CrudService<Alert>{
 		alertDirectory.put(alert.getId(), alert);
 		 alert = new Alert(AlertType.VOID,"Device 7","void","xyz@abc.com",true);
 		 alert.setId(alert.getId()+8);
-		alertDirectory.put(alert.getId(), alert);
+		alertDirectory.put(alert.getId(), alert);*/
 	}
 	
 	public void addAlert(Alert alert)

@@ -119,9 +119,6 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 	public DeviceodometerView() {
 		
 	}
-	
-	@Autowired
-	public TreeDataService treeDataService;
 
 	@Autowired
 	public OdometerService odometerDeviceService;

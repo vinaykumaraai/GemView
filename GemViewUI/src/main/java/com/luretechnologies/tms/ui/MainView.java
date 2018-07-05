@@ -183,7 +183,7 @@ public class MainView extends MainViewDesign implements ViewDisplay {
 
 		navigationManager.runAfterLeaveConfirmation(doLogout);
 		
-		RestServiceUtil.getInstance().getClient().getAuthApi().logout();
+		//RestServiceUtil.getInstance().getClient().getAuthApi().logout();
 	}
 
 }

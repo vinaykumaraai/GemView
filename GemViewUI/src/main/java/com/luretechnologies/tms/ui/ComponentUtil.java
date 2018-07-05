@@ -62,6 +62,10 @@ public class ComponentUtil {
 			textField.setResponsive(true);
 			textField.setEnabled(false);
 			component = textField;
+			if(labelName.equals("Debug Duration")) {
+				textField.setPlaceholder("MM/DD/YYYY");
+				textField.setEnabled(true);
+			}
 			break;
 		case HORIZONTALLAYOUT:
 			HorizontalLayout activeBoxLayout = new HorizontalLayout();
@@ -89,7 +93,7 @@ public class ComponentUtil {
 				activeBoxLayout.addComponents(active, activeCheckBox);
 				//activeBoxLayout.setStyleName("role-activeLable");
 				activeBoxLayout.addStyleName("asset-debugCheckboxLayout");
-				activeBoxLayout.setEnabled(false);
+				activeBoxLayout.setEnabled(true);
 				component =activeBoxLayout;
 			}else if(labelName.isEmpty()){
 				Label active = new Label("Active");
@@ -113,7 +117,7 @@ public class ComponentUtil {
 			break;
 		case COMBOBOX:
 			ComboBox<String> combobox = new ComboBox<String>(labelName);
-			combobox.setEnabled(false);
+			combobox.setEnabled(true);
 			combobox.addStyleName("asset-debugComboBox");
 			component = combobox;
 		default:

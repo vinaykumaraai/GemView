@@ -28,7 +28,7 @@ public class AppClient extends AbstractEntity {
 		Objects.requireNonNull(packageVersion);
 		Objects.requireNonNull(available);
 		Objects.requireNonNull(appDefaultParamList);
-		Objects.requireNonNull(device);
+		//Objects.requireNonNull(device);
 		Objects.requireNonNull(owner);
 		this.packageName = packageName;
 		this.description = description;
