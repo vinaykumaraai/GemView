@@ -31,13 +31,8 @@
  */
 package com.luretechnologies.server.data.dao;
 
-import com.luretechnologies.common.enums.ModeEnum;
-import com.luretechnologies.common.enums.OperationEnum;
-import com.luretechnologies.server.data.model.payment.Host;
-import com.luretechnologies.server.data.model.payment.HostModeOperation;
 import com.luretechnologies.server.data.model.payment.MerchantHostModeOperation;
 import java.util.List;
-import javax.persistence.PersistenceException;
 
 /**
  *

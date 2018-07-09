@@ -39,6 +39,7 @@ import com.luretechnologies.server.data.model.payment.TerminalHost;
 import com.luretechnologies.server.data.model.payment.TerminalHostSettingValue;
 import com.luretechnologies.server.data.model.payment.TerminalSettingValue;
 import com.luretechnologies.server.data.model.tms.KeyBlock;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -262,13 +263,16 @@ public interface TerminalService {
 //    public List<Diagnostic> getDiagnostics(long id, String filter, int pageNumber, int rowsPerPage) throws Exception;
 //
 //    public int getDiagnosticsTotalPages(Long id, String filter, int rowsPerPage) throws Exception;
-
     public Entity copy(String entityId, long parentId);
+
     /**
      * Get the terminal info by serial number
+     *
      * @param terminalSerialNumber The serial number
      * @return
-     * @throws Exception 
+     * @throws Exception
      */
     public Terminal getBySerialNumber(String terminalSerialNumber) throws Exception;
+
+
 }

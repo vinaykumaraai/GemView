@@ -33,6 +33,7 @@ package com.luretechnologies.server.data.dao;
 
 import com.luretechnologies.server.data.model.tms.AppParam;
 import com.luretechnologies.server.data.model.tms.AppProfile;
+import com.luretechnologies.server.data.model.tms.EntityAppProfile;
 import java.util.List;
 import javax.persistence.PersistenceException;
 
@@ -77,4 +78,11 @@ public interface AppProfileDAO extends BaseDAO<AppProfile, Long>{
      * @return
      */
     public List<AppProfile> getAppProfileList(Long appId, Long entityId) throws PersistenceException;
+    
+     /**
+     *
+     * @param entityId
+     * @return
+     */
+    public List<EntityAppProfile> getEntityAppProfileListByTerminal(Long entityId) throws PersistenceException;
 }

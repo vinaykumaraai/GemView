@@ -197,12 +197,15 @@ public class TerminalDAOImpl extends BaseDAOImpl<Terminal, Long> implements Term
         try {
             CriteriaQuery<Terminal> cq = criteriaQuery();
             Root<Terminal> root = getRoot(cq);
+            
+            Predicate filterPredicate = criteriaBuilder().conjunction();
 
-            Predicate filterPredicate = criteriaBuilder().or(
-                    criteriaBuilder().like(criteriaBuilder().upper((Expression) root.get("name")), "%" + filter.toUpperCase() + "%"),
-                    criteriaBuilder().like(criteriaBuilder().upper((Expression) root.get("description")), "%" + filter.toUpperCase() + "%"),
-                    criteriaBuilder().like(criteriaBuilder().upper((Expression) root.get("serialNumber")), "%" + filter.toUpperCase() + "%"));
-
+            if (filter != null && !filter.isEmpty()) {
+                filterPredicate = criteriaBuilder().or(
+                        criteriaBuilder().like(criteriaBuilder().upper((Expression) root.get("name")), "%" + filter.toUpperCase() + "%"),
+                        criteriaBuilder().like(criteriaBuilder().upper((Expression) root.get("description")), "%" + filter.toUpperCase() + "%"),
+                        criteriaBuilder().like(criteriaBuilder().upper((Expression) root.get("serialNumber")), "%" + filter.toUpperCase() + "%"));
+            }
             List<Predicate> wherePredicate = wherePredicate(root, entity);
             wherePredicate.add(filterPredicate);
             wherePredicate.add(criteriaBuilder().equal(root.<Boolean>get("active"), true));
@@ -323,6 +326,6 @@ public class TerminalDAOImpl extends BaseDAOImpl<Terminal, Long> implements Term
 
     @Override
     public Terminal getBySerialNumber(String terminalSerialNumber) throws PersistenceException {
-        return (Terminal)findByProperty("serialNumber", terminalSerialNumber).getSingleResult();
+        return (Terminal) findByProperty("serialNumber", terminalSerialNumber).getSingleResult();
     }
 }

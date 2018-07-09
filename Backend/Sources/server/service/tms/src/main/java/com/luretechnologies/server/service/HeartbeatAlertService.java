@@ -76,9 +76,19 @@ public interface HeartbeatAlertService {
 
     /**
      * Delete a heartbeat alert
+     *
      * @param id Alert id
      * @throws Exception
      */
     public void delete(Long id) throws Exception;
+
+    /**
+     *
+     * @param serialNumber
+     * @param label
+     * @return
+     * @throws Exception
+     */
+    public List<HeartbeatAlertDisplay> getAlerts(String serialNumber, String label) throws Exception;
 
 }

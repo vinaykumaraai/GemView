@@ -51,6 +51,8 @@ public class AppProfileApi extends BaseApi {
     private static final String METHOD_GET = "/appprofile/{id}";
     private static final String METHOD_GET_APPPROFILEPARAM_LIST = "/appprofile/{id}/appprofileparam";
     private static final String METHOD_GET_APPPROFILEWPARAM_LIST = "/appprofile/{id}/appparam";
+    private static final String METHOD_GET_APPPROFILEFILE_LIST = "/appprofile/{id}/appprofileparam/appfile";
+    private static final String METHOD_GET_APPPROFILEWFILE_LIST = "/appprofile/{id}/appparam/appfile";
     private static final String METHOD_ADD_APPPROFILEPARAMVALUE = "/appprofile/{id}/appparam/{appParamId}";
     private static final String METHOD_UPDATE_APPPROFILEPARAMVALUE = "/appprofile/{id}/appprofileparamvalue";
     private static final String METHOD_DELETE_APPPROFILEPARAMVALUE = "/appprofile/{id}/appparam/{appParamId}";
@@ -64,6 +66,8 @@ public class AppProfileApi extends BaseApi {
     private static final String METHOD_ADD_ENTITYAPPPROFILEPARAM = "/appprofile/{id}/entities/{entityId}/appparam/{appParamId}";
     private static final String METHOD_UPDATE_ENTITYAPPPROFILEPARAM = "/appprofile/{id}/entities/{entityId}/entityAppProfileParam";
     private static final String METHOD_DELETE_ENTITYAPPPROFILEPARAM = "/appprofile/{id}/entities/{entityId}/appparam/{appParamId}";
+    private static final String METHOD_SEARCH_FILES_PROFILE = "/appprofile/{id}/searchFilesByProfile";
+    private static final String METHOD_SEARCH_PARAMS_PROFILE = "/appprofile/{id}/searchParamsByProfile";
 
     /**
      * @param apiClient
@@ -194,6 +198,86 @@ public class AppProfileApi extends BaseApi {
     }
     
     /**
+     * Get all appFiles by a appProfile. Will return 50 records if no paging parameters defined
+     *
+     * @param appProfileId
+     * @return AppFiles list
+     * @throws com.luretechnologies.client.restlib.common.ApiException
+     */
+    public List<AppParam> getAppFileListByAppProfile(Long appProfileId) throws ApiException {
+        Object postBody = null;
+        byte[] postBinaryBody = null;
+        
+        // verify the required parameter 'id' is set
+        if (appProfileId == null) {
+            throw new ApiException(400, "Missing the required parameter 'appProfileId' when calling getUsingGET10");
+        }
+
+        // create path and map variables
+        String path = METHOD_GET_APPPROFILEFILE_LIST.replaceAll("\\{format\\}", "json")
+                .replaceAll("\\{" + "id" + "\\}", apiClient.escapeString(appProfileId.toString()));
+
+        List<Pair> queryParams = new ArrayList<>();
+        Map<String, String> headerParams = new HashMap<>();
+        Map<String, Object> formParams = new HashMap<>();
+
+        final String[] accepts = {
+            CommonConstants.HEADER_APP_JSON
+        };
+        final String accept = apiClient.selectHeaderAccept(accepts);
+
+        final String[] contentTypes = {
+            CommonConstants.HEADER_APP_JSON
+        };
+        final String contentType = apiClient.selectHeaderContentType(contentTypes);
+
+        TypeRef returnType = new TypeRef<List<AppParam>>() {
+        };
+        return apiClient.invokeAPI(path, CommonConstants.METHOD_GET, queryParams, postBody, postBinaryBody, headerParams, formParams, accept, contentType, returnType);
+
+    }
+    
+    /**
+     * Get all appParams without appProfile. Will return 50 records if no paging parameters defined
+     *
+     * @param appProfileId
+     * @return AppParams list
+     * @throws com.luretechnologies.client.restlib.common.ApiException
+     */
+    public List<AppParam> getAppFileListWithoutAppProfile(Long appProfileId) throws ApiException {
+        Object postBody = null;
+        byte[] postBinaryBody = null;
+        
+        // verify the required parameter 'id' is set
+        if (appProfileId == null) {
+            throw new ApiException(400, "Missing the required parameter 'appProfileId' when calling getUsingGET10");
+        }
+
+        // create path and map variables
+        String path = METHOD_GET_APPPROFILEWFILE_LIST.replaceAll("\\{format\\}", "json")
+                .replaceAll("\\{" + "id" + "\\}", apiClient.escapeString(appProfileId.toString()));
+
+        List<Pair> queryParams = new ArrayList<>();
+        Map<String, String> headerParams = new HashMap<>();
+        Map<String, Object> formParams = new HashMap<>();
+
+        final String[] accepts = {
+            CommonConstants.HEADER_APP_JSON
+        };
+        final String accept = apiClient.selectHeaderAccept(accepts);
+
+        final String[] contentTypes = {
+            CommonConstants.HEADER_APP_JSON
+        };
+        final String contentType = apiClient.selectHeaderContentType(contentTypes);
+
+        TypeRef returnType = new TypeRef<List<AppParam>>() {
+        };
+        return apiClient.invokeAPI(path, CommonConstants.METHOD_GET, queryParams, postBody, postBinaryBody, headerParams, formParams, accept, contentType, returnType);
+
+    }
+    
+    /**
      * Add appProfileParamValue Add appProfileParamValue
      *
      * @param appProfileId
@@ -202,6 +286,53 @@ public class AppProfileApi extends BaseApi {
      * @throws com.luretechnologies.client.restlib.common.ApiException
      */
     public AppProfileParamValue addAppProfileParamValue(Long appProfileId, Long appParamId) throws ApiException {
+        Object postBody = null;
+        byte[] postBinaryBody = null;
+
+        // verify the required parameter 'id' is set
+        if (appProfileId == null) {
+            throw new ApiException(400, "Missing the required parameter 'appProfileId' when calling getUsingGET10");
+        }
+        
+        // verify the required parameter 'appParamId' is set
+        if (appParamId == null) {
+            throw new ApiException(400, "Missing the required parameter 'appParamId' when calling getUsingGET10");
+        }
+
+        // create path and map variables
+        String path = METHOD_ADD_APPPROFILEPARAMVALUE.replaceAll("\\{format\\}", "json")
+                .replaceAll("\\{" + "id" + "\\}", apiClient.escapeString(appProfileId.toString()))
+                .replaceAll("\\{" + "appParamId" + "\\}", apiClient.escapeString(appParamId.toString()));
+
+        List<Pair> queryParams = new ArrayList<>();
+        Map<String, String> headerParams = new HashMap<>();
+        Map<String, Object> formParams = new HashMap<>();
+
+        final String[] accepts = {
+            CommonConstants.HEADER_APP_JSON
+        };
+        final String accept = apiClient.selectHeaderAccept(accepts);
+
+        final String[] contentTypes = {
+            CommonConstants.HEADER_APP_JSON
+        };
+        final String contentType = apiClient.selectHeaderContentType(contentTypes);
+
+        TypeRef returnType = new TypeRef<AppProfileParamValue>() {
+        };
+        return apiClient.invokeAPI(path, CommonConstants.METHOD_POST, queryParams, postBody, postBinaryBody, headerParams, formParams, accept, contentType, returnType);
+
+    }
+    
+    /**
+     * Add appProfileFileValue Add appProfileFileValue
+     *
+     * @param appProfileId
+     * @param appParamId
+     * @return AppProfileParamValue
+     * @throws com.luretechnologies.client.restlib.common.ApiException
+     */
+    public AppProfileParamValue addAppProfileFileValue(Long appProfileId, Long appParamId) throws ApiException {
         Object postBody = null;
         byte[] postBinaryBody = null;
 
@@ -295,6 +426,47 @@ public class AppProfileApi extends BaseApi {
      * @throws com.luretechnologies.client.restlib.common.ApiException
      */
     public void deleteAppProfileParamValue(Long appProfileId, Long appParamId) throws ApiException {
+        Object postBody = null;
+        byte[] postBinaryBody = null;
+
+        if (appProfileId == null) {
+            throw new ApiException(400, "Missing the required parameter 'appProfileId' when calling deleteUsingDELETE7");
+        }
+
+        if (appParamId == null) {
+            throw new ApiException(400, "Missing the required parameter 'appFileId' when calling deleteUsingDELETE7");
+        }
+
+        String path = METHOD_DELETE_APPPROFILEPARAMVALUE.replaceAll("\\{format\\}", "json")
+                .replaceAll("\\{" + "id" + "\\}", apiClient.escapeString(appProfileId.toString()))
+                .replaceAll("\\{" + "appParamId" + "\\}", apiClient.escapeString(appParamId.toString()));
+
+        List<Pair> queryParams = new ArrayList<>();
+        Map<String, String> headerParams = new HashMap<>();
+        Map<String, Object> formParams = new HashMap<>();
+
+        final String[] accepts = {
+            CommonConstants.HEADER_ALL
+        };
+        final String accept = apiClient.selectHeaderAccept(accepts);
+
+        final String[] contentTypes = {
+            CommonConstants.HEADER_APP_JSON
+        };
+        final String contentType = apiClient.selectHeaderContentType(contentTypes);
+
+        apiClient.invokeAPI(path, CommonConstants.METHOD_DELETE, queryParams, postBody, postBinaryBody, headerParams, formParams, accept, contentType, null);
+
+    }
+    
+    /**
+     * Delete appProfileFileValue Deletes a appProfileFileValue
+     *
+     * @param appProfileId
+     * @param appParamId
+     * @throws com.luretechnologies.client.restlib.common.ApiException
+     */
+    public void deleteAppProfileFileValue(Long appProfileId, Long appParamId) throws ApiException {
         Object postBody = null;
         byte[] postBinaryBody = null;
 
@@ -706,6 +878,60 @@ public class AppProfileApi extends BaseApi {
     }
     
     /**
+     * Add addEntityAppProfileFile Add addEntityAppProfileFile
+     *
+     * @param appProfileId
+     * @param entityId
+     * @param appFileId
+     * @return EntityAppProfileParam
+     * @throws com.luretechnologies.client.restlib.common.ApiException
+     */
+    public EntityAppProfileParam addEntityAppProfileFile(Long appProfileId, Long entityId, Long appFileId) throws ApiException {
+        Object postBody = null;
+        byte[] postBinaryBody = null;
+
+        // verify the required parameter 'appProfileId' is set
+        if (appProfileId == null) {
+            throw new ApiException(400, "Missing the required parameter 'appProfileId' when calling getUsingGET10");
+        }
+        
+        // verify the required parameter 'entityId' is set
+        if (entityId == null) {
+            throw new ApiException(400, "Missing the required parameter 'entityId' when calling getUsingGET10");
+        }
+        
+        // verify the required parameter 'appFileId' is set
+        if (appFileId == null) {
+            throw new ApiException(400, "Missing the required parameter 'appFileId' when calling getUsingGET10");
+        }
+
+        // create path and map variables
+        String path = METHOD_ADD_ENTITYAPPPROFILEPARAM.replaceAll("\\{format\\}", "json")
+                .replaceAll("\\{" + "id" + "\\}", apiClient.escapeString(appProfileId.toString()))
+                .replaceAll("\\{" + "entityId" + "\\}", apiClient.escapeString(entityId.toString()))
+                .replaceAll("\\{" + "appParamId" + "\\}", apiClient.escapeString(appFileId.toString()));
+
+        List<Pair> queryParams = new ArrayList<>();
+        Map<String, String> headerParams = new HashMap<>();
+        Map<String, Object> formParams = new HashMap<>();
+
+        final String[] accepts = {
+            CommonConstants.HEADER_APP_JSON
+        };
+        final String accept = apiClient.selectHeaderAccept(accepts);
+
+        final String[] contentTypes = {
+            CommonConstants.HEADER_APP_JSON
+        };
+        final String contentType = apiClient.selectHeaderContentType(contentTypes);
+
+        TypeRef returnType = new TypeRef<EntityAppProfileParam>() {
+        };
+        return apiClient.invokeAPI(path, CommonConstants.METHOD_POST, queryParams, postBody, postBinaryBody, headerParams, formParams, accept, contentType, returnType);
+
+    }
+    
+    /**
      * Update entityAppProfileParam Updates entityAppProfileParam
      *
      * @param appProfileId
@@ -804,5 +1030,152 @@ public class AppProfileApi extends BaseApi {
 
         apiClient.invokeAPI(path, CommonConstants.METHOD_DELETE, queryParams, postBody, postBinaryBody, headerParams, formParams, accept, contentType, null);
 
+    }
+    
+    /**
+     * Delete entityAppProfileFile Deletes a entityAppProfileFile
+     *
+     * @param appProfileId
+     * @param entityId
+     * @param appFileId
+     * @throws com.luretechnologies.client.restlib.common.ApiException
+     */
+    public void deleteEntityAppProfileFile(Long appProfileId, Long entityId, Long appFileId) throws ApiException {
+        Object postBody = null;
+        byte[] postBinaryBody = null;
+
+        if (appProfileId == null) {
+            throw new ApiException(400, "Missing the required parameter 'appProfileId' when calling deleteUsingDELETE7");
+        }
+
+        if (entityId == null) {
+            throw new ApiException(400, "Missing the required parameter 'entityId' when calling deleteUsingDELETE7");
+        }
+        
+        if (appFileId == null) {
+            throw new ApiException(400, "Missing the required parameter 'appFileId' when calling deleteUsingDELETE7");
+        }
+
+        String path = METHOD_DELETE_ENTITYAPPPROFILEPARAM.replaceAll("\\{format\\}", "json")
+                .replaceAll("\\{" + "id" + "\\}", apiClient.escapeString(appProfileId.toString()))
+                .replaceAll("\\{" + "entityId" + "\\}", apiClient.escapeString(entityId.toString()))
+                .replaceAll("\\{" + "appParamId" + "\\}", apiClient.escapeString(appFileId.toString()));
+
+        List<Pair> queryParams = new ArrayList<>();
+        Map<String, String> headerParams = new HashMap<>();
+        Map<String, Object> formParams = new HashMap<>();
+
+        final String[] accepts = {
+            CommonConstants.HEADER_ALL
+        };
+        final String accept = apiClient.selectHeaderAccept(accepts);
+
+        final String[] contentTypes = {
+            CommonConstants.HEADER_APP_JSON
+        };
+        final String contentType = apiClient.selectHeaderContentType(contentTypes);
+
+        apiClient.invokeAPI(path, CommonConstants.METHOD_DELETE, queryParams, postBody, postBinaryBody, headerParams, formParams, accept, contentType, null);
+
+    }
+    
+    /**
+     *
+     * @param appProfileId
+     * @param filter
+     * @param pageNumber
+     * @param rowsPerPage
+     * @return
+     * @throws ApiException
+     */
+    public List<AppParam> searchAppFileByProfile(Long appProfileId, String filter, Integer pageNumber, Integer rowsPerPage) throws ApiException {
+        Object postBody = null;
+        byte[] postBinaryBody = null;
+        
+        // verify the required parameter 'appProfileId' is set
+        if (appProfileId == null) {
+            throw new ApiException(400, "Missing the required parameter 'appProfileId' when calling searchUsingPOST1");
+        }
+
+        if (filter == null) {
+            throw new ApiException(400, "Missing the required parameter 'filter' when calling searchUsingPOST2");
+        }
+
+        String path = METHOD_SEARCH_FILES_PROFILE.replaceAll("\\{format\\}", "json")
+                .replaceAll("\\{" + "id" + "\\}", apiClient.escapeString(appProfileId.toString()));
+
+        List<Pair> queryParams = new ArrayList<>();
+        Map<String, String> headerParams = new HashMap<>();
+        Map<String, Object> formParams = new HashMap<>();
+
+        queryParams.addAll(apiClient.parameterToPairs("", CommonConstants.FIELD_FILTER, filter));
+
+        queryParams.addAll(apiClient.parameterToPairs("", CommonConstants.FIELD_PAGE_NUMBER, pageNumber));
+
+        queryParams.addAll(apiClient.parameterToPairs("", CommonConstants.FIELD_ROWS_PER_PAGE, rowsPerPage));
+
+        final String[] accepts = {
+            CommonConstants.HEADER_APP_JSON
+        };
+        final String accept = apiClient.selectHeaderAccept(accepts);
+
+        final String[] contentTypes = {
+            CommonConstants.HEADER_APP_JSON
+        };
+        final String contentType = apiClient.selectHeaderContentType(contentTypes);
+
+        TypeRef returnType = new TypeRef<List<AppParam>>() {
+        };
+        return apiClient.invokeAPI(path, CommonConstants.METHOD_GET, queryParams, postBody, postBinaryBody, headerParams, formParams, accept, contentType, returnType);
+    }
+    
+    /**
+     *
+     * @param appProfileId
+     * @param filter
+     * @param pageNumber
+     * @param rowsPerPage
+     * @return
+     * @throws ApiException
+     */
+    public List<AppParam> searchAppParamByProfile(Long appProfileId, String filter, Integer pageNumber, Integer rowsPerPage) throws ApiException {
+        Object postBody = null;
+        byte[] postBinaryBody = null;
+        
+        // verify the required parameter 'appProfileId' is set
+        if (appProfileId == null) {
+            throw new ApiException(400, "Missing the required parameter 'appProfileId' when calling searchUsingPOST1");
+        }
+
+        if (filter == null) {
+            throw new ApiException(400, "Missing the required parameter 'filter' when calling searchUsingPOST2");
+        }
+
+        String path = METHOD_SEARCH_PARAMS_PROFILE.replaceAll("\\{format\\}", "json")
+                .replaceAll("\\{" + "id" + "\\}", apiClient.escapeString(appProfileId.toString()));
+
+        List<Pair> queryParams = new ArrayList<>();
+        Map<String, String> headerParams = new HashMap<>();
+        Map<String, Object> formParams = new HashMap<>();
+
+        queryParams.addAll(apiClient.parameterToPairs("", CommonConstants.FIELD_FILTER, filter));
+
+        queryParams.addAll(apiClient.parameterToPairs("", CommonConstants.FIELD_PAGE_NUMBER, pageNumber));
+
+        queryParams.addAll(apiClient.parameterToPairs("", CommonConstants.FIELD_ROWS_PER_PAGE, rowsPerPage));
+
+        final String[] accepts = {
+            CommonConstants.HEADER_APP_JSON
+        };
+        final String accept = apiClient.selectHeaderAccept(accepts);
+
+        final String[] contentTypes = {
+            CommonConstants.HEADER_APP_JSON
+        };
+        final String contentType = apiClient.selectHeaderContentType(contentTypes);
+
+        TypeRef returnType = new TypeRef<List<AppParam>>() {
+        };
+        return apiClient.invokeAPI(path, CommonConstants.METHOD_GET, queryParams, postBody, postBinaryBody, headerParams, formParams, accept, contentType, returnType);
     }
 }

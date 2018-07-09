@@ -1,6 +1,6 @@
-C:\Users\Vinay\Downloads\dev\Repository\Heartbeat2BE\Sources\server\service\supporting\sms\src\main\java\com\luretechnologies\conf\spring\sms\JmsConfig.java
-C:\Users\Vinay\Downloads\dev\Repository\Heartbeat2BE\Sources\server\service\supporting\sms\src\main\java\com\luretechnologies\server\service\supporting\sms\SMSServiceConnector.java
-C:\Users\Vinay\Downloads\dev\Repository\Heartbeat2BE\Sources\server\service\supporting\sms\src\main\java\com\luretechnologies\server\service\supporting\SMSService.java
-C:\Users\Vinay\Downloads\dev\Repository\Heartbeat2BE\Sources\server\service\supporting\sms\src\main\java\com\luretechnologies\server\service\controller\InitController.java
-C:\Users\Vinay\Downloads\dev\Repository\Heartbeat2BE\Sources\server\service\supporting\sms\src\main\java\com\luretechnologies\conf\spring\sms\ServiceWebConfig.java
-C:\Users\Vinay\Downloads\dev\Repository\Heartbeat2BE\Sources\server\service\supporting\sms\src\main\java\com\luretechnologies\server\service\supporting\sms\SMSSender.java
+C:\Users\Vinay\Downloads\dev\Repository\RiceAndBeansBE\Sources\server\service\supporting\sms\src\main\java\com\luretechnologies\server\service\supporting\sms\SMSSender.java
+C:\Users\Vinay\Downloads\dev\Repository\RiceAndBeansBE\Sources\server\service\supporting\sms\src\main\java\com\luretechnologies\conf\spring\sms\JmsConfig.java
+C:\Users\Vinay\Downloads\dev\Repository\RiceAndBeansBE\Sources\server\service\supporting\sms\src\main\java\com\luretechnologies\conf\spring\sms\ServiceWebConfig.java
+C:\Users\Vinay\Downloads\dev\Repository\RiceAndBeansBE\Sources\server\service\supporting\sms\src\main\java\com\luretechnologies\server\service\supporting\SMSService.java
+C:\Users\Vinay\Downloads\dev\Repository\RiceAndBeansBE\Sources\server\service\supporting\sms\src\main\java\com\luretechnologies\server\service\supporting\sms\SMSServiceConnector.java
+C:\Users\Vinay\Downloads\dev\Repository\RiceAndBeansBE\Sources\server\service\supporting\sms\src\main\java\com\luretechnologies\server\service\controller\InitController.java

@@ -32,17 +32,11 @@
 package com.luretechnologies.server.audit.aop.util;
 
 import com.luretechnologies.common.enums.ActionEnum;
-import com.luretechnologies.common.performance.PerformanceTiming;
 import com.luretechnologies.server.data.dao.AuditLogDAO;
 import com.luretechnologies.server.data.dao.TerminalDAO;
-import com.luretechnologies.server.data.dao.TransactionDAO;
-import com.luretechnologies.server.data.display.payment.TransactionRequest;
-import com.luretechnologies.server.data.display.payment.TransactionResponse;
 import com.luretechnologies.server.data.display.tms.DataPackage;
 import com.luretechnologies.server.data.model.AuditLog;
 import com.luretechnologies.server.data.model.Terminal;
-import com.luretechnologies.server.data.model.payment.TimePerformance;
-import com.luretechnologies.server.data.model.payment.Transaction;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,38 +58,6 @@ public class AuditService {
 
     @Autowired
     private AuditLogDAO auditLogDAO;
-
-    @Autowired
-    TransactionDAO transactionDAO;
-
-    /**
-     *
-     * @param transactionResponse
-     * @param transactionRequest
-     */
-    public void saveTimePerformance(TransactionResponse transactionResponse, TransactionRequest transactionRequest) {
-        Transaction transaction = transactionResponse.getTransaction();
-
-        if (transaction != null) {
-            PerformanceTiming times = transactionRequest.getPerformanceTiming();
-
-            TimePerformance timePerformance = new TimePerformance();
-            timePerformance.setRqstInFront(times.getRequestInFront());
-            timePerformance.setRqstInCoreQueue(times.getRequestInCoreQueue());
-            timePerformance.setRqstInCore(times.getRequestInCore());
-            timePerformance.setRqstInHostQueue(times.getRequestInHostQueue());
-            timePerformance.setRqstInHost(times.getRequestInHost());
-            timePerformance.setRqstInProcessor(times.getProcessorTransact());
-            timePerformance.setRspsInHost(times.getResponseInHost());
-            timePerformance.setRspsInHostQueue(times.getResponseInHostQueue());
-            timePerformance.setRspsInCore(times.getResponseInCore());
-            timePerformance.setRspsInCoreQueue(times.getResponseInCoreQueue());
-            timePerformance.setRspsInFront(times.getResponseInFront());
-
-            transaction.setTimePerformance(timePerformance);
-            transactionDAO.merge(transaction);
-        }
-    }
 
     /**
      *

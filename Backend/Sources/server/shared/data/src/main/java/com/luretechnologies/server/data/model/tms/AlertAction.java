@@ -77,13 +77,13 @@ public class AlertAction implements Serializable {
     @ApiModelProperty(value = "The email", required = false)
     private String email;
 
-    @JoinColumn(name = "entity", referencedColumnName = "id", nullable = true)
-    @ManyToOne(optional = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "entity", referencedColumnName = "id", nullable = false)
+    @ManyToOne(optional = true, fetch = FetchType.EAGER)
     @ApiModelProperty(value = "Entity", required = true)
     private com.luretechnologies.server.data.model.Entity entity;
 
     @Column(name = "occurred", nullable = false)
-    @ApiModelProperty(value = "The time in which the heartbeat was performed.")
+    @ApiModelProperty(value = "The time in which the action was performed.")
     private Timestamp occurred;
 
     @Column(name = "active", nullable = false)

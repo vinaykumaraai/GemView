@@ -34,6 +34,8 @@ package com.luretechnologies.server.service.supporting;
 import com.luretechnologies.conf.spring.email.JmsConfig;
 import com.luretechnologies.server.data.model.tms.Email;
 import com.luretechnologies.server.service.supporting.email.EmailServiceConnector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.jms.support.JmsHeaders;
@@ -51,7 +53,7 @@ public class EmailService {
     @Autowired
     EmailServiceConnector connector;
 
-    public Boolean debugOn;
+    private static final Logger LOGGER = LoggerFactory.getLogger(EmailService.class);
 
     /**
      *
@@ -59,8 +61,9 @@ public class EmailService {
      * @param correlationId
      */
     @JmsListener(destination = JmsConfig.SERVICE_IN_QUEUE)
-    public void processTransaction(Email email, @Header(JmsHeaders.CORRELATION_ID) String correlationId) {
+    public void processRequest(Email email, @Header(JmsHeaders.CORRELATION_ID) String correlationId) {
         try {
+            LOGGER.info("processRequest: " + correlationId);
             connector.process(email, correlationId);
         } catch (Exception ex) {
         } finally {

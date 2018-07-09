@@ -54,7 +54,10 @@ public class SessionDAOImpl extends BaseDAOImpl<Session, Long> implements Sessio
     public Session getByUser(User user) {
         try {
             return (Session) findByProperty("user", user).getSingleResult();
-        } catch (NoResultException e) {
+        } catch (NoResultException | NullPointerException e) {
+            LOGGER.info("User session not found.", e);
+            return null;
+        } catch (Exception e) {
             LOGGER.info("User session not found.", e);
             return null;
         }
@@ -64,7 +67,10 @@ public class SessionDAOImpl extends BaseDAOImpl<Session, Long> implements Sessio
     public Session getByToken(String token) throws PersistenceException {
         try {
             return (Session) findByProperty("token", Utils.encryptPassword(token)).getSingleResult();
-        } catch (NoResultException e) {
+        } catch (NoResultException | NullPointerException e) {
+            LOGGER.info("Token session not found.", e);
+            return null;
+        } catch (Exception e) {
             LOGGER.info("Token session not found.", e);
             return null;
         }

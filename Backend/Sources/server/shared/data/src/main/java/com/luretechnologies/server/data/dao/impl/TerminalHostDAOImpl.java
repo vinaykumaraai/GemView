@@ -32,7 +32,6 @@
 package com.luretechnologies.server.data.dao.impl;
 
 import com.luretechnologies.server.data.dao.TerminalHostDAO;
-import com.luretechnologies.server.data.model.payment.MerchantHost;
 import com.luretechnologies.server.data.model.payment.TerminalHost;
 import java.util.ArrayList;
 import java.util.List;

@@ -32,7 +32,6 @@
 package com.luretechnologies.server.data.display.tms;
 
 import io.swagger.annotations.ApiModelProperty;
-import java.sql.Timestamp;
 import java.util.Date;
 
 /**

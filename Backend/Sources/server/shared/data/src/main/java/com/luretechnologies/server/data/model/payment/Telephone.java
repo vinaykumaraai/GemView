@@ -93,7 +93,7 @@ public class Telephone implements Serializable {
     @Convert(converter = TelephoneTypeEnumConverter.class)
     @ApiModelProperty(value = "The type.", required = true)
     private TelephoneTypeEnum type;
-    
+
     @JsonIgnore
     @ManyToMany(targetEntity = Merchant.class, fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinTable(name = "Merchant_Telephone", joinColumns = {
@@ -101,14 +101,6 @@ public class Telephone implements Serializable {
         @JoinColumn(name = "merchant")})
     @ApiModelProperty(value = "The merchants.")
     private Set<Merchant> merchants = new HashSet<>();
-    
-    @JsonIgnore
-    @ManyToMany(targetEntity = Client.class, fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
-    @JoinTable(name = "Client_Telephone", joinColumns = {
-        @JoinColumn(name = "telephone")}, inverseJoinColumns = {
-        @JoinColumn(name = "client")})
-    @ApiModelProperty(value = "The clients.")
-    private Set<Client> clients = new HashSet<>();
 
     /**
      * Database identification.
@@ -170,17 +162,8 @@ public class Telephone implements Serializable {
         this.merchants = merchants;
     }
 
-    public Set<Client> getClients() {
-        return clients;
-    }
-
-    public void setClients(Set<Client> clients) {
-        this.clients = clients;
-    }
-    
     @Override
     public String toString() {
         return String.valueOf(getId());
     }
-
 }

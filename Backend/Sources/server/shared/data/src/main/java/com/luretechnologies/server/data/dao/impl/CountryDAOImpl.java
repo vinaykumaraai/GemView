@@ -32,7 +32,6 @@
 package com.luretechnologies.server.data.dao.impl;
 
 import com.luretechnologies.server.data.dao.CountryDAO;
-import com.luretechnologies.server.data.model.Merchant;
 import com.luretechnologies.server.data.model.payment.Country;
 import java.util.List;
 import javax.persistence.NoResultException;

@@ -39,7 +39,6 @@ import org.springframework.stereotype.Repository;
 import com.luretechnologies.server.data.dao.AppProfileParamValueDAO;
 import javax.persistence.NoResultException;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Root;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

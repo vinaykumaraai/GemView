@@ -42,13 +42,13 @@ import com.luretechnologies.client.restlib.service.api.AppParamFormatApi;
 import com.luretechnologies.client.restlib.service.api.AppProfileApi;
 import com.luretechnologies.client.restlib.service.api.AuditUserLogApi;
 import com.luretechnologies.client.restlib.service.api.AuthApi;
-import com.luretechnologies.client.restlib.service.api.ClientsApi;
 import com.luretechnologies.client.restlib.service.api.DashboardApi;
 import com.luretechnologies.client.restlib.service.api.DevicesApi;
 import com.luretechnologies.client.restlib.service.api.EntitiesApi;
 import com.luretechnologies.client.restlib.service.api.EntityLevelApi;
 import com.luretechnologies.client.restlib.service.api.HeartbeatApi;
 import com.luretechnologies.client.restlib.service.api.AlertActionApi;
+import com.luretechnologies.client.restlib.service.api.DebugApi;
 import com.luretechnologies.client.restlib.service.api.MerchantsApi;
 import com.luretechnologies.client.restlib.service.api.ModelApi;
 import com.luretechnologies.client.restlib.service.api.OrganizationsApi;
@@ -62,13 +62,6 @@ import com.luretechnologies.client.restlib.service.api.TestApi;
 import com.luretechnologies.client.restlib.service.api.UsersApi;
 
 public class RestClientService {
-
-    /**
-     * @return the systemParamsApi
-     */
-    public SystemParamsApi getSystemParamsApi() {
-        return systemParamsApi;
-    }
 
     private final ApiClient adminApi;
     private final ApiClient tmsApi;
@@ -84,7 +77,6 @@ public class RestClientService {
     private final EntityLevelApi entityLevelApi;
     private final AuditUserLogApi auditUserLogApi;
     private final AuthApi authApi;
-    private final ClientsApi clientApi;
     private final DashboardApi dashboardApi;
     private final DevicesApi deviceApi;
     private final EntitiesApi entityApi;
@@ -101,6 +93,7 @@ public class RestClientService {
     private final AlertActionApi alertActionApi;
     private final SystemParamsApi systemParamsApi;
     private final ModelApi modelApi;
+    private final DebugApi debugApi;
     
 
     /**
@@ -116,7 +109,6 @@ public class RestClientService {
         addressApi = new AddressesApi(adminApi);
         auditUserLogApi = new AuditUserLogApi(adminApi);
         authApi = new AuthApi(adminApi);
-        clientApi = new ClientsApi(adminApi);
         dashboardApi = new DashboardApi(adminApi);
         deviceApi = new DevicesApi(adminApi);
         entityApi = new EntitiesApi(adminApi);
@@ -145,6 +137,7 @@ public class RestClientService {
         alertActionApi = new AlertActionApi(tmsApi);
         systemParamsApi = new SystemParamsApi(adminApi);
         modelApi = new ModelApi(adminApi);
+        debugApi = new DebugApi(tmsApi);
     }
 
     public AddressesApi getAddressApi() {
@@ -161,10 +154,6 @@ public class RestClientService {
 
     public AuthApi getAuthApi() {
         return authApi;
-    }
-
-    public ClientsApi getClientApi() {
-        return clientApi;
     }
 
     public DashboardApi getDashboardApi() {
@@ -285,4 +274,17 @@ public class RestClientService {
     public ModelApi getModelApi() {
         return modelApi;
     }
+    /**
+     * @return the debugApi
+     */
+    public DebugApi getDebugApi() {
+        return debugApi;
+    }
+
+    /**
+     * @return the systemParamsApi
+     */
+    public SystemParamsApi getSystemParamsApi() {
+        return systemParamsApi;
+    }    
 }

@@ -7,33 +7,17 @@
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.luretechnologies.tms.server.service.supporting</groupId>
+    <groupId>com.luretechnologies.tms.server.service</groupId>
     <artifactId>packaging</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>war</packaging>
 
     <name>tms-server-service-supporting-packaging</name>
-    <description>Description for tms-server-service-supporting-packaging</description>
-    
+
     <properties>
-        <build.name>tms-server-service-supporting-packaging</build.name>
         <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-    
-    <!-- SVN -->
-    <scm>
-        <connection>scm:svn:https://svn2.lure68.net:57344/svn/ServerX/trunk/Sources/server/service/supporting/email/test</connection>
-        <developerConnection>scm:svn:https://svn2.lure68.net/svn/ServerX/trunk/Sources/server/service/supporting/email/test</developerConnection>
-        <url>https://svn2.lure68.net/svn/ServerX/trunk/Sources/server/service/supporting/email/test</url>
-    </scm>    
-    <!-- SITE -->
-    <distributionManagement>
-        <site> 
-            <id>nexus-luretechnologies</id> 
-            <name>tms-server-service-supporting-packaging-site</name>
-            <url>dav:http://localemail:8081/nexus/content/repositories/tms-server-service-supporting-packaging-site/</url>
-        </site>
-    </distributionManagement>      
     
     <dependencies>
         <dependency>
@@ -43,16 +27,9 @@
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-jms</artifactId>
-            <version>4.2.0.RELEASE</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>com.luretechnologies.tms.server.shared</groupId>
-            <artifactId>jms</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-            <type>jar</type>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.7.25</version>
         </dependency>
         <dependency>
             <groupId>javax</groupId>
@@ -60,14 +37,10 @@
             <version>7.0</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>com.sun.mail</groupId>
-            <artifactId>javax.mail</artifactId>
-            <version>1.6.1</version>
-        </dependency>    
     </dependencies>
 
     <build>
+        <finalName>tms-server-service-supporting-packaging</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -98,31 +71,6 @@
                     <outputDirectory>${project.build.directory}</outputDirectory>
                 </configuration>
             </plugin>
-            <!--            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>${maven.dependency.version}</version>
-                <executions>
-                    <execution>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${endorsed.dir}</outputDirectory>
-                            <silent>true</silent>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>javax</groupId>
-                                    <artifactId>javaee-endorsed-api</artifactId>
-                                    <version>7.0</version>
-                                    <type>jar</type>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>

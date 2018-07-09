@@ -31,7 +31,6 @@
  */
 package com.luretechnologies.server.data.dao;
 
-import com.luretechnologies.server.data.model.payment.Host;
 import com.luretechnologies.server.data.model.payment.MerchantHostSetting;
 import com.luretechnologies.server.data.model.payment.MerchantHostSettingValue;
 import javax.persistence.PersistenceException;

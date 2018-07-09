@@ -31,7 +31,6 @@
  */
 package com.luretechnologies.client.restlib.service.filters;
 
-import io.swagger.annotations.ApiModelProperty;
 import java.io.Serializable;
 import java.sql.Timestamp;
 

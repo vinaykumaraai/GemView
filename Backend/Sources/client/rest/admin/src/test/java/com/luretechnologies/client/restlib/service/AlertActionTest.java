@@ -78,11 +78,11 @@ public class AlertActionTest {
         try {
             String terminalId = "TERDXJZ899694";
             AlertAction alertAction = new AlertAction();
-            alertAction.setName("Name");
+            alertAction.setName("Name test");
             alertAction.setDescription("Description");
             alertAction.setActive(true);
-            alertAction.setEmail("juliomecias@gemstonepay.com");
-            alertAction.setLabel("USER");
+            alertAction.setEmail("carlosromero@gemstonepay.com");
+            alertAction.setLabel("TOO_MANY_VOIDS");
             alertAction.setEntityId(terminalId);
             alertAction = service.getAlertActionApi().create(terminalId, alertAction);
             assertNotNull(alertAction);
@@ -96,7 +96,31 @@ public class AlertActionTest {
             assertNotNull(alertAction);
             System.out.println(alertAction.toString());
             
+            
+            alertAction = new AlertAction();
+            alertAction.setName("Name test");
+            alertAction.setDescription("Description");
+            alertAction.setActive(true);
+            alertAction.setEmail("juliomecias@gemstonepay.com");
+            alertAction.setLabel("TOO_MANY_VOID");
+            alertAction.setEntityId(terminalId);
+            alertAction = service.getAlertActionApi().create(terminalId, alertAction);
+            assertNotNull(alertAction);
             System.out.println(alertAction.toString());
+            
+            String organizationId = "ENTDXJZ89694L";
+            
+            alertAction = new AlertAction();
+            alertAction.setName("Name test");
+            alertAction.setDescription("Description");
+            alertAction.setActive(true);
+            alertAction.setEmail("juliomecias@gemstonepay.com");
+            alertAction.setLabel("TOO_MANY_VOID");
+            alertAction.setEntityId(terminalId);
+            alertAction = service.getAlertActionApi().create(organizationId, alertAction);
+            assertNotNull(alertAction);
+            System.out.println(alertAction.toString());
+            
         } catch (ApiException ex) {
             fail(ex.getMessage());
         }
@@ -106,7 +130,7 @@ public class AlertActionTest {
     public void searchAndDelete() {
         try {
             String terminalId = "TERDXJZ899694";
-            List<AlertAction> alertActionList = service.getAlertActionApi().search(terminalId, "USER", "170101", "190101", 1, 20);
+            List<AlertAction> alertActionList = service.getAlertActionApi().search(terminalId, null, null, null, null, null);
 
             assertNotNull(alertActionList);
             Assert.assertTrue(alertActionList.size() > 0);
@@ -116,7 +140,7 @@ public class AlertActionTest {
             }
 
             // Deleting one 
-            service.getAlertActionApi().delete(alertActionList.get(0).getId());
+            //service.getAlertActionApi().delete(alertActionList.get(0).getId());
 
         } catch (ApiException ex) {
             fail(ex.getResponseBody());

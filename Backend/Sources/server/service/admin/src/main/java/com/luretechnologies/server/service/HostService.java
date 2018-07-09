@@ -37,7 +37,6 @@ import com.luretechnologies.server.data.model.payment.HostSettingValue;
 import com.luretechnologies.server.data.model.payment.MerchantHostSetting;
 import com.luretechnologies.server.data.model.payment.TerminalHostSetting;
 import java.util.List;
-import org.springframework.orm.ObjectRetrievalFailureException;
 
 /**
  *

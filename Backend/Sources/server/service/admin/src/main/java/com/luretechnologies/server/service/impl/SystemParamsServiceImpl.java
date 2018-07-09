@@ -66,6 +66,16 @@ public class SystemParamsServiceImpl implements SystemParamsService {
     @Override
     public SystemParam create(SystemParam systemParam) throws Exception {
         try {
+            SystemParam systemParamDataBase = null;
+            try {
+                systemParamDataBase = getByName(systemParam.getName());
+            } catch (Exception ex) {
+
+            }
+            if (systemParamDataBase != null) {
+                systemParam.setId(systemParamDataBase.getId());
+                return update(systemParam);
+            }
             SystemParamType systemParamType = null;
             systemParam.setActive(true);
             systemParam.setAvailable(true);
@@ -75,10 +85,10 @@ public class SystemParamsServiceImpl implements SystemParamsService {
                 systemParamType = systemParamsTypeDAO.getByName(systemParam.getSystemParamType().getName());
             } catch (Exception exception) {
             }
-            if ( systemParamType == null ){
+            if (systemParamType == null) {
                 systemParamType = new SystemParamType();
                 systemParamType.setName(systemParam.getSystemParamType().getName());
-                systemParamType.setName(systemParam.getSystemParamType().getName());
+                systemParamType.setDescription(systemParam.getSystemParamType().getName());
                 systemParamsTypeDAO.persist(systemParamType);
             }
             systemParam.setSystemParamType(systemParamType);
@@ -99,9 +109,8 @@ public class SystemParamsServiceImpl implements SystemParamsService {
         try {
             SystemParam systemParamModel = systemParamsDAO.findById(systemParam.getId());
             if (systemParamModel != null) {
-                systemParamModel.setAvailable(systemParam.getAvailable());
+                if ( systemParam.getAvailable()!= null) systemParamModel.setAvailable(systemParam.getAvailable());
                 systemParamModel.setDescription(systemParam.getDescription());
-                systemParamModel.setName(systemParam.getName());
                 systemParamModel.setValue(systemParam.getValue());
                 systemParamModel.setOccurred(new Timestamp(System.currentTimeMillis()));
                 return systemParamsDAO.merge(systemParamModel);

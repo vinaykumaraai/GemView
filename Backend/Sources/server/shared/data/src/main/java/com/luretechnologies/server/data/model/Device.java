@@ -31,21 +31,15 @@
  */
 package com.luretechnologies.server.data.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.luretechnologies.server.common.Messages;
 import com.luretechnologies.server.constraints.FieldNotBlank;
-import com.luretechnologies.server.data.model.payment.Transaction;
 import io.swagger.annotations.ApiModelProperty;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
-import javax.persistence.OneToMany;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -82,13 +76,12 @@ public class Device extends com.luretechnologies.server.data.model.Entity implem
     @Column(name = "serial_number", nullable = false, length = 50)
     @ApiModelProperty(value = "The serial number.", required = true)
     private String serialNumber;
-    
+
     @Column(name = "last_contact", nullable = false, length = 50)
     @ApiModelProperty(value = "The last contact.", required = true)
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date lastContact;
 
-     
     @Column(name = "last_download", nullable = false, length = 50)
     @ApiModelProperty(value = "The last  download.", required = true)
     @Temporal(javax.persistence.TemporalType.DATE)
@@ -110,12 +103,6 @@ public class Device extends com.luretechnologies.server.data.model.Entity implem
         this.lastDownload = lastDownload;
     }
 
-      
-
-    @JsonIgnore
-    @OneToMany(mappedBy = "device", targetEntity = Transaction.class, fetch = FetchType.LAZY)
-    private Set<Transaction> transactions = new HashSet<>();
-
     /**
      *
      * @param value
@@ -132,25 +119,8 @@ public class Device extends com.luretechnologies.server.data.model.Entity implem
         return serialNumber;
     }
 
-    /**
-     *
-     * @param value
-     */
-    public void setTransactions(Set<Transaction> value) {
-        this.transactions = value;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public Set<Transaction> getTransactions() {
-        return transactions;
-    }
-
     @Override
     public String toString() {
         return String.valueOf(getId());
     }
-
 }

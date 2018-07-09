@@ -34,7 +34,7 @@ package com.luretechnologies.server.data.display.tms;
 import io.swagger.annotations.ApiModelProperty;
 import java.util.Date;
 
-public class HeartbeatResponseDisplay  {
+public class HeartbeatResponseDisplay {
 
     /**
      * @return the sequence
@@ -64,7 +64,6 @@ public class HeartbeatResponseDisplay  {
         this.interval = interval;
     }
 
-
     @ApiModelProperty(value = "The table primary key", required = true)
     private Long id;
 
@@ -88,10 +87,10 @@ public class HeartbeatResponseDisplay  {
 
     @ApiModelProperty(value = "RKI Info", required = false)
     private RKIInfoDisplay rkiInfo;
-    
+
     @ApiModelProperty(value = "Entity ID", required = true)
     private String entity;
-    
+
     @ApiModelProperty(value = "Sequence", required = true)
     private String sequence;
 
@@ -104,19 +103,17 @@ public class HeartbeatResponseDisplay  {
 
     /**
      *
+     * @param status
      * @param message
      * @param interval
-     * @param status
-     * @param downloadInfo
      * @param debug
      */
-    public HeartbeatResponseDisplay(Integer status, String message, Long interval, Boolean debug, DownloadInfoDisplay downloadInfo) {
+    public HeartbeatResponseDisplay(Integer status, String message, Long interval, Boolean debug) {
         super();
         this.status = status;
         this.message = message;
         this.interval = interval;
         this.debug = debug;
-        //   this.downloadInfo = downloadInfo;
     }
 
     /**
@@ -146,8 +143,6 @@ public class HeartbeatResponseDisplay  {
     public void setStatus(Integer status) {
         this.status = status;
     }
-
-
 
     /**
      * @return the debug

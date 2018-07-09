@@ -10,6 +10,7 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -47,10 +48,10 @@ public class AppProfile implements Serializable {
     @ApiModelProperty(value = "The active.")
     private boolean active = true;
     
-    @OneToMany(mappedBy = "appProfileId", targetEntity = AppProfileParamValue.class, fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "appProfileId", targetEntity = AppProfileParamValue.class, fetch = FetchType.LAZY)
     private Set<AppProfileParamValue> appprofileparamvalueCollection = new HashSet<>();
     
-    @OneToMany(mappedBy = "appProfileId", targetEntity = EntityAppProfile.class, fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "appProfileId", targetEntity = EntityAppProfile.class, fetch = FetchType.LAZY)
     private Set<EntityAppProfile> entityappprofileCollection = new HashSet<>();
     
     /*@OneToMany(mappedBy = "appProfileId", targetEntity = AppProfileFileValue.class, fetch = FetchType.LAZY)

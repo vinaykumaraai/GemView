@@ -33,7 +33,6 @@ package com.luretechnologies.server.data.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.luretechnologies.common.enums.PermissionEnum;
-import com.luretechnologies.common.validator.RegExp;
 import com.luretechnologies.server.common.Messages;
 import com.luretechnologies.server.constraints.FieldNotBlank;
 import io.swagger.annotations.ApiModelProperty;
@@ -52,7 +51,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import org.hibernate.annotations.Type;
 

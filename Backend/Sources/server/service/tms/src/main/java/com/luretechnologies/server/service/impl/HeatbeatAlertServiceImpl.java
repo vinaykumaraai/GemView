@@ -33,7 +33,9 @@ package com.luretechnologies.server.service.impl;
 
 import com.luretechnologies.server.data.dao.EntityDAO;
 import com.luretechnologies.server.data.dao.HeartbeatAlertDAO;
+import com.luretechnologies.server.data.dao.TerminalDAO;
 import com.luretechnologies.server.data.display.tms.HeartbeatAlertDisplay;
+import com.luretechnologies.server.data.display.tms.HeartbeatDisplay;
 import com.luretechnologies.server.data.model.Entity;
 import com.luretechnologies.server.data.model.tms.HeartbeatAlert;
 import com.luretechnologies.server.service.HeartbeatAlertService;
@@ -44,6 +46,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.Date;
+import org.springframework.beans.BeanUtils;
 import org.springframework.orm.ObjectRetrievalFailureException;
 
 /**
@@ -59,6 +62,9 @@ public class HeatbeatAlertServiceImpl implements HeartbeatAlertService {
 
     @Autowired
     HeartbeatAlertDAO heartbeatAlertDAO;
+
+    @Autowired
+    TerminalDAO terminalDAO;
 
     @Override
     public List<HeartbeatAlertDisplay> search(String entityId, String filter, int pageNumber, int rowsPerPage, Date dateDrom, Date dateTo) throws Exception {
@@ -117,5 +123,32 @@ public class HeatbeatAlertServiceImpl implements HeartbeatAlertService {
     @Override
     public void delete(Long id) throws Exception {
         heartbeatAlertDAO.delete(id);
+    }
+
+    @Override
+    public List<HeartbeatAlertDisplay> getAlerts(String serialNumber, String label) {
+        try {
+            Entity terminal = terminalDAO.findBySerialNumber(serialNumber);
+            if (terminal == null) {
+                throw new ObjectRetrievalFailureException(Entity.class, serialNumber);
+            }
+            if (label != null  ) {
+                List<HeartbeatAlert> alerts = heartbeatAlertDAO.getAlerts(terminal.getId(), null, label);
+                if (alerts != null && alerts.size() > 0) {
+                    List<HeartbeatAlertDisplay> alertDisplays = new ArrayList<>();
+
+                    for (HeartbeatAlert temp : alerts) {
+                        HeartbeatAlertDisplay display = new HeartbeatAlertDisplay();
+                        BeanUtils.copyProperties(temp, display);
+                        alertDisplays.add(display);
+                    }
+                    return alertDisplays;
+                }
+            }
+
+        } catch (Exception ex) {
+
+        }
+        return null;
     }
 }

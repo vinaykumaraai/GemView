@@ -40,6 +40,7 @@ import com.luretechnologies.server.data.display.tms.DownloadInfoDisplay;
 import com.luretechnologies.server.data.display.tms.HeartbeatResponseDisplay;
 import com.luretechnologies.server.data.display.tms.RKIInfoDisplay;
 import com.luretechnologies.server.data.model.Entity;
+import com.luretechnologies.server.data.model.Terminal;
 import com.luretechnologies.server.service.HeartbeatResponseService;
 import java.sql.Timestamp;
 import java.util.Date;
@@ -71,9 +72,18 @@ public class HeatbeatResponseServiceImpl implements HeartbeatResponseService {
 
     @Autowired
     TerminalDAO terminalDAO;
+    
+     @Override
+    public HeartbeatResponseDisplay create(Long entityLongId, HeartbeatResponseDisplay heartbeatResponse) throws Exception {
+         Terminal entity = terminalDAO.findById(entityLongId);
+            if (entity == null) {
+                throw new ObjectRetrievalFailureException(Terminal.class, entityLongId);
+            }
+           return create(entity.getSerialNumber(),heartbeatResponse);
+    }
 
     @Override
-    public HeartbeatResponseDisplay create(String entityid, HeartbeatResponseDisplay heartbeatResponse) throws Exception {
+    public HeartbeatResponseDisplay create(String serialNumberString, HeartbeatResponseDisplay heartbeatResponse) throws Exception {
         try {
 
             DownloadInfoDisplay downloadInfo = heartbeatResponse.getDownloadInfo();
@@ -86,9 +96,9 @@ public class HeatbeatResponseServiceImpl implements HeartbeatResponseService {
             com.luretechnologies.server.data.model.tms.DownloadInfo downloadInfoModel = null;
             com.luretechnologies.server.data.model.tms.RKIInfo RKIInfoModel = null;
 
-            Entity entity = terminalDAO.findBySerialNumber(entityid);
+            Entity entity = terminalDAO.findBySerialNumber(serialNumberString);
             if (entity == null) {
-                throw new ObjectRetrievalFailureException(Entity.class, entityid);
+                throw new ObjectRetrievalFailureException(Entity.class, serialNumberString);
             }
             heartbeatResponseModel.setEntity(entity);
             heartbeatResponseModel.setDebug(heartbeatResponse.getDebug());
@@ -161,6 +171,7 @@ public class HeatbeatResponseServiceImpl implements HeartbeatResponseService {
                 downloadInfo.setId(heartbeatResponseModel.getDownloadInfo().getId());
                 downloadInfo.setFtpsUrl(heartbeatResponseModel.getDownloadInfo().getFtpsUrl());
                 downloadInfo.setHttpsUrl(heartbeatResponseModel.getDownloadInfo().getHttpsUrl());
+                downloadInfo.setUsername(heartbeatResponseModel.getDownloadInfo().getUsername());
                 downloadInfo.setOccurred(new Date(heartbeatResponseModel.getDownloadInfo().getOccurred().getTime()));
                 heartbeatResponse.setDownloadInfo(downloadInfo);
             }
@@ -184,5 +195,7 @@ public class HeatbeatResponseServiceImpl implements HeartbeatResponseService {
         Entity entity = terminalDAO.findBySerialNumber(serialNumber);
         return getLastOne(entity.getId());
     }
+
+   
 
 }

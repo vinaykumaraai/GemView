@@ -42,12 +42,11 @@ import com.luretechnologies.client.restlib.service.model.HeartbeatAppInfo;
 import com.luretechnologies.client.restlib.service.model.HeartbeatAudit;
 import com.luretechnologies.client.restlib.service.model.HeartbeatOdometer;
 import com.luretechnologies.client.restlib.service.model.HeartbeatResponse;
+import com.luretechnologies.client.restlib.service.model.HeartbeatUpdateParam;
 import com.luretechnologies.client.restlib.service.model.RKIInfo;
 import com.luretechnologies.client.restlib.service.model.Terminal;
 import com.luretechnologies.client.restlib.service.model.UserSession;
 import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import static org.junit.Assert.assertNotNull;
@@ -101,16 +100,19 @@ public class HeartbeatTest {
                 HeartbeatAppInfo heartbeatAppInfo = new HeartbeatAppInfo();
                 heartbeatAppInfo.setName("PAYAPP");
                 heartbeatAppInfo.setVersion("1.0.2");
+                heartbeatAppInfo.setUpdatedAt("2018-05-21 13:56:22");
                 heartbeat.getSwComponents().add(heartbeatAppInfo);
 
                 heartbeatAppInfo = new HeartbeatAppInfo();
                 heartbeatAppInfo.setName("CONTACT_KERNEL");
                 heartbeatAppInfo.setVersion("1.2.34");
+                heartbeatAppInfo.setUpdatedAt("2018-05-21 13:56:22");
                 heartbeat.getSwComponents().add(heartbeatAppInfo);
 
                 heartbeatAppInfo = new HeartbeatAppInfo();
                 heartbeatAppInfo.setName("TOS");
                 heartbeatAppInfo.setVersion("1.10.156");
+                heartbeatAppInfo.setUpdatedAt("2018-05-21 13:56:22");
                 heartbeat.getSwComponents().add(heartbeatAppInfo);
 
                 HeartbeatResponse heartbeatResponse = service.getHeartbeatApi().create(heartbeat);
@@ -169,6 +171,46 @@ public class HeartbeatTest {
     }
 
     @Test
+    public void heartbeatUpdateParam() {
+        try {
+            List<Terminal> terminals = service.getTerminalApi().getTerminals(1, 100);
+            for (Terminal temp : terminals) {
+                Heartbeat heartbeat = new Heartbeat();
+                heartbeat.setSerialNumber(temp.getSerialNumber());
+                heartbeat.setHwModel("VP5300");
+                heartbeat.setStatus(0);
+                heartbeat.setMessage("Message test");
+                heartbeat.setSequence("102");
+
+                HeartbeatUpdateParam heartbeatUpdateParam = new HeartbeatUpdateParam();
+                heartbeatUpdateParam.setAppName("APPPAY");
+                heartbeatUpdateParam.setName("tip");
+                heartbeatUpdateParam.setValue("1");
+                heartbeat.getHeartbeatUpdateParams().add(heartbeatUpdateParam);
+
+                heartbeatUpdateParam = new HeartbeatUpdateParam();
+                heartbeatUpdateParam.setAppName("MASTERAPP");
+                heartbeatUpdateParam.setName("BlackAndWhiteScreen");
+                heartbeatUpdateParam.setValue("1");
+                heartbeat.getHeartbeatUpdateParams().add(heartbeatUpdateParam);
+
+                heartbeatUpdateParam = new HeartbeatUpdateParam();
+                heartbeatUpdateParam.setAppName("CONTROLPANEL");
+                heartbeatUpdateParam.setName("BlackAndWhiteScreen");
+                heartbeatUpdateParam.setValue("12");
+                heartbeat.getHeartbeatUpdateParams().add(heartbeatUpdateParam);
+
+                HeartbeatResponse heartbeatResponse = service.getHeartbeatApi().create(heartbeat);
+                assertNotNull(heartbeatResponse);
+                System.out.println(heartbeatResponse.toString());
+            }
+
+        } catch (Exception ex) {
+            fail(ex.getMessage());
+        }
+    }
+
+    @Test
     public void heartbeatAuditsAlerts() {
         try {
 
@@ -212,6 +254,12 @@ public class HeartbeatTest {
                 heartbeatAlert.setComponent("PAYAPP");
                 heartbeatAlert.setLabel("TOO_MANY_VOIDS");
                 heartbeat.getHeartbeatAlerts().add(heartbeatAlert);
+                
+                heartbeatAlert = new HeartbeatAlert();
+                heartbeatAlert.setOccurred(new Timestamp(System.currentTimeMillis()));
+                heartbeatAlert.setComponent("PAYAPP");
+                heartbeatAlert.setLabel("TOO_MANY_VOID");
+                heartbeat.getHeartbeatAlerts().add(heartbeatAlert);
 
                 HeartbeatResponse heartbeatResponse = service.getHeartbeatApi().create(heartbeat);
                 assertNotNull(heartbeatResponse);
@@ -244,7 +292,7 @@ public class HeartbeatTest {
     public void heartbeatAuditSearch() {
         try {
             String terminalId = "TERDXJZ899694";
-            List<HeartbeatAudit> HeartbeatAuditList = service.getHeartbeatApi().searchAudits(terminalId, "USER", "170101", "190101", 1, 20);
+            List<HeartbeatAudit> HeartbeatAuditList = service.getHeartbeatApi().searchAudits(terminalId, null, null, null, null, null);
 
             assertNotNull(HeartbeatAuditList);
             assertTrue(HeartbeatAuditList.size() > 0);
@@ -346,16 +394,18 @@ public class HeartbeatTest {
     }
 
     //@Test
-    public void deleteSwComponent() {
+    public void getSwComponent() {
         try {
             List<Terminal> terminals = service.getTerminalApi().getTerminals(1, 100);
             for (Terminal temp : terminals) {
-                List<HeartbeatAudit> HeartbeatOdometerList = service.getHeartbeatApi().searchAudits(temp.getEntityId(), null, null, null, null, null);
+                /*
+                List<HeartbeatAudit> HeartbeatOdometerList = service.getHeartbeatApi().temp.getEntityId(), null, null, null, null, null);
                 for (HeartbeatAudit odometer : HeartbeatOdometerList) {
                     service.getHeartbeatApi().deleteOdometer(odometer.getId());
                     break;
                 }
                 break;
+                 */
             }
         } catch (ApiException ex) {
             fail(ex.getResponseBody());
@@ -404,7 +454,7 @@ public class HeartbeatTest {
         }
     }
 
-    @Test
+    //@Test
     public void deleteAlert() {
         try {
             List<Terminal> terminals = service.getTerminalApi().getTerminals(1, 100);
@@ -416,6 +466,15 @@ public class HeartbeatTest {
                 }
                 break;
             }
+        } catch (ApiException ex) {
+            fail(ex.getResponseBody());
+        }
+    }
+
+    //@Test(timeout = 0xf4240)
+    public void zalertsProcessing() {
+        try {
+            service.getHeartbeatApi().alertsProcessing();
         } catch (ApiException ex) {
             fail(ex.getResponseBody());
         }

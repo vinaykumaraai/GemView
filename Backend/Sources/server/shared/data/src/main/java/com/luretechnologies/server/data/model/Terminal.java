@@ -36,11 +36,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.luretechnologies.server.common.Messages;
 import com.luretechnologies.server.data.model.payment.TerminalHost;
 import com.luretechnologies.server.data.model.payment.TerminalSettingValue;
-import com.luretechnologies.server.data.model.payment.Transaction;
-import com.luretechnologies.server.data.model.tms.ApplicationPackage;
 import com.luretechnologies.server.data.model.tms.ScheduleGroup;
 import io.swagger.annotations.ApiModelProperty;
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -72,34 +71,6 @@ import javax.validation.constraints.Size;
 public class Terminal extends com.luretechnologies.server.data.model.Entity implements Serializable {
 
     /**
-     * @return the active
-     */
-    public boolean isActive() {
-        return active;
-    }
-
-    /**
-     * @param active the active to set
-     */
-    public void setActive(boolean active) {
-        this.active = active;
-    }
-
-    /**
-     * @return the heartbeat
-     */
-    public boolean isHeartbeat() {
-        return heartbeat;
-    }
-
-    /**
-     * @param heartbeat the heartbeat to set
-     */
-    public void setHeartbeat(boolean heartbeat) {
-        this.heartbeat = heartbeat;
-    }
-
-    /**
      *
      */
     public Terminal() {
@@ -121,17 +92,12 @@ public class Terminal extends com.luretechnologies.server.data.model.Entity impl
 //        @JoinColumn(name = "key_block", referencedColumnName = "id")})
 //    @ApiModelProperty(value = "The key block.")
 //    private KeyBlock keyBlock;
-
     @NotNull(message = Messages.VALUE_IS_EMPTY)
     @ManyToOne(targetEntity = ScheduleGroup.class, fetch = FetchType.LAZY)
     @JoinColumns({
         @JoinColumn(name = "schedule_group", referencedColumnName = "id", nullable = false)})
     @ApiModelProperty(value = "The schedule group to which it belongs.", required = true)
     private ScheduleGroup scheduleGroup;
-
-    @JsonIgnore
-    @OneToMany(mappedBy = "terminal", targetEntity = ApplicationPackage.class, fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST})
-    private Set<ApplicationPackage> applicationPackages = new HashSet<>();
 
 //    @OneToMany(mappedBy = "terminal", targetEntity = Result.class)
 //    @Cascade({CascadeType.SAVE_UPDATE, CascadeType.LOCK})
@@ -147,10 +113,6 @@ public class Terminal extends com.luretechnologies.server.data.model.Entity impl
 //    @LazyCollection(LazyCollectionOption.TRUE)
 //    private Set<Diagnostic> diagnostic = new HashSet<>();
 //    
-    @JsonIgnore
-    @OneToMany(mappedBy = "terminal", targetEntity = Transaction.class, fetch = FetchType.LAZY)
-    private Set<Transaction> transactions = new HashSet<>();
-
     @OneToMany(mappedBy = "terminal", targetEntity = TerminalHost.class, fetch = FetchType.LAZY)
     @ApiModelProperty(value = "The hosts.")
     private Set<TerminalHost> terminalHosts = new HashSet<>();
@@ -164,23 +126,30 @@ public class Terminal extends com.luretechnologies.server.data.model.Entity impl
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date lastContact;
 
-     
     @Column(name = "last_download", nullable = false, length = 50)
     @ApiModelProperty(value = "The last  download.", required = true)
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date lastDownload;
-    
+
     @Column(name = "active", nullable = false, length = 1)
     @ApiModelProperty(value = "The active.")
     private boolean active = true;
-    
+
     @Column(name = "heartbeat", nullable = false, length = 1)
     @ApiModelProperty(value = "The Heartbeat.")
     private boolean heartbeat = true;
-    
+
     @Column(name = "frequency", nullable = false, length = 20)
     @ApiModelProperty(value = "The frequency heartbeat request.")
     private long frequency;
+
+    @Column(name = "debug_expiration_date", nullable = false, length = 50)
+    @ApiModelProperty(value = "Debug expiration date.", required = true)
+    private Timestamp debugExpirationDate;
+
+    @Column(name = "debug_active", nullable = false)
+    @ApiModelProperty(value = "if is debuggable or not")
+    private Boolean debugActive;
 
     public Date getLastContact() {
         return lastContact;
@@ -197,6 +166,7 @@ public class Terminal extends com.luretechnologies.server.data.model.Entity impl
     public void setLastDownload(Date lastDownload) {
         this.lastDownload = lastDownload;
     }
+
     /**
      * Terminal serial number.
      *
@@ -281,7 +251,6 @@ public class Terminal extends com.luretechnologies.server.data.model.Entity impl
 //    public void setKeyBlock(KeyBlock value) {
 //        this.keyBlock = value;
 //    }
-
 //    /**
 //     *
 //     * @return
@@ -289,7 +258,6 @@ public class Terminal extends com.luretechnologies.server.data.model.Entity impl
 //    public KeyBlock getKeyBlock() {
 //        return keyBlock;
 //    }
-
     /**
      *
      * @param value
@@ -326,38 +294,6 @@ public class Terminal extends com.luretechnologies.server.data.model.Entity impl
      *
      * @return
      */
-    public Set<ApplicationPackage> getApplicationPackages() {
-        return applicationPackages;
-    }
-
-    /**
-     *
-     * @param applicationPackages
-     */
-    public void setApplicationPackages(Set<ApplicationPackage> applicationPackages) {
-        this.applicationPackages = applicationPackages;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public Set<Transaction> getTransactions() {
-        return transactions;
-    }
-
-    /**
-     *
-     * @param transactions
-     */
-    public void setTransactions(Set<Transaction> transactions) {
-        this.transactions = transactions;
-    }
-
-    /**
-     *
-     * @return
-     */
     public Set<TerminalHost> getTerminalHosts() {
         return terminalHosts;
     }
@@ -388,5 +324,58 @@ public class Terminal extends com.luretechnologies.server.data.model.Entity impl
     public void setFrequency(long frequency) {
         this.frequency = frequency;
     }
+ /**
+     * @return the debugExpirationDate
+     */
+    public Timestamp getDebugExpirationDate() {
+        return debugExpirationDate;
+    }
 
+    /**
+     * @param debugExpirationDate the debugExpirationDate to set
+     */
+    public void setDebugExpirationDate(Timestamp debugExpirationDate) {
+        this.debugExpirationDate = debugExpirationDate;
+    }
+
+    /**
+     * @return the active
+     */
+    public boolean isActive() {
+        return active;
+    }
+
+    /**
+     * @param active the active to set
+     */
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    /**
+     * @return the heartbeat
+     */
+    public boolean isHeartbeat() {
+        return heartbeat;
+    }
+
+    /**
+     * @param heartbeat the heartbeat to set
+     */
+    public void setHeartbeat(boolean heartbeat) {
+        this.heartbeat = heartbeat;
+    }
+    /**
+     * @return the debugActive
+     */
+    public Boolean getDebugActive() {
+        return debugActive;
+    }
+
+    /**
+     * @param debugActive the debugActive to set
+     */
+    public void setDebugActive(Boolean debugActive) {
+        this.debugActive = debugActive;
+    }    
 }

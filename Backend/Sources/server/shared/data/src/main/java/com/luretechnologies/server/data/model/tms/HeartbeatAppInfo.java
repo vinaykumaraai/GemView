@@ -49,6 +49,7 @@ import javax.validation.constraints.Size;
 @Table(name = "heartbeat_app_info")
 public class HeartbeatAppInfo implements Serializable {
 
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
@@ -71,8 +72,12 @@ public class HeartbeatAppInfo implements Serializable {
     private com.luretechnologies.server.data.model.Entity entity;    
 
     @Column(name = "updated_at", nullable = false)
-    @ApiModelProperty(value = "The time in which the heartbeat was performed.")
+    @ApiModelProperty(value = "The last updated that was performed sent by terminal.")
     private Timestamp updatedAt;
+
+    @Column(name = "last_update_at", nullable = false)
+    private Timestamp lastUpdateAt;
+
 
     /**
      * @return the name
@@ -183,4 +188,19 @@ public class HeartbeatAppInfo implements Serializable {
     public void setEntity(com.luretechnologies.server.data.model.Entity entity) {
         this.entity = entity;
     }    
+    
+    
+    /**
+     * @return the lastUpdateAt
+     */
+    public Timestamp getLastUpdateAt() {
+        return lastUpdateAt;
+    }
+
+    /**
+     * @param lastUpdateAt the lastUpdateAt to set
+     */
+    public void setLastUpdateAt(Timestamp lastUpdateAt) {
+        this.lastUpdateAt = lastUpdateAt;
+    }
 }

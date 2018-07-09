@@ -59,7 +59,6 @@ public class AddressDAOImpl extends BaseDAOImpl<Address, Long> implements Addres
         List<Address> addresses = new ArrayList<>();
         CriteriaQuery<Address> query = criteriaQuery();
         Root<Address> root = getRoot(query);
-        root.fetch("clients", JoinType.LEFT);
         root.fetch("merchants", JoinType.LEFT);
         
         Predicate prdcts = criteriaBuilder().conjunction();
@@ -69,7 +68,7 @@ public class AddressDAOImpl extends BaseDAOImpl<Address, Long> implements Addres
         
         List<Address> all = query(query.where(prdcts)).getResultList();
         for (Address item : all) {
-            if(item.getMerchants().isEmpty() && item.getClients().isEmpty()) {
+            if(item.getMerchants().isEmpty()) {
                 addresses.add(item);
             }
         }

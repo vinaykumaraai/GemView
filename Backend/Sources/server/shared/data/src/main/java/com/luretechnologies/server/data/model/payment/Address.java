@@ -150,14 +150,6 @@ public class Address implements Serializable {
     @ApiModelProperty(value = "The merchants.")
     private Set<Merchant> merchants = new HashSet<>();
     
-    @JsonIgnore
-    @ManyToMany(targetEntity = Client.class, fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
-    @JoinTable(name = "Client_Address", joinColumns = {
-        @JoinColumn(name = "address")}, inverseJoinColumns = {
-        @JoinColumn(name = "client")})
-    @ApiModelProperty(value = "The clients.")
-    private Set<Client> clients = new HashSet<>();
-    
     /**
      * Database identification.
      */
@@ -333,14 +325,6 @@ public class Address implements Serializable {
 
     public void setMerchants(Set<Merchant> merchants) {
         this.merchants = merchants;
-    }
-
-    public Set<Client> getClients() {
-        return clients;
-    }
-
-    public void setClients(Set<Client> clients) {
-        this.clients = clients;
     }
 
     @Override

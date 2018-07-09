@@ -91,4 +91,19 @@ public interface AlertActionService {
      */
     public AlertAction update(AlertAction alertAction) throws Exception;
 
+    /**
+     *
+     * @param serialNumber
+     * @param label
+     * @return
+     * @throws Exception
+     */
+    public List<AlertAction> getAlerts(String serialNumber, String label) throws Exception;
+
+    /**
+     *
+     * @return @throws Exception
+     */
+    public List<AlertAction> getAlerts() throws Exception;
+
 }

@@ -32,7 +32,6 @@
 package com.luretechnologies.server.data.dao;
 
 import com.luretechnologies.server.data.model.payment.Country;
-import com.luretechnologies.server.data.model.tms.Application;
 import java.util.List;
 import javax.persistence.PersistenceException;
 

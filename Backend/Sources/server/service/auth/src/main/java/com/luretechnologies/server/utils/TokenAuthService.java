@@ -31,12 +31,10 @@
  */
 package com.luretechnologies.server.utils;
 
-import com.luretechnologies.server.common.utils.Utils;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureException;
 import java.sql.Timestamp;
-import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;

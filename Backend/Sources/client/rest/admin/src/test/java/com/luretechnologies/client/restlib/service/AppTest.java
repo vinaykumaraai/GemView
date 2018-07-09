@@ -82,50 +82,11 @@ public class AppTest {
             fail(ex.getResponseBody());
         }
     }
-
+    
+    
+    // 1- Everything relation with App
     @Test
-    public void app_001a_searchApps() {
-        try {
-            List<App> apps = service.getAppApi().searchApps("Test", 1, 50);
-            for (App app : apps) {
-                System.out.println("App Search: " + app.toString());
-            }
-            assertNotNull(apps);
-
-        } catch (ApiException ex) {
-            fail(ex.getResponseBody());
-        }
-    }
-
-    @Test
-    public void app_001b_getApps() {
-        try {
-            List<App> apps = service.getAppApi().getApps();
-            for (App app : apps) {
-                System.out.println("Get Apps: " + app.toString());
-            }
-            assertNotNull(apps);
-        } catch (ApiException ex) {
-            fail(ex.getResponseBody());
-        }
-    }
-
-    @Test
-    public void app_001c_getApp() {
-        try {
-            List<App> apps = service.getAppApi().getApps();
-            assertNotNull(apps);
-            if (!apps.isEmpty()) {
-                App app = service.getAppApi().getApp(apps.get(0).getId());
-                System.out.println("Get App: " + app.toString());
-            }
-        } catch (ApiException ex) {
-            fail(ex.getResponseBody());
-        }
-    }
-
-    @Test
-    public void app_001d_createApp() {
+    public void app_001a_createApp() {
         try {
             App app = new App();
             app.setName("TestAppLast");
@@ -145,9 +106,9 @@ public class AppTest {
             fail(ex.getResponseBody());
         }
     }
-
+    
     @Test
-    public void app_001e_editApp() {
+    public void app_001b_editApp() {
         try {
             App app = service.getAppApi().getApp(appId);
             app.setDescription("Updated");
@@ -158,9 +119,36 @@ public class AppTest {
             fail(ex.getResponseBody());
         }
     }
-
+    
     @Test
-    public void app_001f_getAppsByEntityHierarchy() {
+    public void app_001c_getApp() {
+        try {
+            List<App> apps = service.getAppApi().getApps();
+            assertNotNull(apps);
+            if (!apps.isEmpty()) {
+                App app = service.getAppApi().getApp(apps.get(0).getId());
+                System.out.println("Get App: " + app.toString());
+            }
+        } catch (ApiException ex) {
+            fail(ex.getResponseBody());
+        }
+    }
+    
+    @Test
+    public void app_001d_getApps() {
+        try {
+            List<App> apps = service.getAppApi().getApps();
+            for (App app : apps) {
+                System.out.println("Get Apps: " + app.toString());
+            }
+            assertNotNull(apps);
+        } catch (ApiException ex) {
+            fail(ex.getResponseBody());
+        }
+    }
+    
+    @Test
+    public void app_001e_getAppsByEntityHierarchy() {
         try {
             Long entityId = service.getAppApi().getApp(appId).getOwnerId();
             List<App> apps = service.getAppApi().getAppsByEntityHierarchy(entityId);
@@ -172,9 +160,102 @@ public class AppTest {
             fail(ex.getResponseBody());
         }
     }
+    
+    @Test
+    public void app_001f_searchApps() {
+        try {
+            List<App> apps = service.getAppApi().searchApps("Test", 1, 50);
+            for (App app : apps) {
+                System.out.println("App Search: " + app.toString());
+            }
+            assertNotNull(apps);
+
+        } catch (ApiException ex) {
+            fail(ex.getResponseBody());
+        }
+    }
+    
+    
+    
+    // 2- Everything relation with AppProfile
+    @Test
+    public void app_002a_addAppProfile() {
+        try {
+            AppProfile appProfile = new AppProfile();
+            appProfile.setName("TestAppProfile");
+            appProfile.setAppId(appId);
+            appProfile.setActive(Boolean.TRUE);
+
+            App app = service.getAppApi().addAppProfile(appId, appProfile);
+            System.out.println("Add AppProfile: " + app.toString());
+
+            assertNotNull(app.getId());
+        } catch (ApiException ex) {
+            fail(ex.getResponseBody());
+        }
+    }
+    
+    @Test
+    public void app_002b_addEntityAppProfile() {
+        try {
+            Long appProfileId = service.getAppApi().getApp(appId).getAppprofileCollection().get(0).getId();
+            Long entityId = service.getAppApi().getApp(appId).getOwnerId();
+
+            EntityAppProfile entityAppProfile = service.getAppProfileApi().addEntityAppProfile(appProfileId, entityId);
+            System.out.println("Add EntityAppProfile: " + entityAppProfile.toString());
+
+            assertNotNull(entityAppProfile.getId());
+        } catch (ApiException ex) {
+            fail(ex.getResponseBody());
+        }
+    }
+    
+    @Test
+    public void app_002c_editEntityAppProfile() {
+        try {
+            Long appProfileId = service.getAppApi().getApp(appId).getAppprofileCollection().get(0).getId();
+            AppProfile appProfile = service.getAppProfileApi().getAppProfile(appProfileId);
+            EntityAppProfile existentEntityAppProfile = appProfile.getEntityAppProfileCollection().get(0);
+
+            EntityAppProfile entityAppProfile = service.getAppProfileApi().updateEntityAppProfile(appProfileId, existentEntityAppProfile);
+            System.out.println("Update EntityAppProfile: " + entityAppProfile.toString());
+            assertEquals(appProfileId, entityAppProfile.getAppProfileId());
+        } catch (ApiException ex) {
+            fail(ex.getResponseBody());
+        }
+    }
+    
+    @Test
+    public void app_002d_getAppProfileListByEntity() {
+        try {
+            Long entityId = service.getAppApi().getApp(appId).getOwnerId();
+            List<AppProfile> appProfiles = service.getAppProfileApi().getAppProfileListByEntity(appId, entityId);
+            for (AppProfile appProfile : appProfiles) {
+                System.out.println("Get AppProfiles by Entity: " + appProfile.toString());
+            }
+            assertNotNull(appProfiles);
+        } catch (ApiException ex) {
+            fail(ex.getResponseBody());
+        }
+    }
 
     @Test
-    public void app_001g_addAppParam() {
+    public void app_002e_getAppProfileListWithoutEntity() {
+        try {
+            Long entityId = service.getAppApi().getApp(appId).getOwnerId();
+            List<AppProfile> appProfiles = service.getAppProfileApi().getAppProfileListWithoutEntity(appId, entityId);
+            for (AppProfile appProfile : appProfiles) {
+                System.out.println("Get AppProfiles without Entity: " + appProfile.toString());
+            }
+            assertNotNull(appProfiles);
+        } catch (ApiException ex) {
+            fail(ex.getResponseBody());
+        }
+    }
+    
+    // 3- Everything relation with AppParam
+    @Test
+    public void app_003a_addAppParam() {
         try {
             AppParam appParam = new AppParam();
             appParam.setName("TestAppParam");
@@ -184,7 +265,7 @@ public class AppTest {
             appParam.setForceUpdate(Boolean.FALSE);
             appParam.setModifiable(Boolean.TRUE);
 
-            AppParamFormat appParamFormat = service.getAppParamFormatApi().getAppParamFormat(Long.valueOf(1));
+            AppParamFormat appParamFormat = service.getAppParamFormatApi().getAppParamFormat(Long.valueOf(2));
             appParam.setAppParamFormat(appParamFormat);
 
             Action action = service.getActionApi().getAction(Long.valueOf(1));
@@ -205,21 +286,7 @@ public class AppTest {
     }
     
     @Test
-    public void app_001g_searchAppParam() {
-        try {
-            List<AppParam> appParams = service.getAppApi().searchAppParam(appId, "Test", 1, 50);
-            for (AppParam appParam : appParams) {
-                System.out.println("AppParam Search: " + appParam.toString());
-            }
-            assertNotNull(appParams);
-
-        } catch (ApiException ex) {
-            fail(ex.getResponseBody());
-        }
-    }
-
-    @Test
-    public void app_001h_editAppParam() {
+    public void app_003b_editAppParam() {
         try {
             AppParam appParam = service.getAppApi().getAppParamList(appId).get(0);
             appParam.setDescription("Updated");
@@ -231,26 +298,23 @@ public class AppTest {
             fail(ex.getResponseBody());
         }
     }
-
+    
     @Test
-    public void app_001i_addAppProfile() {
+    public void app_003c_searchAppParam() {
         try {
-            AppProfile appProfile = new AppProfile();
-            appProfile.setName("TestAppProfile");
-            appProfile.setAppId(appId);
-            appProfile.setActive(Boolean.TRUE);
+            List<AppParam> appParams = service.getAppApi().searchAppParam(appId, "Test", 1, 50);
+            for (AppParam appParam : appParams) {
+                System.out.println("AppParam Search: " + appParam.toString());
+            }
+            assertNotNull(appParams);
 
-            App app = service.getAppApi().addAppProfile(appId, appProfile);
-            System.out.println("Add AppProfile: " + app.toString());
-
-            assertNotNull(app.getId());
         } catch (ApiException ex) {
             fail(ex.getResponseBody());
         }
     }
-
+    
     @Test
-    public void app_001j_addAppProfileParamValue() {
+    public void app_003d_addAppProfileParamValue() {
         try {
             Long appProfileId = service.getAppApi().getApp(appId).getAppprofileCollection().get(0).getId();
             Long appParamId = service.getAppApi().getApp(appId).getAppparamCollection().get(0).getId();
@@ -263,9 +327,9 @@ public class AppTest {
             fail(ex.getResponseBody());
         }
     }
-
+    
     @Test
-    public void app_001k_editAppProfileParamValue() {
+    public void app_003e_editAppProfileParamValue() {
         try {
             Long appProfileId = service.getAppApi().getApp(appId).getAppprofileCollection().get(0).getId();
             AppProfile appProfile = service.getAppProfileApi().getAppProfile(appProfileId);
@@ -279,39 +343,52 @@ public class AppTest {
             fail(ex.getResponseBody());
         }
     }
-
+    
     @Test
-    public void app_001l_addEntityAppProfile() {
+    public void app_003f_getAppParamListByAppProfile() {
         try {
             Long appProfileId = service.getAppApi().getApp(appId).getAppprofileCollection().get(0).getId();
-            Long entityId = service.getAppApi().getApp(appId).getOwnerId();
-
-            EntityAppProfile entityAppProfile = service.getAppProfileApi().addEntityAppProfile(appProfileId, entityId);
-            System.out.println("Add EntityAppProfile: " + entityAppProfile.toString());
-
-            assertNotNull(entityAppProfile.getId());
+            List<AppParam> appParams = service.getAppProfileApi().getAppParamListByAppProfile(appProfileId);
+            for (AppParam appParam : appParams) {
+                System.out.println("Get AppParams by AppProfile: " + appParam.toString());
+            }
+            assertNotNull(appParams);
         } catch (ApiException ex) {
             fail(ex.getResponseBody());
         }
     }
 
     @Test
-    public void app_001m_editEntityAppProfile() {
+    public void app_003g_getAppParamListWithoutAppProfile() {
         try {
             Long appProfileId = service.getAppApi().getApp(appId).getAppprofileCollection().get(0).getId();
-            AppProfile appProfile = service.getAppProfileApi().getAppProfile(appProfileId);
-            EntityAppProfile existentEntityAppProfile = appProfile.getEntityAppProfileCollection().get(0);
-
-            EntityAppProfile entityAppProfile = service.getAppProfileApi().updateEntityAppProfile(appProfileId, existentEntityAppProfile);
-            System.out.println("Update EntityAppProfile: " + entityAppProfile.toString());
-            assertEquals(appProfileId, entityAppProfile.getAppProfileId());
+            List<AppParam> appParams = service.getAppProfileApi().getAppParamListWithoutAppProfile(appProfileId);
+            for (AppParam appParam : appParams) {
+                System.out.println("Get AppParams without AppProfile: " + appParam.toString());
+            }
+            assertNotNull(appParams);
         } catch (ApiException ex) {
             fail(ex.getResponseBody());
         }
     }
-
+    
     @Test
-    public void app_001n_addEntityAppProfileParam() {
+    public void app_003h_searchAppParamByProfile() {
+        try {
+            Long appProfileId = service.getAppApi().getApp(appId).getAppprofileCollection().get(0).getId();
+            List<AppParam> appParams = service.getAppProfileApi().searchAppParamByProfile(appProfileId, "Test", 1, 50);
+            for (AppParam appParam : appParams) {
+                System.out.println("AppParam Search: " + appParam.toString());
+            }
+            assertNotNull(appParams);
+
+        } catch (ApiException ex) {
+            fail(ex.getResponseBody());
+        }
+    }
+    
+    @Test
+    public void app_003i_addEntityAppProfileParam() {
         try {
             Long appProfileId = service.getAppApi().getApp(appId).getAppprofileCollection().get(0).getId();
             Long entityId = service.getAppApi().getApp(appId).getOwnerId();
@@ -325,9 +402,9 @@ public class AppTest {
             fail(ex.getResponseBody());
         }
     }
-
+    
     @Test
-    public void app_001o_editEntityAppProfileParam() {
+    public void app_003j_editEntityAppProfileParam() {
         try {
             Long appProfileId = service.getAppApi().getApp(appId).getAppprofileCollection().get(0).getId();
             Long entityId = service.getAppApi().getApp(appId).getOwnerId();
@@ -343,65 +420,9 @@ public class AppTest {
             fail(ex.getResponseBody());
         }
     }
-
+    
     @Test
-    public void app_001p_getAppParamListByAppProfile() {
-        try {
-            Long appProfileId = service.getAppApi().getApp(appId).getAppprofileCollection().get(0).getId();
-            List<AppParam> appParams = service.getAppProfileApi().getAppParamListByAppProfile(appProfileId);
-            for (AppParam appParam : appParams) {
-                System.out.println("Get AppParams by AppProfile: " + appParam.toString());
-            }
-            assertNotNull(appParams);
-        } catch (ApiException ex) {
-            fail(ex.getResponseBody());
-        }
-    }
-
-    @Test
-    public void app_001q_getAppParamListWithoutAppProfile() {
-        try {
-            Long appProfileId = service.getAppApi().getApp(appId).getAppprofileCollection().get(0).getId();
-            List<AppParam> appParams = service.getAppProfileApi().getAppParamListWithoutAppProfile(appProfileId);
-            for (AppParam appParam : appParams) {
-                System.out.println("Get AppParams without AppProfile: " + appParam.toString());
-            }
-            assertNotNull(appParams);
-        } catch (ApiException ex) {
-            fail(ex.getResponseBody());
-        }
-    }
-
-    @Test
-    public void app_001r_getAppProfileListByEntity() {
-        try {
-            Long entityId = service.getAppApi().getApp(appId).getOwnerId();
-            List<AppProfile> appProfiles = service.getAppProfileApi().getAppProfileListByEntity(appId, entityId);
-            for (AppProfile appProfile : appProfiles) {
-                System.out.println("Get AppProfiles by Entity: " + appProfile.toString());
-            }
-            assertNotNull(appProfiles);
-        } catch (ApiException ex) {
-            fail(ex.getResponseBody());
-        }
-    }
-
-    @Test
-    public void app_001s_getAppProfileListWithoutEntity() {
-        try {
-            Long entityId = service.getAppApi().getApp(appId).getOwnerId();
-            List<AppProfile> appProfiles = service.getAppProfileApi().getAppProfileListWithoutEntity(appId, entityId);
-            for (AppProfile appProfile : appProfiles) {
-                System.out.println("Get AppProfiles without Entity: " + appProfile.toString());
-            }
-            assertNotNull(appProfiles);
-        } catch (ApiException ex) {
-            fail(ex.getResponseBody());
-        }
-    }
-
-    @Test
-    public void app_001t_getAppParamListByEntity() {
+    public void app_003k_getAppParamListByEntity() {
         try {
             Long entityId = service.getAppApi().getApp(appId).getOwnerId();
             Long appProfileId = service.getAppApi().getApp(appId).getAppprofileCollection().get(0).getId();
@@ -416,7 +437,7 @@ public class AppTest {
     }
 
     @Test
-    public void app_001u_getAppParamListWithoutEntity() {
+    public void app_003l_getAppParamListWithoutEntity() {
         try {
             Long entityId = service.getAppApi().getApp(appId).getOwnerId();
             Long appProfileId = service.getAppApi().getApp(appId).getAppprofileCollection().get(0).getId();
@@ -429,9 +450,150 @@ public class AppTest {
             fail(ex.getResponseBody());
         }
     }
+    
+    
+    // 4- Everything relation with AppFile
+    @Test
+    public void app_004a_addAppFile() {
+
+        String fileName = "/tmp/zip.zip";
+        try {
+            service.getAppApi().addFile(appId, Utils.generateRandomString(10), fileName);
+            System.out.println("Add AppFile by App successful");
+        } catch (ApiException ex) {
+            fail(ex.getResponseBody());
+        }
+    }
+    
+    @Test
+    public void app_004b_searchAppFile() {
+        try {
+            List<AppParam> appFiles = service.getAppApi().searchAppFile(appId, "Test", 1, 50);
+            for (AppParam appFile : appFiles) {
+                System.out.println("AppParam Search: " + appFile.toString());
+            }
+            assertNotNull(appFiles);
+
+        } catch (ApiException ex) {
+            fail(ex.getResponseBody());
+        }
+    }
+    
+    @Test
+    public void app_004c_addAppProfileFileValue() {
+        try {
+            Long appProfileId = service.getAppApi().getApp(appId).getAppprofileCollection().get(0).getId();
+            Long appFileId = service.getAppApi().getApp(appId).getAppparamCollection().get(1).getId();
+
+            AppProfileParamValue appProfileFileValue = service.getAppProfileApi().addAppProfileParamValue(appProfileId, appFileId);
+            System.out.println("Add AppProfileFileValue: " + appProfileFileValue.toString());
+
+            assertNotNull(appProfileFileValue.getId());
+        } catch (ApiException ex) {
+            fail(ex.getResponseBody());
+        }
+    }
+    
+    @Test
+    public void app_004d_getAppFileListByAppProfile() {
+        try {
+            Long appProfileId = service.getAppApi().getApp(appId).getAppprofileCollection().get(0).getId();
+            List<AppParam> appFiles = service.getAppProfileApi().getAppFileListByAppProfile(appProfileId);
+            for (AppParam appFile : appFiles) {
+                System.out.println("Get AppParams by AppProfile: " + appFile.toString());
+            }
+            assertNotNull(appFiles);
+        } catch (ApiException ex) {
+            fail(ex.getResponseBody());
+        }
+    }
 
     @Test
-    public void app_001v_removeEntityAppProfileParam() {
+    public void app_004e_getAppFileListWithoutAppProfile() {
+        try {
+            Long appProfileId = service.getAppApi().getApp(appId).getAppprofileCollection().get(0).getId();
+            List<AppParam> appFiles = service.getAppProfileApi().getAppFileListWithoutAppProfile(appProfileId);
+            for (AppParam appFile : appFiles) {
+                System.out.println("Get AppParams without AppProfile: " + appFile.toString());
+            }
+            assertNotNull(appFiles);
+        } catch (ApiException ex) {
+            fail(ex.getResponseBody());
+        }
+    }
+    
+    @Test
+    public void app_004f_searchAppFileByProfile() {
+        try {
+            Long appProfileId = service.getAppApi().getApp(appId).getAppprofileCollection().get(0).getId();
+            List<AppParam> appFiles = service.getAppProfileApi().searchAppFileByProfile(appProfileId, "zip", 1, 50);
+            for (AppParam appFile : appFiles) {
+                System.out.println("AppFile Search: " + appFile.toString());
+            }
+            assertNotNull(appFiles);
+
+        } catch (ApiException ex) {
+            fail(ex.getResponseBody());
+        }
+    }
+    
+    @Test
+    public void app_004g_addEntityAppProfileFile() {
+        try {
+            Long appProfileId = service.getAppApi().getApp(appId).getAppprofileCollection().get(0).getId();
+            Long entityId = service.getAppApi().getApp(appId).getOwnerId();
+            Long appFileId = service.getAppApi().getApp(appId).getAppparamCollection().get(1).getId();
+
+            EntityAppProfileParam entityAppProfileFile = service.getAppProfileApi().addEntityAppProfileParam(appProfileId, entityId, appFileId);
+            System.out.println("Add EntityAppProfileFile: " + entityAppProfileFile.toString());
+
+            assertNotNull(entityAppProfileFile.getId());
+        } catch (ApiException ex) {
+            fail(ex.getResponseBody());
+        }
+    }
+    
+    // 4- Everything relation with Remove
+    @Test
+    public void app_005a_removeEntityAppProfileFile() {
+        try {
+            Long appProfileId = service.getAppApi().getApp(appId).getAppprofileCollection().get(0).getId();
+            Long entityId = service.getAppApi().getApp(appId).getOwnerId();
+            Long appFileId = service.getAppApi().getApp(appId).getAppparamCollection().get(1).getId();
+
+            service.getAppProfileApi().deleteEntityAppProfileFile(appProfileId, entityId, appFileId);
+            System.out.println("Deleted EntityAppProfileFile successful");
+        } catch (ApiException ex) {
+            fail(ex.getResponseBody());
+        }
+    }
+    
+    @Test
+    public void app_005b_removeAppProfileFileValue() {
+        try {
+            Long appProfileId = service.getAppApi().getApp(appId).getAppprofileCollection().get(0).getId();
+            Long appFileId = service.getAppApi().getApp(appId).getAppparamCollection().get(1).getId();
+
+            service.getAppProfileApi().deleteAppProfileParamValue(appProfileId, appFileId);
+            System.out.println("Deleted AppProfileFileValue successful");
+        } catch (ApiException ex) {
+            fail(ex.getResponseBody());
+        }
+    }
+    
+    @Test
+    public void app_005c_removeAppFile() {
+        try {
+            Long appFileId = service.getAppApi().getAppFileList(appId).get(0).getId();
+            service.getAppApi().deleteAppFile(appId, appFileId);
+            System.out.println("Deleted appFile by App successful");
+        } catch (ApiException ex) {
+            fail(ex.getResponseBody());
+        }
+    }
+    
+    @Test
+    public void app_005d_removeEntityAppProfileParam() {
         try {
             Long appProfileId = service.getAppApi().getApp(appId).getAppprofileCollection().get(0).getId();
             Long entityId = service.getAppApi().getApp(appId).getOwnerId();
@@ -445,7 +607,20 @@ public class AppTest {
     }
 
     @Test
-    public void app_001w_removeEntityAppProfile() {
+    public void app_005e_removeAppProfileParamValue() {
+        try {
+            Long appProfileId = service.getAppApi().getApp(appId).getAppprofileCollection().get(0).getId();
+            Long appParamId = service.getAppApi().getApp(appId).getAppparamCollection().get(0).getId();
+
+            service.getAppProfileApi().deleteAppProfileParamValue(appProfileId, appParamId);
+            System.out.println("Deleted AppProfileParamValue successful");
+        } catch (ApiException ex) {
+            fail(ex.getResponseBody());
+        }
+    }
+    
+    @Test
+    public void app_005f_removeEntityAppProfile() {
         try {
             Long appProfileId = service.getAppApi().getApp(appId).getAppprofileCollection().get(0).getId();
             Long entityId = service.getAppApi().getApp(appId).getOwnerId();
@@ -458,20 +633,7 @@ public class AppTest {
     }
 
     @Test
-    public void app_001x_removeAppProfileParamValue() {
-        try {
-            Long appProfileId = service.getAppApi().getApp(appId).getAppprofileCollection().get(0).getId();
-            Long appParamId = service.getAppApi().getApp(appId).getAppparamCollection().get(0).getId();
-
-            service.getAppProfileApi().deleteAppProfileParamValue(appProfileId, appParamId);
-            System.out.println("Deleted AppProfileParamValue successful");
-        } catch (ApiException ex) {
-            fail(ex.getResponseBody());
-        }
-    }
-
-    @Test
-    public void app_001y_removeAppProfile() {
+    public void app_005g_removeAppProfile() {
         try {
             Long appProfileId = service.getAppApi().getAppProfileList(appId).get(0).getId();
 
@@ -483,7 +645,7 @@ public class AppTest {
     }
 
     @Test
-    public void app_001z_removeAppParam() {
+    public void app_005h_removeAppParam() {
         try {
             Long appParamId = service.getAppApi().getAppParamList(appId).get(0).getId();
 
@@ -495,40 +657,17 @@ public class AppTest {
     }
 
     @Test
-    public void app_002a_removeAllAppParam() {
+    public void app_005i_removeAllAppParam() {
         try {
             service.getAppApi().deleteAllAppParam(appId);
             System.out.println("Deleted all appParams by App successful");
         } catch (ApiException ex) {
             fail(ex.getResponseBody());
         }
-    }
+    }    
 
     @Test
-    public void app_002b_addAppFile() {
-
-        String fileName = "/tmp/zip.zip";
-        try {
-            service.getAppApi().addFile(appId, Utils.generateRandomString(10), fileName);
-            System.out.println("Add AppFile by App successful");
-        } catch (ApiException ex) {
-            fail(ex.getResponseBody());
-        }
-    }
-
-    @Test
-    public void app_002c_removeAppFile() {
-        try {
-            Long appFileId = service.getAppApi().getAppFileList(appId).get(0).getId();
-            service.getAppApi().deleteAppFile(appId, appFileId);
-            System.out.println("Deleted appFile by App successful");
-        } catch (ApiException ex) {
-            fail(ex.getResponseBody());
-        }
-    }
-
-    @Test
-    public void app_002d_removeAllAppFile() {
+    public void app_005j_removeAllAppFile() {
         try {
             service.getAppApi().deleteAllAppFile(appId);
             System.out.println("Deleted all appFiles by App successful");
@@ -538,7 +677,7 @@ public class AppTest {
     }
 
     @Test
-    public void app_002e_removeApp() {
+    public void app_005k_removeApp() {
         try {
             App app = service.getAppApi().getApp(appId);
             service.getAppApi().deleteApp(app.getId());

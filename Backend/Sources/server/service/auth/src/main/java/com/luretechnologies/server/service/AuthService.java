@@ -31,7 +31,6 @@
  */
 package com.luretechnologies.server.service;
 
-import com.luretechnologies.server.data.model.Session;
 import com.luretechnologies.server.data.model.User;
 
 public interface AuthService {

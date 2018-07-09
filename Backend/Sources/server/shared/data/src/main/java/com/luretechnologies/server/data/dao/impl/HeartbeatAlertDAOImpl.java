@@ -74,7 +74,7 @@ public class HeartbeatAlertDAOImpl extends BaseDAOImpl<HeartbeatAlert, Long> imp
 
         return query(cq).setFirstResult(firstResult).setMaxResults(lastResult).getResultList();
     }
-    
+
     @Override
     public HeartbeatAlert getByLabelAndEntity(Long entityId, String label, String component) throws PersistenceException {
         CriteriaQuery<HeartbeatAlert> cq = criteriaQuery();
@@ -85,8 +85,8 @@ public class HeartbeatAlertDAOImpl extends BaseDAOImpl<HeartbeatAlert, Long> imp
 
         if (component != null && !component.isEmpty()) {
             predicate.getExpressions().add(criteriaBuilder().equal(root.<String>get("component"), component));
-        }        
-        
+        }
+
         if (label != null && !label.isEmpty()) {
             predicate.getExpressions().add(criteriaBuilder().equal(root.<String>get("label"), label));
         }
@@ -94,11 +94,53 @@ public class HeartbeatAlertDAOImpl extends BaseDAOImpl<HeartbeatAlert, Long> imp
         if (entityId != null && entityId > 0) {
             predicate.getExpressions().add(criteriaBuilder().equal(root.<Long>get("entity"), entityId));
         }
-        
+
         predicate.getExpressions().add(criteriaBuilder().equal(root.<Boolean>get("done"), false));
         cq.where(predicate);
         return (HeartbeatAlert) query(cq).getSingleResult();
     }
 
+    /**
+     * Get the list of alerts using terminalId, component, label
+     *
+     * @param TerminalID Terminal ID
+     * @param component Component name
+     * @param label Alert label
+     * @return A list of alert otherwise null
+     * @throws PersistenceException
+     */
+    @Override
+    public List<HeartbeatAlert> getAlerts(Long TerminalID, String component, String label) throws PersistenceException {
+
+        CriteriaQuery<HeartbeatAlert> cq = criteriaQuery();
+
+        Root<HeartbeatAlert> root = getRoot(cq);
+
+        Predicate predicate = criteriaBuilder().conjunction();
+
+        if (component != null && !component.isEmpty()) {
+            predicate.getExpressions().add(criteriaBuilder().equal(root.<String>get("component"), component));
+        }
+
+        if (label != null && !label.isEmpty()) {
+            predicate.getExpressions().add(criteriaBuilder().equal(root.<String>get("label"), label));
+        }
+
+        if (TerminalID != null && TerminalID > 0) {
+            predicate.getExpressions().add(criteriaBuilder().equal(root.<Long>get("entity"), TerminalID));
+        }
+
+        predicate.getExpressions().add(criteriaBuilder().equal(root.<Boolean>get("done"), false));
+        cq.where(predicate);
+        return query(cq).getResultList();
+
+    }
+
+    @Override
+    public void alertDone(Long id) throws PersistenceException {
+       HeartbeatAlert alert = findById(id);
+       alert.setDone(Boolean.TRUE);
+        merge(alert);
+    }
 
 }

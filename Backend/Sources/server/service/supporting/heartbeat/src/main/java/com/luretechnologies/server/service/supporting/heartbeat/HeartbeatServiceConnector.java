@@ -35,7 +35,12 @@ import com.luretechnologies.server.data.display.tms.HeartbeatDisplay;
 import com.luretechnologies.server.data.display.tms.HeartbeatAlertDisplay;
 import com.luretechnologies.server.data.display.tms.HeartbeatAuditDisplay;
 import com.luretechnologies.server.data.display.tms.HeartbeatOdometerDisplay;
+import com.luretechnologies.server.data.display.tms.HeartbeatUpdateParamDisplay;
+import com.luretechnologies.server.data.model.tms.AlertAction;
+import com.luretechnologies.server.service.AlertActionService;
+import com.luretechnologies.server.service.HeartbeatAlertService;
 import com.luretechnologies.server.service.HeartbeatService;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,8 +52,14 @@ public class HeartbeatServiceConnector {
     private static final Logger LOGGER = LoggerFactory.getLogger(HeartbeatServiceConnector.class);
 
     @Autowired
-    HeartbeatService heartbeatService;    
-    
+    HeartbeatService heartbeatService;
+
+    @Autowired
+    HeartbeatAlertService heartbeatAlertService;
+
+    @Autowired
+    AlertActionService alertActionService;
+
     /**
      *
      * @param heartbeat
@@ -58,16 +69,16 @@ public class HeartbeatServiceConnector {
      */
     public Boolean process(HeartbeatDisplay heartbeat, String correlationId) throws Exception {
 
-
         LOGGER.info("HeartbeatServiceConnector " + correlationId);
         LOGGER.info("  --> Serial Number: " + heartbeat.getSerialNumber());
         LOGGER.info("  --> Message: " + heartbeat.getMessage());
 
         heartbeatService.create(heartbeat);
-        
+
         if (heartbeat.getHeartbeatAlerts() != null) {
             for (HeartbeatAlertDisplay alert : heartbeat.getHeartbeatAlerts()) {
-                LOGGER.info("  --> Alert: " + alert.getLabel());
+               
+                
             }
         }
 
@@ -82,9 +93,18 @@ public class HeartbeatServiceConnector {
                 LOGGER.info("  --> Odometer: " + odometer.getLabel());
             }
         }
-        
-        if ( heartbeat.getSwComponents() != null ){
-            
+
+        if (heartbeat.getHeartbeatUpdateParams() != null) {
+            for (HeartbeatUpdateParamDisplay updateParamDisplay : heartbeat.getHeartbeatUpdateParams()) {
+                LOGGER.info("  --> Parameter Updated in the terminal: " + updateParamDisplay.getAppName() + " Param: " + updateParamDisplay.getName());
+                // TODO call Application service that with the parameters ( Terminal serial number, App name, Param name, param value ) 
+                // update the terminal applicaion params.
+            }
+
+        }
+
+        if (heartbeat.getSwComponents() != null) {
+
         }
 
         return true;

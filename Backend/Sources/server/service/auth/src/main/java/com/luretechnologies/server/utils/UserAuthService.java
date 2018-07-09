@@ -32,12 +32,9 @@
 package com.luretechnologies.server.utils;
 
 import com.luretechnologies.common.enums.PermissionEnum;
-import com.luretechnologies.server.common.utils.Utils;
 import com.luretechnologies.server.data.dao.UserDAO;
 import com.luretechnologies.server.data.model.Role;
-import com.luretechnologies.server.data.model.tms.Email;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.ObjectRetrievalFailureException;

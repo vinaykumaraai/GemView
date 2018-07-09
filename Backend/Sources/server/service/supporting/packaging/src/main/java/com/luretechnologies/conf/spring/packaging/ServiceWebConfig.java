@@ -38,10 +38,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.JstlView;
 
-/**
- *
- * @author developer
- */
 @Configuration
 public class ServiceWebConfig extends WebMvcConfigurerAdapter {
 
@@ -64,5 +60,4 @@ public class ServiceWebConfig extends WebMvcConfigurerAdapter {
         bean.setSuffix(".jsp");
         return bean;
     }
-
 }

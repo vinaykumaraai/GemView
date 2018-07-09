@@ -31,6 +31,7 @@
  */
 package com.luretechnologies.server.service;
 
+import com.luretechnologies.server.data.display.tms.AppDisplay;
 import com.luretechnologies.server.data.model.tms.AppParam;
 import com.luretechnologies.server.data.model.tms.AppProfile;
 import com.luretechnologies.server.data.model.tms.AppProfileParamValue;
@@ -133,6 +134,14 @@ public interface AppProfileService {
      * @throws Exception
      */
     public List<AppProfile> getAppProfileListByEntity(Long appId, Long entityId) throws Exception;
+    
+    /**
+     * 
+     * @param entityId
+     * @return 
+     * @throws Exception
+     */
+    public List<AppDisplay> getAppDisplayList(Long entityId) throws Exception;
     
     /**
      * 

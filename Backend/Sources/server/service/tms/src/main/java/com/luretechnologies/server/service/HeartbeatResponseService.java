@@ -33,7 +33,6 @@ package com.luretechnologies.server.service;
 
 import com.luretechnologies.server.data.display.tms.HeartbeatResponseDisplay;
 
-
 /**
  *
  * @author
@@ -42,12 +41,21 @@ public interface HeartbeatResponseService {
 
     /**
      *
-     * @param entityId
+     * @param serialNumber
      * @param heartbeatResponse
      * @return
      * @throws Exception
      */
-    public HeartbeatResponseDisplay create(String entityId, HeartbeatResponseDisplay heartbeatResponse) throws Exception;
+    public HeartbeatResponseDisplay create(String serialNumber, HeartbeatResponseDisplay heartbeatResponse) throws Exception;
+
+    /**
+     *
+     * @param entityLongId Entity long id
+     * @param heartbeatResponse HeartbeatResponse to created
+     * @return
+     * @throws Exception
+     */
+    public HeartbeatResponseDisplay create(Long entityLongId, HeartbeatResponseDisplay heartbeatResponse) throws Exception;
 
     /**
      *
@@ -60,7 +68,7 @@ public interface HeartbeatResponseService {
     /**
      *
      * @param serialNumber Terminal's serial number
-     * @return 
+     * @return
      * @throws Exception
      */
     public HeartbeatResponseDisplay getLastOne(String serialNumber) throws Exception;

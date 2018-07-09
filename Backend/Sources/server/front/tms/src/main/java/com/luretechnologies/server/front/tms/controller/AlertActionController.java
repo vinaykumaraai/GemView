@@ -160,6 +160,14 @@ public class AlertActionController {
             @ApiParam(value = "The ending date") @RequestParam(value = "dateTo", required = false) String dateTo
     ) throws Exception {
 
+        if (pageNumber == null) {
+            pageNumber = 1;
+        }
+        if (rowsPerPage == null) {
+            rowsPerPage = Integer.MAX_VALUE;
+        }
+        
+        DateFormat formatHour = new SimpleDateFormat("yyMMddHHmm");
         DateFormat format = new SimpleDateFormat("yyMMdd");
         if (dateTo == null || dateTo.isEmpty()) {
             Date a = new Date();
@@ -169,7 +177,7 @@ public class AlertActionController {
             dateFrom = "180501";
         }
         Date formatDateFrom = format.parse(dateFrom);
-        Date formatDateTo = format.parse(dateTo);
+        Date formatDateTo = formatHour.parse(dateTo + "2359");
 
         return alertActionService.search(entityId, filter, pageNumber, rowsPerPage, formatDateFrom, formatDateTo);
     }

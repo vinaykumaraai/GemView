@@ -32,12 +32,9 @@
 package com.luretechnologies.server.data.display.tms;
 
 import io.swagger.annotations.ApiModelProperty;
-import java.util.Date;
-import javax.persistence.Column;
 
 public class HeartbeatAppInfoDisplay {
 
-    @Column(name = "id")
     @ApiModelProperty(value = "The table primary key", required = true)
     private Long id;
 
@@ -48,7 +45,7 @@ public class HeartbeatAppInfoDisplay {
     private String version;
 
     @ApiModelProperty(value = "Last updated", required = false)
-    private Date updatedAt;
+    private String updatedAt;
 
     /**
      * @return the name
@@ -109,17 +106,18 @@ public class HeartbeatAppInfoDisplay {
     public void setId(Long id) {
         this.id = id;
     }
+
     /**
      * @return the updatedAt
      */
-    public Date getUpdatedAt() {
+    public String getUpdatedAt() {
         return updatedAt;
     }
 
     /**
      * @param updatedAt the updatedAt to set
      */
-    public void setUpdatedAt(Date updatedAt) {
+    public void setUpdatedAt(String updatedAt) {
         this.updatedAt = updatedAt;
-    }    
+    }
 }

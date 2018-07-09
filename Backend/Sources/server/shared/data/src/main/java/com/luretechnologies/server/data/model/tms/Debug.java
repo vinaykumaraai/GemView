@@ -31,22 +31,41 @@
  */
 package com.luretechnologies.server.data.model.tms;
 
-import java.util.List;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import io.swagger.annotations.ApiModelProperty;
+import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
+import javax.persistence.Basic;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({
-    "serialNumber",
-    "debugItems"
-})
-public class Debug {
+@Entity
+@Table(name = "debug")
+public class Debug implements Serializable {
 
-    @JsonProperty("serialNumber")
-    private String serialNumber;
-    @JsonProperty("debugItems")
-    private List<DebugItem> debugItems = null;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Basic(optional = false)
+    @Column(name = "id")
+    @ApiModelProperty(value = "The table primary key", required = true)
+    private Long id;
+
+    @JoinColumn(name = "entity", referencedColumnName = "id", nullable = false)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    private com.luretechnologies.server.data.model.Entity entity;
+
+    @OneToMany(mappedBy = "debug", targetEntity = DebugItem.class, fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE})
+    @ApiModelProperty(value = "Debug Items", required = false)
+    private Set<DebugItem> debugItems = new HashSet<>();
 
     /**
      * No args constructor for use in serialization
@@ -55,34 +74,60 @@ public class Debug {
     public Debug() {
     }
 
+    @Override
+    public int hashCode() {
+        int hash = 0;
+        hash += (getId() != null ? getId().hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        // TODO: Warning - this method won't work in the case the id fields are not set
+        if (!(object instanceof Debug)) {
+            return false;
+        }
+        Debug other = (Debug) object;
+        return !((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id)));
+    }
+
+    @Override
+    public String toString() {
+        return "com.luretechnologies.server.data.model.tms.Debug[ id=" + getId() + " ]";
+    }
+
     /**
-     *
-     * @param serialNumber
-     * @param debugItems
+     * @return the id
      */
-    public Debug(String serialNumber, List<DebugItem> debugItems) {
-        super();
-        this.serialNumber = serialNumber;
-        this.debugItems = debugItems;
+    public Long getId() {
+        return id;
     }
 
-    @JsonProperty("serialNumber")
-    public String getSerialNumber() {
-        return serialNumber;
+    /**
+     * @return the entity
+     */
+    public com.luretechnologies.server.data.model.Entity getEntity() {
+        return entity;
     }
 
-    @JsonProperty("serialNumber")
-    public void setSerialNumber(String serialNumber) {
-        this.serialNumber = serialNumber;
+    /**
+     * @param entity the entity to set
+     */
+    public void setEntity(com.luretechnologies.server.data.model.Entity entity) {
+        this.entity = entity;
     }
 
-    @JsonProperty("debugItems")
-    public List<DebugItem> getDebugItems() {
+    /**
+     * @return the debugItems
+     */
+    public Set<DebugItem> getDebugItems() {
         return debugItems;
     }
 
-    @JsonProperty("debugItems")
-    public void setDebugItems(List<DebugItem> debugItems) {
+    /**
+     * @param debugItems the debugItems to set
+     */
+    public void setDebugItems(Set<DebugItem> debugItems) {
         this.debugItems = debugItems;
     }
 }

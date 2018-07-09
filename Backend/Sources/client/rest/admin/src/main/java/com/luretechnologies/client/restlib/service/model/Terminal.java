@@ -36,6 +36,7 @@ import com.luretechnologies.client.restlib.common.StringUtil;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.annotation.Generated;
 
@@ -49,10 +50,17 @@ import javax.annotation.Generated;
 @Generated(value = "class io.swagger.codegen.languages.JavaClientCodegen", date = "2015-09-15T15:20:45.337-04:00")
 public class Terminal extends Entity {
 
+
     private String serialNumber = null;
     private Model model = null;
+    private Date debugExpirationDate;
+    private Boolean debugActive;    
     private KeyBlock keyBlock = null;
     private ScheduleGroup scheduleGroup = null;
+    private boolean heartbeat;
+    private long frequency;
+
+    
     private List<TerminalHost> terminalHosts = new ArrayList<>();
     private List<TerminalSettingValue> terminalSettingValues = new ArrayList<>();
 
@@ -180,7 +188,73 @@ public class Terminal extends Entity {
         sb.append("    scheduleGroup: ").append(StringUtil.toIndentedString(scheduleGroup)).append("\n");
         sb.append("    terminalHosts: ").append(StringUtil.toIndentedString(terminalHosts)).append("\n");
         sb.append("    terminalSettingValues: ").append(StringUtil.toIndentedString(terminalSettingValues)).append("\n");
+        sb.append("    debugExpirationDate: ").append(StringUtil.toIndentedString(getDebugExpirationDate())).append("\n");
+        sb.append("    debugActive: ").append(StringUtil.toIndentedString(getDebugActive())).append("\n");
         sb.append("}");
         return sb.toString();
     }
+    /**
+     * @return the debugExpirationDate
+     */
+    @ApiModelProperty(value = "Debug expiration date")
+    @JsonProperty("debugExpirationDate")    
+    public Date getDebugExpirationDate() {
+        return debugExpirationDate;
+    }
+
+    /**
+     * @param debugExpirationDate the debugExpirationDate to set
+     */
+    public void setDebugExpirationDate(Date debugExpirationDate) {
+        this.debugExpirationDate = debugExpirationDate;
+    }
+
+       /**
+     * @return the debugActive
+     */
+    @ApiModelProperty(value = "if debug active true")
+    @JsonProperty("debugActive")    
+    public Boolean getDebugActive() {
+        return debugActive;
+    }
+
+    /**
+     * @param debugActive the debugActive to set
+     */
+    public void setDebugActive(Boolean debugActive) {
+        this.debugActive = debugActive;
+    }
+    
+        /**
+     * @return the heartbeat
+     */
+    @ApiModelProperty(value = "Heartbeat active or not")
+    @JsonProperty("heartbeat")
+    public boolean isHeartbeat() {
+        return heartbeat;
+    }
+
+    /**
+     * @param heartbeat the heartbeat to set
+     */
+    public void setHeartbeat(boolean heartbeat) {
+        this.heartbeat = heartbeat;
+    }
+
+    /**
+     * @return the frequency
+     */
+    @ApiModelProperty(value = "Heartbeat frequency")
+    @JsonProperty("frequency")
+    public long getFrequency() {
+        return frequency;
+    }
+
+    /**
+     * @param frequency the frequency to set
+     */
+    public void setFrequency(long frequency) {
+        this.frequency = frequency;
+    }
+
 }

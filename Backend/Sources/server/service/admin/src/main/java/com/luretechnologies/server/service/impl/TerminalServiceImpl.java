@@ -34,12 +34,9 @@ package com.luretechnologies.server.service.impl;
 import com.luretechnologies.common.enums.EntityTypeEnum;
 import com.luretechnologies.common.enums.TerminalSettingEnum;
 import com.luretechnologies.server.common.utils.Utils;
-import com.luretechnologies.server.data.dao.ApplicationDAO;
-import com.luretechnologies.server.data.dao.ApplicationPackageDAO;
 import com.luretechnologies.server.data.dao.EntityDAO;
 import com.luretechnologies.server.data.dao.HostDAO;
 import com.luretechnologies.server.data.dao.ModelDAO;
-import com.luretechnologies.server.data.dao.PaymentProfileDAO;
 import com.luretechnologies.server.data.dao.ScheduleGroupDAO;
 import com.luretechnologies.server.data.dao.TerminalDAO;
 import com.luretechnologies.server.data.dao.TerminalHostDAO;
@@ -53,12 +50,7 @@ import com.luretechnologies.server.data.model.payment.TerminalHost;
 import com.luretechnologies.server.data.model.payment.TerminalHostSetting;
 import com.luretechnologies.server.data.model.payment.TerminalHostSettingValue;
 import com.luretechnologies.server.data.model.payment.TerminalSettingValue;
-import com.luretechnologies.server.data.model.tms.Application;
-import com.luretechnologies.server.data.model.tms.ApplicationPackage;
 import com.luretechnologies.server.data.model.tms.KeyBlock;
-import com.luretechnologies.server.data.model.tms.Parameter;
-import com.luretechnologies.server.data.model.tms.PaymentProfile;
-import com.luretechnologies.server.data.model.tms.TerminalApplicationParameter;
 import com.luretechnologies.server.service.TerminalService;
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -91,15 +83,6 @@ public class TerminalServiceImpl implements TerminalService {
 
     @Autowired
     private TerminalDAO terminalDAO;
-
-    @Autowired
-    private ApplicationDAO applicationDAO;
-
-    @Autowired
-    private ApplicationPackageDAO applicationPackageDAO;
-
-    @Autowired
-    private PaymentProfileDAO paymentProfileDAO;
 
     @Autowired
     private ScheduleGroupDAO scheduleGroupDAO;
@@ -150,8 +133,12 @@ public class TerminalServiceImpl implements TerminalService {
         }
         DateFormat format = new SimpleDateFormat("yyyyMMdd");
         Date date = format.parse("19800101");
+        if (entity.getDebugExpirationDate() == null) {
+            entity.setDebugExpirationDate(new Timestamp(date.getTime()));
+        }
         entity.setLastContact(date);
         entity.setLastDownload(date);
+        if ( entity.getDebugActive() == null ) entity.setDebugActive(Boolean.TRUE);
         try {
             terminalDAO.persist(entity);
         } catch (Exception ex) {
@@ -204,7 +191,7 @@ public class TerminalServiceImpl implements TerminalService {
 //        }
         //BeanUtils.copyProperties(entity, existentEntity, new String[]{"entityId"});
         //BeanUtils.copyProperties(entity, existentEntity, new String[]{"entityId", "lastContact", "lastContact", "active", "lastDownload"});
-        
+
         existentEntity.setParent(parent);
         existentEntity.setType(EntityTypeEnum.TERMINAL);
         entityDAO.updatePath(existentEntity, false);
@@ -213,6 +200,16 @@ public class TerminalServiceImpl implements TerminalService {
         existentEntity.setAvailable(entity.isAvailable());
         existentEntity.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
         existentEntity.setHeartbeat(entity.isHeartbeat());
+        if (entity.getDebugActive() == null) {
+            existentEntity.setDebugActive(Boolean.FALSE);
+        } else {
+            existentEntity.setDebugActive(entity.getDebugActive());
+        }
+        if (entity.getDebugExpirationDate() != null) {
+            existentEntity.setDebugExpirationDate(new Timestamp(entity.getDebugExpirationDate().getTime()));
+        } else {
+            existentEntity.setDebugExpirationDate(null);
+        }
 
         try {
             Model model = modelDAO.findById(entity.getModel().getId());
@@ -352,41 +349,41 @@ public class TerminalServiceImpl implements TerminalService {
      */
     @Override
     public void addPaymentApplication(String serialNumber, long idApp, long idProfile) throws Exception {
-        Terminal terminal = (Terminal) terminalDAO.findBySerialNumber(serialNumber);
-
-        Application application = applicationDAO.findById(idApp);
-
-        PaymentProfile paymentProfile = paymentProfileDAO.findById(idProfile);
-
-        if (terminal == null) {
-            throw new ObjectRetrievalFailureException(Terminal.class, serialNumber);
-        }
-
-        for (ApplicationPackage applicationPackage : terminal.getApplicationPackages()) {
-            if (applicationPackage.getApplication().getId() == application.getId()) {
-                return;
-            }
-        }
-
-        // Create the Application Package
-        ApplicationPackage applicationPackage = new ApplicationPackage();
-        applicationPackage.setApplication(application);
-        applicationPackage.setTerminal(terminal);
-        applicationPackage.setPaymentProfile(paymentProfile);
-
-        // Add default terminal application parameters to the Application Package if Parameter isn't ApplicationWide
-        for (Parameter parameter : application.getParameters()) {
-            if (!parameter.getApplicationWide()) {
-                TerminalApplicationParameter terminalApplicationParameter = new TerminalApplicationParameter();
-                terminalApplicationParameter.setParameter(parameter);
-                terminalApplicationParameter.setApplicationPackage(applicationPackage);
-                terminalApplicationParameter.setValue(parameter.getDefaultValue());
-
-                applicationPackage.getParameters().add(terminalApplicationParameter);
-            }
-        }
-
-        applicationPackageDAO.merge(applicationPackage);
+//        Terminal terminal = (Terminal) terminalDAO.findBySerialNumber(serialNumber);
+//
+//        Application application = applicationDAO.findById(idApp);
+//
+//        PaymentProfile paymentProfile = paymentProfileDAO.findById(idProfile);
+//
+//        if (terminal == null) {
+//            throw new ObjectRetrievalFailureException(Terminal.class, serialNumber);
+//        }
+//
+//        for (ApplicationPackage applicationPackage : terminal.getApplicationPackages()) {
+//            if (applicationPackage.getApplication().getId() == application.getId()) {
+//                return;
+//            }
+//        }
+//
+//        // Create the Application Package
+//        ApplicationPackage applicationPackage = new ApplicationPackage();
+//        applicationPackage.setApplication(application);
+//        applicationPackage.setTerminal(terminal);
+//        applicationPackage.setPaymentProfile(paymentProfile);
+//
+//        // Add default terminal application parameters to the Application Package if Parameter isn't ApplicationWide
+//        for (Parameter parameter : application.getParameters()) {
+//            if (!parameter.getApplicationWide()) {
+//                TerminalApplicationParameter terminalApplicationParameter = new TerminalApplicationParameter();
+//                terminalApplicationParameter.setParameter(parameter);
+//                terminalApplicationParameter.setApplicationPackage(applicationPackage);
+//                terminalApplicationParameter.setValue(parameter.getDefaultValue());
+//
+//                applicationPackage.getParameters().add(terminalApplicationParameter);
+//            }
+//        }
+//
+//        applicationPackageDAO.merge(applicationPackage);
     }
 
     /**
@@ -883,4 +880,5 @@ public class TerminalServiceImpl implements TerminalService {
             throw new PersistenceException("Terminal not found :" + ex.getMessage());
         }
     }
+
 }

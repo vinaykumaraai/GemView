@@ -35,7 +35,6 @@ import com.luretechnologies.server.data.dao.ModelDAO;
 import com.luretechnologies.server.data.display.ModelDisplay;
 import com.luretechnologies.server.data.model.Model;
 import com.luretechnologies.server.service.ModelService;
-import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;

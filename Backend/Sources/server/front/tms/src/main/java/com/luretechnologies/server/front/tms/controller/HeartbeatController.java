@@ -31,6 +31,7 @@
  */
 package com.luretechnologies.server.front.tms.controller;
 
+import com.luretechnologies.common.enums.EntityTypeEnum;
 import com.luretechnologies.server.common.utils.Utils;
 import com.luretechnologies.server.data.display.ErrorResponse;
 import com.luretechnologies.server.data.display.tms.HeartbeatDisplay;
@@ -38,12 +39,19 @@ import com.luretechnologies.server.data.display.tms.HeartbeatAlertDisplay;
 import com.luretechnologies.server.data.display.tms.HeartbeatAuditDisplay;
 import com.luretechnologies.server.data.display.tms.HeartbeatOdometerDisplay;
 import com.luretechnologies.server.data.display.tms.HeartbeatResponseDisplay;
+import com.luretechnologies.server.data.model.Terminal;
+import com.luretechnologies.server.data.model.tms.AlertAction;
+import com.luretechnologies.server.data.model.tms.Email;
 import com.luretechnologies.server.jms.utils.CorrelationIdPostProcessor;
+import com.luretechnologies.server.service.AlertActionService;
+import com.luretechnologies.server.service.EntityService;
 import com.luretechnologies.server.service.HeartbeatAlertService;
 import com.luretechnologies.server.service.HeartbeatAuditService;
 import com.luretechnologies.server.service.HeartbeatOdometerService;
 import com.luretechnologies.server.service.HeartbeatResponseService;
 import com.luretechnologies.server.service.HeartbeatService;
+import com.luretechnologies.server.service.SystemParamsService;
+import com.luretechnologies.server.service.TerminalService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -58,9 +66,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.jms.core.JmsTemplate;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -96,8 +101,26 @@ public class HeartbeatController {
     HeartbeatResponseService heartbeatResponseService;
 
     @Autowired
+    EntityService entityService;
+
+    @Autowired
+    TerminalService terminalService;
+
+    @Autowired
+    AlertActionService alertActionService;
+
+    @Autowired
+    SystemParamsService systemParamsService;
+
+    @Autowired
     @Qualifier("jmsHeartbeatTemplate")
     JmsTemplate jmsHeartbeatTemplate;
+
+    @Autowired
+    @Qualifier("jmsEmailTemplate")
+    JmsTemplate jmsEmailTemplate;
+
+    private static final String ALERT_EMAIL_BODY = "Alert Email Body";
 
     /**
      * Creates a new heartbeat
@@ -123,7 +146,7 @@ public class HeartbeatController {
             heartbeatResponseService.delete(heartbeatResponse.getId());
             return heartbeatResponse;
         } else {
-            return new HeartbeatResponseDisplay(0, "OK", Utils.MS_MINUTE * 15, false, null);
+            return new HeartbeatResponseDisplay(0, "OK", Utils.MS_MINUTE * 15, false);
         }
     }
 
@@ -231,6 +254,13 @@ public class HeartbeatController {
             @ApiParam(value = "The starting date, format:yyMMdd") @RequestParam(value = "dateFrom", required = false) String dateFrom,
             @ApiParam(value = "The ending date format:yyMMdd") @RequestParam(value = "dateTo", required = false) String dateTo
     ) throws Exception {
+        if (pageNumber == null) {
+            pageNumber = 1;
+        }
+
+        if (rowsPerPage == null) {
+            rowsPerPage = Integer.MAX_VALUE;
+        }
 
         DateFormat formatHour = new SimpleDateFormat("yyMMddHHmm");
         DateFormat format = new SimpleDateFormat("yyMMdd");
@@ -279,7 +309,15 @@ public class HeartbeatController {
             @ApiParam(value = "The starting date format:yyMMdd") @RequestParam(value = "dateFrom", required = false) String dateFrom,
             @ApiParam(value = "The ending date format:yyMMdd") @RequestParam(value = "dateTo", required = false) String dateTo
     ) throws Exception {
+        if (pageNumber == null) {
+            pageNumber = 1;
+        }
 
+        if (rowsPerPage == null) {
+            rowsPerPage = Integer.MAX_VALUE;
+        }
+
+        DateFormat formatHour = new SimpleDateFormat("yyMMddHHmm");
         DateFormat format = new SimpleDateFormat("yyMMdd");
         if (dateTo == null || dateTo.isEmpty()) {
             Date a = new Date();
@@ -289,7 +327,7 @@ public class HeartbeatController {
             dateFrom = "180501";
         }
         Date formatDateFrom = format.parse(dateFrom);
-        Date formatDateTo = format.parse(dateTo);
+        Date formatDateTo = formatHour.parse(dateTo + "2359");
 
         return heartbeatAuditService.search(entityId, filter, pageNumber, rowsPerPage, formatDateFrom, formatDateTo);
     }
@@ -316,6 +354,15 @@ public class HeartbeatController {
             @ApiParam(value = "The ending date format:yyMMdd") @RequestParam(value = "dateTo", required = false) String dateTo
     ) throws Exception {
 
+        if (pageNumber == null) {
+            pageNumber = 1;
+        }
+
+        if (rowsPerPage == null) {
+            rowsPerPage = Integer.MAX_VALUE;
+        }
+
+        DateFormat formatHour = new SimpleDateFormat("yyMMddHHmm");
         DateFormat format = new SimpleDateFormat("yyMMdd");
         if (dateTo == null || dateTo.isEmpty()) {
             Date a = new Date();
@@ -325,7 +372,7 @@ public class HeartbeatController {
             dateFrom = "180501";
         }
         Date formatDateFrom = format.parse(dateFrom);
-        Date formatDateTo = format.parse(dateTo);
+        Date formatDateTo = formatHour.parse(dateTo + "2359");
 
         return heartbeatService.search(entityId, filter, pageNumber, rowsPerPage, formatDateFrom, formatDateTo);
     }
@@ -357,6 +404,7 @@ public class HeartbeatController {
 
     /**
      * Delete all heartbeat audit older than date
+     *
      * @param authToken
      * @param date Death line
      * @throws Exception
@@ -385,7 +433,8 @@ public class HeartbeatController {
 
         heartbeatAuditService.delete(formatDateFrom);
     }
-   /**
+
+    /**
      * Delete an alert.
      *
      * @param authToken
@@ -408,9 +457,9 @@ public class HeartbeatController {
             @ApiParam(value = "The authentication token") @RequestHeader(value = "X-Auth-Token", required = true) String authToken,
             @ApiParam(value = "The odometer identifier (id)") @PathVariable("id") long id) throws Exception {
         heartbeatAlertService.delete(id);
-    }    
-    
-       /**
+    }
+
+    /**
      * Delete an audit.
      *
      * @param authToken
@@ -433,5 +482,82 @@ public class HeartbeatController {
             @ApiParam(value = "The authentication token") @RequestHeader(value = "X-Auth-Token", required = true) String authToken,
             @ApiParam(value = "The odometer identifier (id)") @PathVariable("id") long id) throws Exception {
         heartbeatAuditService.delete(id);
-    }    
+    }
+
+    /**
+     * Test
+     *
+     * @param authToken
+     * @throws Exception
+     */
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @RequestMapping(value = "alertsProcessing", method = RequestMethod.POST)
+    @ApiOperation(tags = "Heartbeats", httpMethod = "POST", value = "Alerts processing (just a test purposes web-service)", notes = "Alerts processing (just a test purposes web-service)")
+    public void alertsProcessing(
+            @ApiParam(value = "The authentication token") @RequestHeader(value = "X-Auth-Token", required = true) String authToken) throws Exception {
+
+        List<AlertAction> alertActions = alertActionService.getAlerts();
+
+        for (AlertAction alertAction : alertActions) {
+            if (alertAction.getEntity().getType() == EntityTypeEnum.TERMINAL) {
+                List<HeartbeatAlertDisplay> alertDisplays = heartbeatAlertService.getAlerts(((Terminal) alertAction.getEntity()).getSerialNumber(), alertAction.getLabel());
+                if (alertDisplays != null && alertDisplays.size() > 0) {
+                    for (HeartbeatAlertDisplay temp : alertDisplays) {
+                        sendAlertEmail(alertAction.getEmail(), ((Terminal) alertAction.getEntity()).getEntityId(), temp.getComponent(), temp.getLabel(), temp.getOccurred().toString());
+                        heartbeatAlertService.alertDone(temp.getId());
+                    }
+                }
+            } else {
+                List<Terminal> terminals = terminalService.search(alertAction.getEntity(), null, 0, Integer.MAX_VALUE);
+                for (Terminal terminal : terminals) {
+                    List<HeartbeatAlertDisplay> alertDisplays = heartbeatAlertService.getAlerts(terminal.getSerialNumber(), alertAction.getLabel());
+                    if (alertDisplays != null && alertDisplays.size() > 0) {
+                        for (HeartbeatAlertDisplay temp : alertDisplays) {
+                            sendAlertEmail(alertAction.getEmail(), terminal.getEntityId(), temp.getComponent(), temp.getLabel(), temp.getOccurred().toString());
+                            heartbeatAlertService.alertDone(temp.getId());
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     *
+     * @param emailAddress
+     * @param terminalId
+     * @param component
+     * @param alertLabel
+     * @param occurredAt
+     */
+    private void sendAlertEmail(String emailAddress, String terminalId, String component, String alertLabel, String occurredAt) throws Exception {
+
+        Email email = new Email();
+
+        String fromName = "DoNotReply";
+        String subject = "Alert: {ALERT_LABEL}".replaceAll("\\{ALERT_LABEL\\}", alertLabel);
+
+        String bodyMessage = null;
+        try {
+            bodyMessage = systemParamsService.getByName(ALERT_EMAIL_BODY).getValue();
+        } catch (Exception ex) {
+
+        }
+        if ( bodyMessage == null || bodyMessage.isEmpty() ){
+            throw new Exception("The bodyMessage couldn't be empty.Please define \"Alert Email Body\" system param");
+        }
+         
+        bodyMessage = bodyMessage.replaceAll("\\{TERMINAL_ID\\}", terminalId);
+        bodyMessage = bodyMessage.replaceAll("\\{COMPONENT\\}", component);
+        bodyMessage = bodyMessage.replaceAll("\\{ALERT_LABEL\\}", alertLabel);
+        bodyMessage = bodyMessage.replaceAll("\\{OCCURRED_AT\\}", occurredAt);
+
+        email.setBody(bodyMessage);
+        email.setContentType("text/html");
+        email.setTo(emailAddress);
+        email.setSubject(subject);
+        email.setFromName(fromName);
+
+        jmsEmailTemplate.convertAndSend(email, new CorrelationIdPostProcessor(Utils.generateGUID()));
+    }
 }

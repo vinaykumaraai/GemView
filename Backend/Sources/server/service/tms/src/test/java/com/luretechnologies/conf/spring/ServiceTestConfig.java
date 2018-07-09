@@ -31,11 +31,6 @@
  */
 package com.luretechnologies.conf.spring;
 
-import com.luretechnologies.server.data.dao.ApplicationDAO;
-import com.luretechnologies.server.data.dao.impl.ApplicationDAOImpl;
-import com.luretechnologies.server.service.ApplicationService;
-import com.luretechnologies.server.service.impl.ApplicationServiceImpl;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**

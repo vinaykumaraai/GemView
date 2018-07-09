@@ -84,4 +84,28 @@ public class AlertActionDAOImpl extends BaseDAOImpl<AlertAction, Long> implement
         alertAction.setActive(false);
         merge(alertAction);
     }
+
+    @Override
+    public List<AlertAction> getAlerts(Long entityId, String label) throws PersistenceException {
+        CriteriaQuery<AlertAction> cq = criteriaQuery();
+        Root<AlertAction> root = getRoot(cq);
+
+        Predicate predicate = criteriaBuilder().conjunction();
+
+        if (label != null && !label.isEmpty()) {
+            predicate.getExpressions().add(
+                    criteriaBuilder().equal(criteriaBuilder().upper((Expression) root.get("label")), "%" + label.toUpperCase() + "%"));
+        }
+
+        if (entityId != null && entityId > 0) {
+            predicate.getExpressions().add(criteriaBuilder().equal(root.<Long>get("entity"), entityId));
+        }
+
+        predicate.getExpressions().add(criteriaBuilder().equal(root.<Boolean>get("active"), true));
+
+        cq.where(predicate);
+
+        return query(cq).getResultList();
+    }
+
 }

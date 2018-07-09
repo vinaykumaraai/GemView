@@ -36,11 +36,9 @@ import com.luretechnologies.server.data.model.Entity;
 import io.swagger.annotations.ApiModelProperty;
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -78,6 +76,10 @@ public class EntityAppProfile implements Serializable{
     @JsonIgnore
     @Column(name = "updated_at", nullable = false)
     private Timestamp updatedAt;
+    
+    @Column(name = "available", nullable = false, length = 1)
+    @ApiModelProperty(value = "The available.")
+    private boolean available = false;
     
     @OneToMany(mappedBy = "entityAppProfileId", targetEntity = EntityAppProfileParam.class, fetch = FetchType.LAZY)
     private Set<EntityAppProfileParam> entityappprofileparamCollection = new HashSet<>();
@@ -153,6 +155,20 @@ public class EntityAppProfile implements Serializable{
      */
     public void setEntityappprofileparamCollection(Set<EntityAppProfileParam> entityappprofileparamCollection) {
         this.entityappprofileparamCollection = entityappprofileparamCollection;
+    }
+
+    /**
+     * @return the available
+     */
+    public boolean isAvailable() {
+        return available;
+    }
+
+    /**
+     * @param available the available to set
+     */
+    public void setAvailable(boolean available) {
+        this.available = available;
     }
     
 }

@@ -35,7 +35,6 @@ import com.luretechnologies.client.restlib.Utils;
 import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.client.restlib.common.CommonConstants;
 import com.luretechnologies.client.restlib.service.model.Model;
-import com.luretechnologies.client.restlib.service.model.SystemParamType;
 import com.luretechnologies.client.restlib.service.model.UserSession;
 import java.util.List;
 import java.util.Random;

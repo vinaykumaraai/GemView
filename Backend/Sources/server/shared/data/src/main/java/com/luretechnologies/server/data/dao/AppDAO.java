@@ -32,7 +32,6 @@
 package com.luretechnologies.server.data.dao;
 
 import com.luretechnologies.server.data.model.tms.App;
-import com.luretechnologies.server.data.model.tms.AppFile;
 import com.luretechnologies.server.data.model.tms.AppParam;
 import com.luretechnologies.server.data.model.tms.AppProfile;
 import java.util.List;

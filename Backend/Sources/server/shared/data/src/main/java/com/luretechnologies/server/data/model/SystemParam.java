@@ -82,7 +82,7 @@ public class SystemParam implements Serializable {
     @ApiModelProperty(value = "if is available or not")
     private Boolean available;
 
-    @Size(max = 255)
+    @Size(max = 4092)
     @Column(name = "value")
     @ApiModelProperty(value = "The value", required = false)
     private String value;

@@ -117,4 +117,15 @@ public class AlertActionServiceImpl implements AlertActionService {
         }
         return null;
     }
+
+    @Override
+    public List<AlertAction> getAlerts(String serialNumber, String label) throws Exception {
+       //return alertActionDAO.getAlerts(serialNumber, label);
+       return null;
+    }
+
+    @Override
+    public List<AlertAction> getAlerts() throws Exception {
+       return alertActionDAO.list();
+    }
 }

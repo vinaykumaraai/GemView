@@ -68,20 +68,6 @@ import javax.validation.constraints.Size;
 public class Entity implements Serializable {
 
     /**
-     * @return the available
-     */
-    public boolean isAvailable() {
-        return available;
-    }
-
-    /**
-     * @param available the available to set
-     */
-    public void setAvailable(boolean available) {
-        this.available = available;
-    }
-
-    /**
      *
      */
     public Entity() {
@@ -327,4 +313,19 @@ public class Entity implements Serializable {
     public String toString() {
         return String.valueOf(getId());
     }
+
+    /**
+     * @return the available
+     */
+    public boolean isAvailable() {
+        return available;
+    }
+
+    /**
+     * @param available the available to set
+     */
+    public void setAvailable(boolean available) {
+        this.available = available;
+    }
+
 }

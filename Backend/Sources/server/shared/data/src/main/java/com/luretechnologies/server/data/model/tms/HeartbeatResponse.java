@@ -115,7 +115,7 @@ public class HeartbeatResponse implements Serializable {
         this.message = message;
         this.intervalAt = interval;
         this.debug = debug;
-        //   this.downloadInfo = downloadInfo;
+        this.downloadInfo = downloadInfo;
     }
 
     @Override

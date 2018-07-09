@@ -35,7 +35,6 @@ import io.swagger.annotations.ApiModelProperty;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import javax.persistence.Column;
 
 public class HeartbeatDisplay {
 
@@ -75,7 +74,10 @@ public class HeartbeatDisplay {
     @ApiModelProperty(value = "Heartbeat Alerts", required = false)
     private List<HeartbeatAlertDisplay> heartbeatAlerts = null;
 
-    @Column(name = "occurred", nullable = false)
+    @ApiModelProperty(value = "Heartbeat update paramter list", required = false)
+    private List<HeartbeatUpdateParamDisplay> heartbeatUpdateParams = null;
+    
+
     @ApiModelProperty(value = "The time in which the heartbeat was performed.")
     private Date occurred;
 
@@ -271,4 +273,18 @@ public class HeartbeatDisplay {
     public void setSequence(String sequence) {
         this.sequence = sequence;
     }
+    /**
+     * @return the heartbeatUpdateParams
+     */
+    public List<HeartbeatUpdateParamDisplay> getHeartbeatUpdateParams() {
+        return heartbeatUpdateParams;
+    }
+
+    /**
+     * @param heartbeatUpdateParams the heartbeatUpdateParams to set
+     */
+    public void setHeartbeatUpdateParams(List<HeartbeatUpdateParamDisplay> heartbeatUpdateParams) {
+        this.heartbeatUpdateParams = heartbeatUpdateParams;
+    }
+    
 }

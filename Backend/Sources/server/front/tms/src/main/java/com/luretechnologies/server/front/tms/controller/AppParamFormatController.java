@@ -31,7 +31,6 @@
  */
 package com.luretechnologies.server.front.tms.controller;
 
-import com.luretechnologies.server.data.model.tms.AppParam;
 import com.luretechnologies.server.data.model.tms.AppParamFormat;
 import com.luretechnologies.server.service.AppParamFormatService;
 import io.swagger.annotations.Api;

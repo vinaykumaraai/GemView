@@ -31,6 +31,7 @@
  */
 package com.luretechnologies.server.service.impl;
 
+import com.luretechnologies.server.data.dao.AlertActionDAO;
 import com.luretechnologies.server.data.dao.EntityDAO;
 import com.luretechnologies.server.data.dao.HeartbeatAlertDAO;
 import com.luretechnologies.server.data.dao.HeartbeatAppInfoDAO;
@@ -51,6 +52,8 @@ import com.luretechnologies.server.data.model.tms.HeartbeatAudit;
 import com.luretechnologies.server.data.model.tms.HeartbeatOdometer;
 import com.luretechnologies.server.service.HeartbeatService;
 import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +61,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.Date;
 import javax.persistence.PersistenceException;
+import org.springframework.beans.BeanUtils;
 import org.springframework.orm.ObjectRetrievalFailureException;
 
 /**
@@ -88,6 +92,9 @@ public class HeatbeatServiceImpl implements HeartbeatService {
 
     @Autowired
     HeartbeatAlertDAO heartbeatAlertDAO;
+
+    @Autowired
+    AlertActionDAO alertActionDAO;
 
     @Override
     public List<HeartbeatDisplay> search(String entityId, String filter, int pageNumber, int rowsPerPage, Date dateDrom, Date dateTo) throws Exception {
@@ -148,7 +155,13 @@ public class HeatbeatServiceImpl implements HeartbeatService {
     public HeartbeatDisplay create(HeartbeatDisplay heartbeatDisplay) throws Exception {
 
         Heartbeat heartbeat = new Heartbeat();
+        //Just a test TODO remove that one
+        
+//        DateFormat format1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//        Date tempHelp = format1.parse("2018-01-01 01:01:01");
+//        List<Long> lo = heartbeatAppInfoDAO.getTerminalIdsByLastUpdate(tempHelp);
 
+        // Remove untill here 
         try {
             Entity terminal = terminalDAO.findBySerialNumber(heartbeatDisplay.getSerialNumber());
             if (terminal == null) {
@@ -167,21 +180,31 @@ public class HeatbeatServiceImpl implements HeartbeatService {
             if (heartbeatDisplay.getSwComponents() != null && heartbeatDisplay.getSwComponents().size() > 0) {
                 for (HeartbeatAppInfoDisplay temp : heartbeatDisplay.getSwComponents()) {
                     HeartbeatAppInfo heartbeatAppInfo = null;
+                    DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+                    Timestamp dt;
                     try {
                         heartbeatAppInfo = heartbeatAppInfoDAO.getByNameAndEntity(terminal.getId(), temp.getName());
                     } catch (Exception ex) {
                         ex.getMessage();
                     }
+                    try {
+                        dt = new Timestamp(format.parse(temp.getUpdatedAt()).getTime());
+                    } catch (Exception ex) {
+                        throw new Exception("Date format is: yyyy-MM-dd HH:mm:ss" + ex.getMessage());
+                    }
                     if (heartbeatAppInfo != null) {
                         heartbeatAppInfo.setVersion(temp.getVersion());
-                        heartbeatAppInfo.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+                        heartbeatAppInfo.setUpdatedAt(dt);
+                        heartbeatAppInfo.setLastUpdateAt(new Timestamp(System.currentTimeMillis()));
                         heartbeatAppInfoDAO.merge(heartbeatAppInfo);
                     } else {
                         heartbeatAppInfo = new HeartbeatAppInfo();
                         heartbeatAppInfo.setName(temp.getName());
                         heartbeatAppInfo.setVersion(temp.getVersion());
-                        heartbeatAppInfo.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+                        heartbeatAppInfo.setUpdatedAt(dt);
                         heartbeatAppInfo.setEntity(terminal);
+                        heartbeatAppInfo.setLastUpdateAt(new Timestamp(System.currentTimeMillis()));
                         heartbeatAppInfoDAO.persist(heartbeatAppInfo);
                     }
                     temp.setId(heartbeatAppInfo.getId());
@@ -232,7 +255,7 @@ public class HeatbeatServiceImpl implements HeartbeatService {
             if (heartbeatDisplay.getHeartbeatAlerts() != null && heartbeatDisplay.getHeartbeatAlerts().size() > 0) {
                 for (HeartbeatAlertDisplay temp : heartbeatDisplay.getHeartbeatAlerts()) {
                     HeartbeatAlert heartbeatAlert = null;
-
+                    /*
                     try {
                         heartbeatAlert = heartbeatAlertDAO.getByLabelAndEntity(terminal.getId(), temp.getLabel(), temp.getComponent());
                     } catch (Exception ex) {
@@ -240,21 +263,20 @@ public class HeatbeatServiceImpl implements HeartbeatService {
                     }
 
                     if (heartbeatAlert != null) {
-                        if (temp.getDone() != null) {
-                            heartbeatAlert.setDone(temp.getDone());
-                        }
+                        heartbeatAlert.setDone(Boolean.FALSE);
                         heartbeatAlert.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
                         heartbeatAlertDAO.merge(heartbeatAlert);
                     } else {
-                        heartbeatAlert = new HeartbeatAlert();
-                        heartbeatAlert.setComponent(temp.getComponent());
-                        heartbeatAlert.setLabel(temp.getLabel());
-                        heartbeatAlert.setEntity(terminal);
-                        heartbeatAlert.setDone(false);
-                        heartbeatAlert.setOccurred(new Timestamp(System.currentTimeMillis()));
-                        heartbeatAlert.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-                        heartbeatAlertDAO.persist(heartbeatAlert);
-                    }
+                     */
+                    heartbeatAlert = new HeartbeatAlert();
+                    heartbeatAlert.setComponent(temp.getComponent());
+                    heartbeatAlert.setLabel(temp.getLabel());
+                    heartbeatAlert.setEntity(terminal);
+                    heartbeatAlert.setDone(Boolean.FALSE);
+                    heartbeatAlert.setOccurred(new Timestamp(System.currentTimeMillis()));
+                    heartbeatAlert.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+                    heartbeatAlertDAO.persist(heartbeatAlert);
+//                    }
                     temp.setId(heartbeatAlert.getId());
                 }
             }
@@ -263,6 +285,32 @@ public class HeatbeatServiceImpl implements HeartbeatService {
         }
         heartbeatDisplay.setId(heartbeat.getId());
         return heartbeatDisplay;
+    }
+
+    @Override
+    public void alertsProcessing() throws Exception {
+
+    }
+
+    @Override
+    public List<HeartbeatAppInfoDisplay> getSwComponents(Long id) throws Exception {
+        List<HeartbeatAppInfo> appInfos = heartbeatAppInfoDAO.getAppInfos(id);
+        if (appInfos != null && appInfos.size() > 0) {
+            List<HeartbeatAppInfoDisplay> appInfoDisplays = new ArrayList<>();
+            for (HeartbeatAppInfo temp : appInfos) {
+                HeartbeatAppInfoDisplay appInfoDisplay = new HeartbeatAppInfoDisplay();
+                BeanUtils.copyProperties(temp, appInfoDisplay);
+                appInfoDisplays.add(appInfoDisplay);
+            }
+            return appInfoDisplays;
+
+        }
+        return null;
+    }
+
+    @Override
+    public List<Long> getByHeartbeatSwComponentLastUpdate(Date lastUpdate) throws Exception {
+        return heartbeatAppInfoDAO.getTerminalIdsByLastUpdate(lastUpdate);
     }
 
 }

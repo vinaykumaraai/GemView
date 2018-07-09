@@ -31,17 +31,38 @@
  */
 package com.luretechnologies.client.restlib.service.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.luretechnologies.client.restlib.common.StringUtil;
+import io.swagger.annotations.ApiModelProperty;
 
 public class HeartbeatAppInfo {
+
+    /**
+     * @return the updatedAt
+     */
+    @ApiModelProperty(value = "Updated at (format:yyyy-MM-dd HH:mm:ss)")
+    @JsonProperty("updatedAt")    
+    public String getUpdatedAt() {
+        return updatedAt;
+    }
+
+    /**
+     * @param updatedAt the updatedAt to set
+     */
+    public void setUpdatedAt(String updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 
     private Long id;
     private String name;
     private String version;
+    private String updatedAt;
 
     /**
      * @return the name
      */
+    @ApiModelProperty(value = "Name")
+    @JsonProperty("name")
     public String getName() {
         return name;
     }
@@ -56,6 +77,8 @@ public class HeartbeatAppInfo {
     /**
      * @return the version
      */
+    @ApiModelProperty(value = "Version")
+    @JsonProperty("version")
     public String getVersion() {
         return version;
     }
@@ -84,7 +107,7 @@ public class HeartbeatAppInfo {
         this.name = name;
         this.version = version;
     }
-    
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -94,11 +117,13 @@ public class HeartbeatAppInfo {
         sb.append("    version: ").append(StringUtil.toIndentedString(version)).append("\n");
         sb.append("}");
         return sb.toString();
-    }    
+    }
 
     /**
      * @return the id
      */
+    @ApiModelProperty(value = "Id")
+    @JsonProperty("id")
     public Long getId() {
         return id;
     }
@@ -110,5 +135,4 @@ public class HeartbeatAppInfo {
         this.id = id;
     }
 
- 
 }

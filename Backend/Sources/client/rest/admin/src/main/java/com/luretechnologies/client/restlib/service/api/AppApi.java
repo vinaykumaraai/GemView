@@ -60,10 +60,11 @@ public class AppApi extends BaseApi {
 
     private static final String METHOD_SEARCH = "/app/search";
     private static final String METHOD_SEARCH_PARAMS = "/app/{id}/searchParams";
-    private static final String METHOD_GET = "/app/{id}";
-    private static final String METHOD_LIST = "/app/app";
+    private static final String METHOD_SEARCH_FILES = "/app/{id}/searchFiles";
+    private static final String METHOD_GET = "/app/{id}/getAppByID";
+    private static final String METHOD_LIST = "/app/getAppList";
     private static final String METHOD_LIST_BY_ENTITY = "/app/entities/{entityId}";
-    private static final String METHOD_CREATE = "/app/app";
+    private static final String METHOD_CREATE = "/app/createApp";
     private static final String METHOD_DELETE = "/app/{id}";
     private static final String METHOD_UPDATE = "/app/{id}";
     private static final String METHOD_ADD_APPFILE = "/app/{id}/appFile";
@@ -153,6 +154,56 @@ public class AppApi extends BaseApi {
         }
 
         String path = METHOD_SEARCH_PARAMS.replaceAll("\\{format\\}", "json")
+                .replaceAll("\\{" + "id" + "\\}", apiClient.escapeString(id.toString()));
+
+        List<Pair> queryParams = new ArrayList<>();
+        Map<String, String> headerParams = new HashMap<>();
+        Map<String, Object> formParams = new HashMap<>();
+
+        queryParams.addAll(apiClient.parameterToPairs("", CommonConstants.FIELD_FILTER, filter));
+
+        queryParams.addAll(apiClient.parameterToPairs("", CommonConstants.FIELD_PAGE_NUMBER, pageNumber));
+
+        queryParams.addAll(apiClient.parameterToPairs("", CommonConstants.FIELD_ROWS_PER_PAGE, rowsPerPage));
+
+        final String[] accepts = {
+            CommonConstants.HEADER_APP_JSON
+        };
+        final String accept = apiClient.selectHeaderAccept(accepts);
+
+        final String[] contentTypes = {
+            CommonConstants.HEADER_APP_JSON
+        };
+        final String contentType = apiClient.selectHeaderContentType(contentTypes);
+
+        TypeRef returnType = new TypeRef<List<AppParam>>() {
+        };
+        return apiClient.invokeAPI(path, CommonConstants.METHOD_GET, queryParams, postBody, postBinaryBody, headerParams, formParams, accept, contentType, returnType);
+    }
+    
+    /**
+     *
+     * @param id
+     * @param filter
+     * @param pageNumber
+     * @param rowsPerPage
+     * @return
+     * @throws ApiException
+     */
+    public List<AppParam> searchAppFile(Long id, String filter, Integer pageNumber, Integer rowsPerPage) throws ApiException {
+        Object postBody = null;
+        byte[] postBinaryBody = null;
+        
+        // verify the required parameter 'id' is set
+        if (id == null) {
+            throw new ApiException(400, "Missing the required parameter 'id' when calling searchUsingPOST1");
+        }
+
+        if (filter == null) {
+            throw new ApiException(400, "Missing the required parameter 'filter' when calling searchUsingPOST2");
+        }
+
+        String path = METHOD_SEARCH_FILES.replaceAll("\\{format\\}", "json")
                 .replaceAll("\\{" + "id" + "\\}", apiClient.escapeString(id.toString()));
 
         List<Pair> queryParams = new ArrayList<>();

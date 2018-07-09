@@ -33,10 +33,8 @@ package com.luretechnologies.server.data.dao.impl;
 
 import com.luretechnologies.server.common.utils.Utils;
 import com.luretechnologies.server.data.dao.MerchantHostSettingValueDAO;
-import com.luretechnologies.server.data.model.payment.Host;
 import com.luretechnologies.server.data.model.payment.MerchantHostSetting;
 import com.luretechnologies.server.data.model.payment.MerchantHostSettingValue;
-import java.util.List;
 import javax.persistence.LockModeType;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceException;

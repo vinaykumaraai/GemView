@@ -163,6 +163,8 @@ public class Entity {
     /**
      * @return the available
      */
+    @ApiModelProperty(value = "if is available")
+    @JsonProperty("available")
     public Boolean getAvailable() {
         return available;
     }

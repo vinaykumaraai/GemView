@@ -43,6 +43,7 @@ import com.luretechnologies.server.data.model.tms.App;
 import com.luretechnologies.server.data.model.tms.AppParam;
 import com.luretechnologies.server.data.model.tms.AppParamFormat;
 import com.luretechnologies.server.data.model.tms.AppProfile;
+import com.luretechnologies.server.service.AppProfileService;
 import com.luretechnologies.server.service.AppService;
 import java.io.File;
 import java.util.List;
@@ -83,6 +84,9 @@ public class AppServiceImpl implements AppService{
     
     @Autowired
     private AppParamFormatDAO appParamFormatDAO;
+    
+    @Autowired
+    private AppProfileService appProfileService;
     
     /**
      *
@@ -175,6 +179,13 @@ public class AppServiceImpl implements AppService{
         //Update the appParamCollection on App with the new Param
         //app.getAppParamCollection().add(appParam);
         appParamDAO.persist(appParam);
+        
+        //Update the existent appProfileCollection with the new one param.
+        Long appParamId = appParam.getId();
+        if(appParamId != null){
+            for (AppProfile appProfile : app.getAppProfileCollection()) 
+                appProfileService.addAppProfileParamValue(appProfile.getId(), appParamId);
+        }
         return app;
     }
     
@@ -196,12 +207,19 @@ public class AppServiceImpl implements AppService{
             if(existentAppProfile.getName().equals(appProfile.getName()))
                 throw new Exception("The App have a profile with the name: " + existentAppProfile.getName());
         }
-        //Set appId on Profile
+        
         appProfile.setAppId(app.getId());
         
         //Update the appProfileCollection on App with the new Profile
         //app.getAppProfileCollection().add(appProfile);
         appProfileDAO.persist(appProfile);
+        
+        //Update the appProfileParamValue asigne all params and files to profile created.
+        Long appProfileId = appProfile.getId();
+        if(appProfileId != null){
+            for (AppParam appParam : app.getAppParamCollection()) 
+                appProfileService.addAppProfileParamValue(appProfileId, appParam.getId());
+        }
         return app;
     }
     

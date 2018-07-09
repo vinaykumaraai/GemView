@@ -31,14 +31,9 @@
  */
 package com.luretechnologies.server.front.ams.controller;
 
-import com.luretechnologies.common.enums.TerminalSettingEnum;
 import com.luretechnologies.server.data.display.ErrorResponse;
 import com.luretechnologies.server.data.model.Terminal;
 import com.luretechnologies.server.data.model.User;
-import com.luretechnologies.server.data.model.payment.Host;
-import com.luretechnologies.server.data.model.payment.TerminalHost;
-import com.luretechnologies.server.data.model.payment.TerminalHostSettingValue;
-import com.luretechnologies.server.data.model.payment.TerminalSettingValue;
 import com.luretechnologies.server.service.AuditUserLogService;
 import com.luretechnologies.server.service.TerminalService;
 import com.luretechnologies.server.utils.UserAuth;

@@ -57,11 +57,11 @@ public class HeartbeatApi extends BaseApi {
     private static final String METHOD_SEARCH_HEARTBEAT = "/heartbeat/searchHeartbeats";
     private static final String METHOD_CREATE_HEARTBEAT = "/heartbeat/create";
     private static final String METHOD_CREATE_HEARTBEAT_RESPONSE = "/heartbeat/createHeartbeatResponse";
-    private static final String DELETE_ODOMETER = "/heartbeat/deleteOdometer/{id}";
-    private static final String DELETE_AUDITS = "/heartbeat/deleteAudits/{date}";
-    private static final String DELETE_ALERT = "/heartbeat/deleteAlert/{id}";
-    private static final String DELETE_AUDIT = "/heartbeat/deleteAudit/{id}";
-
+    private static final String METHOD_DELETE_ODOMETER = "/heartbeat/deleteOdometer/{id}";
+    private static final String METHOD_DELETE_AUDITS = "/heartbeat/deleteAudits/{date}";
+    private static final String METHOD_DELETE_ALERT = "/heartbeat/deleteAlert/{id}";
+    private static final String METHOD_DELETE_AUDIT = "/heartbeat/deleteAudit/{id}";
+    private static final String METHOD_ALERTS_PROCESSING = "/heartbeat/alertsProcessing";
     /**
      * @param apiClient
      */
@@ -356,7 +356,7 @@ public class HeartbeatApi extends BaseApi {
         }
 
         // create path and map variables
-        String path = DELETE_ODOMETER.replaceAll("\\{format\\}", "json")
+        String path = METHOD_DELETE_ODOMETER.replaceAll("\\{format\\}", "json")
                 .replaceAll("\\{" + "id" + "\\}", apiClient.escapeString(id.toString()));
 
         // query params
@@ -396,7 +396,7 @@ public class HeartbeatApi extends BaseApi {
         String sData = format.format(date);
 
         // create path and map variables
-        String path = DELETE_AUDITS.replaceAll("\\{format\\}", "json")
+        String path = METHOD_DELETE_AUDITS.replaceAll("\\{format\\}", "json")
                 .replaceAll("\\{" + "date" + "\\}", apiClient.escapeString(sData));
 
         // query params
@@ -434,7 +434,7 @@ public class HeartbeatApi extends BaseApi {
         }
 
         // create path and map variables
-        String path = DELETE_ALERT.replaceAll("\\{format\\}", "json")
+        String path = METHOD_DELETE_ALERT.replaceAll("\\{format\\}", "json")
                 .replaceAll("\\{" + "id" + "\\}", apiClient.escapeString(id.toString()));
 
         // query params
@@ -472,7 +472,7 @@ public class HeartbeatApi extends BaseApi {
         }
 
         // create path and map variables
-        String path = DELETE_AUDIT.replaceAll("\\{format\\}", "json")
+        String path = METHOD_DELETE_AUDIT.replaceAll("\\{format\\}", "json")
                 .replaceAll("\\{" + "id" + "\\}", apiClient.escapeString(id.toString()));
 
         // query params
@@ -493,4 +493,36 @@ public class HeartbeatApi extends BaseApi {
         apiClient.invokeAPI(path, CommonConstants.METHOD_DELETE, queryParams, postBody, postBinaryBody, headerParams, formParams, accept, contentType, null);
 
     }
+/**
+     * Delete a heartbeat audit by id
+     *
+     * @param id Heartbeat alert id
+     * @throws ApiException
+     */
+    public void alertsProcessing() throws ApiException {
+        Object postBody = null;
+        byte[] postBinaryBody = null;
+
+        // create path and map variables
+        String path = METHOD_ALERTS_PROCESSING.replaceAll("\\{format\\}", "json");
+
+        // query params
+        List<Pair> queryParams = new ArrayList<>();
+        Map<String, String> headerParams = new HashMap<>();
+        Map<String, Object> formParams = new HashMap<>();
+
+        final String[] accepts = {
+            CommonConstants.HEADER_ALL
+        };
+        final String accept = apiClient.selectHeaderAccept(accepts);
+
+        final String[] contentTypes = {
+            CommonConstants.HEADER_APP_JSON
+        };
+        final String contentType = apiClient.selectHeaderContentType(contentTypes);
+
+        apiClient.invokeAPI(path, CommonConstants.METHOD_POST, queryParams, postBody, postBinaryBody, headerParams, formParams, accept, contentType, null);
+
+    }    
+    
 }

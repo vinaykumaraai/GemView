@@ -29,7 +29,6 @@
  */
 package com.luretechnologies.server.data.dao.impl;
 
-import com.luretechnologies.common.enums.EntityTypeEnum;
 import com.luretechnologies.server.common.utils.Utils;
 import com.luretechnologies.server.data.dao.DeviceDAO;
 import com.luretechnologies.server.data.dao.EntityDAO;

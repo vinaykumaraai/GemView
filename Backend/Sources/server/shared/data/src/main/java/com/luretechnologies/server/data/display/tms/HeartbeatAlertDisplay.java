@@ -34,14 +34,12 @@ package com.luretechnologies.server.data.display.tms;
 import io.swagger.annotations.ApiModelProperty;
 import java.sql.Timestamp;
 import java.util.Date;
-import javax.persistence.Column;
 
 public class HeartbeatAlertDisplay {
 
     @ApiModelProperty(value = "The table primary key", required = true)
     private Long id;
 
-    @Column(name = "occurred", nullable = false)
     @ApiModelProperty(value = "The time in which the heartbeat was performed.")
     private Date occurred;
 

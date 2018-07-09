@@ -34,7 +34,6 @@ import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.client.restlib.common.CommonConstants;
 import com.luretechnologies.client.restlib.common.Pair;
 import com.luretechnologies.client.restlib.common.TypeRef;
-import com.luretechnologies.client.restlib.service.model.AppFileFormat;
 import com.luretechnologies.client.restlib.service.model.AppParamFormat;
 import java.util.ArrayList;
 import java.util.HashMap;

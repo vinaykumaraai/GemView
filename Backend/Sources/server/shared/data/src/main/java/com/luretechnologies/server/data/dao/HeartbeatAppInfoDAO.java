@@ -32,6 +32,8 @@
 package com.luretechnologies.server.data.dao;
 
 import com.luretechnologies.server.data.model.tms.HeartbeatAppInfo;
+import java.util.Date;
+import java.util.List;
 import javax.persistence.PersistenceException;
 
 /**
@@ -48,5 +50,21 @@ public interface HeartbeatAppInfoDAO extends BaseDAO<HeartbeatAppInfo, Long> {
      * @throws PersistenceException
      */
     public HeartbeatAppInfo getByNameAndEntity(Long entityId, String name) throws PersistenceException;
+
+    /**
+     * Get the application info by terminal id 
+     * @param id
+     * @return
+     * @throws PersistenceException
+     */
+    public List<HeartbeatAppInfo> getAppInfos(Long id) throws PersistenceException;
+    
+    /**
+     * Return a list of terminal ids' after this date and time
+     * @param lastUpdate 
+     * @return
+     * @throws PersistenceException 
+     */
+    public List<Long> getTerminalIdsByLastUpdate(Date lastUpdate ) throws PersistenceException;
 
 }

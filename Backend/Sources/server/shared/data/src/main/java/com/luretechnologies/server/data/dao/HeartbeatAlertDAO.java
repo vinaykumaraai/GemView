@@ -65,5 +65,22 @@ public interface HeartbeatAlertDAO extends BaseDAO<HeartbeatAlert, Long> {
      */
     public List<HeartbeatAlert> search(Long entityId, String filter, int pageNumber, int rowsPerPage, Date dateFrom, Date dateTo) throws PersistenceException;
 
+    /**
+     * Get the list of alerts using terminalId, component, label
+     *
+     * @param TerminalID Terminal ID
+     * @param component Component name
+     * @param label Alert label
+     * @return A list of alert otherwise null
+     * @throws PersistenceException
+     */
+    public List<HeartbeatAlert> getAlerts(Long TerminalID, String component, String label) throws PersistenceException;
+
+    /**
+     * A alert was sent to the client
+     * @param id Heartbeat alert identifier
+     * @throws PersistenceException
+     */
+    public void alertDone(Long id) throws PersistenceException;
 
 }

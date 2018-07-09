@@ -54,5 +54,13 @@ public interface AlertActionDAO extends BaseDAO<AlertAction, Long> {
      * @throws PersistenceException
      */
     public List<AlertAction> search(Long entityId, String filter, int pageNumber, int rowsPerPage, Date dateDrom, Date dateTo) throws PersistenceException;
-    
+
+    /**
+     *
+     * @param entityId
+     * @param label
+     * @return
+     * @throws PersistenceException
+     */
+    List<AlertAction> getAlerts(Long entityId, String label) throws PersistenceException;
 }

@@ -1,8 +1,6 @@
 com\luretechnologies\server\front\ams\controller\SettingController.class
-com\luretechnologies\server\front\ams\controller\ClientController.class
 com\luretechnologies\server\front\ams\controller\EntityController.class
 com\luretechnologies\conf\spring\ams\JmsConfig.class
-com\luretechnologies\server\front\ams\controller\TransactionController.class
 com\luretechnologies\server\front\ams\controller\TelephoneController.class
 com\luretechnologies\conf\spring\ams\FrontWebConfig.class
 com\luretechnologies\server\front\ams\controller\UserController.class

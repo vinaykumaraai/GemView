@@ -31,27 +31,58 @@
  */
 package com.luretechnologies.server.data.model.tms;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import io.swagger.annotations.ApiModelProperty;
+import java.io.Serializable;
+import java.sql.Timestamp;
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.validation.constraints.Size;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({
-    "occurred",
-    "facility",
-    "level",
-    "message"
-})
-public class DebugItem {
+@Entity
+@Table(name = "debug_items")
+public class DebugItem implements Serializable {
 
-    @JsonProperty("occurred")
-    private String occurred;
-    @JsonProperty("facility")
-    private String facility;
-    @JsonProperty("level")
-    private Long level;
-    @JsonProperty("message")
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Basic(optional = false)
+    @Column(name = "id")
+    @ApiModelProperty(value = "The table primary key", required = true)
+    private Long id;
+
+    @Size(max = 128)
+    @Column(name = "component")
+    @ApiModelProperty(value = "The component", required = false)
+    private String component;
+
+    @Column(name = "level")
+    @ApiModelProperty(value = "The level", required = true)
+    private Integer level;
+
+    @Size(max = 128)
+    @Column(name = "message")
+    @ApiModelProperty(value = "The message", required = false)
     private String message;
+
+    @JoinColumn(name = "entity", referencedColumnName = "id", nullable = true)
+    @ManyToOne(optional = true, fetch = FetchType.LAZY)
+    private com.luretechnologies.server.data.model.Entity entity;
+    
+    @JoinColumn(name = "debug", referencedColumnName = "id", nullable = true)
+    @ManyToOne(optional = true, fetch = FetchType.LAZY)
+    private Debug debug;
+    
+
+    @Column(name = "occurred", nullable = false)
+    @ApiModelProperty(value = "The time in which the heartbeat was performed.")
+    private Timestamp occurred;
 
     /**
      * No args constructor for use in serialization
@@ -60,58 +91,115 @@ public class DebugItem {
     public DebugItem() {
     }
 
+    @Override
+    public int hashCode() {
+        int hash = 0;
+        hash += (getId() != null ? getId().hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        // TODO: Warning - this method won't work in the case the id fields are not set
+        if (!(object instanceof DebugItem)) {
+            return false;
+        }
+        DebugItem other = (DebugItem) object;
+        return !((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id)));
+    }
+
+    @Override
+    public String toString() {
+        return "com.luretechnologies.server.data.model.tms.DebugItems[ id=" + getId() + " ]";
+    }
+
     /**
-     *
-     * @param message
-     * @param level
-     * @param facility
-     * @param occurred
+     * @return the id
      */
-    public DebugItem(String occurred, String facility, Long level, String message) {
-        super();
-        this.occurred = occurred;
-        this.facility = facility;
-        this.level = level;
-        this.message = message;
+    public Long getId() {
+        return id;
     }
 
-    @JsonProperty("occurred")
-    public String getOccurred() {
-        return occurred;
+    /**
+     * @return the component
+     */
+    public String getComponent() {
+        return component;
     }
 
-    @JsonProperty("occurred")
-    public void setOccurred(String occurred) {
-        this.occurred = occurred;
+    /**
+     * @param component the component to set
+     */
+    public void setComponent(String component) {
+        this.component = component;
     }
 
-    @JsonProperty("facility")
-    public String getFacility() {
-        return facility;
-    }
-
-    @JsonProperty("facility")
-    public void setFacility(String facility) {
-        this.facility = facility;
-    }
-
-    @JsonProperty("level")
-    public Long getLevel() {
+    /**
+     * @return the level
+     */
+    public Integer getLevel() {
         return level;
     }
 
-    @JsonProperty("level")
-    public void setLevel(Long level) {
+    /**
+     * @param level the level to set
+     */
+    public void setLevel(Integer level) {
         this.level = level;
     }
 
-    @JsonProperty("message")
+    /**
+     * @return the message
+     */
     public String getMessage() {
         return message;
     }
 
-    @JsonProperty("message")
+    /**
+     * @param message the message to set
+     */
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    /**
+     * @return the entity
+     */
+    public com.luretechnologies.server.data.model.Entity getEntity() {
+        return entity;
+    }
+
+    /**
+     * @param entity the entity to set
+     */
+    public void setEntity(com.luretechnologies.server.data.model.Entity entity) {
+        this.entity = entity;
+    }
+
+    /**
+     * @return the occurred
+     */
+    public Timestamp getOccurred() {
+        return occurred;
+    }
+
+    /**
+     * @param occurred the occurred to set
+     */
+    public void setOccurred(Timestamp occurred) {
+        this.occurred = occurred;
+    }
+    /**
+     * @return the debug
+     */
+    public Debug getDebug() {
+        return debug;
+    }
+
+    /**
+     * @param debug the debug to set
+     */
+    public void setDebug(Debug debug) {
+        this.debug = debug;
     }
 }

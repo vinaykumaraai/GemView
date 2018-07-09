@@ -36,9 +36,7 @@ import com.luretechnologies.common.Constants;
 import com.luretechnologies.conf.spring.RestrictedPath;
 import com.luretechnologies.conf.spring.SecurityConfig;
 import com.luretechnologies.server.common.Messages;
-import com.luretechnologies.server.data.dao.impl.SessionDAOImpl;
 import com.luretechnologies.server.data.display.ErrorResponse;
-import com.luretechnologies.server.data.model.Session;
 import com.luretechnologies.server.service.SessionService;
 import static com.luretechnologies.server.utils.TokenAuthService.AUTH_HEADER_NAME;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -180,8 +178,12 @@ public class StatelessAuthFilter extends GenericFilterBean {
                     SecurityContextHolder.getContext().setAuthentication(null);
 
                 } catch (Exception ex) {
+                    
+                    System.out.println(ex.getMessage());
+                    ex.printStackTrace();
+                    
                     httpResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
-                    ErrorResponse res = new ErrorResponse(Constants.CODE_SESSION_LOST, Messages.INVALID_TOKEN);
+                    ErrorResponse res = new ErrorResponse(Constants.CODE_SESSION_LOST, ex.getMessage());
                     setResponse(res, httpResponse);
                     return;
                 }

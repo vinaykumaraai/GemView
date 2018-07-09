@@ -59,7 +59,6 @@ public class TelephoneDAOImpl extends BaseDAOImpl<Telephone, Long> implements Te
         List<Telephone> telephones = new ArrayList<>();
         CriteriaQuery<Telephone> query = criteriaQuery();
         Root<Telephone> root = getRoot(query);
-        root.fetch("clients", JoinType.LEFT);
         root.fetch("merchants", JoinType.LEFT);
 
         Predicate prdcts = criteriaBuilder().conjunction();
@@ -69,7 +68,7 @@ public class TelephoneDAOImpl extends BaseDAOImpl<Telephone, Long> implements Te
 
         List<Telephone> all = query(query.where(prdcts)).getResultList();
         for (Telephone item : all) {
-            if (item.getMerchants().isEmpty() && item.getClients().isEmpty()) {
+            if (item.getMerchants().isEmpty()) {
                 telephones.add(item);
             }
         }

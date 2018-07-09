@@ -40,9 +40,9 @@ import java.util.Random;
 import javax.xml.bind.DatatypeConverter;
 
 public class Utils {
-    
+
 //    private static final String BASE_SERVICE_URL = "http://mia.lure68.net:54071";
-//    private static final String BASE_SERVICE_URL = "http://localhost:20446";
+//    private static final String BASE_SERVICE_URL = "http://localhost:46565"; 
   private static final String BASE_SERVICE_URL = "http://localhost:8080";
 
     //

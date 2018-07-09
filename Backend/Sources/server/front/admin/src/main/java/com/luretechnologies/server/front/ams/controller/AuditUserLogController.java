@@ -200,7 +200,7 @@ public class AuditUserLogController {
      * @throws Exception
      */
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    //@PreAuthorize("hasAnyAuthority('SUPER')")
+    @PreAuthorize("hasAnyAuthority('SUPER')")
     @RequestMapping( value = "deleteByDate/{date}", method = RequestMethod.DELETE)
     @ApiOperation(tags = "AuditUserLog", httpMethod = "DELETE", value = "Delete users logs", notes = "Deletes users logs")
     @ApiResponses(value = {
@@ -231,7 +231,7 @@ public class AuditUserLogController {
      * @throws Exception
      */
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    //@PreAuthorize("hasAnyAuthority('SUPER')")
+    @PreAuthorize("hasAnyAuthority('SUPER')")
     @RequestMapping(value = "delete/{id}", method = RequestMethod.DELETE)
     @ApiOperation(tags = "AuditUserLog", httpMethod = "DELETE", value = "Delete an audit user log", notes = "Delete an audit user log")
     @ApiResponses(value = {

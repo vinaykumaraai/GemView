@@ -50,18 +50,18 @@ public class EmailServiceConnector {
      */
     public Boolean process(Email email, String correlationId) throws Exception {
 
-        LOGGER.info("EmailServiceConnector " + correlationId);
-        LOGGER.info("  --> Account: " + email.getAccount());
-        LOGGER.info("  --> From: " + email.getFrom());
-        LOGGER.info("  --> FromName: " + email.getFromName());
-        LOGGER.info("  --> To: " + email.getTo());
-        LOGGER.info("  --> CC: " + email.getCC());
-        LOGGER.info("  --> Subject: " + email.getSubject());
-        LOGGER.info("  --> Body: " + email.getBody());
-        LOGGER.info("  --> Content-Type: " + email.getContentType());
+        LOGGER.info("process: " + correlationId);
+        LOGGER.debug("-> Account: " + email.getAccount());
+        LOGGER.debug("-> From: " + email.getFrom());
+        LOGGER.debug("-> FromName: " + email.getFromName());
+        LOGGER.debug("-> To: " + email.getTo());
+        LOGGER.debug("-> CC: " + email.getCC());
+        LOGGER.debug("-> Subject: " + email.getSubject());
+        LOGGER.debug("-> Body: " + email.getBody());
+        LOGGER.debug("-> Content-Type: " + email.getContentType());
 
         boolean status = EmailSenderSMTP.sendEmail(email);
-        LOGGER.info("  --> Status: " + status);
+        LOGGER.debug("-> Status: " + status);
         return true;
     }
 }

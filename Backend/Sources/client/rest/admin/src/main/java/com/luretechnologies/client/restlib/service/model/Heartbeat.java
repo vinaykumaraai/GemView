@@ -39,20 +39,6 @@ import java.util.List;
 
 public class Heartbeat {
 
-    /**
-     * @return the sequence
-     */
-    public String getSequence() {
-        return sequence;
-    }
-
-    /**
-     * @param sequence the sequence to set
-     */
-    public void setSequence(String sequence) {
-        this.sequence = sequence;
-    }
-
     private Long id;
     private String serialNumber;
     private String sequence;
@@ -64,6 +50,9 @@ public class Heartbeat {
     private List<HeartbeatOdometer> heartbeatOdometers;
     private List<HeartbeatAlert> heartbeatAlerts;
     private List<HeartbeatAudit> heartbeatAudits;
+    private List<HeartbeatUpdateParam> heartbeatUpdateParams;
+    
+    
 
     /**
      * No args constructor for use in serialization
@@ -74,6 +63,7 @@ public class Heartbeat {
         heartbeatOdometers = new ArrayList<>();
         heartbeatAlerts = new ArrayList<>();
         heartbeatAudits = new ArrayList<>();
+        heartbeatUpdateParams = new ArrayList<>();
     }
 
     @Override
@@ -171,7 +161,6 @@ public class Heartbeat {
         this.message = message;
     }
 
-
     /**
      * @return the swComponents
      */
@@ -231,4 +220,31 @@ public class Heartbeat {
     public void setHeartbeatAudits(List<HeartbeatAudit> heartbeatAudits) {
         this.heartbeatAudits = heartbeatAudits;
     }
+
+    /**
+     * @return the sequence
+     */
+    public String getSequence() {
+        return sequence;
+    }
+
+    /**
+     * @param sequence the sequence to set
+     */
+    public void setSequence(String sequence) {
+        this.sequence = sequence;
+    }
+    /**
+     * @return the heartbeatUpdateParams
+     */
+    public List<HeartbeatUpdateParam> getHeartbeatUpdateParams() {
+        return heartbeatUpdateParams;
+    }
+
+    /**
+     * @param heartbeatUpdateParams the heartbeatUpdateParams to set
+     */
+    public void setHeartbeatUpdateParams(List<HeartbeatUpdateParam> heartbeatUpdateParams) {
+        this.heartbeatUpdateParams = heartbeatUpdateParams;
+    }    
 }

@@ -31,7 +31,6 @@
  */
 package com.luretechnologies.server.data.dao;
 
-import com.luretechnologies.server.data.model.payment.Address;
 import com.luretechnologies.server.data.model.payment.Telephone;
 import java.util.Collection;
 import java.util.List;

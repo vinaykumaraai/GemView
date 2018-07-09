@@ -94,8 +94,12 @@ public class AppProfileDAOImpl extends BaseDAOImpl<AppProfile, Long> implements 
             AppProfile appProfile = (AppProfile) query(cq.where(criteriaBuilder().equal(root.get("id"), id))).getSingleResult();
             for (AppProfileParamValue existentAppProfileParamValue : appProfile.getAppProfileParamValueCollection()) {
                 AppParam appParam = getEntityManager().find(AppParam.class, existentAppProfileParamValue.getAppParamId());
-                if(!appParam.getAppParamFormat().getId().equals(TYPE_FILE))
+                if(!appParam.getAppParamFormat().getId().equals(TYPE_FILE)){
+                    //Update the value and date of the param object with the values of AppprofileParamValue.
+                    appParam.setDefaultValue(existentAppProfileParamValue.getDefaultValue());
+                    appParam.setUpdatedAt(existentAppProfileParamValue.getUpdatedAt());
                     appParamList.add(appParam);
+                }
             }
         } catch (NoResultException e) {
             LOGGER.info("AppParam not found. id: " + id, e);
@@ -114,11 +118,15 @@ public class AppProfileDAOImpl extends BaseDAOImpl<AppProfile, Long> implements 
             AppProfile appProfile = (AppProfile) query(cq.where(criteriaBuilder().equal(root.get("id"), id))).getSingleResult();
             for (AppProfileParamValue existentAppProfileParamValue : appProfile.getAppProfileParamValueCollection()) {
                 AppParam appParam = getEntityManager().find(AppParam.class, existentAppProfileParamValue.getAppParamId());
-                if(appParam.getAppParamFormat().getId().equals(TYPE_FILE))
+                if(appParam.getAppParamFormat().getId().equals(TYPE_FILE)){
+                    //Update the value and date of the file object with the values of AppprofileParamValue.
+                    appParam.setDefaultValue(existentAppProfileParamValue.getDefaultValue());
+                    appParam.setUpdatedAt(existentAppProfileParamValue.getUpdatedAt());
                     appParamList.add(appParam);
+                }   
             }
         } catch (NoResultException e) {
-            LOGGER.info("AppParam not found. id: " + id, e);
+            LOGGER.info("AppFile not found. id: " + id, e);
             return null;
         }
         return appParamList;
@@ -143,6 +151,23 @@ public class AppProfileDAOImpl extends BaseDAOImpl<AppProfile, Long> implements 
             
         } catch (NoResultException e) {
             LOGGER.info("getAppProfileList return an empty list", e);
+            return null;
+        }
+    }
+    
+    @Override
+    public List<EntityAppProfile> getEntityAppProfileListByTerminal(Long entityId) throws PersistenceException {
+        try {
+            CriteriaQuery cq = criteriaBuilder().createQuery(EntityAppProfile.class);
+            Root root = cq.from(EntityAppProfile.class);
+
+            cq.where(criteriaBuilder().and(criteriaBuilder().equal(root.get("entity").get("id"), entityId)));
+            List<EntityAppProfile> entityAppProfileList = query(cq).getResultList();
+            
+            return entityAppProfileList;
+            
+        } catch (NoResultException e) {
+            LOGGER.info("getEntityAppProfileListByTerminal return an empty object", e);
             return null;
         }
     }

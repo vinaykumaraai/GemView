@@ -38,6 +38,9 @@ import com.luretechnologies.server.data.dao.AppProfileParamValueDAO;
 import com.luretechnologies.server.data.dao.EntityAppProfileDAO;
 import com.luretechnologies.server.data.dao.EntityAppProfileParamDAO;
 import com.luretechnologies.server.data.dao.EntityDAO;
+import com.luretechnologies.server.data.display.tms.AppDisplay;
+import com.luretechnologies.server.data.display.tms.AppFileDisplay;
+import com.luretechnologies.server.data.display.tms.AppParamDisplay;
 import com.luretechnologies.server.data.model.Entity;
 import com.luretechnologies.server.data.model.tms.App;
 import com.luretechnologies.server.data.model.tms.AppParam;
@@ -47,6 +50,7 @@ import com.luretechnologies.server.data.model.tms.EntityAppProfile;
 import com.luretechnologies.server.data.model.tms.EntityAppProfileParam;
 import com.luretechnologies.server.service.AppProfileService;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import org.springframework.beans.BeanUtils;
@@ -375,6 +379,146 @@ public class AppProfileServiceImpl implements AppProfileService{
     
     /**
      *
+     * @param entityId
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public List<AppDisplay> getAppDisplayList(Long entityId) throws Exception {
+        List<AppDisplay> appDisplayList = new ArrayList<>();
+        // Throw error if the Entity does not exists.
+        Entity entity = entityDAO.findById(entityId);
+        if (entity == null) {
+            throw new ObjectRetrievalFailureException(Entity.class, entityId);
+        }
+        //Obtain the entityAppProfileList by Entity Id.
+        List<EntityAppProfile> entityAppProfileList = appProfileDAO.getEntityAppProfileListByTerminal(entityId);
+        
+        for (EntityAppProfile entityAppProfile : entityAppProfileList) {
+            //Obtain the AppProfile Object by AppProfileId of entityAppProfile.
+            AppProfile appProfile = appProfileDAO.getAppProfileByID(entityAppProfile.getAppProfileId());
+            //Obtain the App Object by AppId of AppProfile.
+            App app = appDAO.getAppByID(appProfile.getAppId());
+            //Create a new AppDisplay Object.
+            AppDisplay appDisplay = new AppDisplay();
+            appDisplay.setId(app.getId());
+            appDisplay.setName(app.getName());
+            appDisplay.setVersion(app.getVersion());
+            
+            //Load the collection of AppDisplay Object with a defaults params and files.
+            appDisplay = loadAppDisplayDefaultCollections(appDisplay, app);
+            //Update the collection of AppDisplay Object with a AppProfileParamValues.
+            appDisplay = loadAppDisplayAppProfileCollections(entityAppProfile.getAppProfileId(), appDisplay);
+            //Update the collection of AppDisplay Object with a EntityAppProfileParams.
+            appDisplay = loadAppDisplayEntityCollections(entityAppProfile.getAppProfileId(), entityAppProfile.getEntity().getId(), appDisplay);
+            
+            appDisplayList.add(appDisplay);
+        }
+        return appDisplayList;
+    }
+    
+    public AppDisplay loadAppDisplayEntityCollections(Long appProfileId, Long entityId, AppDisplay appDisplay) throws Exception {
+        //Update the appParamDisplay object with values of EntityAppProfileParam.
+        for (AppParam appParam : getAppParamListByEntity(appProfileId, entityId)) {
+            for (AppParamDisplay appParamDisplay : appDisplay.getAppParams()) {
+                if(appParamDisplay.getName().equals(appParam.getName())){
+                    if(appParamDisplay.getUpdatedAt().before(appParam.getUpdatedAt())){
+                        appParamDisplay.setValue(appParam.getDefaultValue());
+                        appParamDisplay.setUpdatedAt(appParam.getUpdatedAt());
+                        appDisplay = recordLastUpdateAt(appDisplay, appParamDisplay.getUpdatedAt());
+                    }
+                }
+            }
+        }
+        
+        //Update the appFileDisplay object with values of EntityAppProfileParam.
+        for (AppParam appFile : getAppFileListByEntity(appProfileId, entityId)) {
+            for (AppFileDisplay appFileDisplay : appDisplay.getAppFiles()) {
+                if(appFileDisplay.getName().equals(appFile.getName())){
+                    if(appFileDisplay.getUpdatedAt().before(appFile.getUpdatedAt())){
+                        appFileDisplay.setValue(appFile.getDefaultValue());
+                        appFileDisplay.setUpdatedAt(appFile.getUpdatedAt());
+                        appDisplay = recordLastUpdateAt(appDisplay, appFileDisplay.getUpdatedAt());
+                    }
+                }
+            }
+        }
+        return appDisplay;
+    }
+    
+    //Aux service implementation
+    public AppDisplay loadAppDisplayAppProfileCollections(Long appProfileId, AppDisplay appDisplay) throws Exception {
+        //Update the appParamDisplay object with values of AppProfileParamValue.
+        for (AppParam appParam : getAppParamListByAppProfile(appProfileId)) {
+            for (AppParamDisplay appParamDisplay : appDisplay.getAppParams()) {
+                if(appParamDisplay.getName().equals(appParam.getName())){
+                    if(appParamDisplay.getUpdatedAt().before(appParam.getUpdatedAt())){
+                        appParamDisplay.setValue(appParam.getDefaultValue());
+                        appParamDisplay.setUpdatedAt(appParam.getUpdatedAt());
+                        appDisplay = recordLastUpdateAt(appDisplay, appParamDisplay.getUpdatedAt());
+                    }
+                }
+            }
+        }
+        
+        //Update the appFileDisplay object with values of AppProfileParamValue.
+        for (AppParam appFile : getAppFileListByAppProfile(appProfileId)) {
+            for (AppFileDisplay appFileDisplay : appDisplay.getAppFiles()) {
+                if(appFileDisplay.getName().equals(appFile.getName())){
+                    if(appFileDisplay.getUpdatedAt().before(appFile.getUpdatedAt())){
+                        appFileDisplay.setValue(appFile.getDefaultValue());
+                        appFileDisplay.setUpdatedAt(appFile.getUpdatedAt());
+                        appDisplay = recordLastUpdateAt(appDisplay, appFileDisplay.getUpdatedAt());
+                    }
+                }
+            }
+        }
+        return appDisplay;
+    }
+    
+    //Aux service implementation
+    public AppDisplay recordLastUpdateAt(AppDisplay appDisplay, Date date){
+        if (appDisplay.getUpdatedAt()!= null) {
+            if(appDisplay.getUpdatedAt().before(date))
+                appDisplay.setUpdatedAt(date);
+        } else 
+            appDisplay.setUpdatedAt(date);
+        
+        return appDisplay;
+    }
+    
+    //Aux service implementation
+    public AppDisplay loadAppDisplayDefaultCollections(AppDisplay appDisplay, App app) throws Exception {
+        
+        for (AppParam appParam : app.getAppParamCollection()) {
+            if (!appParam.getAppParamFormat().getId().equals(TYPE_FILE)) {
+                //set the values on appParamDisplay with of appParam
+                AppParamDisplay appParamDisplay = new AppParamDisplay();
+                appParamDisplay.setId(appParam.getId());
+                appParamDisplay.setName(appParam.getName());
+                appParamDisplay.setValue(appParam.getDefaultValue());
+                appParamDisplay.setUpdatedAt(appParam.getUpdatedAt());
+                appDisplay = recordLastUpdateAt(appDisplay, appParamDisplay.getUpdatedAt());
+                //Asign to Collection of AppDisplay the AppParamDisplay Object.
+                appDisplay.getAppParams().add(appParamDisplay);
+            } else {
+                //set the values on appFileDisplay with of appFile
+                AppFileDisplay appFileDisplay = new AppFileDisplay();
+                appFileDisplay.setId(appParam.getId());
+                appFileDisplay.setName(appParam.getName());
+                appFileDisplay.setValue(appParam.getDefaultValue());
+                appFileDisplay.setUpdatedAt(appParam.getUpdatedAt());
+                appDisplay = recordLastUpdateAt(appDisplay, appFileDisplay.getUpdatedAt());
+                //Asign to Collection of AppDisplay the AppFileDisplay Object.
+                appDisplay.getAppFiles().add(appFileDisplay);
+            }
+        }
+        return appDisplay;
+    }
+    
+    
+    /**
+     *
      * @param appId
      * @param entityId
      * @return
@@ -491,6 +635,7 @@ public class AppProfileServiceImpl implements AppProfileService{
     @Override
     public List<AppParam> getAppParamListByEntity(Long appProfileId, Long entityId) throws Exception {
         // Throw error if the AppProfile does not exists.
+        List<AppParam> appParamList = new ArrayList<>();
         AppProfile appProfile = appProfileDAO.getAppProfileByID(appProfileId);
         if (appProfile == null) {
             throw new ObjectRetrievalFailureException(AppProfile.class, appProfileId);
@@ -502,19 +647,25 @@ public class AppProfileServiceImpl implements AppProfileService{
             throw new ObjectRetrievalFailureException(Entity.class, entityId);
         }
         
-        EntityAppProfile entityAppProfile = entityAppProfileDAO.findByAppProfileAndEntity(appProfile.getId(), entityId);
-        if (entityAppProfile == null) {
-            throw new ObjectRetrievalFailureException(EntityAppProfile.class, entityId);
+        while (entity != null) {          
+            EntityAppProfile entityAppProfile = entityAppProfileDAO.findByAppProfileAndEntity(appProfile.getId(), entity.getId());
+            if (entityAppProfile != null) {
+                for (EntityAppProfileParam entityAppProfileParam : entityAppProfile.getEntityappprofileparamCollection()) {
+                    AppProfileParamValue appProfileParamValue = appProfileParamValueDAO.getAppProfileParamValueByID(entityAppProfileParam.getAppProfileParamValueId());
+                    AppParam appParam = appParamDAO.getAppParamByID(appProfileParamValue.getAppParamId());
+                    if(!appParam.getAppParamFormat().getId().equals(TYPE_FILE)){
+                        //Update the value and date of the param object with the values of EntityAppProfileParam.
+                        appParam.setDefaultValue(entityAppProfileParam.getValue());
+                        appParam.setUpdatedAt(entityAppProfileParam.getUpdatedAt());
+                        appParamList.add(appParam);
+                    }
+                }
+            }
+            if(entity.getParentId() != null)
+                entity = entityDAO.findById(entity.getParentId());
+            else
+                entity = null;
         }
-        
-        List<AppParam> appParamList = new ArrayList<>();
-        for (EntityAppProfileParam entityAppProfileParam : entityAppProfile.getEntityappprofileparamCollection()) {
-            AppProfileParamValue appProfileParamValue = appProfileParamValueDAO.getAppProfileParamValueByID(entityAppProfileParam.getAppProfileParamValueId());
-            AppParam appParam = appParamDAO.getAppParamByID(appProfileParamValue.getAppParamId());
-            if(!appParam.getAppParamFormat().getId().equals(TYPE_FILE))
-                appParamList.add(appParam);
-        }
-        
         return appParamList;
     }
     
@@ -535,8 +686,12 @@ public class AppProfileServiceImpl implements AppProfileService{
         
         for (AppProfileParamValue existentAppProfileParamValue : appProfile.getAppProfileParamValueCollection()) {
             AppParam appParam = appParamDAO.getAppParamByID(existentAppProfileParamValue.getAppParamId());
-            if(!existentAppParamList.contains(appParam) && !appParam.getAppParamFormat().getId().equals(TYPE_FILE))
+            if(!existentAppParamList.contains(appParam) && !appParam.getAppParamFormat().getId().equals(TYPE_FILE)){
+                //Update the value and date of the param object with the values of AppProfileParamValue.
+                appParam.setDefaultValue(existentAppProfileParamValue.getDefaultValue());
+                appParam.setUpdatedAt(existentAppProfileParamValue.getUpdatedAt());
                 appParamList.add(appParam);
+            }
         }
         return appParamList;
     }
@@ -550,6 +705,7 @@ public class AppProfileServiceImpl implements AppProfileService{
      */
     @Override
     public List<AppParam> getAppFileListByEntity(Long appProfileId, Long entityId) throws Exception {
+        List<AppParam> appParamList = new ArrayList<>();
         // Throw error if the AppProfile does not exists.
         AppProfile appProfile = appProfileDAO.getAppProfileByID(appProfileId);
         if (appProfile == null) {
@@ -562,19 +718,26 @@ public class AppProfileServiceImpl implements AppProfileService{
             throw new ObjectRetrievalFailureException(Entity.class, entityId);
         }
         
-        EntityAppProfile entityAppProfile = entityAppProfileDAO.findByAppProfileAndEntity(appProfile.getId(), entityId);
-        if (entityAppProfile == null) {
-            throw new ObjectRetrievalFailureException(EntityAppProfile.class, entityId);
-        }
         
-        List<AppParam> appParamList = new ArrayList<>();
-        for (EntityAppProfileParam entityAppProfileParam : entityAppProfile.getEntityappprofileparamCollection()) {
-            AppProfileParamValue appProfileParamValue = appProfileParamValueDAO.getAppProfileParamValueByID(entityAppProfileParam.getAppProfileParamValueId());
-            AppParam appParam = appParamDAO.getAppParamByID(appProfileParamValue.getAppParamId());
-            if(appParam.getAppParamFormat().getId().equals(TYPE_FILE))
-                appParamList.add(appParam);
+        while (entity != null) {  
+            EntityAppProfile entityAppProfile = entityAppProfileDAO.findByAppProfileAndEntity(appProfile.getId(), entity.getId());
+            if (entityAppProfile != null) {
+                for (EntityAppProfileParam entityAppProfileParam : entityAppProfile.getEntityappprofileparamCollection()) {
+                    AppProfileParamValue appProfileParamValue = appProfileParamValueDAO.getAppProfileParamValueByID(entityAppProfileParam.getAppProfileParamValueId());
+                    AppParam appParam = appParamDAO.getAppParamByID(appProfileParamValue.getAppParamId());
+                    if(appParam.getAppParamFormat().getId().equals(TYPE_FILE)){
+                        //Update the value and date of the file object with the values of EntityAppProfileParam.
+                        appParam.setDefaultValue(entityAppProfileParam.getValue());
+                        appParam.setUpdatedAt(entityAppProfileParam.getUpdatedAt());
+                        appParamList.add(appParam);
+                    }
+                }
+            }
+            if(entity.getParentId() != null)
+                entity = entityDAO.findById(entity.getParentId());
+            else
+                entity = null;
         }
-        
         return appParamList;
     }
     
@@ -595,8 +758,12 @@ public class AppProfileServiceImpl implements AppProfileService{
         
         for (AppProfileParamValue existentAppProfileParamValue : appProfile.getAppProfileParamValueCollection()) {
             AppParam appParam = appParamDAO.getAppParamByID(existentAppProfileParamValue.getAppParamId());
-            if(!existentAppParamList.contains(appParam) && appParam.getAppParamFormat().getId().equals(TYPE_FILE))
+            if(!existentAppParamList.contains(appParam) && appParam.getAppParamFormat().getId().equals(TYPE_FILE)){
+                //Update the value and date of the file object with the values of AppProfileParamValue.
+                appParam.setDefaultValue(existentAppProfileParamValue.getDefaultValue());
+                appParam.setUpdatedAt(existentAppProfileParamValue.getUpdatedAt());
                 appParamList.add(appParam);
+            }
         }
         return appParamList;
     }
@@ -735,15 +902,15 @@ public class AppProfileServiceImpl implements AppProfileService{
      */
     @Override
     public List<AppParam> searchAppParamByProfile(Long appProfileId, String filter, int pageNumber, int rowsPerPage) throws Exception {
+        List<AppParam> appParamList = new ArrayList<>();
+        int firstResult = (pageNumber - 1) * rowsPerPage;
         // Throw error if the AppProfile does not exists.
         AppProfile appProfile = appProfileDAO.getAppProfileByID(appProfileId);
         if (appProfile == null) {
             throw new ObjectRetrievalFailureException(AppProfile.class, appProfileId);
         }
         
-        Long appId = appProfile.getAppId();
-        List<AppParam> appParamList = new ArrayList<>();
-        List<AppParam> defaultParamList = appDAO.searchAppParam(appId, filter, rowsPerPage, pageNumber);
+        List<AppParam> defaultParamList = appDAO.searchAppParam(appProfile.getAppId(), filter, firstResult, rowsPerPage);
         List<AppParam> profileParamList = appProfileDAO.getAppParamList(appProfileId);
         for (AppParam appParam : defaultParamList) {
             if(profileParamList.contains(appParam))
@@ -763,15 +930,16 @@ public class AppProfileServiceImpl implements AppProfileService{
      */
     @Override
     public List<AppParam> searchAppFileByProfile(Long appProfileId, String filter, int pageNumber, int rowsPerPage) throws Exception {
+        List<AppParam> appFileList = new ArrayList<>();
+        int firstResult = (pageNumber - 1) * rowsPerPage;
         // Throw error if the AppProfile does not exists.
         AppProfile appProfile = appProfileDAO.getAppProfileByID(appProfileId);
         if (appProfile == null) {
             throw new ObjectRetrievalFailureException(AppProfile.class, appProfileId);
         }
         
-        Long appId = appProfile.getAppId();
-        List<AppParam> appFileList = new ArrayList<>();
-        List<AppParam> defaultParamList = appDAO.searchAppParam(appId, filter, rowsPerPage, pageNumber);
+        
+        List<AppParam> defaultParamList = appDAO.searchAppFile(appProfile.getAppId(), filter, firstResult, rowsPerPage);
         List<AppParam> profileFileList = appProfileDAO.getAppFileList(appProfileId);
         for (AppParam appParam : defaultParamList) {
             if(profileFileList.contains(appParam))

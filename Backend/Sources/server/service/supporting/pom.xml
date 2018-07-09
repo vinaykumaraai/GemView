@@ -24,10 +24,10 @@
     
     <modules>
         <module>email</module>
-        <module>packaging</module>
         <module>sms</module>
         <module>heartbeat</module>
-    <module>scheduler</module>
-  </modules>
+        <module>alerting</module>
+        <module>packaging</module>    
+    </modules>
     
 </project>

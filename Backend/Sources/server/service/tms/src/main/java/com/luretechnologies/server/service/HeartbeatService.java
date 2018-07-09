@@ -31,7 +31,9 @@
  */
 package com.luretechnologies.server.service;
 
+import com.luretechnologies.server.data.display.tms.HeartbeatAppInfoDisplay;
 import com.luretechnologies.server.data.display.tms.HeartbeatDisplay;
+import com.luretechnologies.server.data.model.Terminal;
 import java.util.Date;
 import java.util.List;
 
@@ -74,4 +76,25 @@ public interface HeartbeatService {
      * @throws Exception
      */
     public List<HeartbeatDisplay> search(String entityId, String filter, int pageNumber, int rowsPerPage, Date dateDrom, Date dateTo) throws Exception;
+
+    /**
+     *
+     * @throws Exception
+     */
+    public void alertsProcessing() throws Exception;
+    
+    /**
+     * Get 
+     * @param id
+     * @return
+     * @throws Exception 
+     */
+    public List<HeartbeatAppInfoDisplay> getSwComponents(Long id) throws Exception;
+        /**
+     *
+     * @param lastUpdate
+     * @return
+     * @throws Exception
+     */
+    public List<Long> getByHeartbeatSwComponentLastUpdate(Date lastUpdate) throws Exception;
 }

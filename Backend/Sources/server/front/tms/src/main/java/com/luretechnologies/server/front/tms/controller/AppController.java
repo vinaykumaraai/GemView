@@ -37,6 +37,7 @@ import com.luretechnologies.server.data.model.User;
 import com.luretechnologies.server.data.model.tms.App;
 import com.luretechnologies.server.data.model.tms.AppParam;
 import com.luretechnologies.server.data.model.tms.AppProfile;
+import com.luretechnologies.server.service.AppProfileService;
 import com.luretechnologies.server.service.AppService;
 import com.luretechnologies.server.service.AuditUserLogService;
 import com.luretechnologies.server.service.EntityService;
@@ -90,24 +91,24 @@ public class AppController {
 
     @Autowired
     EntityService entityService;
-
+    
     /**
      * Creates a new App
      *
-     * @param httpRequest
      * @param app
+     * @param httpRequest
      * @return
      * @throws java.lang.Exception
      */
     @ResponseStatus(HttpStatus.CREATED)
-    @RequestMapping(value = "/app", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(tags = "Apps", httpMethod = "POST", value = "Create App", notes = "Creates a new app")
+    @RequestMapping(value = "/createApp", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(tags = "Apps", httpMethod = "POST", value = "Create App", notes = "Create a new app")
     @ApiResponses(value = {
         @ApiResponse(code = 201, message = "Created", response = App.class),
         @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResponse.class),
         @ApiResponse(code = 403, message = "Forbidden", response = ErrorResponse.class),
         @ApiResponse(code = 404, message = "Not found", response = ErrorResponse.class)})
-    public App create(
+    public App createApp(
             @ApiParam(value = "The new app object", required = true) @RequestBody(required = true) App app,
             @ApiParam(hidden = true) HttpServletRequest httpRequest) throws Exception {
 
@@ -186,7 +187,8 @@ public class AppController {
             @ApiParam(value = "The app id") @PathVariable("id") Long id,
             @ApiParam(value = "The new app profile object", required = true) @RequestBody(required = true) AppProfile appProfile) throws Exception {
 
-        return appService.addAppProfile(id, appProfile);
+        App app = appService.addAppProfile(id, appProfile);
+        return app;
     }
 
     /**
@@ -364,7 +366,7 @@ public class AppController {
      * @return
      * @throws Exception
      */
-    @RequestMapping(value = "/app", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/getAppList", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(tags = "Apps", httpMethod = "GET", value = "List Apps", notes = "Lists apps. Will return 50 records if no paging parameters defined", response = App.class, responseContainer = "List")
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK"),
@@ -398,14 +400,16 @@ public class AppController {
 
         List<App> appList = new ArrayList<>();
         Entity entity = entityService.findById(entityId);
-        
-        while (entity.getParentId() != null) {
+        while (entity != null) {
             for (App app : appService.list(entity)) {
                 if (app.getOwnerId().equals(entity.getId())) {
                     appList.add(app);
                 }
             }
-            entity = entityService.findById(entity.getParentId());
+            if(entity.getParentId() != null)
+                entity = entityService.findById(entity.getParentId());
+            else
+                entity = null;
         }
         return appList;
     }
@@ -417,7 +421,7 @@ public class AppController {
      * @return
      * @throws java.lang.Exception
      */
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{id}/getAppByID" , method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(tags = "Apps", httpMethod = "GET", value = "Get App", notes = "Get App by id")
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK", response = App.class),

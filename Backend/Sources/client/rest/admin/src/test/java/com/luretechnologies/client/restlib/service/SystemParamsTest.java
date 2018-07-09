@@ -81,8 +81,8 @@ public class SystemParamsTest {
             SystemParam systemParam = new SystemParam();
             systemParam.setDescription("Test of the system parama create by object");
             Random rand = new Random();
-            String name = "Test 001 " + (Long.toString(rand.nextLong()));
-            systemParam.setName( name);
+            String name = "Test 001";
+            systemParam.setName(name);
             SystemParamType systemParamType = new SystemParamType();
             systemParamType.setName("String");
             systemParamType.setDescription("String type");
@@ -93,6 +93,15 @@ public class SystemParamsTest {
             assertNotNull(systemParam);
             System.out.println(systemParam.toString());
 
+//            systemParam = new SystemParam();
+//            systemParam.setDescription("Alert Email Body");
+//            systemParam.setName("Alert Email Body");
+//            systemParamType = new SystemParamType();
+//            systemParamType.setName("String");
+//            systemParamType.setDescription("String type");
+//            systemParam.setSystemParamType(systemParamType);
+//            systemParam.setValue("Dear Member,<br><br>As requested, we have sent you this alert notification.<br><br>Terminal: {TERMINAL_ID}<br>Component: {COMPONENT}<br>Alert: {ALERT_LABEL}<br>Occurred at: {OCCURRED_AT}<br><br>If you no longer wish to receive these alerts, please contact the administrator.<br><br>TMS Alert Message<br><br>");
+//            service.getSystemParamsApi().create(systemParam);
         } catch (ApiException ex) {
             fail(ex.getMessage());
         }
@@ -161,6 +170,7 @@ public class SystemParamsTest {
             fail(ex.getMessage());
         }
     }
+
     @Test
     public void createSystemParamAndelete() {
         try {
