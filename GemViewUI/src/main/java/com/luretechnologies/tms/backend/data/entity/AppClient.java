@@ -10,7 +10,7 @@ import java.util.Objects;
  */
 public class AppClient extends AbstractEntity {
 	private String packageName, description, packageVersion;
-	private boolean available;
+	private boolean available, active;
 	private List<AppDefaultParam> appDefaultParamList;
 	private Devices device;
 	private List<Profile> profileList;
@@ -21,19 +21,20 @@ public class AppClient extends AbstractEntity {
 		super(false);
 	}
 //Add the device and owner to it App
-	public AppClient(Long id, String packageName, String description, String packageVersion, boolean available,
+	public AppClient(Long id, String packageName, String description, String packageVersion, boolean available, boolean active,
 			List<AppDefaultParam> appDefaultParamList,Devices device,User owner, List<Profile> profileList, List<ApplicationFile> appFileList) {
 		Objects.requireNonNull(packageName);
 		Objects.requireNonNull(description);
 		Objects.requireNonNull(packageVersion);
 		Objects.requireNonNull(available);
 		Objects.requireNonNull(appDefaultParamList);
-		//Objects.requireNonNull(device);
+		Objects.requireNonNull(active);
 		Objects.requireNonNull(owner);
 		this.packageName = packageName;
 		this.description = description;
 		this.packageVersion = packageVersion;
 		this.available = available;
+		this.active=active;
 		this.appDefaultParamList = appDefaultParamList;
 		this.device = device;
 		this.owner = owner;
@@ -42,7 +43,6 @@ public class AppClient extends AbstractEntity {
 		this.appFileList = appFileList;
 
 	}
-
 	public String getPackageName() {
 		return packageName;
 	}
@@ -100,6 +100,20 @@ public class AppClient extends AbstractEntity {
 	}
 	public void setProfile(List<Profile> profileList) {
 		this.profileList = profileList;
+	}
+
+	public List<ApplicationFile> getAppFileList() {
+		return appFileList;
+	}
+	public void setAppFileList(List<ApplicationFile> appFileList) {
+		this.appFileList = appFileList;
+	}
+
+	public boolean isActive() {
+		return active;
+	}
+	public void setActive(boolean active) {
+		this.active = active;
 	}
 	@Override
 	public int hashCode() {

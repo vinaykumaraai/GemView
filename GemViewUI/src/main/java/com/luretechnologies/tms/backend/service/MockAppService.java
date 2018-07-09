@@ -1,6 +1,7 @@
 package com.luretechnologies.tms.backend.service;
 
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,11 +43,13 @@ public class MockAppService extends CrudService<AppMock>{
 		AppMock app = new AppMock("Payment Application","This is Payment Application","1.0",true,mockAppDefaultParamService.getSavedList(),deviceList.get(0),userList.get(0),profileList.get(0));
 		app.setId(app.getId()+2);
 		appDirectory.put(app.getId(), app);
-		List<AppDefaultParam> listParam1 = mockAppDefaultParamService.getSavedList().subList(1, 2);
+		//List<AppDefaultParam> listParam1 = mockAppDefaultParamService.getSavedList().subList(1, 2);
+		List<AppDefaultParam> listParam1= new ArrayList<>();
 		app = new AppMock("Gift Card Application","This is Gift Card","2.0",true,listParam1,deviceList.get(1),userList.get(1),profileList.get(1));
 		 app.setId(app.getId()+3);
 		appDirectory.put(app.getId(), app);
-		List<AppDefaultParam> listParam2 = mockAppDefaultParamService.getSavedList().subList(0, 1);
+		//List<AppDefaultParam> listParam2 = mockAppDefaultParamService.getSavedList().subList(0, 1);
+		List<AppDefaultParam> listParam2= new ArrayList<>();
 		app = new AppMock("Operating System","This is Operating System","1.4",false,listParam2,deviceList.get(2),userList.get(2),profileList.get(0));
 		 app.setId(app.getId()+4);
 		appDirectory.put(app.getId(), app);

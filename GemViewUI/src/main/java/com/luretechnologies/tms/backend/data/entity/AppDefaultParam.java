@@ -9,15 +9,15 @@ import java.util.Objects;
  */
 public class AppDefaultParam extends AbstractEntity {
 	private String parameter, description;
-	private ParameterType type;
-	private boolean value;
+	private String type;
+	private String value;
 	//Add the value And App Formats
 	public AppDefaultParam() {
 		// TODO Auto-generated constructor stub
 		super(false);
 	}
 
-	public AppDefaultParam(Long id, String parameter, String description, ParameterType type, boolean value) {
+	public AppDefaultParam(Long id, String parameter, String description, String type, String value) {
 		Objects.requireNonNull(parameter);
 		Objects.requireNonNull(description);
 		Objects.requireNonNull(type);
@@ -29,7 +29,7 @@ public class AppDefaultParam extends AbstractEntity {
 		this.setId(id);
 
 	}
-	public AppDefaultParam(String parameter, String description, ParameterType type, boolean value) {
+	public AppDefaultParam(String parameter, String description, String type, String value) {
 		super(false);
 		Objects.requireNonNull(parameter);
 		Objects.requireNonNull(description);
@@ -58,19 +58,19 @@ public class AppDefaultParam extends AbstractEntity {
 		this.description = description;
 	}
 
-	public ParameterType getType() {
+	public String getType() {
 		return type;
 	}
 
-	public void setType(ParameterType type) {
+	public void setType(String type) {
 		this.type = type;
 	}
 
-	public boolean isValue() {
+	public String getValue() {
 		return value;
 	}
 
-	public void setValue(boolean value) {
+	public void setValue(String value) {
 		this.value = value;
 	}
 
