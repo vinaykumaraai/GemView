@@ -107,6 +107,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 	private static final String DESCRIPTION = "description";
 	private static final String ACTIVE_LAYOUT = "ActiveLayout";
 	private static final String FILE_CHOOSE_LIST = "fileChooseList";
+	public static String applicationFilePath = "";
 	/**
 	 * 
 	 */
@@ -120,7 +121,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 	private GridLayout appStoreGridLayout;
 	private static List<ApplicationFile> uploadedFileList = new ArrayList<>();
 	private Grid<AppClient> appGrid;
-	private AppClient selectedApp;
+	public static AppClient selectedApp;
 	private Profile selectedProfile;
 	private ComboBox<User> applicationOwner;
 	private ComboBox<Devices> devices;
@@ -989,7 +990,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 
 		Window fileUploadWindow = new Window("File Upload", uploadFile);
 		UploadInfoWindow uploadInfoWindow = new UploadInfoWindow(uploadFile, lineBreakCounter, fileUploadReceiver,
-				optionList, fileUploadWindow);
+				optionList, fileUploadWindow,appStoreService);
 
 		uploadFile.addStartedListener(event -> {
 			if (uploadInfoWindow.getParent() == null) {
@@ -1025,17 +1026,19 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		private final LineBreakCounter counter;
 		private final FileUploadReceiver fileUploadReceiver;
 		private final Window uploadWindow;
+		private final ApplicationStoreService applicationStoreService;
 
 		private final ListSelect optionList;
 
 		private UploadInfoWindow(final Upload upload, final LineBreakCounter lineBreakCounter,
-				final FileUploadReceiver fileUploadReceiver, final ListSelect optionList, Window uploadWindow) {
+				final FileUploadReceiver fileUploadReceiver, final ListSelect optionList, Window uploadWindow,final ApplicationStoreService applicationStoreService) {
 			super("Status");
 			this.counter = lineBreakCounter;
 			this.fileUploadReceiver = fileUploadReceiver;
 			this.optionList = optionList;
 			addStyleName("upload-info");
 			this.uploadWindow = uploadWindow;
+			this.applicationStoreService = applicationStoreService;
 
 			setResizable(false);
 			setDraggable(false);
@@ -1097,7 +1100,6 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			// updates to client
 			state.setValue("Uploading");
 			fileName.setValue(event.getFilename());
-
 			cancelButton.setVisible(true);
 		}
 
@@ -1115,6 +1117,8 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			//uploadedFileList.add(fileUploadReceiver.file);
 			if (optionList.getId().equalsIgnoreCase(FILE_CHOOSE_LIST)) {
 				optionList.setDataProvider(new ListDataProvider<ApplicationFile>(uploadedFileList));
+				//TODO: call integration fileupload service
+				applicationStoreService.saveAppFiles(ApplicationStoreView.selectedApp.getId(), "From Portal", ApplicationStoreView.applicationFilePath);
 			} else {
 
 			}
@@ -1186,6 +1190,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			FileOutputStream fos = null; // Stream to write to
 			try {
 				file = new ApplicationFile("C:/temp" + File.separator + filename);
+				ApplicationStoreView.applicationFilePath = file.getAbsolutePath();
 				fos = new FileOutputStream(file);
 			} catch (final java.io.FileNotFoundException e) {
 				new Notification("Could not open file: ", e.getMessage(), Notification.Type.ERROR_MESSAGE)
