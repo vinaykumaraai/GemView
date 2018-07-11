@@ -58,6 +58,7 @@ import com.luretechnologies.tms.backend.data.entity.ProfileType;
 import com.luretechnologies.tms.backend.service.AppService;
 import com.luretechnologies.tms.backend.service.OdometerDeviceService;
 import com.luretechnologies.tms.backend.service.OverRideParamService;
+import com.luretechnologies.tms.backend.service.PersonalizationService;
 import com.luretechnologies.tms.backend.service.ProfileService;
 import com.luretechnologies.tms.backend.service.TreeDataService;
 import com.luretechnologies.tms.ui.NotificationUtil;
@@ -146,6 +147,9 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 	
 	@Autowired
 	private ProfileService profileService;
+	
+	@Autowired
+	private PersonalizationService personalizationService;
 	
 	@Autowired
 	public PersonalizationView() {

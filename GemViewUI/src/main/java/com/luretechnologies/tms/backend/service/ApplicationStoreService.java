@@ -31,6 +31,7 @@
  */
 package com.luretechnologies.tms.backend.service;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -47,10 +48,8 @@ import com.luretechnologies.client.restlib.service.model.AppProfile;
 import com.luretechnologies.client.restlib.service.model.Device;
 import com.luretechnologies.tms.backend.data.entity.AppClient;
 import com.luretechnologies.tms.backend.data.entity.AppDefaultParam;
-import com.luretechnologies.tms.backend.data.entity.AppMock;
 import com.luretechnologies.tms.backend.data.entity.ApplicationFile;
 import com.luretechnologies.tms.backend.data.entity.Devices;
-import com.luretechnologies.tms.backend.data.entity.ParameterType;
 import com.luretechnologies.tms.backend.data.entity.Profile;
 import com.luretechnologies.tms.backend.data.entity.ProfileType;
 import com.luretechnologies.tms.backend.data.entity.User;
@@ -346,6 +345,8 @@ public class ApplicationStoreService {
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
 				RestServiceUtil.getInstance().getClient().getAppApi().addFile(appId, description, path);
+				File toDeleteFile = new File(path);
+				toDeleteFile.delete();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
