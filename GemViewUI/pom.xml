@@ -195,7 +195,7 @@
 			<artifactId>admin</artifactId>
 			<version>1.0.0-SNAPSHOT</version>
 			<scope>system</scope>
-			<systemPath>${basedir}/src/main/resources/admin.jar</systemPath>
+			<systemPath>${basedir}/src/main/resources/admin-1.0.0-SNAPSHOT.jar</systemPath>
 		</dependency>
 		<!-- HTTP client: jersey-client -->
 		<dependency>

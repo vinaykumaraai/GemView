@@ -394,7 +394,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 				CheckBox checkbox = (CheckBox) HL.getComponent(1);
 				checkbox.setValue(selectedApp.isAvailable());
 				try {
-					appDefaultParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(appStoreService.getAppDefaultParamListNew(selectedApp.getId())));
+					appDefaultParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(appStoreService.getAppDefaultParamListByAppId(selectedApp.getId())));
 					optionList.setDataProvider(appStoreService.getAppProfileListDataProvider(selectedApp.getId()));
 					parameterType.setDataProvider(new ListDataProvider<>(appStoreService.getAppParamTypeList(selectedApp.getId())));
 					if(profileField.getValue()!=null && profileField.getValue()!="") {
@@ -640,7 +640,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		appDefaultParamGrid.getEditor().setEnabled(true).addSaveListener(save -> {
 			try {
 				AppParamFormat appParamFormat = appStoreService.getAppParamFormatByType(parameterType.getValue());
-				appStoreService.saveAppDefaultParam(selectedApp, appDefaultParamGrid.getSelectedItems().iterator().next(), appParamFormat);
+				appStoreService.saveAppDefaultParam(selectedApp, save.getBean(), appParamFormat);
 			} catch (NumberFormatException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -734,7 +734,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		Button clearAllParams = new Button("Clear All", click -> {
 			try {
 				appStoreService.removeAPPParamAll(selectedApp.getId());
-				appDefaultParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(appStoreService.getAppDefaultParamListNew(selectedApp.getId())));
+				appDefaultParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(appStoreService.getAppDefaultParamListByAppId(selectedApp.getId())));
 			} catch (ApiException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -823,7 +823,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 							 
 							 try {
 								 appStoreService.removeAPPParam(appId, appParamId);
-								appDefaultParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(appStoreService.getAppDefaultParamListNew(appId)));
+								appDefaultParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(appStoreService.getAppDefaultParamListByAppId(appId)));
 							} catch (ApiException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
@@ -993,7 +993,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 					e1.printStackTrace();
 				}
 				try {
-					appDefaultParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(appStoreService.getAppDefaultParamListNew(selectedApp.getId())));
+					appDefaultParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(appStoreService.getAppDefaultParamListByAppId(selectedApp.getId())));
 				} catch (ApiException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -1163,10 +1163,9 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			result.setValue(counter.getLineBreakCount() + " (total)");
 			//uploadedFileList.add(fileUploadReceiver.file);
 			if (optionList.getId().equalsIgnoreCase(FILE_CHOOSE_LIST)) {
-				//optionList.setDataProvider(new ListDataProvider<ApplicationFile>(uploadedFileList));
 				//TODO: call integration fileupload service
 				applicationStoreService.uploadAppFiles(ApplicationStoreView.selectedApp.getId(), "Description111", ApplicationStoreView.applicationFilePath);
-				//optionList.setDataProvider(new ListDataProvider<ApplicationFile>(appStoreService.getAllAppFileList(appGrid.getSelectedItems().iterator().next().getId())));
+				optionList.setDataProvider(new ListDataProvider<ApplicationFile>(applicationStoreService.getAllAppFileList(ApplicationStoreView.selectedApp.getId())));
 			} else {
 
 			}
@@ -1237,7 +1236,8 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			// Create upload stream
 			FileOutputStream fos = null; // Stream to write to
 			try {
-				file = new ApplicationFile("C:/temp" + File.separator + filename);
+				
+				file = new ApplicationFile(System.getProperty("java.io.tmpdir")+File.separator+filename);
 				ApplicationStoreView.applicationFilePath = file.getAbsolutePath();
 				fos = new FileOutputStream(file);
 			} catch (final java.io.FileNotFoundException e) {

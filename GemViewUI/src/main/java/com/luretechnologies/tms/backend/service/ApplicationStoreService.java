@@ -97,7 +97,7 @@ public class ApplicationStoreService {
 		return appDefaultParamList;
 	}
 	
-	public List<AppDefaultParam> getAppDefaultParamListNew(Long id) throws ApiException {
+	public List<AppDefaultParam> getAppDefaultParamListByAppId(Long id) throws ApiException {
 		List<AppDefaultParam> appDefaultParamList = new ArrayList<>();
 		if (RestServiceUtil.getSESSION() != null) {
 		List<AppParam> appParamService = RestServiceUtil.getInstance().getClient().getAppApi().getAppParamList(id);
@@ -106,7 +106,7 @@ public class ApplicationStoreService {
 					appParam.getDescription(), appParam.getAppParamFormat().getValue(), appParam.getDefaultValue());
 				appDefaultParamList.add(appDefaultParam);
 		}
-			return appDefaultParamList;
+		
 		}
 		return appDefaultParamList;
 	}
@@ -374,7 +374,7 @@ public class ApplicationStoreService {
 			try {
 				if (RestServiceUtil.getSESSION() != null) {
 					//FIXME: find the correct app profile remove method
-					List<AppDefaultParam> appDefaultParamList = getAppDefaultParamListNew(appId);
+					List<AppDefaultParam> appDefaultParamList = getAppDefaultParamListByAppId(appId);
 					for(AppDefaultParam appDefaultParam:appDefaultParamList) {
 						RestServiceUtil.getInstance().getClient().getAppProfileApi().deleteAppProfileParamValue(profileId, appDefaultParam.getId());
 					}
