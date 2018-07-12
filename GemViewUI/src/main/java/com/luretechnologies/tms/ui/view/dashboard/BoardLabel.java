@@ -69,7 +69,7 @@ public class BoardLabel extends Label {
 	}
 
 	private void updateValueSucesss() {
-		setValue("<h1 style=color:green;>" + content + "</h1>" //
+		setValue("<h1 style=color:#216c2a;>" + content + "</h1>" //
 				+ "<h4>" + header + "</h4>");
 	}
 	

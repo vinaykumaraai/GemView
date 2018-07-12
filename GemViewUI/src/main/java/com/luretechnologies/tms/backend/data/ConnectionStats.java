@@ -33,8 +33,12 @@
 package com.luretechnologies.tms.backend.data;
 
 public class ConnectionStats {
+	
+	public ConnectionStats() {
+		
+	}
 
-	public ConnectionStats(int currentConnections, int successfulDownloads, double requestPerSeconds, int downloadFaliures) {
+	public ConnectionStats(Integer currentConnections, Integer successfulDownloads, Integer requestPerSeconds, Integer downloadFaliures) {
 		super();
 		this.currentConnections = currentConnections;
 		this.successfulDownloads = successfulDownloads;
@@ -42,33 +46,33 @@ public class ConnectionStats {
 		this.downloadFaliures = downloadFaliures;
 	}
 
-	private int currentConnections;
-	private int successfulDownloads;
-	private double requestPerSeconds;
-	private int downloadFaliures;
+	private Integer currentConnections;
+	private Integer successfulDownloads;
+	private Integer requestPerSeconds;
+	private Integer downloadFaliures;
 	
-	public int getCurrentConnections() {
+	public Integer getCurrentConnections() {
 		return currentConnections;
 	}
-	public void setCurrentConnections(int currentConnections) {
+	public void setCurrentConnections(Integer currentConnections) {
 		this.currentConnections = currentConnections;
 	}
-	public int getSuccessfulDownloads() {
+	public Integer getSuccessfulDownloads() {
 		return successfulDownloads;
 	}
-	public void setSuccessfulDownloads(int successfulDownloads) {
+	public void setSuccessfulDownloads(Integer successfulDownloads) {
 		this.successfulDownloads = successfulDownloads;
 	}
-	public double getRequestPerSeconds() {
+	public Integer getRequestPerSeconds() {
 		return requestPerSeconds;
 	}
-	public void setRequestPerSeconds(double requestPerSeconds) {
+	public void setRequestPerSeconds(Integer requestPerSeconds) {
 		this.requestPerSeconds = requestPerSeconds;
 	}
-	public int getDownloadFaliures() {
+	public Integer getDownloadFaliures() {
 		return downloadFaliures;
 	}
-	public void setDownloadFaliures(int downloadFaliures) {
+	public void setDownloadFaliures(Integer downloadFaliures) {
 		this.downloadFaliures = downloadFaliures;
 	}
 

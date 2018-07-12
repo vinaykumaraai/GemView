@@ -16431,7 +16431,7 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .apptheme vaadin-board vaadin-board-row:nth-child(4) {
-	height: calc(40vh - 53px);
+	height: calc(55vh - 53px);
 	min-height: 200px;
 }
 

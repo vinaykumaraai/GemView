@@ -53,17 +53,14 @@ public class Profile extends AbstractEntity {
 		this.name = name;
 	}
 
-	public Profile(ProfileType type, String name) {
+	public Profile(String name) {
 		super(false);
-		Objects.requireNonNull(type);
 		Objects.requireNonNull(name);
-		this.type = type;
 		this.name = name;
 	}
-	public Profile(Long id,ProfileType type, String name) {
-		Objects.requireNonNull(type);
+	public Profile(Long id, String name) {
+		Objects.requireNonNull(id);
 		Objects.requireNonNull(name);
-		this.type = type;
 		this.name = name;
 		this.setId(id);
 	}
@@ -75,7 +72,7 @@ public class Profile extends AbstractEntity {
 	}
 	@Override
 	public String toString() {
-		return type.toString();
+		return name.toString();
 	}	
 
 }

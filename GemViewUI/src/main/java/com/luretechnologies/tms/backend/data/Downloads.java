@@ -47,6 +47,18 @@ public class Downloads {
 	private String completion;
 	
 	
+	
+	public Downloads(String serialNumber, String organizationName, String oS, String incomingIP, String device,
+			String completion) {
+		super();
+		this.serialNumber = serialNumber;
+		this.organizationName = organizationName;
+		this.OS = oS;
+		this.incomingIP = incomingIP;
+		this.device = device;
+		this.completion = completion;
+	}
+
 	public String getSerialNumber() {
 		return serialNumber;
 	}
@@ -94,4 +106,12 @@ public class Downloads {
 	public void setCompletion(String completion) {
 		this.completion = completion;
 	}
+
+	@Override
+	public String toString() {
+		return "Downloads [serialNumber=" + serialNumber + ", organizationName=" + organizationName + ", OS=" + OS
+				+ ", incomingIP=" + incomingIP + ", device=" + device + ", completion=" + completion + "]";
+	}
+	
+	
 }

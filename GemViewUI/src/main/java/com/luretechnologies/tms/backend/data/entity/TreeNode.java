@@ -47,23 +47,23 @@ public class TreeNode {
 	
 	private Long id;
 	
-	private EntityTypeEnum type;
+	private com.luretechnologies.client.restlib.service.model.EntityTypeEnum type;
 	
 	public List<Entity> entityList;
 	
 	public boolean active;
 
-	public TreeNode(String label, Long id, EntityTypeEnum type, String entityId, String description, boolean active) {
+	public TreeNode(String label, Long id, com.luretechnologies.client.restlib.service.model.EntityTypeEnum entityTypeEnum, String entityId, String description, boolean active) {
 		super();
 		Objects.requireNonNull(label);
 		Objects.requireNonNull(id);
-		Objects.requireNonNull(type);
+		Objects.requireNonNull(entityTypeEnum);
 		Objects.requireNonNull(entityId);
 		Objects.requireNonNull(description);
 		this.entityId = entityId;
 		this.label = label;
 		this.id = id;
-		this.type = type;
+		this.type = entityTypeEnum;
 		this.description=description;
 		this.active=active;
 	}
@@ -84,11 +84,11 @@ public class TreeNode {
 		this.id = id;
 	}
 
-	public EntityTypeEnum getType() {
+	public com.luretechnologies.client.restlib.service.model.EntityTypeEnum getType() {
 		return type;
 	}
 
-	public void setType(EntityTypeEnum type) {
+	public void setType(com.luretechnologies.client.restlib.service.model.EntityTypeEnum type) {
 		this.type = type;
 	}
 

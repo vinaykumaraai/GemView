@@ -49,7 +49,7 @@ import com.vaadin.spring.annotation.SpringComponent;
 @PrototypeScope
 public class DownloadGrid extends Grid<Downloads>{
 	
-	List<HashMap<String, String>> rows = new ArrayList<>();
+	/*List<HashMap<String, String>> rows = new ArrayList<>();
 	
 	private List<Downloads> getDownloadsList() {
 		
@@ -82,6 +82,6 @@ public class DownloadGrid extends Grid<Downloads>{
 		
 		return rows;
 		
-	}
+	}*/
 	
 }

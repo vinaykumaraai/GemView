@@ -60,13 +60,13 @@ public class MockProfileService extends CrudService<Profile>{
 	@PostConstruct
 	public void createInitialProfiles() throws ParseException
 	{
-		Profile profile = new Profile(1L,ProfileType.FOOD,"Restrurant");
+		Profile profile = new Profile(1L,"Restrurant");
 		profile.setId(profile.getId()+2);
 		debugDirectory.put(profile.getId(), profile);
-		 profile = new Profile(3L,ProfileType.RETAIL,"SuperMarket");
+		 profile = new Profile(3L,"SuperMarket");
 		 profile.setId(profile.getId()+3);
 		debugDirectory.put(profile.getId(), profile);
-		profile = new Profile(4L,ProfileType.MOTO,"Automobile");
+		profile = new Profile(4L,"Automobile");
 		 profile.setId(profile.getId()+4);
 		debugDirectory.put(profile.getId(), profile);
 		 

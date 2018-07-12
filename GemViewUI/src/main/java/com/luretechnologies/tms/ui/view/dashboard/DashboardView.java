@@ -51,8 +51,12 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.luretechnologies.client.restlib.service.model.DashboardCurrentDownLoads;
 import com.luretechnologies.tms.backend.data.ConnectionStats;
 import com.luretechnologies.tms.backend.data.DashboardData;
+import com.luretechnologies.tms.backend.data.Downloads;
+import com.luretechnologies.tms.backend.data.entity.AppDefaultParam;
+import com.luretechnologies.tms.backend.service.DashboardService;
 import com.luretechnologies.tms.ui.components.DownloadGrid;
 import com.luretechnologies.tms.ui.navigation.NavigationManager;
 import com.vaadin.addon.charts.Chart;
@@ -70,6 +74,7 @@ import com.vaadin.addon.charts.model.YAxis;
 import com.vaadin.addon.charts.model.style.Color;
 import com.vaadin.addon.charts.model.style.SolidColor;
 import com.vaadin.board.Row;
+import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.Page;
@@ -97,17 +102,17 @@ public class DashboardView extends DashboardViewDesign implements View {
 	
 	private static final String CALLS = "Calls";
 	
-	private final BoardLabel currentConnectionsLabel = new BoardLabel("CURRENT CONNECTIONS", "3/7", "current connections");
-	private final BoardLabel successfulDownloadsLabel = new BoardLabel("SUCCESSFUL DOWNLOADS (24 HOURS)", "1", "sucessful connections (24 hours)");
-	private final BoardLabel requestPerSecondLabel = new BoardLabel("REQUESTS PER SECOND", "2", "request per second");
-	private final BoardLabel downloadFailuresLabel = new BoardLabel("DOWNLOAD FAILURES (24 HOURS)", "4", "download failures (24 hours)");
+	private final BoardLabel currentConnectionsLabel = new BoardLabel("CURRENT CONNECTIONS", "", "current connections");
+	private final BoardLabel successfulDownloadsLabel = new BoardLabel("SUCCESSFUL DOWNLOADS (24 HOURS)", "", "sucessful connections (24 hours)");
+	private final BoardLabel requestPerSecondLabel = new BoardLabel("REQUESTS PER SECOND", "", "request per second");
+	private final BoardLabel downloadFailuresLabel = new BoardLabel("DOWNLOAD FAILURES (24 HOURS)", "", "download failures (24 hours)");
 	private final BoardBox downloadFailuresBox = new BoardBox(downloadFailuresLabel);
 	private final Label currentDownloadsLabel = new Label("CURRENT DOWNLOADS");
 	
 	private final Chart incomingServiceCalls = new Chart(ChartType.COLUMN);
 	private final Chart incomingServiceCallsArea = new Chart(ChartType.AREA);
 	private final Chart incomingServiceCallsPie = new Chart(ChartType.PIE);
-	private final Grid<HashMap<String, String>> grid = new Grid<>();
+	private  Grid<Downloads> grid ;
 	
 	private DataSeries serviceCalls;
 	private DataSeries incomingCallsSeries;
@@ -118,51 +123,46 @@ public class DashboardView extends DashboardViewDesign implements View {
 	public DashboardView(NavigationManager navigationManager) {
 		this.navigationManager = navigationManager;
 	}
+	
+	@Autowired
+	DashboardService dashBoardService;
 
 	@SuppressWarnings("unchecked")
 	@PostConstruct
 	public void init() {
 		setResponsive(true);
-		//grid.addColumn(hashmap -> )
-		
-//		Page.getCurrent().addBrowserWindowResizeListener(r->{
-//			System.out.println("Height "+ r.getHeight() + "Width:  " + r.getWidth()+ " in pixel");
-//			grid.setCaptionAsHtml(true);
-//			int width = 245+1700-r.getWidth();
-//			grid.setCaption("<h2 style=margin-bottom:10px;margin-left:"+width+"px;color:#197DE1;"
-//					+ "font-weight:400;>CURRENT DOWNLOADS"
-//					+ "</h2>");
-//		});
+		grid = new Grid<>(Downloads.class);
 		grid.setWidth("100%");
 		grid.setHeight("100%");
-		//grid.addStyleName("asset-historyDebugLayout");
 		grid.setResponsive(true);
 		grid.setSelectionMode(SelectionMode.SINGLE);
-		grid.setItems((new DownloadGrid().getFakeData()));
+		grid.setColumns("serialNumber", "organizationName", "OS", "incomingIP", "device", "completion");
+		grid.getColumn("serialNumber").setCaption("Serial Number");
+		grid.getColumn("organizationName").setCaption("Organization Name");
+		grid.getColumn("OS").setCaption("OS");
+		grid.getColumn("incomingIP").setCaption("Incoming IP");
+		grid.getColumn("device").setCaption("Device");
+		grid.getColumn("completion").setCaption("Completion");
+		
+		grid.setDataProvider(new ListDataProvider<Downloads>( dashBoardService.getDownloadsData()));
 		grid.setCaptionAsHtml(true);
-		//RichTextArea  text = new RichTextArea("CURRENT DOWNLOADS");
-		//text.addStyleName("dashboard-gridCaption");
 		grid.setCaption("<h2 style=margin-bottom:10px;margin-left:245px;color:#197DE1;font-weight:400;>CURRENT DOWNLOADS"
 				+ "</h2>");
-		
-		
-		HashMap<String, String> s = new DownloadGrid().getFakeData().get(0);
-		
-		for (Map.Entry<String, String> entry : s.entrySet()) {
-			grid.addColumn(h -> h.get((entry.getKey()))).setCaption(entry.getKey());
-			}
 		
 		Row row = board.addRow(new BoardBox(currentConnectionsLabel),new BoardBox(successfulDownloadsLabel),
 				new BoardBox(requestPerSecondLabel), downloadFailuresBox);
 		row.addStyleName("board-row-group");
 		
-		row = board.addRow(new BoardBox(incomingServiceCalls));
+		/*row = board.addRow(new BoardBox(incomingServiceCalls));
+		row.addStyleName("board-row-panels");*/
+		
+		row = board.addRow();
 		row.addStyleName("board-row-panels");
 		
-		row = board.addRow(new BoardBox(incomingServiceCallsArea));
+		row = board.addRow(new BoardBox(incomingServiceCallsPie), new BoardBox(incomingServiceCallsArea));
 		row.addStyleName("board-row-panels");
 		
-		row = board.addRow(new BoardBox(incomingServiceCallsPie), new BoardBox(grid, "due-grid"));
+		row = board.addRow(new BoardBox(grid, "due-grid"));
 		row.addStyleName("board-row-panels");
 
 
@@ -234,7 +234,7 @@ public class DashboardView extends DashboardViewDesign implements View {
 	
 	@Override
 	public void enter(ViewChangeEvent event) {
-		updateLabels(new ConnectionStats(2,3,4.1,5));
+		updateLabels(dashBoardService.getLabelData());
 		updateGraphs(fetchData());
 	}
 	

@@ -41,7 +41,6 @@ public class DashboardData {
 	private List<Number> deliveriesThisYear;
 	private Object salesLastYears;
 	private Number[][] salesPerMonth;
-	//private LinkedHashMap<Product, Integer> productDeliveries;
 
 	public ConnectionStats getDeliveryStats() {
 		return deliveryStats;
