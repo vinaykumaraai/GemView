@@ -15,14 +15,14 @@ public class AppClient extends AbstractEntity {
 	private Devices device;
 	private List<Profile> profileList;
 	private List<ApplicationFile> appFileList;
-	private User owner;
+	private TreeNode owner;
 	public AppClient() {
 		// TODO Auto-generated constructor stub
 		super(false);
 	}
 //Add the device and owner to it App
 	public AppClient(Long id, String packageName, String description, String packageVersion, boolean available, boolean active,
-			List<AppDefaultParam> appDefaultParamList,Devices device,User owner, List<Profile> profileList, List<ApplicationFile> appFileList) {
+			List<AppDefaultParam> appDefaultParamList,Devices device,TreeNode owner, List<Profile> profileList, List<ApplicationFile> appFileList) {
 		Objects.requireNonNull(packageName);
 		Objects.requireNonNull(description);
 		Objects.requireNonNull(packageVersion);
@@ -89,11 +89,11 @@ public class AppClient extends AbstractEntity {
 	public void setDevice(Devices device) {
 		this.device = device;
 	}
-	public User getOwner() {
+	public TreeNode getOwner() {
 		return owner;
 	}
-	public void setOwner(User owner) {
-		this.owner = owner;
+	public void setOwner(TreeNode treeNode) {
+		this.owner = treeNode;
 	}
 	public List<Profile> getProfile() {
 		return profileList;

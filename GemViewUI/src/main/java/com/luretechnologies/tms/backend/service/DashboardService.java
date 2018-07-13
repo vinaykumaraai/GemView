@@ -111,6 +111,7 @@ public class DashboardService {
 			if (RestServiceUtil.getSESSION() != null) {
 				 DashboardWidget dashboardWidget = RestServiceUtil.getInstance().getClient().getDashboardApi().getDashboardWidget();
 				 currentDownloadsDataServer = dashboardWidget.getCurrentDownLoadsDisplays();
+				 dashboardWidget.getHeartbeatPerHour();
 				 for(DashboardCurrentDownLoads dashboardCurrentDownLoads : currentDownloadsDataServer) {
 					 Downloads download = new Downloads(dashboardCurrentDownLoads.getSerialTerminal(),
 							 				dashboardCurrentDownLoads.getOrganization(), dashboardCurrentDownLoads.getOperatingSystem(),
@@ -124,6 +125,85 @@ public class DashboardService {
 			e.printStackTrace();
 		}
 		return currentDownloadsData;
+		
+	}
+	
+	public List<Number> getHeartBeatDataPerDay() {
+		List<Long> heartBeatPerDayLong = new ArrayList<>();
+		List<Number> heartBeatPerDay = new ArrayList<>();
+		try {
+			if (RestServiceUtil.getSESSION() != null) {
+				 DashboardWidget dashboardWidget = RestServiceUtil.getInstance().getClient().getDashboardApi().getDashboardWidget();
+				 heartBeatPerDayLong = dashboardWidget.getHeartbeatPerHour();
+				 for(Long value: heartBeatPerDayLong) {
+					 Number number = value.intValue();
+					 heartBeatPerDay.add(number);
+				 }
+				 return heartBeatPerDay;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return heartBeatPerDay;
+		
+	}
+	
+	public List<Number> getHeartBeatDataPerWeek() {
+		List<Long> heartBeatPerWeekLong = new ArrayList<>();
+		List<Number> heartBeatPerWeek = new ArrayList<>();
+		try {
+			if (RestServiceUtil.getSESSION() != null) {
+				 DashboardWidget dashboardWidget = RestServiceUtil.getInstance().getClient().getDashboardApi().getDashboardWidget();
+				 heartBeatPerWeekLong = dashboardWidget.getHeartbeatPerWeekDays();
+				 for(Long value: heartBeatPerWeekLong) {
+					 Number number = value.intValue();
+					 heartBeatPerWeek.add(number);
+				 }
+				 return heartBeatPerWeek;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return heartBeatPerWeek;
+		
+	}
+	
+	public List<Number> getDownloadDataPerDay() {
+		List<Long> downloadPerDayLong = new ArrayList<>();
+		List<Number> downloadPerDay = new ArrayList<>();
+		try {
+			if (RestServiceUtil.getSESSION() != null) {
+				 DashboardWidget dashboardWidget = RestServiceUtil.getInstance().getClient().getDashboardApi().getDashboardWidget();
+				 downloadPerDayLong = dashboardWidget.getDownloadPerHour();
+				 for(Long value: downloadPerDayLong) {
+					 Number number = value.intValue();
+					 downloadPerDay.add(number);
+				 }
+				 return downloadPerDay;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return downloadPerDay;
+	}
+	
+	public List<Number> getDownloadDataPerWeek() {
+		List<Long> downloadDataPerWeekLong = new ArrayList<>();
+		List<Number> downloadDataPerWeek = new ArrayList<>();
+		try {
+			if (RestServiceUtil.getSESSION() != null) {
+				 DashboardWidget dashboardWidget = RestServiceUtil.getInstance().getClient().getDashboardApi().getDashboardWidget();
+				 downloadDataPerWeekLong = dashboardWidget.getHeartbeatPerWeekDays();
+				 for(Long value: downloadDataPerWeekLong) {
+					 Number number = value.intValue();
+					 downloadDataPerWeek.add(number);
+				 }
+				 return downloadDataPerWeek;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return downloadDataPerWeek;
 		
 	}
 }

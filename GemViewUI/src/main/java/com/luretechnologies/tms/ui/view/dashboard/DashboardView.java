@@ -146,7 +146,7 @@ public class DashboardView extends DashboardViewDesign implements View {
 		
 		grid.setDataProvider(new ListDataProvider<Downloads>( dashBoardService.getDownloadsData()));
 		grid.setCaptionAsHtml(true);
-		grid.setCaption("<h2 style=margin-bottom:10px;margin-left:245px;color:#197DE1;font-weight:400;>CURRENT DOWNLOADS"
+		grid.setCaption("<h2 style=margin-bottom:10px;margin-left:695px;color:#197DE1;font-weight:400;>CURRENT DOWNLOADS"
 				+ "</h2>");
 		
 		Row row = board.addRow(new BoardBox(currentConnectionsLabel),new BoardBox(successfulDownloadsLabel),
@@ -184,7 +184,7 @@ public class DashboardView extends DashboardViewDesign implements View {
 
 		Configuration conf = incomingServiceCallsPie.getConfiguration();
 		String thisMonth = today.getMonth().getDisplayName(TextStyle.FULL, Locale.US);
-		conf.setTitle("INCOMING CALLS " + thisMonth);
+		conf.setTitle("INCOMING REQUEST CALLS PER WEEK");
 		incomingCallsSeries = new DataSeries(CALLS);
 		conf.addSeries(incomingCallsSeries);
 
@@ -199,8 +199,8 @@ public class DashboardView extends DashboardViewDesign implements View {
 		int year = Year.now().getValue();
 
 		Configuration conf = incomingServiceCallsArea.getConfiguration();
-		conf.setTitle("INCOMING CALLS");
-		conf.getxAxis().setCategories(getMonthNames());
+		conf.setTitle("INCOMING REQUEST CALLS PER DAY");
+		//conf.getxAxis().setCategories(getMonthNames());
 		conf.getChart().setMarginBottom(6);
 
 		PlotOptionsLine options = new PlotOptionsLine();
@@ -254,14 +254,16 @@ public class DashboardView extends DashboardViewDesign implements View {
 	private void updateGraphs(DashboardData data) {
 		serviceCalls.addData(new Number[][]{{0, 1}, {2, 2}, {3,8},{5,6},{10, 3}});
 		
-		callsPerPeriod[0].setData(Arrays.asList(5,16, 7,19,9));
-		callsPerPeriod[1].setData(Arrays.asList(7,19,9,19,9));
+		callsPerPeriod[0].setData(dashBoardService.getHeartBeatDataPerDay());
+		callsPerPeriod[1].setData(dashBoardService.getDownloadDataPerDay());
 		
-		incomingCallsSeries.add(new DataSeriesItem("User", 22));
-		incomingCallsSeries.add(new DataSeriesItem("User1", 23));
-		incomingCallsSeries.add(new DataSeriesItem("User2", 24));
-		incomingCallsSeries.add(new DataSeriesItem("User3", 25));
-		incomingCallsSeries.add(new DataSeriesItem("User4", 26));
+		for(int index=0; index<7; index++) {
+			List<Number> heartBeatPerWeek = dashBoardService.getHeartBeatDataPerWeek();
+			List<Number> downloadDataPerWeek = dashBoardService.getDownloadDataPerWeek();
+			incomingCallsSeries.add(new DataSeriesItem("Heartbeat", heartBeatPerWeek.get(index)));
+			incomingCallsSeries.add(new DataSeriesItem("Downlaod", downloadDataPerWeek.get(index)));
+			
+		}
 	}
 	private void updateLabels(ConnectionStats deliveryStats) {
 		currentConnectionsLabel.setContentSucess(Integer.toString(deliveryStats.getCurrentConnections()));
@@ -309,9 +311,7 @@ public class DashboardView extends DashboardViewDesign implements View {
 		
 		XAxis xaxis = series.getConfiguration().getxAxis();
 		xaxis.setGridLineWidth(0);
-		//xaxis.setLabels(new Labels(false));
 		xaxis.setTitle("HeartBeat");
-		//xaxis.set
 	}
 }
 

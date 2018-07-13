@@ -62,7 +62,8 @@ public class ProfileService {
 	}
 	
 	public ListDataProvider<Profile> getListDataProvider(){
-		ListDataProvider<Profile> debugDataProvider = new ListDataProvider<>(getSortedUserList(mockProfileService.getSavedList()));
+		//ListDataProvider<Profile> debugDataProvider = new ListDataProvider<>(getSortedUserList(mockProfileService.getSavedList()));
+		ListDataProvider<Profile> debugDataProvider = new ListDataProvider<>(mockProfileService.getSavedList());
 		return debugDataProvider;
 	}
 	

@@ -223,7 +223,7 @@ public class TwoFactorAuthenticationUI extends UI implements HasLogger, View{
 				RestServiceUtil.getInstance().getClient().getAuthApi().verifyCode(verificationCode.getValue());
 				Page.getCurrent().setLocation(getAbsoluteUrl(Application.APP_URL+"home"));
 			} catch (Exception e) {
-				if(e.getMessage().equals("INVALID VERIFICATION CODE")) {
+				if(e.getMessage().equals("INVALID VERIFICATION CODE") || e.getMessage().equals("EXPIRED VERIFICATION CODE RECEIVED")) {
 				Notification codeNotification = Notification.show("Entered Code is Wrong/Time, Please request again", Type.ERROR_MESSAGE);
 				codeNotification.setPosition(Position.TOP_CENTER);
 				codeNotification.setDelayMsec(3000);

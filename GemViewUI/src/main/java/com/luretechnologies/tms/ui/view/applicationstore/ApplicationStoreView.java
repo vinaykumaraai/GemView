@@ -56,6 +56,7 @@ import com.luretechnologies.tms.backend.data.entity.Devices;
 import com.luretechnologies.tms.backend.data.entity.ParameterType;
 import com.luretechnologies.tms.backend.data.entity.Profile;
 import com.luretechnologies.tms.backend.data.entity.ProfileType;
+import com.luretechnologies.tms.backend.data.entity.TreeNode;
 import com.luretechnologies.tms.backend.data.entity.User;
 import com.luretechnologies.tms.backend.rest.util.TestRestService;
 import com.luretechnologies.tms.backend.service.AppDefaultParamService;
@@ -124,7 +125,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 	private Grid<AppClient> appGrid;
 	public static AppClient selectedApp;
 	private Profile selectedProfile;
-	private ComboBox<User> applicationOwner;
+	private ComboBox<TreeNode> applicationOwner;
 	private ComboBox<Devices> devices;
 	private CheckBox activeApplication;
 	private TextField packageName;
@@ -136,7 +137,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 	private VerticalLayout appGridMenuVerticalLayout;
 	private VerticalLayout applicationListLayout;
 	private HorizontalLayout appSearchLayout ;
-	private ListSelect optionList = new ListSelect<>();
+	private ListSelect optionList;
 	TextField profileField = new TextField();
 	TextField profileName = new TextField("Name");
 	ComboBox<String> parameterType = new ComboBox<String>("Type");
@@ -345,12 +346,11 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 						|| fileInLower.contains(valueInLower);
 			});*/
 		});
-		Button createAppGridRow = new Button(VaadinIcons.FOLDER_ADD, click -> {
+		Button createAppGridRow = new Button(VaadinIcons.FOLDER_ADD, click -> {			
 			setApplicationFormComponentsEnable(true);
 			appGrid.deselectAll();
 			packageName.focus();
 			fileButton.setEnabled(false);
-			
 		});
 		createAppGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		createAppGridRow.setResponsive(true);
@@ -360,6 +360,11 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			} else {
 				setApplicationFormComponentsEnable(true);
 				fileButton.setEnabled(true);
+				int defaultParamCount = ((VerticalLayout) appDefaultParamGrid.getParent()).getComponentCount();
+				for (int i = 0; i < defaultParamCount; i++) {
+					Component component = ((VerticalLayout) appDefaultParamGrid.getParent()).getComponent(i);
+					component.setEnabled(true);
+				}
 			}
 
 		});
@@ -395,7 +400,6 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 				checkbox.setValue(selectedApp.isAvailable());
 				try {
 					appDefaultParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(appStoreService.getAppDefaultParamListByAppId(selectedApp.getId())));
-					optionList.setDataProvider(appStoreService.getAppProfileListDataProvider(selectedApp.getId()));
 					parameterType.setDataProvider(new ListDataProvider<>(appStoreService.getAppParamTypeList(selectedApp.getId())));
 					if(profileField.getValue()!=null && profileField.getValue()!="") {
 						profileField.clear();
@@ -437,7 +441,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 				component.setEnabled(flag);
 
 			} else if (component.getId().equalsIgnoreCase(DESCRIPTION)) {
-				component.setEnabled(true);
+				component.setEnabled(flag);
 
 			} else if (component.getId().equalsIgnoreCase(ACTIVE_LAYOUT)) {
 				HorizontalLayout HL = (HorizontalLayout) component;
@@ -452,21 +456,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			component.setEnabled(flag);
 		}
 	}
-
-	// private void loadAppGrid() {
-	// treeDataService.getTreeDataForDebugAndAlert();
-	// List<ExtendedNode> nodeList = treeDataService.getDebugAndAlertNodeList();
-	// Set<ExtendedNode> nodeSet = nodeTree.getSelectionModel().getSelectedItems();
-	// ExtendedNode nodeSelected = nodeSet.iterator().next();
-	// for(ExtendedNode node : nodeList) {
-	// if(node.getLabel().equals(nodeSelected.getLabel())) {
-	// DataProvider data = new ListDataProvider(node.getExtendedList());
-	// alertGrid.setDataProvider(data);
-	// }
-	// }
-	//
-	// }
-
+	
 	private VerticalLayout getAppicationDetailsLayout() throws ApiException {
 
 		packageName = new TextField("Application Package Name");
@@ -501,12 +491,12 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		packageVersion.setEnabled(false);
 		packageVersion.setWidth("96%");
 		// FIXME: put the list of organization
-		applicationOwner = new ComboBox<User>("Application Owner");
+		applicationOwner = new ComboBox<TreeNode>("Application Owner");
 		applicationOwner.setEnabled(false);
 		applicationOwner.setCaptionAsHtml(true);
-		applicationOwner.setDataProvider(new ListDataProvider<>(appStoreService.getOwnerList()));
 		applicationOwner.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", 
 				"asset-debugComboBox", "small");
+		applicationOwner.setDataProvider(new ListDataProvider<>(appStoreService.getOwnerList()));
 		devices = new ComboBox<Devices>("Device");
 		devices.setDataProvider(deviceService.getListDataProvider());
 		devices.setEnabled(false);
@@ -564,29 +554,25 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 				appGrid.deselectAll();
 			}
 
-			}});
+			}
+			setApplicationFormComponentsEnable(false);
+		});
 		saveForm.setEnabled(true );
 		saveForm.addStyleNames("v-button-customstyle", ValoTheme.BUTTON_FRIENDLY);
 		cancelForm = new Button("Cancel", click -> {
 			packageName.clear();
-			//packageName.setEnabled(false);
 			description.clear();
-			//packageFile.setEnabled(false);
 			packageVersion.clear();
-			//packageVersion.setEnabled(false);
 			applicationOwner.clear();
-			//applicationOwner.setEnabled(false);
 			devices.clear();
-			//devices.setEnabled(false);
 			activeApplication.clear();
-			//activeApplication.setEnabled(false);
 			
 			setApplicationFormComponentsEnable(false);
-			description.setEnabled(false);
 			
 			appDefaultParamGrid.setDataProvider(new ListDataProvider<>(Arrays.asList()));
 			((TextField) ((HorizontalLayout) ((VerticalLayout) appDefaultParamGrid.getParent()).getComponent(1))
 					.getComponent(2)).clear();
+			appGrid.deselectAll();
 
 		});
 		cancelForm.setEnabled(true);
@@ -733,8 +719,12 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		deleteAppDefaultParamGridRow.setResponsive(true);
 		Button clearAllParams = new Button("Clear All", click -> {
 			try {
-				appStoreService.removeAPPParamAll(selectedApp.getId());
-				appDefaultParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(appStoreService.getAppDefaultParamListByAppId(selectedApp.getId())));
+				if(appGrid.getSelectedItems().size()>0) {
+					appStoreService.removeAPPParamAll(selectedApp.getId());
+					appDefaultParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(appStoreService.getAppDefaultParamListByAppId(selectedApp.getId())));
+				}else {
+					Notification.show("Select any App to delete all Parameters", Type.ERROR_MESSAGE);
+				}
 			} catch (ApiException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -746,19 +736,25 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		profileDropDown.addStyleNames("v-button-customstyle", ValoTheme.BUTTON_FRIENDLY);
 		profileField.addStyleNames("role-textbox", "v-textfield-font", ValoTheme.TEXTFIELD_BORDERLESS);
 		profileField.setEnabled(false);
-		Window openProfileWindow = getSmallListWindow(false, profileField);
 		profileDropDown.addClickListener(click -> {
-			if (appGrid.getSelectedItems().size() > 0) {
-			if (openProfileWindow.getParent() == null) {
-				UI.getCurrent().addWindow(openProfileWindow);
-				/*ListSelect<Profile> optionList = (ListSelect<Profile>) ((VerticalLayout) openProfileWindow.getContent())
-						.getComponent(0);
-				if (selectedApp.getProfile() != null)
-					optionList.select(selectedApp.getProfile().stream().filter(profile -> profile.isActive()).findFirst().get());*/
+			try {
+				Window openProfileWindow = getSmallListWindow(false, profileField);
+				if (appGrid.getSelectedItems().size() > 0) {
+					if (openProfileWindow.getParent() == null) {
+						UI.getCurrent().addWindow(openProfileWindow);
+						/*ListSelect<Profile> optionList = (ListSelect<Profile>) ((VerticalLayout) openProfileWindow.getContent())
+								.getComponent(0);
+						if (selectedApp.getProfile() != null)
+							optionList.select(selectedApp.getProfile().stream().filter(profile -> profile.isActive()).findFirst().get());*/
+					}
+					}else {
+						Notification.show("Save the app/ select any app from app list", Type.ERROR_MESSAGE);
+					}
+			} catch (ApiException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-			}else {
-				Notification.show("Save the app/ select any app from app list", Type.ERROR_MESSAGE);
-			}
+			
 		});
 
 		HorizontalLayout appParamHeaderButtonLayout = new HorizontalLayout(clearAllParams, profileDropDown,
@@ -797,7 +793,6 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 					public void onClose(ConfirmDialog dialog) {
 						if (dialog.isConfirmed()) {
 							// Confirmed to continue
-							// appService.removeApp(appGrid.getSelectedItems().iterator().next());
 							appSearch.clear();
 							setApplicationFormComponentsEnable(false);
 							appStoreService.removeApp(appGrid.getSelectedItems().iterator().next());
@@ -842,29 +837,18 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 
 		// FIXME: put generics for List items. Also put data in method parameter to
 		// populate the list
+		optionList = new ListSelect<>();
 		optionList.setRows(3);
 		optionList.setResponsive(true);
 		optionList.setWidth(100, Unit.PERCENTAGE);
-		optionList.addSelectionListener(selection -> {
-			if (selection.getFirstSelectedItem().isPresent()) {
-				// FIXME: selection of value
-				if (field != null) {
-					String value = selection.getValue().toString();
-					field.setValue(value.substring(1, value.length() - 1));
-				}
-				if (selection.getValue() instanceof Profile) {
-					selectedProfile = (Profile) selection.getValue();
-				}
-			}
-		});
 		// FIXME: for button caption pass the value full or partial in method paramter
 		Button addNewButton, deleteButton;
 		if (isFileChoose) {
 			if (appGrid.getSelectedItems().size() > 0) {
 				optionList.setDataProvider(new ListDataProvider<ApplicationFile>(appStoreService.getAllAppFileList(appGrid.getSelectedItems().iterator().next().getId())));
+				optionList.setId(FILE_CHOOSE_LIST);
 			}
 			
-			optionList.setId(FILE_CHOOSE_LIST);
 			addNewButton = new Button("Add New File", click -> {
 				Window fileUpload = openFileUploadWindow(optionList);
 				if (fileUpload.getParent() == null) {
@@ -883,6 +867,21 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 				}
 			});
 		} else {
+		
+			optionList.setDataProvider(appStoreService.getAppProfileListDataProvider(selectedApp.getId()));
+			optionList.addSelectionListener(selection -> {
+				if (selection.getFirstSelectedItem().isPresent()) {
+					// FIXME: selection of value
+					if (field != null) {
+						String value = selection.getValue().toString();
+						field.setValue(value.substring(1, value.length() - 1));
+					}
+					if (selection.getValue() instanceof Profile) {
+						selectedProfile = (Profile) selection.getValue();
+					}
+				}
+			});
+			
 			Window createProfileWindow = openProfileWindow(optionList);
 			createProfileWindow.setCaption("Create Profile");
 			addNewButton = new Button("Add New Profile", click -> {
@@ -994,6 +993,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 				}
 				try {
 					appDefaultParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(appStoreService.getAppDefaultParamListByAppId(selectedApp.getId())));
+					appDefaultParamGrid.getEditor().setEnabled(true);
 				} catch (ApiException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

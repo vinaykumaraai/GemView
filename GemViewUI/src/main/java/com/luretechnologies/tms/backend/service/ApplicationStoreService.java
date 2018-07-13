@@ -47,7 +47,9 @@ import com.luretechnologies.client.restlib.service.model.AppParam;
 import com.luretechnologies.client.restlib.service.model.AppParamFormat;
 import com.luretechnologies.client.restlib.service.model.AppProfile;
 import com.luretechnologies.client.restlib.service.model.Device;
+import com.luretechnologies.client.restlib.service.model.Entity;
 import com.luretechnologies.client.restlib.service.model.EntityLevel;
+import com.luretechnologies.tms.app.security.BackendAuthenticationProvider;
 import com.luretechnologies.tms.backend.data.entity.AppClient;
 import com.luretechnologies.tms.backend.data.entity.AppDefaultParam;
 import com.luretechnologies.tms.backend.data.entity.AppMock;
@@ -56,18 +58,22 @@ import com.luretechnologies.tms.backend.data.entity.Devices;
 import com.luretechnologies.tms.backend.data.entity.ParameterType;
 import com.luretechnologies.tms.backend.data.entity.Profile;
 import com.luretechnologies.tms.backend.data.entity.ProfileType;
-import com.luretechnologies.tms.backend.data.entity.User;
+import com.luretechnologies.tms.backend.data.entity.TreeNode;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
 import com.vaadin.data.provider.ListDataProvider;
 
 @Service
 public class ApplicationStoreService {
+	
+	BackendAuthenticationProvider provider = new BackendAuthenticationProvider();
 
 	public List<AppClient> getAppListForGrid() throws ApiException {
 		List<AppClient> appClientList = new ArrayList<>();
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
-
+				String username = provider.loggedInUserName();
+				com.luretechnologies.client.restlib.service.model.User user = RestServiceUtil.getInstance().getClient().getUserApi().getUserByUserName(username);
+				Long entityId = user.getEntity().getId();
 				List<App> appsList = RestServiceUtil.getInstance().getClient().getAppApi().getApps();
 				for (App app : appsList) {
 					AppClient appClient = new AppClient(app.getId(), app.getName(), app.getDescription(),
@@ -111,15 +117,34 @@ public class ApplicationStoreService {
 		return appDefaultParamList;
 	}
 	
-	private User getOwner(Long id) {
-		User owner = null;
+	public List<TreeNode> getOwnerList() {
+		List<TreeNode> nodeChildList = new ArrayList<>();
+		String username=null;
+		Long entityId=null;
+		try {
+			if (RestServiceUtil.getSESSION() != null) {
+				username = provider.loggedInUserName();
+				com.luretechnologies.client.restlib.service.model.User user = RestServiceUtil.getInstance().getClient().getUserApi().getUserByUserName(username);
+				entityId = user.getEntity().getId();
+				if(entityId!=null ) {
+					nodeChildList = getOwnerListByEntityId(entityId);
+					return nodeChildList;
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return nodeChildList;
+	}
+	
+	private TreeNode getOwner(Long id) {
+		TreeNode owner = null;
 		try {
 			if (RestServiceUtil.getSESSION() != null && id!=null) {
-				com.luretechnologies.client.restlib.service.model.User serverUser = RestServiceUtil.getInstance()
-						.getClient().getUserApi().getUser(id);
-				owner = new User(serverUser.getId(), serverUser.getEmail(), serverUser.getUsername(),null,
-						serverUser.getRole().getName(), serverUser.getFirstName(), serverUser.getLastName(),
-						serverUser.getAvailable());
+				Entity entity = RestServiceUtil.getInstance().getClient().getEntityApi().getEntityById(id);
+				owner = new TreeNode(entity.getName(), entity.getId(), entity.getType(), entity.getEntityId(), entity.getDescription()
+						,true);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -128,24 +153,24 @@ public class ApplicationStoreService {
 
 	}
 
-	public List<User> getOwnerList() {
-		List<User> ownerList = new ArrayList<>();
+	private List<TreeNode> getOwnerListByEntityId(Long id) {
+		List<TreeNode> nodeChildList = new ArrayList<>();
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
-				List<com.luretechnologies.client.restlib.service.model.User> ownersListServer = RestServiceUtil.getInstance()
-						.getClient().getUserApi().getUsers();
-				for(com.luretechnologies.client.restlib.service.model.User serverUser:ownersListServer) {
-				User owner = new User(serverUser.getId(), serverUser.getEmail(), serverUser.getUsername(),null,
-						serverUser.getRole().getName(), serverUser.getFirstName(), serverUser.getLastName(),
-						serverUser.getAvailable());
-				ownerList.add(owner);
+				Entity entity = RestServiceUtil.getInstance().getClient().getEntityApi().getEntityById(id);
+				List<Entity> entityList = RestServiceUtil.getInstance().getClient().getEntityApi().getEntityChildren(entity.getId());
+				entityList.add(entity);
+				for(Entity entityNew : entityList) {
+					TreeNode node = new TreeNode(entityNew.getName(), entityNew.getId(), entityNew.getType(), entityNew.getEntityId(), entityNew.getDescription()
+							,true);
+					nodeChildList.add(node);
 				}
 
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return ownerList;
+		return nodeChildList;
 
 	}
 
@@ -263,7 +288,7 @@ public class ApplicationStoreService {
 					serverApp.setDescription(appClient.getDescription());
 					serverApp.setVersion(appClient.getPackageVersion());
 					serverApp.setOwnerId(appClient.getOwner().getId());
-					//serverApp.setActive(appClient.geta);
+					serverApp.setActive(appClient.isActive());
 					// set the lists e.g appFile, appProfile
 					List<AppParam> appParamList = new ArrayList<>();
 					for (AppDefaultParam appDefaultParam : appClient.getAppDefaultParamList()) {
@@ -432,6 +457,7 @@ public class ApplicationStoreService {
 					appParam.setEntityLevel(entityLevel);
 					
 					if(defaultParam.getId()!=null) {
+						appParam.setId(defaultParam.getId());
 						RestServiceUtil.getInstance().getClient().getAppApi().updateAppParam(appClient.getId(), appParam);
 					}
 					else {

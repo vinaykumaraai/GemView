@@ -38,6 +38,7 @@ import org.springframework.stereotype.Service;
 
 import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.client.restlib.service.model.Entity;
+import com.luretechnologies.client.restlib.service.model.Terminal;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
 import com.vaadin.data.TreeData;
@@ -59,7 +60,7 @@ public class TreeDataNodeService {
 				treeData.addItems(null, node);
 				treeData.addItems(node, treeNodeChildList);
 				treeDataRecursive(treeNodeChildList, treeData);
-				
+		
 			return treeData;
 			}
 		}catch(Exception e) {

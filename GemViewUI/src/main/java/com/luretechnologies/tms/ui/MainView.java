@@ -101,9 +101,9 @@ public class MainView extends MainViewDesign implements ViewDisplay {
 		attachNavigation(heartbeat, HeartbeatView.class);
 		attachNavigation(assetcontrol, AssetcontrolView.class);
 		attachNavigation(deviceodometer, DeviceodometerView.class);
-		attachNavigation(security, SecurityView.class);
+		//attachNavigation(security, SecurityView.class);
 		attachNavigation(audit, AuditView.class);
-		attachNavigation(devices, DevicesView.class);
+		//attachNavigation(devices, DevicesView.class);
 		attachNavigation(system, SystemView.class);
 		
 		menubar.setVisible(true);
