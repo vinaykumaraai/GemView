@@ -40,27 +40,25 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang3.StringUtils;
-import org.atmosphere.config.service.Heartbeat;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.vaadin.dialogs.ConfirmDialog;
 
+import com.luretechnologies.client.restlib.common.ApiException;
+import com.luretechnologies.client.restlib.service.model.EntityTypeEnum;
 import com.luretechnologies.tms.backend.data.entity.AppMock;
-import com.luretechnologies.tms.backend.data.entity.AppDefaultParam;
 import com.luretechnologies.tms.backend.data.entity.Devices;
-import com.luretechnologies.tms.backend.data.entity.ExtendedNode;
 import com.luretechnologies.tms.backend.data.entity.Node;
 import com.luretechnologies.tms.backend.data.entity.NodeLevel;
 import com.luretechnologies.tms.backend.data.entity.OverRideParameters;
 import com.luretechnologies.tms.backend.data.entity.ParameterType;
 import com.luretechnologies.tms.backend.data.entity.Profile;
-import com.luretechnologies.tms.backend.data.entity.ProfileType;
+import com.luretechnologies.tms.backend.data.entity.TreeNode;
 import com.luretechnologies.tms.backend.service.AppService;
 import com.luretechnologies.tms.backend.service.OdometerDeviceService;
 import com.luretechnologies.tms.backend.service.OverRideParamService;
 import com.luretechnologies.tms.backend.service.PersonalizationService;
 import com.luretechnologies.tms.backend.service.ProfileService;
-import com.luretechnologies.tms.backend.service.TreeDataService;
+import com.luretechnologies.tms.backend.service.TreeDataNodeService;
 import com.luretechnologies.tms.ui.NotificationUtil;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
@@ -70,20 +68,18 @@ import com.vaadin.event.ShortcutListener;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.server.Page;
-import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Grid;
+import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.CloseEvent;
 import com.vaadin.ui.Notification.CloseListener;
@@ -95,7 +91,6 @@ import com.vaadin.ui.Tree.TreeContextClickEvent;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
-import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.themes.ValoTheme;
 
 @SpringView(name = PersonalizationView.VIEW_NAME)
@@ -106,7 +101,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 	 */
 	private static final long serialVersionUID = -7795601926506565955L;
 	public static final String VIEW_NAME = "personalization";
-	private static Tree<Node> nodeTree;
+	private static Tree<TreeNode> nodeTree;
 	private static TextField treeNodeSearch, overRideParamSearch;
 	private static Devices emptyDevice;
 	private static HorizontalSplitPanel splitScreen;
@@ -121,12 +116,12 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 	private static ComboBox<String> frequencyDropDown;
 	private static CheckBox activeCheckbox, activateHeartbeat;
 	private static Grid<OverRideParameters> overRideParamGrid;
-	private static Node selectedNode, selectedNodeForCopy;
-	private static ComboBox<NodeLevel> entityType;
+	private static TreeNode selectedNode, selectedNodeForCopy;
+	private static ComboBox<EntityTypeEnum> entityType;
 	private static FormLayout entityFormLayout;
 	private static HorizontalLayout treeButtonLayout;
 	private static HorizontalLayout treeSearchLayout;
-	private static Tree<Node> modifiedTree = new Tree<>();
+	private static Tree<TreeNode> modifiedTree = new Tree<>();
 	private static TextField parameterName;
 	private static TextField parameterDescription;
 	private static ComboBox<ParameterType> parameterType;
@@ -134,7 +129,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 	private static Window overRideParamWindow;
 	
 	@Autowired
-	public TreeDataService treeDataService;
+	public TreeDataNodeService treeDataNodeService;
 	
 	@Autowired
 	public OverRideParamService overRideParamService;
@@ -206,12 +201,16 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		VerticalLayout treePanelLayout = new VerticalLayout();
 		
 		treeLayoutWithButtons.addComponents(treeButtonLayout, treeSearchLayout);
-		nodeTree = new Tree<Node>();
-		nodeTree.setTreeData(treeDataService.getTreeDataForPersonlization());
-		modifiedTree.setTreeData(treeDataService.getTreeDataForDeviceOdometer());
+		nodeTree = new Tree<TreeNode>();
+		try {
+		nodeTree.setTreeData(personalizationService.getTreeData());
+		modifiedTree.setTreeData(personalizationService.getTreeData());
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
 		nodeTree.setItemIconGenerator(item -> {
-			switch (item.getLevel()) {
-			case ENTITY:
+			switch (item.getType()) {
+			case ENTERPRISE:
 				return VaadinIcons.BUILDING_O;
 			case MERCHANT:
 				return VaadinIcons.SHOP;
@@ -236,24 +235,24 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 			//for(Node node : nodeList) {
 				//if(node.getLabel().equals(selection.getItem().getLabel())) {
 					if(selectedNode.getDescription()!=null) {
-						entityType.setValue(selectedNode.getLevel());
+						entityType.setValue(selectedNode.getType());
 						entityName.setValue(selectedNode.getLabel());
-						deviceDropDown.setValue(selectedNode.getDevice());
+//						deviceDropDown.setValue(selectedNode.);
 						entityDescription.setValue(selectedNode.getDescription());
 						activeCheckbox.setValue(selectedNode.isActive());
-						entitySerialNum.setValue(selectedNode.getSerialNum());
-						activateHeartbeat.setValue(selectedNode.isHeartBeat());
-						frequencyDropDown.setValue(selectedNode.getFrequency());
-						appDropDown.setValue(selectedNode.getApp());
-						addtnlFilesDropDown.setValue(selectedNode.getAdditionaFiles());
-						profileDropDown.setValue(selectedNode.getProfile());
-						updateDropDown.setValue(selectedNode.getUpdate());
-						DataProvider data = new ListDataProvider(selectedNode.getOverRideParamList());
-						overRideParamGrid.setDataProvider(data);
+//						entitySerialNum.setValue(selectedNode.);
+//						activateHeartbeat.setValue(selectedNode.isHeartBeat());
+//						frequencyDropDown.setValue(selectedNode.getFrequency());
+//						appDropDown.setValue(selectedNode.getApp());
+//						addtnlFilesDropDown.setValue(selectedNode.getAdditionaFiles());
+//						profileDropDown.setValue(selectedNode.getProfile());
+//						updateDropDown.setValue(selectedNode.getUpdate());
+//						DataProvider data = new ListDataProvider(selectedNode.getOverRideParamList());
+//						overRideParamGrid.setDataProvider(data);
 					}else {
 						ClearAllComponents();
 						ClearGrid();
-						entityType.setValue(selectedNode.getLevel());
+						entityType.setValue(selectedNode.getType());
 						entityName.setValue(selectedNode.getLabel());
 						entityFormLayout.setEnabled(true);
 						overRideParamGrid.setEnabled(true);
@@ -319,7 +318,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		// Dataprovider.
 		treeNodeSearch.addValueChangeListener(changed -> {
 			String valueInLower = changed.getValue().toLowerCase();
-			nodeTree.setTreeData(treeDataService.getFilteredTreeByNodeName(modifiedTree.getTreeData(), valueInLower));
+			nodeTree.setTreeData(treeDataNodeService.getFilteredTreeByNodeName(modifiedTree.getTreeData(), valueInLower));
 			if(StringUtils.isEmpty(valueInLower)) {
 				createEntity.setEnabled(true); copyEntity.setEnabled(true);
 				pasteEntity.setEnabled(true); editEntity.setEnabled(true);
@@ -375,7 +374,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 			// FIXME Copy new entity
 			if (nodeTree.getSelectionModel().getFirstSelectedItem().isPresent()) {
 				selectedNodeForCopy = nodeTree.getSelectionModel().getFirstSelectedItem().get();
-				if (selectedNodeForCopy.getLevel().equals(NodeLevel.ENTITY)) {
+				if (selectedNodeForCopy.getType().equals(EntityTypeEnum.ENTERPRISE)) {
 					Notification.show(NotificationUtil.PERSONALIZATION_ENTERPRISE_COPY, Type.ERROR_MESSAGE);
 					selectedNodeForCopy = null;
 				} else {
@@ -392,92 +391,99 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 			// FIXME Paste new entity
 			if (nodeTree.getSelectionModel().getFirstSelectedItem().isPresent()) {
 				if (selectedNodeForCopy != null) {
-					Node toPasteNode = nodeTree.getSelectionModel().getFirstSelectedItem().get();
-					if (toPasteNode.getLevel().equals(selectedNodeForCopy.getLevel())) {
+					TreeNode toPasteNode = nodeTree.getSelectionModel().getFirstSelectedItem().get();
+					if (toPasteNode.getType().equals(selectedNodeForCopy.getType())) {
 						Notification.show(NotificationUtil.PERSONALIZATION_PASTE, Type.ERROR_MESSAGE);
 					} else {
 						// FIXME: add the REST code copy and paste tree node.
-						Node copyPasteNode = new Node();
-						copyPasteNode.setLevel(selectedNodeForCopy.getLevel());
-						copyPasteNode.setLabel(selectedNodeForCopy.getLabel()+" - Copy");
-						copyPasteNode.setEntityList(selectedNodeForCopy.getEntityList());
-						if (toPasteNode.getLevel().equals(NodeLevel.ENTITY)
-								&& copyPasteNode.getLevel().equals(NodeLevel.REGION)) {
-							nodeTree.getTreeData().addItem(toPasteNode, copyPasteNode);
-							for (Node childRegionNode : nodeTree.getTreeData().getChildren(selectedNodeForCopy)) {
-								Node newChildRegionNode = new Node();
-								newChildRegionNode.setLevel(childRegionNode.getLevel());
-								newChildRegionNode.setLabel(childRegionNode.getLabel()+" - Copy");
-								newChildRegionNode.setEntityList(childRegionNode.getEntityList());
-								nodeTree.getTreeData().addItem(copyPasteNode, newChildRegionNode);
-								for (Node childMerchantNode : nodeTree.getTreeData().getChildren(childRegionNode)) {
-									Node newChildMerchantNode = new Node();
-									newChildMerchantNode.setLevel(childMerchantNode.getLevel());
-									newChildMerchantNode.setLabel(childMerchantNode.getLabel()+" - Copy");
-									newChildMerchantNode.setEntityList(childMerchantNode.getEntityList());
-									nodeTree.getTreeData().addItem(newChildRegionNode, newChildMerchantNode);
-									for (Node childTerminalNode : nodeTree.getTreeData()
-											.getChildren(childMerchantNode)) {
-										Node newChildTerminalNode = new Node();
-										newChildTerminalNode.setLevel(childTerminalNode.getLevel());
-										newChildTerminalNode.setLabel(childTerminalNode.getLabel()+" - Copy");
-										newChildTerminalNode.setEntityList(childTerminalNode.getEntityList());
-										nodeTree.getTreeData().addItem(newChildMerchantNode, newChildTerminalNode);
-										for (Node childDeviceNode : nodeTree.getTreeData()
-												.getChildren(childTerminalNode)) {
-											Node newChildDeviceNode = new Node();
-											newChildDeviceNode.setLevel(childDeviceNode.getLevel());
-											newChildDeviceNode.setLabel(childDeviceNode.getLabel()+" - Copy");
-											newChildDeviceNode.setEntityList(childDeviceNode.getEntityList());
-											nodeTree.getTreeData().addItem(newChildTerminalNode, newChildDeviceNode);
-										}
-									}
-								}
-							}
-						} else if (toPasteNode.getLevel().equals(NodeLevel.REGION)
-								&& copyPasteNode.getLevel().equals(NodeLevel.MERCHANT)) {
-							nodeTree.getTreeData().addItem(toPasteNode, copyPasteNode);
-							for (Node childMerchantNode : nodeTree.getTreeData().getChildren(selectedNodeForCopy)) {
-								Node newChildMerchantNode = new Node();
-								newChildMerchantNode.setLevel(childMerchantNode.getLevel());
-								newChildMerchantNode.setLabel(childMerchantNode.getLabel()+" - Copy");
-								newChildMerchantNode.setEntityList(childMerchantNode.getEntityList());
-								nodeTree.getTreeData().addItem(copyPasteNode, newChildMerchantNode);
-								for (Node childTerminalNode : nodeTree.getTreeData().getChildren(childMerchantNode)) {
-									Node newChildTerminalNode = new Node();
-									newChildTerminalNode.setLevel(childTerminalNode.getLevel());
-									newChildTerminalNode.setLabel(childTerminalNode.getLabel()+" - Copy");
-									newChildTerminalNode.setEntityList(childTerminalNode.getEntityList());
-									nodeTree.getTreeData().addItem(newChildMerchantNode, newChildTerminalNode);
-									for (Node childDeviceNode : nodeTree.getTreeData().getChildren(childTerminalNode)) {
-										Node newChildDeviceNode = new Node();
-										newChildDeviceNode.setLevel(childDeviceNode.getLevel());
-										newChildDeviceNode.setLabel(childDeviceNode.getLabel()+" - Copy");
-										newChildDeviceNode.setEntityList(childDeviceNode.getEntityList());
-										nodeTree.getTreeData().addItem(newChildTerminalNode, newChildDeviceNode);
-									}
-								}
-							}
-						} else if (toPasteNode.getLevel().equals(NodeLevel.MERCHANT)
-								&& copyPasteNode.getLevel().equals(NodeLevel.TERMINAL)) {
-							nodeTree.getTreeData().addItem(toPasteNode, copyPasteNode);
-							for (Node childNode : nodeTree.getTreeData().getChildren(selectedNodeForCopy)) {
-								// FIXME: provide a common log of copy constructor
-								Node newChildNode = new Node();
-								newChildNode.setLabel(childNode.getLabel()+" - Copy");
-								newChildNode.setLevel(childNode.getLevel());
-								newChildNode.setEntityList(childNode.getEntityList());
-								nodeTree.getTreeData().addItem(copyPasteNode, newChildNode);
-							}
+						treeDataNodeService.copyTreeNode(selectedNodeForCopy, toPasteNode);
+//						TreeNode copyPasteNode = new TreeNode();
+//						copyPasteNode.setLevel(selectedNodeForCopy.getLevel());
+//						copyPasteNode.setLabel(selectedNodeForCopy.getLabel()+" - Copy");
+//						copyPasteNode.setEntityList(selectedNodeForCopy.getEntityList());
+//						if (toPasteNode.getLevel().equals(NodeLevel.ENTITY)
+//								&& copyPasteNode.getLevel().equals(NodeLevel.REGION)) {
+//							nodeTree.getTreeData().addItem(toPasteNode, copyPasteNode);
+//							for (Node childRegionNode : nodeTree.getTreeData().getChildren(selectedNodeForCopy)) {
+//								Node newChildRegionNode = new Node();
+//								newChildRegionNode.setLevel(childRegionNode.getLevel());
+//								newChildRegionNode.setLabel(childRegionNode.getLabel()+" - Copy");
+//								newChildRegionNode.setEntityList(childRegionNode.getEntityList());
+//								nodeTree.getTreeData().addItem(copyPasteNode, newChildRegionNode);
+//								for (Node childMerchantNode : nodeTree.getTreeData().getChildren(childRegionNode)) {
+//									Node newChildMerchantNode = new Node();
+//									newChildMerchantNode.setLevel(childMerchantNode.getLevel());
+//									newChildMerchantNode.setLabel(childMerchantNode.getLabel()+" - Copy");
+//									newChildMerchantNode.setEntityList(childMerchantNode.getEntityList());
+//									nodeTree.getTreeData().addItem(newChildRegionNode, newChildMerchantNode);
+//									for (Node childTerminalNode : nodeTree.getTreeData()
+//											.getChildren(childMerchantNode)) {
+//										Node newChildTerminalNode = new Node();
+//										newChildTerminalNode.setLevel(childTerminalNode.getLevel());
+//										newChildTerminalNode.setLabel(childTerminalNode.getLabel()+" - Copy");
+//										newChildTerminalNode.setEntityList(childTerminalNode.getEntityList());
+//										nodeTree.getTreeData().addItem(newChildMerchantNode, newChildTerminalNode);
+//										for (Node childDeviceNode : nodeTree.getTreeData()
+//												.getChildren(childTerminalNode)) {
+//											Node newChildDeviceNode = new Node();
+//											newChildDeviceNode.setLevel(childDeviceNode.getLevel());
+//											newChildDeviceNode.setLabel(childDeviceNode.getLabel()+" - Copy");
+//											newChildDeviceNode.setEntityList(childDeviceNode.getEntityList());
+//											nodeTree.getTreeData().addItem(newChildTerminalNode, newChildDeviceNode);
+//										}
+//									}
+//								}
+//							}
+//						} else if (toPasteNode.getLevel().equals(NodeLevel.REGION)
+//								&& copyPasteNode.getLevel().equals(NodeLevel.MERCHANT)) {
+//							nodeTree.getTreeData().addItem(toPasteNode, copyPasteNode);
+//							for (Node childMerchantNode : nodeTree.getTreeData().getChildren(selectedNodeForCopy)) {
+//								Node newChildMerchantNode = new Node();
+//								newChildMerchantNode.setLevel(childMerchantNode.getLevel());
+//								newChildMerchantNode.setLabel(childMerchantNode.getLabel()+" - Copy");
+//								newChildMerchantNode.setEntityList(childMerchantNode.getEntityList());
+//								nodeTree.getTreeData().addItem(copyPasteNode, newChildMerchantNode);
+//								for (Node childTerminalNode : nodeTree.getTreeData().getChildren(childMerchantNode)) {
+//									Node newChildTerminalNode = new Node();
+//									newChildTerminalNode.setLevel(childTerminalNode.getLevel());
+//									newChildTerminalNode.setLabel(childTerminalNode.getLabel()+" - Copy");
+//									newChildTerminalNode.setEntityList(childTerminalNode.getEntityList());
+//									nodeTree.getTreeData().addItem(newChildMerchantNode, newChildTerminalNode);
+//									for (Node childDeviceNode : nodeTree.getTreeData().getChildren(childTerminalNode)) {
+//										Node newChildDeviceNode = new Node();
+//										newChildDeviceNode.setLevel(childDeviceNode.getLevel());
+//										newChildDeviceNode.setLabel(childDeviceNode.getLabel()+" - Copy");
+//										newChildDeviceNode.setEntityList(childDeviceNode.getEntityList());
+//										nodeTree.getTreeData().addItem(newChildTerminalNode, newChildDeviceNode);
+//									}
+//								}
+//							}
+//						} else if (toPasteNode.getLevel().equals(NodeLevel.MERCHANT)
+//								&& copyPasteNode.getLevel().equals(NodeLevel.TERMINAL)) {
+//							nodeTree.getTreeData().addItem(toPasteNode, copyPasteNode);
+//							for (Node childNode : nodeTree.getTreeData().getChildren(selectedNodeForCopy)) {
+//								// FIXME: provide a common log of copy constructor
+//								Node newChildNode = new Node();
+//								newChildNode.setLabel(childNode.getLabel()+" - Copy");
+//								newChildNode.setLevel(childNode.getLevel());
+//								newChildNode.setEntityList(childNode.getEntityList());
+//								nodeTree.getTreeData().addItem(copyPasteNode, newChildNode);
+//							}
+//
+//						} else if (toPasteNode.getLevel().equals(NodeLevel.TERMINAL)
+//								&& copyPasteNode.getLevel().equals(NodeLevel.DEVICE))
+//							nodeTree.getTreeData().addItem(toPasteNode, copyPasteNode);
+//						else
+//							Notification.show("The entity " + selectedNodeForCopy.getLabel() + " can't be copied under "
+//									+ toPasteNode.getLabel(), Type.ERROR_MESSAGE);
 
-						} else if (toPasteNode.getLevel().equals(NodeLevel.TERMINAL)
-								&& copyPasteNode.getLevel().equals(NodeLevel.DEVICE))
-							nodeTree.getTreeData().addItem(toPasteNode, copyPasteNode);
-						else
-							Notification.show("The entity " + selectedNodeForCopy.getLabel() + " can't be copied under "
-									+ toPasteNode.getLabel(), Type.ERROR_MESSAGE);
-
-						nodeTree.getDataProvider().refreshAll();
+//						nodeTree.getDataProvider().refreshAll();
+						try {
+							nodeTree.setTreeData(personalizationService.getTreeData());
+						} catch (ApiException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
 					pasteEntity.setEnabled(false);
 					modifiedTree.setTreeData(nodeTree.getTreeData());
@@ -550,32 +556,32 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		saveCancelButtonLayout.addComponent(cancel);
 		
 		save = new Button("Save", click ->  {
-			Node node;
+			TreeNode node;
 			if (nodeTree.getSelectedItems().size() > 0) {
 				node = nodeTree.getSelectedItems().iterator().next();
 			} else {
-				node = new Node();
+				node = new TreeNode();
 			}
 			
-			node.setLevel(entityType.getValue());
+			node.setType(entityType.getValue());
 			node.setLabel(entityName.getValue());
 			if(deviceDropDown.getValue() != null) {
-				node.setDevice(deviceDropDown.getValue());
+//				node.setDevice(deviceDropDown.getValue());
 			}else {
 				Notification.show(NotificationUtil.SAVE, Type.ERROR_MESSAGE);
 			}
 			
 			node.setDescription(entityDescription.getValue());
 			node.setActive(activeCheckbox.getValue());
-			node.setSerialNum(entitySerialNum.getValue());
-			node.setHeartBeat(activateHeartbeat.getValue());
-			node.setFrequency(frequencyDropDown.getValue());
-			node.setApp(appDropDown.getValue());
-			node.setAdditionaFiles(addtnlFilesDropDown.getValue());
-			node.setProfile(profileDropDown.getValue());
-			node.setUpdate(updateDropDown.getValue());
-			node.setOverRideParamList(overRideParamGrid.getDataProvider().fetch(new Query<>()).collect(Collectors.toList()));
-			overRideParamGrid.setDataProvider(new ListDataProvider<>(node.getOverRideParamList()));
+//			node.setSerialNum(entitySerialNum.getValue());
+//			node.setHeartBeat(activateHeartbeat.getValue());
+//			node.setFrequency(frequencyDropDown.getValue());
+//			node.setApp(appDropDown.getValue());
+//			node.setAdditionaFiles(addtnlFilesDropDown.getValue());
+//			node.setProfile(profileDropDown.getValue());
+//			node.setUpdate(updateDropDown.getValue());
+//			node.setOverRideParamList(overRideParamGrid.getDataProvider().fetch(new Query<>()).collect(Collectors.toList()));
+//			overRideParamGrid.setDataProvider(new ListDataProvider<>(node.getOverRideParamList()));
 			overRideParamGrid.getDataProvider().refreshAll();
 			overRideParamGrid.deselectAll();
 			
@@ -629,8 +635,8 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 	private void getEntityType(FormLayout entityFormLayout) {
 		entityType = new ComboBox();
 		entityType.setCaption("Entity Type");
-		entityType.setDataProvider(new ListDataProvider<>(Arrays.asList(NodeLevel.ENTITY,NodeLevel.REGION,
-				NodeLevel.MERCHANT,NodeLevel.TERMINAL,NodeLevel.DEVICE)));
+		entityType.setDataProvider(new ListDataProvider<>(Arrays.asList(EntityTypeEnum.ENTERPRISE,EntityTypeEnum.REGION,
+				EntityTypeEnum.MERCHANT,EntityTypeEnum.TERMINAL,EntityTypeEnum.DEVICE)));
 		entityType.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", 
 				"personlization-formAlignment", "small");
 //		entityType.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
@@ -952,37 +958,37 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 
 		Button saveProfile = new Button("Save", click -> {
 			if (StringUtils.isNotEmpty(entityName.getValue()) && nodeTree.getSelectedItems().size() == 1) {
-				Node selectedNode = nodeTree.getSelectedItems().iterator().next();
-				Node newNode = new Node();
+				TreeNode selectedNode = nodeTree.getSelectedItems().iterator().next();
+				TreeNode newNode = new TreeNode();
 				newNode.setLabel(entityName.getValue().isEmpty() ? "Child Node" : entityName.getValue());// Pick name
 																											// from
 																											// textfield
 				// FIXME add the REST code for adding new entity
-				if (selectedNode.getLevel() == NodeLevel.ENTITY)
+				if (selectedNode.getType() == EntityTypeEnum.ENTERPRISE)
 
-					if (selectedNode.getLevel() == NodeLevel.REGION)
+					if (selectedNode.getType() == EntityTypeEnum.REGION)
 
-						if (selectedNode.getLevel() == NodeLevel.MERCHANT)
+						if (selectedNode.getType() == EntityTypeEnum.MERCHANT)
 
-							if (selectedNode.getLevel() == NodeLevel.TERMINAL)
+							if (selectedNode.getType() == EntityTypeEnum.TERMINAL)
 
-								if (selectedNode.getLevel() == NodeLevel.DEVICE) {
+								if (selectedNode.getType() == EntityTypeEnum.DEVICE) {
 
 									return;
 								}
 
-				switch (selectedNode.getLevel()) {
-				case ENTITY:
-					newNode.setLevel(NodeLevel.REGION);
+				switch (selectedNode.getType()) {
+				case ENTERPRISE:
+					newNode.setType(EntityTypeEnum.REGION);
 					break;
 				case MERCHANT:
-					newNode.setLevel(NodeLevel.TERMINAL);
+					newNode.setType(EntityTypeEnum.TERMINAL);
 					break;
 				case REGION:
-					newNode.setLevel(NodeLevel.MERCHANT);
+					newNode.setType(EntityTypeEnum.MERCHANT);
 					break;
 				case TERMINAL:
-					newNode.setLevel(NodeLevel.DEVICE);
+					newNode.setType(EntityTypeEnum.DEVICE);
 					break;
 				case DEVICE:
 					entityWindow.close();
@@ -991,8 +997,14 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 				default:
 					break;
 				}
-				nodeTree.getTreeData().addItem(selectedNode, newNode);
-				nodeTree.getDataProvider().refreshAll();
+				personalizationService.createEntity(selectedNode,newNode);
+				try {
+					nodeTree.setTreeData(personalizationService.getTreeData());
+				} catch (ApiException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				//nodeTree.getDataProvider().refreshAll();
 				entityWindow.close();
 
 			}else {
@@ -1133,20 +1145,20 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 //				list.addAll(nodeTree.getSelectedItems().iterator().next().getOverRideParamList());
 //				list.add(overRideParam);
 				
-				Node node;
+				TreeNode node;
 				if (nodeTree.getSelectedItems().size() > 0) {
 					node = nodeTree.getSelectedItems().iterator().next();
-					node.getOverRideParamList().add(overRideParam);
+//					node.getOverRideParamList().add(overRideParam);
 				} else {
-					node = new Node();
+					node = new TreeNode();
 					List<OverRideParameters> paramList = new ArrayList<>();
 					paramList.add(overRideParam);
-					node.setOverRideParamList(paramList);
+//					node.setOverRideParamList(paramList);
 				}
 				
-				DataProvider data = new ListDataProvider(node.getOverRideParamList());
-				overRideParamGrid.setDataProvider(data);
-				overRideParamGrid.select(overRideParam);
+//				DataProvider data = new ListDataProvider(node.getOverRideParamList());
+//				overRideParamGrid.setDataProvider(data);
+//				overRideParamGrid.select(overRideParam);
 				//				List<OverRideParameters> list = nodeTree.getSelectedItems().iterator().next().getOverRideParamList();
 //				// appService.saveApp(app);
 //				list.add(overRideParam);

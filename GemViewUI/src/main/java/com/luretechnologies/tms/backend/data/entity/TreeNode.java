@@ -52,7 +52,10 @@ public class TreeNode {
 	public List<Entity> entityList;
 	
 	public boolean active;
-
+	
+	public TreeNode() {
+	// TODO Auto-generated constructor stub
+	}
 	public TreeNode(String label, Long id, com.luretechnologies.client.restlib.service.model.EntityTypeEnum entityTypeEnum, String entityId, String description, boolean active) {
 		super();
 		Objects.requireNonNull(label);

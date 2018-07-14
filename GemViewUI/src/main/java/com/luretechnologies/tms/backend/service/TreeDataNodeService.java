@@ -35,10 +35,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.client.restlib.service.model.Entity;
 import com.luretechnologies.client.restlib.service.model.Terminal;
+import com.luretechnologies.tms.backend.data.entity.Node;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
 import com.vaadin.data.TreeData;
@@ -95,5 +97,72 @@ public class TreeDataNodeService {
 		}
 		return nodeChildList;
 	}
+	/**
+	 * @param filterTextInLower
+	 * @param node
+	 * @return
+	 */
+	private boolean checkIfLabelStartsWith(String filterTextInLower, TreeNode node) {
+		return StringUtils.startsWithIgnoreCase(node.getLabel().toLowerCase(), filterTextInLower);
+	}
+	
+	
+	public TreeData<TreeNode> getFilteredTreeByNodeName(TreeData<TreeNode> allTreeData, String filterTextInLower) {
+		if (StringUtils.isEmpty(filterTextInLower)) {
+			return allTreeData;
+		} else {
+			TreeData<TreeNode> treeData = new TreeData<>();
+			TreeNode rootNode = allTreeData.getRootItems().get(0);
+			if (checkIfLabelStartsWith(filterTextInLower, rootNode)) {
+				treeData.addItem(null, rootNode);
+			}
 
+			for (TreeNode childNode : allTreeData.getChildren(rootNode)) {
+
+				if (!treeData.contains(rootNode) && checkIfLabelStartsWith(filterTextInLower, childNode)) {
+					treeData.addItem(null, childNode);
+				}else if(treeData.contains(rootNode))
+					treeData.addItem(rootNode, childNode);
+
+				for (TreeNode subChildNode : allTreeData.getChildren(childNode)) {
+
+					if (!treeData.contains(childNode) && checkIfLabelStartsWith(filterTextInLower, subChildNode)) {
+						treeData.addItem(null, subChildNode);
+					}else if(treeData.contains(childNode))
+						treeData.addItem(childNode, subChildNode);
+					
+					for (TreeNode subSubChildNode : allTreeData.getChildren(subChildNode)) {
+
+						if (!treeData.contains(subChildNode) && checkIfLabelStartsWith(filterTextInLower, subSubChildNode)) {
+							treeData.addItem(null, subSubChildNode);
+						}else if(treeData.contains(subChildNode))
+							treeData.addItem(subChildNode,subSubChildNode);
+						
+						for (TreeNode subSubSubChildNode : allTreeData.getChildren(subSubChildNode)) {
+
+							if (!treeData.contains(subSubChildNode) && checkIfLabelStartsWith(filterTextInLower, subSubSubChildNode)) {
+								treeData.addItem(null, subSubSubChildNode);
+							}else if(treeData.contains(subSubChildNode))
+								treeData.addItem(subSubChildNode,subSubSubChildNode);
+							
+						}
+					}
+
+				}
+			}
+			return treeData;
+		}
+	}
+
+	public void copyTreeNode(TreeNode entity, TreeNode parentEntity) {
+		try {
+			if(RestServiceUtil.getSESSION()!=null) {
+				RestServiceUtil.getInstance().getClient().getEntityApi().copyEntity(entity.getEntityId(), parentEntity.getId());
+			}
+		}catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		
+	}
 }
