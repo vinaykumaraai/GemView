@@ -45,6 +45,7 @@ import com.luretechnologies.client.restlib.service.model.AppParam;
 import com.luretechnologies.client.restlib.service.model.AppProfile;
 import com.luretechnologies.client.restlib.service.model.Device;
 import com.luretechnologies.client.restlib.service.model.Entity;
+import com.luretechnologies.client.restlib.service.model.Merchant;
 import com.luretechnologies.client.restlib.service.model.Organization;
 import com.luretechnologies.client.restlib.service.model.Region;
 import com.luretechnologies.client.restlib.service.model.Terminal;
@@ -83,9 +84,165 @@ public class PersonalizationService {
 	}
 
 	public void createEntity(TreeNode parentNode, TreeNode treeNewNode) {
+		try {
+			if(RestServiceUtil.getSESSION() != null) {
+				switch (parentNode.getType()) {
+
+				case ENTERPRISE:
+					Organization organization = new Organization();
+					organization.setAvailable(treeNewNode.isActive());
+					organization.setDescription(treeNewNode.getDescription());
+					organization.setName(treeNewNode.getLabel());
+					organization.setParentId(parentNode.getId());
+					organization.setType(treeNewNode.getType());
+					organization.setEntityId(treeNewNode.getEntityId());
+					RestServiceUtil.getInstance().getClient().getOrganizationApi().createOrganization(organization);
+					break;
+				case ORGANIZATION:
+					Region region = new Region();
+					region.setAvailable(treeNewNode.isActive());
+					region.setDescription(treeNewNode.getDescription());
+					region.setName(treeNewNode.getLabel());
+					region.setParentId(parentNode.getId());
+					region.setType(treeNewNode.getType());
+					region.setEntityId(treeNewNode.getEntityId());
+					RestServiceUtil.getInstance().getClient().getRegionApi().createRegion(region);
+					break;
+				case REGION:
+					Merchant merchant = new Merchant();
+					merchant.setAvailable(treeNewNode.isActive());
+					merchant.setDescription(treeNewNode.getDescription());
+					merchant.setName(treeNewNode.getLabel());
+					merchant.setParentId(parentNode.getId());
+					merchant.setType(treeNewNode.getType());
+					merchant.setEntityId(treeNewNode.getEntityId());
+					RestServiceUtil.getInstance().getClient().getMerchantApi().createMerchant(merchant);
+					break;
+				case MERCHANT:
+					Terminal terminal = new Terminal();
+					terminal.setAvailable(treeNewNode.isActive());
+					terminal.setDescription(treeNewNode.getDescription());
+					terminal.setName(treeNewNode.getLabel());
+					terminal.setParentId(parentNode.getId());
+					terminal.setType(treeNewNode.getType());
+					terminal.setEntityId(treeNewNode.getEntityId());
+					RestServiceUtil.getInstance().getClient().getTerminalApi().createTerminal(terminal);
+					break;
+					
+				case TERMINAL:
+					Device device = new Device();
+					device.setAvailable(treeNewNode.isActive());
+					device.setDescription(treeNewNode.getDescription());
+					device.setName(treeNewNode.getLabel());
+					device.setParentId(parentNode.getId());
+					device.setType(treeNewNode.getType());
+					device.setEntityId(treeNewNode.getEntityId());
+					RestServiceUtil.getInstance().getClient().getDeviceApi().createDevice(device);
+					break;
+				default:
+					break;
+				}
+			}
+			
+		}catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
 
 	}
+	
+	public void updateEntity(TreeNode node) {
+		try {
+			if(RestServiceUtil.getSESSION() != null) {
+				switch (node.getType()) {
+				case ORGANIZATION:
+					Organization organization = new Organization();
+					organization.setAvailable(node.isActive());
+					organization.setDescription(node.getDescription());
+					organization.setName(node.getLabel());
+					organization.setType(node.getType());
+					organization.setEntityId(node.getEntityId());
+					RestServiceUtil.getInstance().getClient().getOrganizationApi().updateOrganization(organization.getEntityId(), organization);
+					break;
+				case REGION:
+					Region region = new Region();
+					region.setAvailable(node.isActive());
+					region.setDescription(node.getDescription());
+					region.setName(node.getLabel());
+					region.setType(node.getType());
+					region.setEntityId(node.getEntityId());
+					RestServiceUtil.getInstance().getClient().getRegionApi().updateRegion(region.getEntityId(), region);
+					break;
+				case MERCHANT:
+					Merchant merchant = new Merchant();
+					merchant.setAvailable(node.isActive());
+					merchant.setDescription(node.getDescription());
+					merchant.setName(node.getLabel());
+					merchant.setType(node.getType());
+					merchant.setEntityId(node.getEntityId());
+					RestServiceUtil.getInstance().getClient().getMerchantApi().updateMerchant(merchant.getEntityId(), merchant);
+					break;
+				case TERMINAL:
+					Terminal terminal = new Terminal();
+					terminal.setAvailable(node.isActive());
+					terminal.setDescription(node.getDescription());
+					terminal.setName(node.getLabel());
+					terminal.setType(node.getType());
+					terminal.setFrequency(Long.parseLong(node.getFrequency()));
+					terminal.setHeartbeat(node.isHeartBeat());
+					terminal.setSerialNumber(node.getSerialNum());
+					terminal.setEntityId(terminal.getEntityId());
+					RestServiceUtil.getInstance().getClient().getTerminalApi().updateTerminal(terminal.getEntityId(), terminal);
+					break;
+					
+				case DEVICE:
+					Device device = new Device();
+					device.setAvailable(node.isActive());
+					device.setDescription(node.getDescription());
+					device.setName(node.getLabel());
+					device.setType(node.getType());
+					device.setEntityId(node.getEntityId());
+					RestServiceUtil.getInstance().getClient().getDeviceApi().updateDevice(device.getEntityId(), device);
+					break;
+				default:
+					break;
+				}
+			}
+			
+		}catch (Exception e) {
+			// TODO: handle exception
+		}
+	}
 
+	public void deleteEntity(TreeNode node) {
+		try {
+			if(RestServiceUtil.getSESSION()!=null) {
+				switch (node.getType()) {
+				case ORGANIZATION:
+					RestServiceUtil.getInstance().getClient().getOrganizationApi().deleteOrganization(node.getEntityId());
+					break;
+				case REGION:
+					RestServiceUtil.getInstance().getClient().getRegionApi().deleteRegion(node.getEntityId());
+					break;
+				case MERCHANT:
+					RestServiceUtil.getInstance().getClient().getMerchantApi().deleteMerchant(node.getEntityId());
+					break;
+				case TERMINAL:
+					RestServiceUtil.getInstance().getClient().getTerminalApi().deleteTerminal(node.getEntityId());
+					break;
+				case DEVICE:
+					RestServiceUtil.getInstance().getClient().getDeviceApi().deleteDevice(node.getEntityId());
+					break;
+					default:
+					break;
+			}
+			}
+			
+		}catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+	}
 	public Devices getDevicesByEntityId(String entityId) {
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
@@ -156,6 +313,8 @@ public class PersonalizationService {
 
 		return new ListDataProvider<>(overRideParamList);
 	}
+	
+
 	
 	public ListDataProvider<ApplicationFile> getApplicationFileDataProvider(Long appId){
 		List<ApplicationFile> applicationFileList = new ArrayList<>();
@@ -252,6 +411,47 @@ public List<AppClient> getAppListByLoggedUserEntity() {
 		e.printStackTrace();
 	}
 	return allAppList;
+}
+public void createOverRideParam(AppClient app, OverRideParameters param) {
+	try {
+		if(RestServiceUtil.getSESSION()!=null) {
+			AppParam appParam = new AppParam();
+			appParam.setAppId(app.getId());
+			appParam.setName(param.getParameter());
+			appParam.setDescription(param.getDescription());
+			appParam.setDefaultValue(param.getValue());
+			RestServiceUtil.getInstance().getClient().getAppApi().addAppParam(app.getId(), appParam);
+		}
+	}catch (Exception e) {
+		// TODO: handle exception
+		e.printStackTrace();
+	}
+}
+public void updateOverRideParam(AppClient app, OverRideParameters param) {
+	try {
+		if(RestServiceUtil.getSESSION()!=null) {
+			AppParam appParam = new AppParam();
+			appParam.setAppId(app.getId());
+			appParam.setName(param.getParameter());
+			appParam.setDescription(param.getDescription());
+			appParam.setDefaultValue(param.getValue());
+			RestServiceUtil.getInstance().getClient().getAppApi().updateAppParam(app.getId(), appParam);
+		}
+	}catch (Exception e) {
+		// TODO: handle exception
+		e.printStackTrace();
+	}
+}
+
+public void deleteOverRideParam(AppClient app, OverRideParameters param) {
+	try {
+		if(RestServiceUtil.getSESSION()!=null) {
+			RestServiceUtil.getInstance().getClient().getAppApi().deleteAppParam(app.getId(), param.getId());
+		}
+	}catch (Exception e) {
+		// TODO: handle exception
+		e.printStackTrace();
+	}
 }
 
 	/**

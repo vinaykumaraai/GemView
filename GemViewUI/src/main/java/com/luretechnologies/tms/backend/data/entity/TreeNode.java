@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Objects;
 
 import com.luretechnologies.client.restlib.service.model.Entity;
-import com.luretechnologies.common.enums.EntityTypeEnum;
+import com.luretechnologies.client.restlib.service.model.EntityTypeEnum;
 
 public class TreeNode {
 	
@@ -47,16 +47,32 @@ public class TreeNode {
 	
 	private Long id;
 	
-	private com.luretechnologies.client.restlib.service.model.EntityTypeEnum type;
+	private EntityTypeEnum type;
 	
 	public List<Entity> entityList;
 	
 	public boolean active;
 	
+	public Devices device;
+	
+	public String serialNum;
+	
+	public boolean heartBeat;
+	
+	public String frequency;
+	
+	public AppClient app;
+	
+	public Profile profile;
+	
+	public ApplicationFile additionaFile;
+	
+	public List<OverRideParameters> overRideParamList;
+	
 	public TreeNode() {
 	// TODO Auto-generated constructor stub
 	}
-	public TreeNode(String label, Long id, com.luretechnologies.client.restlib.service.model.EntityTypeEnum entityTypeEnum, String entityId, String description, boolean active) {
+	public TreeNode(String label, Long id, EntityTypeEnum entityTypeEnum, String entityId, String description, boolean active) {
 		super();
 		Objects.requireNonNull(label);
 		Objects.requireNonNull(id);
@@ -87,11 +103,11 @@ public class TreeNode {
 		this.id = id;
 	}
 
-	public com.luretechnologies.client.restlib.service.model.EntityTypeEnum getType() {
+	public EntityTypeEnum getType() {
 		return type;
 	}
 
-	public void setType(com.luretechnologies.client.restlib.service.model.EntityTypeEnum type) {
+	public void setType(EntityTypeEnum type) {
 		this.type = type;
 	}
 
@@ -127,6 +143,54 @@ public class TreeNode {
 		this.active = active;
 	}
 
+	public String getSerialNum() {
+		return serialNum;
+	}
+	public void setSerialNum(String serialNum) {
+		this.serialNum = serialNum;
+	}
+	public boolean isHeartBeat() {
+		return heartBeat;
+	}
+	public void setHeartBeat(boolean heartBeat) {
+		this.heartBeat = heartBeat;
+	}
+	public String getFrequency() {
+		return frequency;
+	}
+	public void setFrequency(String frequency) {
+		this.frequency = frequency;
+	}
+	public Devices getDevice() {
+		return device;
+	}
+	public void setDevice(Devices device) {
+		this.device = device;
+	}
+	public AppClient getApp() {
+		return app;
+	}
+	public void setApp(AppClient app) {
+		this.app = app;
+	}
+	public Profile getProfile() {
+		return profile;
+	}
+	public ApplicationFile getAdditionaFile() {
+		return additionaFile;
+	}
+	public void setAdditionaFile(ApplicationFile additionaFile) {
+		this.additionaFile = additionaFile;
+	}
+	public void setProfile(Profile profile) {
+		this.profile = profile;
+	}
+	public List<OverRideParameters> getOverRideParamList() {
+		return overRideParamList;
+	}
+	public void setOverRideParamList(List<OverRideParameters> overRideParamList) {
+		this.overRideParamList = overRideParamList;
+	}
 	@Override
 	public String toString() {
 		return label;
