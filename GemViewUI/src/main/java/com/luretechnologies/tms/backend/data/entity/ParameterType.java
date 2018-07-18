@@ -33,7 +33,7 @@
 package com.luretechnologies.tms.backend.data.entity;
 
 public enum ParameterType {
-	TEXT("TEXT"),NUMERIC("NUMERIC"),BOOLEAN("BOOLEAN"),FLOAT("FLOAT");
+	TEXT("TEXT"),NUMERIC("NUMERIC"),BOOLEAN("BOOLEAN"),FLOAT("FLOAT"),OTHER("OTHER");
 	String value;
 	ParameterType(String value) {
 			this.value = value;

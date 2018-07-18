@@ -35,7 +35,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 
@@ -45,10 +45,10 @@ import org.vaadin.dialogs.ConfirmDialog;
 
 import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.client.restlib.service.model.EntityTypeEnum;
-import com.luretechnologies.tms.backend.data.entity.AppMock;
+import com.luretechnologies.tms.backend.data.entity.AppClient;
+import com.luretechnologies.tms.backend.data.entity.ApplicationFile;
 import com.luretechnologies.tms.backend.data.entity.Devices;
 import com.luretechnologies.tms.backend.data.entity.Node;
-import com.luretechnologies.tms.backend.data.entity.NodeLevel;
 import com.luretechnologies.tms.backend.data.entity.OverRideParameters;
 import com.luretechnologies.tms.backend.data.entity.ParameterType;
 import com.luretechnologies.tms.backend.data.entity.Profile;
@@ -60,7 +60,6 @@ import com.luretechnologies.tms.backend.service.PersonalizationService;
 import com.luretechnologies.tms.backend.service.ProfileService;
 import com.luretechnologies.tms.backend.service.TreeDataNodeService;
 import com.luretechnologies.tms.ui.NotificationUtil;
-import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.data.provider.Query;
 import com.vaadin.event.ShortcutAction.KeyCode;
@@ -94,8 +93,8 @@ import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 
 @SpringView(name = PersonalizationView.VIEW_NAME)
-public class PersonalizationView extends VerticalLayout implements Serializable, View{
-	
+public class PersonalizationView extends VerticalLayout implements Serializable, View {
+
 	/**
 	 * 
 	 */
@@ -105,14 +104,14 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 	private static TextField treeNodeSearch, overRideParamSearch;
 	private static Devices emptyDevice;
 	private static HorizontalSplitPanel splitScreen;
-	private static Button createEntity, copyEntity, editEntity, deleteEntity, pasteEntity, createParam, editParam, 
-							deleteParam, save, cancel;
-	private static TextField  entityName, entityDescription, entitySerialNum;
+	private static Button createEntity, copyEntity, editEntity, deleteEntity, pasteEntity, createParam, editParam,
+			deleteParam, save, cancel;
+	private static TextField entityName, entityDescription, entitySerialNum;
 	private static ComboBox<Devices> deviceDropDown;
-	private static ComboBox<AppMock> appDropDown;
+	private static ComboBox<AppClient> appDropDown;
 	private static ComboBox<Profile> profileDropDown;
 	private static ComboBox<String> updateDropDown;
-	private static ComboBox<String> addtnlFilesDropDown;
+	private static ComboBox<ApplicationFile> addtnlFilesDropDown;
 	private static ComboBox<String> frequencyDropDown;
 	private static CheckBox activeCheckbox, activateHeartbeat;
 	private static Grid<OverRideParameters> overRideParamGrid;
@@ -127,29 +126,30 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 	private static ComboBox<ParameterType> parameterType;
 	private static TextField parameterValue;
 	private static Window overRideParamWindow;
-	
+	private static AppClient selectedApp;
+
 	@Autowired
 	public TreeDataNodeService treeDataNodeService;
-	
+
 	@Autowired
 	public OverRideParamService overRideParamService;
-	
+
 	@Autowired
 	private AppService appService;
 
 	@Autowired
 	private OdometerDeviceService deviceService;
-	
+
 	@Autowired
 	private ProfileService profileService;
-	
+
 	@Autowired
 	private PersonalizationService personalizationService;
-	
+
 	@Autowired
 	public PersonalizationView() {
-		
-		emptyDevice= new Devices();
+
+		emptyDevice = new Devices();
 		emptyDevice.setManufacturer("");
 		emptyDevice.setDeviceName("");
 		emptyDevice.setDescription("");
@@ -160,23 +160,23 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		emptyDevice.setLastSeen("");
 
 	}
-	
+
 	@PostConstruct
 	private void inti() {
-		
-		Page.getCurrent().addBrowserWindowResizeListener(r->{
-			if(r.getWidth()<=600) {
+
+		Page.getCurrent().addBrowserWindowResizeListener(r -> {
+			if (r.getWidth() <= 600) {
 				treeNodeSearch.setHeight(28, Unit.PIXELS);
 				overRideParamSearch.setHeight(28, Unit.PIXELS);
-			} else if(r.getWidth()>600 && r.getWidth()<=1000){
+			} else if (r.getWidth() > 600 && r.getWidth() <= 1000) {
 				treeNodeSearch.setHeight(32, Unit.PIXELS);
 				overRideParamSearch.setHeight(32, Unit.PIXELS);
-			}else {
+			} else {
 				treeNodeSearch.setHeight(37, Unit.PIXELS);
 				overRideParamSearch.setHeight(37, Unit.PIXELS);
 			}
 		});
-		
+
 		setSpacing(false);
 		setMargin(false);
 		setResponsive(true);
@@ -190,7 +190,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		treeNodeSearch.setHeight(37, Unit.PIXELS);
 		treeNodeSearch.setWidth("100%");
 		configureTreeNodeSearch();
-		
+
 		Panel panel = getAndLoadPersonlizationPanel();
 		treeButtonLayout = new HorizontalLayout();
 		treeButtonLayout.setWidth("100%");
@@ -199,13 +199,13 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		VerticalLayout treeLayoutWithButtons = new VerticalLayout();
 		treeLayoutWithButtons.setWidth("100%");
 		VerticalLayout treePanelLayout = new VerticalLayout();
-		
+
 		treeLayoutWithButtons.addComponents(treeButtonLayout, treeSearchLayout);
 		nodeTree = new Tree<TreeNode>();
 		try {
-		nodeTree.setTreeData(personalizationService.getTreeData());
-		modifiedTree.setTreeData(personalizationService.getTreeData());
-		}catch (Exception e) {
+			nodeTree.setTreeData(personalizationService.getTreeData());
+			modifiedTree.setTreeData(personalizationService.getTreeData());
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		nodeTree.setItemIconGenerator(item -> {
@@ -224,126 +224,143 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 				return null;
 			}
 		});
-		
+
 		nodeTree.addItemClickListener(selection -> {
 			entityFormLayout.setEnabled(false);
 			overRideParamGrid.setEnabled(false);
-			//treeDataService.getTreeDataForPersonlization();
-			selectedNode=selection.getItem();
-			//treeDataService.getTreeDataForPersonlization();
-			//List<Node> nodeList = treeDataService.getPersonlizationList();
-			//for(Node node : nodeList) {
-				//if(node.getLabel().equals(selection.getItem().getLabel())) {
-					if(selectedNode.getDescription()!=null) {
-						entityType.setValue(selectedNode.getType());
-						entityName.setValue(selectedNode.getLabel());
-//						deviceDropDown.setValue(selectedNode.);
-						entityDescription.setValue(selectedNode.getDescription());
-						activeCheckbox.setValue(selectedNode.isActive());
-//						entitySerialNum.setValue(selectedNode.);
-//						activateHeartbeat.setValue(selectedNode.isHeartBeat());
-//						frequencyDropDown.setValue(selectedNode.getFrequency());
-//						appDropDown.setValue(selectedNode.getApp());
-//						addtnlFilesDropDown.setValue(selectedNode.getAdditionaFiles());
-//						profileDropDown.setValue(selectedNode.getProfile());
-//						updateDropDown.setValue(selectedNode.getUpdate());
-//						DataProvider data = new ListDataProvider(selectedNode.getOverRideParamList());
-//						overRideParamGrid.setDataProvider(data);
-					}else {
-						ClearAllComponents();
-						ClearGrid();
-						entityType.setValue(selectedNode.getType());
-						entityName.setValue(selectedNode.getLabel());
-						entityFormLayout.setEnabled(true);
-						overRideParamGrid.setEnabled(true);
-					}	
-				//}
-			//}
-			
+			// treeDataService.getTreeDataForPersonlization();
+			selectedNode = selection.getItem();
+			// treeDataService.getTreeDataForPersonlization();
+			// List<Node> nodeList = treeDataService.getPersonlizationList();
+			// for(Node node : nodeList) {
+			// if(node.getLabel().equals(selection.getItem().getLabel())) {
+			if (selectedNode.getDescription() != null) {
+				entityType.setValue(selectedNode.getType());
+				entityName.setValue(selectedNode.getLabel());
+				entityDescription.setValue(selectedNode.getDescription());
+				activeCheckbox.setValue(selectedNode.isActive());
+				if (selectedNode.getType().equals(EntityTypeEnum.TERMINAL)) {
+					entitySerialNum.setValue(
+							personalizationService.getTerminalSerialNumberByEntityId(selectedNode.getEntityId()));
+					activateHeartbeat
+							.setValue(personalizationService.getHeartbeatByEntityId(selectedNode.getEntityId()));
+					frequencyDropDown.setValue(
+							personalizationService.getFrequencyByEntityId(selectedNode.getEntityId()).toString());
+					// FIXME: no specific app, appfile, profile is selected
+					// appDropDown.setValue(value);
+					// addtnlFilesDropDown.setValue(selectedNode.getAdditionaFiles());
+					// profileDropDown.setValue(selectedNode.getProfile());
+					if (appDropDown.getDataProvider().size(new Query<>()) > 0) {
+						// overRideParamGrid.setDataProvider();
+					}
+
+				}
+				if (selectedNode.getType().equals(EntityTypeEnum.DEVICE)) {
+					deviceDropDown.setValue(personalizationService.getDevicesByEntityId(selectedNode.getEntityId()));
+					entitySerialNum.setValue(
+							personalizationService.getDeviceSerialNumberByEntityId(selectedNode.getEntityId()));
+				}
+
+				// updateDropDown.setValue(selectedNode.getUpdate());
+			} else {
+				ClearAllComponents();
+				ClearGrid();
+				entityType.setValue(selectedNode.getType());
+				entityName.setValue(selectedNode.getLabel());
+				entityFormLayout.setEnabled(true);
+				overRideParamGrid.setEnabled(true);
+			}
+			// }
+			// }
+
 		});
-		nodeTree.addContextClickListener( event ->{
+		nodeTree.addContextClickListener(event -> {
 			if (!(event instanceof TreeContextClickEvent)) {
 				return;
 			}
 			TreeContextClickEvent treeContextEvent = (TreeContextClickEvent) event;
 			Node contextNode = (Node) treeContextEvent.getItem();
 			UI.getCurrent().addWindow(openTreeNodeEditWindow(contextNode));
-			
+
 		});
 		treeLayoutWithButtons.addComponent(nodeTree);
 		treeLayoutWithButtons.setComponentAlignment(nodeTree, Alignment.TOP_LEFT);
 		treeLayoutWithButtons.setMargin(true);
-		//treeLayoutWithButtons.setHeight("100%");
+		// treeLayoutWithButtons.setHeight("100%");
 		treeLayoutWithButtons.setStyleName("split-Height-ButtonLayout");
 		treePanelLayout.addComponent(treeLayoutWithButtons);
 		treePanelLayout.setHeight("100%");
 		treePanelLayout.setStyleName("split-height");
-		//treeLayoutWithButtons.getsetHeight("0");
-		//treePanelLayout.setComponentAlignment(nodeTree, Alignment.TOP_LEFT);
+		// treeLayoutWithButtons.getsetHeight("0");
+		// treePanelLayout.setComponentAlignment(nodeTree, Alignment.TOP_LEFT);
 		splitScreen = new HorizontalSplitPanel();
 		splitScreen.setFirstComponent(treePanelLayout);
 		splitScreen.setSplitPosition(20);
-		//splitScreen.addComponent(getTabSheet());
+		// splitScreen.addComponent(getTabSheet());
 		splitScreen.setHeight("100%");
-		
+
 		getEntityInformation(splitScreen);
 		panel.setContent(splitScreen);
-		
+
 		entityFormLayout.setEnabled(false);
 		deviceDropDown.setVisible(true);
 		overRideParamGrid.setEnabled(false);
-		if(nodeTree.getSelectedItems().isEmpty()) {
+		if (nodeTree.getSelectedItems().isEmpty()) {
 			entityFormLayout.setEnabled(false);
 			overRideParamGrid.setEnabled(false);
 			ClearAllComponents();
 			ClearGrid();
 		}
-		
+
 		int width = Page.getCurrent().getBrowserWindowWidth();
-		if(width<=600) {
+		if (width <= 600) {
 			treeNodeSearch.setHeight(28, Unit.PIXELS);
 			overRideParamSearch.setHeight(28, Unit.PIXELS);
-		} else if(width>600 && width<=1000){
+		} else if (width > 600 && width <= 1000) {
 			treeNodeSearch.setHeight(32, Unit.PIXELS);
 			overRideParamSearch.setHeight(32, Unit.PIXELS);
-		}else {
+		} else {
 			treeNodeSearch.setHeight(37, Unit.PIXELS);
 			overRideParamSearch.setHeight(37, Unit.PIXELS);
 		}
-	
+
 	}
-	
+
 	private void configureTreeNodeSearch() {
 		// FIXME Not able to put Tree Search since its using a Hierarchical
 		// Dataprovider.
 		treeNodeSearch.addValueChangeListener(changed -> {
 			String valueInLower = changed.getValue().toLowerCase();
-			nodeTree.setTreeData(treeDataNodeService.getFilteredTreeByNodeName(modifiedTree.getTreeData(), valueInLower));
-			if(StringUtils.isEmpty(valueInLower)) {
-				createEntity.setEnabled(true); copyEntity.setEnabled(true);
-				pasteEntity.setEnabled(true); editEntity.setEnabled(true);
+			nodeTree.setTreeData(
+					treeDataNodeService.getFilteredTreeByNodeName(modifiedTree.getTreeData(), valueInLower));
+			if (StringUtils.isEmpty(valueInLower)) {
+				createEntity.setEnabled(true);
+				copyEntity.setEnabled(true);
+				pasteEntity.setEnabled(true);
+				editEntity.setEnabled(true);
 				deleteEntity.setEnabled(true);
-			}
-			else {
-				createEntity.setEnabled(false); copyEntity.setEnabled(false);
-				pasteEntity.setEnabled(false); editEntity.setEnabled(false);
+			} else {
+				createEntity.setEnabled(false);
+				copyEntity.setEnabled(false);
+				pasteEntity.setEnabled(false);
+				editEntity.setEnabled(false);
 				deleteEntity.setEnabled(false);
 			}
-			
+
 		});
-		
-		treeNodeSearch.addShortcutListener(new ShortcutListener("Clear",KeyCode.ESCAPE,null) {
-			
+
+		treeNodeSearch.addShortcutListener(new ShortcutListener("Clear", KeyCode.ESCAPE, null) {
+
 			@Override
 			public void handleAction(Object sender, Object target) {
 				if (target == treeNodeSearch) {
 					treeNodeSearch.clear();
-					
+
 				}
 			}
 		});
 	}
-	
+
 	public Panel getAndLoadPersonlizationPanel() {
 		Panel panel = new Panel();
 		panel.setHeight("100%");
@@ -359,17 +376,17 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 	private void getEntityButtonsList(HorizontalLayout treeButtonLayout, HorizontalLayout treeSearchLayout) {
 		createEntity = new Button(VaadinIcons.FOLDER_ADD, click -> {
 			Window createProfileWindow = openEntityWindow();
-			if(nodeTree.getSelectedItems().size()==0) {
+			if (nodeTree.getSelectedItems().size() == 0) {
 				Notification.show(NotificationUtil.PERSONALIZATION_CREATE_ENTITY, Notification.Type.ERROR_MESSAGE);
-			}else {
+			} else {
 				if (createProfileWindow.getParent() == null)
-				UI.getCurrent().addWindow(createProfileWindow);
+					UI.getCurrent().addWindow(createProfileWindow);
 			}
 
 		});
 		createEntity.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		createEntity.setDescription("Create New Entity", ContentMode.HTML);
-		
+
 		copyEntity = new Button(VaadinIcons.COPY, click -> {
 			// FIXME Copy new entity
 			if (nodeTree.getSelectionModel().getFirstSelectedItem().isPresent()) {
@@ -378,15 +395,15 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 					Notification.show(NotificationUtil.PERSONALIZATION_ENTERPRISE_COPY, Type.ERROR_MESSAGE);
 					selectedNodeForCopy = null;
 				} else {
-						pasteEntity.setEnabled(true);
-					}
-				}else {
-						Notification.show(NotificationUtil.PERSONALIZATION_COPTY_ENTITY, Notification.Type.ERROR_MESSAGE);
+					pasteEntity.setEnabled(true);
 				}
+			} else {
+				Notification.show(NotificationUtil.PERSONALIZATION_COPTY_ENTITY, Notification.Type.ERROR_MESSAGE);
+			}
 		});
 		copyEntity.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		copyEntity.setDescription("Copy Entities", ContentMode.HTML);
-		
+
 		pasteEntity = new Button(VaadinIcons.PASTE, click -> {
 			// FIXME Paste new entity
 			if (nodeTree.getSelectionModel().getFirstSelectedItem().isPresent()) {
@@ -397,87 +414,94 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 					} else {
 						// FIXME: add the REST code copy and paste tree node.
 						treeDataNodeService.copyTreeNode(selectedNodeForCopy, toPasteNode);
-//						TreeNode copyPasteNode = new TreeNode();
-//						copyPasteNode.setLevel(selectedNodeForCopy.getLevel());
-//						copyPasteNode.setLabel(selectedNodeForCopy.getLabel()+" - Copy");
-//						copyPasteNode.setEntityList(selectedNodeForCopy.getEntityList());
-//						if (toPasteNode.getLevel().equals(NodeLevel.ENTITY)
-//								&& copyPasteNode.getLevel().equals(NodeLevel.REGION)) {
-//							nodeTree.getTreeData().addItem(toPasteNode, copyPasteNode);
-//							for (Node childRegionNode : nodeTree.getTreeData().getChildren(selectedNodeForCopy)) {
-//								Node newChildRegionNode = new Node();
-//								newChildRegionNode.setLevel(childRegionNode.getLevel());
-//								newChildRegionNode.setLabel(childRegionNode.getLabel()+" - Copy");
-//								newChildRegionNode.setEntityList(childRegionNode.getEntityList());
-//								nodeTree.getTreeData().addItem(copyPasteNode, newChildRegionNode);
-//								for (Node childMerchantNode : nodeTree.getTreeData().getChildren(childRegionNode)) {
-//									Node newChildMerchantNode = new Node();
-//									newChildMerchantNode.setLevel(childMerchantNode.getLevel());
-//									newChildMerchantNode.setLabel(childMerchantNode.getLabel()+" - Copy");
-//									newChildMerchantNode.setEntityList(childMerchantNode.getEntityList());
-//									nodeTree.getTreeData().addItem(newChildRegionNode, newChildMerchantNode);
-//									for (Node childTerminalNode : nodeTree.getTreeData()
-//											.getChildren(childMerchantNode)) {
-//										Node newChildTerminalNode = new Node();
-//										newChildTerminalNode.setLevel(childTerminalNode.getLevel());
-//										newChildTerminalNode.setLabel(childTerminalNode.getLabel()+" - Copy");
-//										newChildTerminalNode.setEntityList(childTerminalNode.getEntityList());
-//										nodeTree.getTreeData().addItem(newChildMerchantNode, newChildTerminalNode);
-//										for (Node childDeviceNode : nodeTree.getTreeData()
-//												.getChildren(childTerminalNode)) {
-//											Node newChildDeviceNode = new Node();
-//											newChildDeviceNode.setLevel(childDeviceNode.getLevel());
-//											newChildDeviceNode.setLabel(childDeviceNode.getLabel()+" - Copy");
-//											newChildDeviceNode.setEntityList(childDeviceNode.getEntityList());
-//											nodeTree.getTreeData().addItem(newChildTerminalNode, newChildDeviceNode);
-//										}
-//									}
-//								}
-//							}
-//						} else if (toPasteNode.getLevel().equals(NodeLevel.REGION)
-//								&& copyPasteNode.getLevel().equals(NodeLevel.MERCHANT)) {
-//							nodeTree.getTreeData().addItem(toPasteNode, copyPasteNode);
-//							for (Node childMerchantNode : nodeTree.getTreeData().getChildren(selectedNodeForCopy)) {
-//								Node newChildMerchantNode = new Node();
-//								newChildMerchantNode.setLevel(childMerchantNode.getLevel());
-//								newChildMerchantNode.setLabel(childMerchantNode.getLabel()+" - Copy");
-//								newChildMerchantNode.setEntityList(childMerchantNode.getEntityList());
-//								nodeTree.getTreeData().addItem(copyPasteNode, newChildMerchantNode);
-//								for (Node childTerminalNode : nodeTree.getTreeData().getChildren(childMerchantNode)) {
-//									Node newChildTerminalNode = new Node();
-//									newChildTerminalNode.setLevel(childTerminalNode.getLevel());
-//									newChildTerminalNode.setLabel(childTerminalNode.getLabel()+" - Copy");
-//									newChildTerminalNode.setEntityList(childTerminalNode.getEntityList());
-//									nodeTree.getTreeData().addItem(newChildMerchantNode, newChildTerminalNode);
-//									for (Node childDeviceNode : nodeTree.getTreeData().getChildren(childTerminalNode)) {
-//										Node newChildDeviceNode = new Node();
-//										newChildDeviceNode.setLevel(childDeviceNode.getLevel());
-//										newChildDeviceNode.setLabel(childDeviceNode.getLabel()+" - Copy");
-//										newChildDeviceNode.setEntityList(childDeviceNode.getEntityList());
-//										nodeTree.getTreeData().addItem(newChildTerminalNode, newChildDeviceNode);
-//									}
-//								}
-//							}
-//						} else if (toPasteNode.getLevel().equals(NodeLevel.MERCHANT)
-//								&& copyPasteNode.getLevel().equals(NodeLevel.TERMINAL)) {
-//							nodeTree.getTreeData().addItem(toPasteNode, copyPasteNode);
-//							for (Node childNode : nodeTree.getTreeData().getChildren(selectedNodeForCopy)) {
-//								// FIXME: provide a common log of copy constructor
-//								Node newChildNode = new Node();
-//								newChildNode.setLabel(childNode.getLabel()+" - Copy");
-//								newChildNode.setLevel(childNode.getLevel());
-//								newChildNode.setEntityList(childNode.getEntityList());
-//								nodeTree.getTreeData().addItem(copyPasteNode, newChildNode);
-//							}
-//
-//						} else if (toPasteNode.getLevel().equals(NodeLevel.TERMINAL)
-//								&& copyPasteNode.getLevel().equals(NodeLevel.DEVICE))
-//							nodeTree.getTreeData().addItem(toPasteNode, copyPasteNode);
-//						else
-//							Notification.show("The entity " + selectedNodeForCopy.getLabel() + " can't be copied under "
-//									+ toPasteNode.getLabel(), Type.ERROR_MESSAGE);
+						// TreeNode copyPasteNode = new TreeNode();
+						// copyPasteNode.setLevel(selectedNodeForCopy.getLevel());
+						// copyPasteNode.setLabel(selectedNodeForCopy.getLabel()+" - Copy");
+						// copyPasteNode.setEntityList(selectedNodeForCopy.getEntityList());
+						// if (toPasteNode.getLevel().equals(NodeLevel.ENTITY)
+						// && copyPasteNode.getLevel().equals(NodeLevel.REGION)) {
+						// nodeTree.getTreeData().addItem(toPasteNode, copyPasteNode);
+						// for (Node childRegionNode :
+						// nodeTree.getTreeData().getChildren(selectedNodeForCopy)) {
+						// Node newChildRegionNode = new Node();
+						// newChildRegionNode.setLevel(childRegionNode.getLevel());
+						// newChildRegionNode.setLabel(childRegionNode.getLabel()+" - Copy");
+						// newChildRegionNode.setEntityList(childRegionNode.getEntityList());
+						// nodeTree.getTreeData().addItem(copyPasteNode, newChildRegionNode);
+						// for (Node childMerchantNode :
+						// nodeTree.getTreeData().getChildren(childRegionNode)) {
+						// Node newChildMerchantNode = new Node();
+						// newChildMerchantNode.setLevel(childMerchantNode.getLevel());
+						// newChildMerchantNode.setLabel(childMerchantNode.getLabel()+" - Copy");
+						// newChildMerchantNode.setEntityList(childMerchantNode.getEntityList());
+						// nodeTree.getTreeData().addItem(newChildRegionNode, newChildMerchantNode);
+						// for (Node childTerminalNode : nodeTree.getTreeData()
+						// .getChildren(childMerchantNode)) {
+						// Node newChildTerminalNode = new Node();
+						// newChildTerminalNode.setLevel(childTerminalNode.getLevel());
+						// newChildTerminalNode.setLabel(childTerminalNode.getLabel()+" - Copy");
+						// newChildTerminalNode.setEntityList(childTerminalNode.getEntityList());
+						// nodeTree.getTreeData().addItem(newChildMerchantNode, newChildTerminalNode);
+						// for (Node childDeviceNode : nodeTree.getTreeData()
+						// .getChildren(childTerminalNode)) {
+						// Node newChildDeviceNode = new Node();
+						// newChildDeviceNode.setLevel(childDeviceNode.getLevel());
+						// newChildDeviceNode.setLabel(childDeviceNode.getLabel()+" - Copy");
+						// newChildDeviceNode.setEntityList(childDeviceNode.getEntityList());
+						// nodeTree.getTreeData().addItem(newChildTerminalNode, newChildDeviceNode);
+						// }
+						// }
+						// }
+						// }
+						// } else if (toPasteNode.getLevel().equals(NodeLevel.REGION)
+						// && copyPasteNode.getLevel().equals(NodeLevel.MERCHANT)) {
+						// nodeTree.getTreeData().addItem(toPasteNode, copyPasteNode);
+						// for (Node childMerchantNode :
+						// nodeTree.getTreeData().getChildren(selectedNodeForCopy)) {
+						// Node newChildMerchantNode = new Node();
+						// newChildMerchantNode.setLevel(childMerchantNode.getLevel());
+						// newChildMerchantNode.setLabel(childMerchantNode.getLabel()+" - Copy");
+						// newChildMerchantNode.setEntityList(childMerchantNode.getEntityList());
+						// nodeTree.getTreeData().addItem(copyPasteNode, newChildMerchantNode);
+						// for (Node childTerminalNode :
+						// nodeTree.getTreeData().getChildren(childMerchantNode)) {
+						// Node newChildTerminalNode = new Node();
+						// newChildTerminalNode.setLevel(childTerminalNode.getLevel());
+						// newChildTerminalNode.setLabel(childTerminalNode.getLabel()+" - Copy");
+						// newChildTerminalNode.setEntityList(childTerminalNode.getEntityList());
+						// nodeTree.getTreeData().addItem(newChildMerchantNode, newChildTerminalNode);
+						// for (Node childDeviceNode :
+						// nodeTree.getTreeData().getChildren(childTerminalNode)) {
+						// Node newChildDeviceNode = new Node();
+						// newChildDeviceNode.setLevel(childDeviceNode.getLevel());
+						// newChildDeviceNode.setLabel(childDeviceNode.getLabel()+" - Copy");
+						// newChildDeviceNode.setEntityList(childDeviceNode.getEntityList());
+						// nodeTree.getTreeData().addItem(newChildTerminalNode, newChildDeviceNode);
+						// }
+						// }
+						// }
+						// } else if (toPasteNode.getLevel().equals(NodeLevel.MERCHANT)
+						// && copyPasteNode.getLevel().equals(NodeLevel.TERMINAL)) {
+						// nodeTree.getTreeData().addItem(toPasteNode, copyPasteNode);
+						// for (Node childNode :
+						// nodeTree.getTreeData().getChildren(selectedNodeForCopy)) {
+						// // FIXME: provide a common log of copy constructor
+						// Node newChildNode = new Node();
+						// newChildNode.setLabel(childNode.getLabel()+" - Copy");
+						// newChildNode.setLevel(childNode.getLevel());
+						// newChildNode.setEntityList(childNode.getEntityList());
+						// nodeTree.getTreeData().addItem(copyPasteNode, newChildNode);
+						// }
+						//
+						// } else if (toPasteNode.getLevel().equals(NodeLevel.TERMINAL)
+						// && copyPasteNode.getLevel().equals(NodeLevel.DEVICE))
+						// nodeTree.getTreeData().addItem(toPasteNode, copyPasteNode);
+						// else
+						// Notification.show("The entity " + selectedNodeForCopy.getLabel() + " can't be
+						// copied under "
+						// + toPasteNode.getLabel(), Type.ERROR_MESSAGE);
 
-//						nodeTree.getDataProvider().refreshAll();
+						// nodeTree.getDataProvider().refreshAll();
 						try {
 							nodeTree.setTreeData(personalizationService.getTreeData());
 						} catch (ApiException e) {
@@ -493,34 +517,34 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		pasteEntity.setEnabled(false);
 		pasteEntity.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		pasteEntity.setDescription("Paste Entities", ContentMode.HTML);
-		
+
 		editEntity = new Button(VaadinIcons.EDIT, click -> {
-			if(nodeTree.getSelectedItems().size()==0) {
+			if (nodeTree.getSelectedItems().size() == 0) {
 				Notification.show(NotificationUtil.PERSONALIZATION_EDIT, Notification.Type.ERROR_MESSAGE);
-			}else {
-			entityFormLayout.setEnabled(true);
-			overRideParamGrid.setEnabled(true);
+			} else {
+				entityFormLayout.setEnabled(true);
+				overRideParamGrid.setEnabled(true);
 			}
-//			if (overRideParamGrid.getSelectedItems().size() > 0)
-//				overRideParamGrid.getEditor().setEnabled(true);
+			// if (overRideParamGrid.getSelectedItems().size() > 0)
+			// overRideParamGrid.getEditor().setEnabled(true);
 		});
 		editEntity.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		editEntity.setDescription("Edit Entities", ContentMode.HTML);
-		
+
 		deleteEntity = new Button(VaadinIcons.TRASH, click -> {
-			if(nodeTree.getSelectedItems().size()==0) {
+			if (nodeTree.getSelectedItems().size() == 0) {
 				Notification.show(NotificationUtil.PERSONALIZATION_DELETE, Notification.Type.ERROR_MESSAGE);
-			}else {
-			confirmDeleteEntity();
+			} else {
+				confirmDeleteEntity();
 			}
 		});
 		deleteEntity.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		deleteEntity.setDescription("Delete Entities", ContentMode.HTML);
-		
+
 		treeButtonLayout.addComponents(treeNodeSearch);
-		treeSearchLayout.addComponents(createEntity,copyEntity,pasteEntity,editEntity,deleteEntity);
+		treeSearchLayout.addComponents(createEntity, copyEntity, pasteEntity, editEntity, deleteEntity);
 	}
-	
+
 	private void getEntityInformation(HorizontalSplitPanel splitScreen) {
 		VerticalLayout entityInformationLayout = new VerticalLayout();
 		entityInformationLayout.addStyleName("personlization-verticalFormLayout");
@@ -532,301 +556,305 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		entityFormLayout = new FormLayout();
 		entityFormLayout.setWidth("100%");
 		entityFormLayout.addStyleNames("personlization-formLayout", "system-LabelAlignment");
-		
+
 		Label entityInformationLabel = new Label("Entity Information");
 		entityInformationLabel.addStyleName("label-style");
 		entityInformationLabel.addStyleNames(ValoTheme.LABEL_BOLD, ValoTheme.LABEL_H3);
 		entityLabelLayout.addComponent(entityInformationLabel);
-		
-		
-		cancel = new Button("Cancel", click ->{
+
+		cancel = new Button("Cancel", click -> {
 			ClearAllComponents();
 			ClearGrid();
 			entityFormLayout.setEnabled(false);
 			overRideParamGrid.setEnabled(false);
-			if(nodeTree.getSelectedItems().size()>0) {
+			if (nodeTree.getSelectedItems().size() > 0) {
 				nodeTree.deselect(nodeTree.getSelectedItems().iterator().next());
-			}else {
-				
+			} else {
+
 			}
 		});
 		cancel.addStyleName(ValoTheme.BUTTON_FRIENDLY);
 		cancel.addStyleName("v-button-customstyle");
 		cancel.setResponsive(true);
 		saveCancelButtonLayout.addComponent(cancel);
-		
-		save = new Button("Save", click ->  {
+
+		save = new Button("Save", click -> {
 			TreeNode node;
 			if (nodeTree.getSelectedItems().size() > 0) {
 				node = nodeTree.getSelectedItems().iterator().next();
 			} else {
 				node = new TreeNode();
 			}
-			
+
 			node.setType(entityType.getValue());
 			node.setLabel(entityName.getValue());
-			if(deviceDropDown.getValue() != null) {
-//				node.setDevice(deviceDropDown.getValue());
-			}else {
+			if (deviceDropDown.getValue() != null) {
+				// node.setDevice(deviceDropDown.getValue());
+			} else {
 				Notification.show(NotificationUtil.SAVE, Type.ERROR_MESSAGE);
 			}
-			
+
 			node.setDescription(entityDescription.getValue());
 			node.setActive(activeCheckbox.getValue());
-//			node.setSerialNum(entitySerialNum.getValue());
-//			node.setHeartBeat(activateHeartbeat.getValue());
-//			node.setFrequency(frequencyDropDown.getValue());
-//			node.setApp(appDropDown.getValue());
-//			node.setAdditionaFiles(addtnlFilesDropDown.getValue());
-//			node.setProfile(profileDropDown.getValue());
-//			node.setUpdate(updateDropDown.getValue());
-//			node.setOverRideParamList(overRideParamGrid.getDataProvider().fetch(new Query<>()).collect(Collectors.toList()));
-//			overRideParamGrid.setDataProvider(new ListDataProvider<>(node.getOverRideParamList()));
+			// node.setSerialNum(entitySerialNum.getValue());
+			// node.setHeartBeat(activateHeartbeat.getValue());
+			// node.setFrequency(frequencyDropDown.getValue());
+			// node.setApp(appDropDown.getValue());
+			// node.setAdditionaFiles(addtnlFilesDropDown.getValue());
+			// node.setProfile(profileDropDown.getValue());
+			// node.setUpdate(updateDropDown.getValue());
+			// node.setOverRideParamList(overRideParamGrid.getDataProvider().fetch(new
+			// Query<>()).collect(Collectors.toList()));
+			// overRideParamGrid.setDataProvider(new
+			// ListDataProvider<>(node.getOverRideParamList()));
 			overRideParamGrid.getDataProvider().refreshAll();
 			overRideParamGrid.deselectAll();
-			
+
 			entityFormLayout.setEnabled(false);
 			overRideParamGrid.setEnabled(false);
-			
+
 		});
 		save.addStyleName(ValoTheme.BUTTON_FRIENDLY);
 		save.addStyleName("v-button-customstyle");
 		save.setResponsive(true);
 		saveCancelButtonLayout.addComponent(save);
-		
+
 		saveCancelButtonLayout.setComponentAlignment(cancel, Alignment.MIDDLE_RIGHT);
 		saveCancelButtonLayout.setComponentAlignment(save, Alignment.MIDDLE_RIGHT);
 		saveCancelButtonLayout.setResponsive(true);
 		saveCancelButtonLayout.setStyleName("save-cancelButtonsAlignment");
-		
-		saveCancelEntityInfoLabelLayout.addComponents(entityLabelLayout,saveCancelButtonLayout);
+
+		saveCancelEntityInfoLabelLayout.addComponents(entityLabelLayout, saveCancelButtonLayout);
 		saveCancelEntityInfoLabelLayout.setComponentAlignment(saveCancelButtonLayout, Alignment.MIDDLE_RIGHT);
-		
+
 		getEntityFormLayout(entityFormLayout);
 		entityInformationLayout.addComponents(saveCancelEntityInfoLabelLayout, entityFormLayout);
 		getOverRideParamGrid(entityInformationLayout);
-		
+
 		splitScreen.addComponent(entityInformationLayout);
 	}
-	
+
 	private void getEntityFormLayout(FormLayout entityFormLayout) {
-		
+
 		getEntityType(entityFormLayout);
-		
+
 		getEntityName(entityFormLayout);
-		
+
 		getDeviceDropdown(entityFormLayout);
-		
+
 		getEntityDescription(entityFormLayout);
-		
+
 		getEntityActive(entityFormLayout);
-		
+
 		getEntitySerialNum(entityFormLayout);
-		
+
 		getEntityHeartBeat(entityFormLayout);
-		
+
 		getEntityFrequency(entityFormLayout);
-		
+
 		getApplicationSelection(entityFormLayout);
-		
+
 		getScheduleUpdate(entityFormLayout);
 	}
-	
+
 	private void getEntityType(FormLayout entityFormLayout) {
-		entityType = new ComboBox();
+		entityType = new ComboBox<EntityTypeEnum>();
 		entityType.setCaption("Entity Type");
-		entityType.setDataProvider(new ListDataProvider<>(Arrays.asList(EntityTypeEnum.ENTERPRISE,EntityTypeEnum.REGION,
-				EntityTypeEnum.MERCHANT,EntityTypeEnum.TERMINAL,EntityTypeEnum.DEVICE)));
-		entityType.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", 
+		entityType.setDataProvider(new ListDataProvider<>(
+				Arrays.asList(EntityTypeEnum.ENTERPRISE, EntityTypeEnum.REGION, EntityTypeEnum.MERCHANT,
+						EntityTypeEnum.TERMINAL, EntityTypeEnum.DEVICE, EntityTypeEnum.ORGANIZATION)));
+		entityType.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size",
 				"personlization-formAlignment", "small");
-//		entityType.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
-//		entityType.setWidth("48%");
-//		entityType.setStyleName("role-textbox");
-//		entityType.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
-		//entityType.addStyleName("v-grid-cell");
-		//entityType.setEnabled(false);
-		//do Necessary operations for popping data
-		
+		// entityType.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
+		// entityType.setWidth("48%");
+		// entityType.setStyleName("role-textbox");
+		// entityType.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
+		// entityType.addStyleName("v-grid-cell");
+		// entityType.setEnabled(false);
+		// do Necessary operations for popping data
+
 		entityFormLayout.addComponent(entityType);
 	}
-	
+
 	private void getEntityName(FormLayout entityFormLayout) {
-		
+
 		entityName = new TextField("Name");
 		entityName.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
 		entityName.setWidth("48%");
 		entityName.setStyleName("role-textbox");
-		entityName.addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS, 
-				"personlization-formAlignment", "v-textfield-lineHeight");
-		//entityName.addStyleName("v-grid-cell");
-		
+		entityName.addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS, "personlization-formAlignment",
+				"v-textfield-lineHeight");
+		// entityName.addStyleName("v-grid-cell");
+
 		entityFormLayout.addComponent(entityName);
 	}
-	
+
 	private void getDeviceDropdown(FormLayout entityFormLayout) {
-		
+
 		deviceDropDown = new ComboBox<Devices>();
 		deviceDropDown.setCaption("Devices");
 		deviceDropDown.setPlaceholder("Select Device");
-		deviceDropDown.setDataProvider(deviceService.getListDataProvider());
-		deviceDropDown.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", 
+		deviceDropDown.setDataProvider(personalizationService.getAllDevices());
+		deviceDropDown.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size",
 				"personlization-formAlignment", "small");
-		//do Necessary operations for popping data
-		
+		// do Necessary operations for popping data
+
 		entityFormLayout.addComponent(deviceDropDown);
 	}
-	
+
 	private void getEntityDescription(FormLayout entityFormLayout) {
-		
+
 		entityDescription = new TextField("Description");
 		entityDescription.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
 		entityDescription.setWidth("48%");
 		entityDescription.setStyleName("role-textbox");
-		entityDescription.addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS, 
-				"personlization-formAlignment", "v-textfield-lineHeight");
-		
-		//do Necessary operations for popping data
-		
-		
+		entityDescription.addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS, "personlization-formAlignment",
+				"v-textfield-lineHeight");
+
+		// do Necessary operations for popping data
+
 		entityFormLayout.addComponent(entityDescription);
 	}
-	
+
 	private void getEntityActive(FormLayout entityFormLayout) {
-		
+
 		HorizontalLayout entityActiveLayout = new HorizontalLayout();
-		//entityActiveLayout.addStyleNames("personlization-formAlignment");
+		// entityActiveLayout.addStyleNames("personlization-formAlignment");
 		Label active = new Label("Active");
 		active.setStyleName("role-activeLable");
 		active.addStyleNames("v-textfield-font", "role-activeLabel");
 		activeCheckbox = new CheckBox();
 		activeCheckbox.setCaption("Entity Active");
 		activeCheckbox.addStyleNames("v-textfield-font", "personlization-activeCheckbox");
-		//do Necessary operations for popping data
-		
+		// do Necessary operations for popping data
+
 		entityActiveLayout.addComponents(active, activeCheckbox);
 		entityActiveLayout.setStyleName("role-activeLable");
-		entityActiveLayout.addStyleNames("assetAlert-activeCheckBox", "personlization-formAlignment", 
+		entityActiveLayout.addStyleNames("assetAlert-activeCheckBox", "personlization-formAlignment",
 				"personlization-activeLayout");
-		
+
 		entityFormLayout.addComponent(entityActiveLayout);
 	}
-	
+
 	private void getEntitySerialNum(FormLayout entityFormLayout) {
 		entitySerialNum = new TextField("Serial Number");
 		entitySerialNum.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
 		entitySerialNum.setWidth("48%");
 		entitySerialNum.setStyleName("role-textbox");
-		entitySerialNum.addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS, "v-textfield-font", 
+		entitySerialNum.addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS, "v-textfield-font",
 				"personlization-formAlignment", "v-textfield-lineHeight");
-		
-		
-		//do Necessary operations for popping data
-		
+
+		// do Necessary operations for popping data
+
 		entityFormLayout.addComponent(entitySerialNum);
 	}
-	
+
 	private void getEntityHeartBeat(FormLayout entityFormLayout) {
-		
+
 		HorizontalLayout entityHeartbeatLayout = new HorizontalLayout();
-		//entityHeartbeatLayout.addStyleNames("personlization-formAlignment");
+		// entityHeartbeatLayout.addStyleNames("personlization-formAlignment");
 		Label heartbeat = new Label("Heartbeat");
 		heartbeat.setStyleName("role-activeLable");
 		heartbeat.addStyleNames("v-textfield-font", "role-activeLabel");
 		activateHeartbeat = new CheckBox();
 		activateHeartbeat.setCaption("Entity Active");
 		activateHeartbeat.addStyleNames("v-textfield-font", "personlization-heartbeatCheckbox");
-		//do Necessary operations for popping data
-		
+		// do Necessary operations for popping data
+
 		entityHeartbeatLayout.addComponents(heartbeat, activateHeartbeat);
 		entityHeartbeatLayout.setStyleName("role-activeLable");
-		entityHeartbeatLayout.addStyleNames("assetAlert-activeCheckBox", 
-				"personlization-formAlignment", "personlization-heartbeatLayout");
-		
+		entityHeartbeatLayout.addStyleNames("assetAlert-activeCheckBox", "personlization-formAlignment",
+				"personlization-heartbeatLayout");
+
 		entityFormLayout.addComponent(entityHeartbeatLayout);
 	}
-	
+
 	private void getEntityFrequency(FormLayout entityFormLayout) {
-		
+
 		frequencyDropDown = new ComboBox<>();
+		// TODO: find the frequency list from Integration
 		frequencyDropDown.setDataProvider(new ListDataProvider<>(
-				Arrays.asList("120 Seconds", "90 Seconds", " 30 Seconds","Daily", "Monthly","Never")));
+				Arrays.asList("120 Seconds", "90 Seconds", " 30 Seconds", "Daily", "Monthly", "Never")));
 		frequencyDropDown.setCaption("Frequency");
 		frequencyDropDown.setPlaceholder("Frequency");
-		frequencyDropDown.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", 
+		frequencyDropDown.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size",
 				"personlization-formAlignment", "small");
-		//do Necessary operations for popping data
-		
+		// do Necessary operations for popping data
+
 		entityFormLayout.addComponent(frequencyDropDown);
 	}
-	
+
 	private void getApplicationSelection(FormLayout entityFormLayout) {
-		
+
 		HorizontalLayout entityApplicationSelection = new HorizontalLayout();
-		entityApplicationSelection.addStyleNames("personlization-formAlignment", "personlization-applicationSelectionLayout");
+		entityApplicationSelection.addStyleNames("personlization-formAlignment",
+				"personlization-applicationSelectionLayout");
 		entityApplicationSelection.setCaption("Application Selection");
-		appDropDown = new ComboBox<AppMock>();
-		//frequencyDropDown.setDataProvider(new ListDataProvider<>(Arrays.asList("24 Hours", "1 Hour", " 30 Minutes")));
+		appDropDown = new ComboBox<AppClient>();
+		// frequencyDropDown.setDataProvider(new ListDataProvider<>(Arrays.asList("24
+		// Hours", "1 Hour", " 30 Minutes")));
 		appDropDown.setCaption("");
 		appDropDown.setPlaceholder("Application");
-		appDropDown.setDataProvider(appService.getListDataProvider());
+		appDropDown.setDataProvider(new ListDataProvider<>(personalizationService.getAppListByLoggedUserEntity()));
 		appDropDown.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", "small");
-		
-		//do Necessary operations for popping data
-		
+		// do Necessary operations for popping data
+
 		addtnlFilesDropDown = new ComboBox<>();
-		addtnlFilesDropDown.setDataProvider(new ListDataProvider<>(
-				Arrays.asList("Entity Files", "Region Files", "Merchant Files", "Terminal Files", "Device Files")));
+//		addtnlFilesDropDown.setDataProvider(new ListDataProvider<>(
+//				Arrays.asList("Entity Files", "Region Files", "Merchant Files", "Terminal Files", "Device Files")));
 		addtnlFilesDropDown.setCaption("");
 		addtnlFilesDropDown.setPlaceholder("Additional Files");
 		addtnlFilesDropDown.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", "small");
-		
-		//do Necessary operations for popping data
-		
+
 		profileDropDown = new ComboBox<Profile>();
-		//frequencyDropDown.setDataProvider(new ListDataProvider<>(Arrays.asList("24 Hours", "1 Hour", " 30 Minutes")));
+		// frequencyDropDown.setDataProvider(new ListDataProvider<>(Arrays.asList("24
+		// Hours", "1 Hour", " 30 Minutes")));
 		profileDropDown.setCaption("");
 		profileDropDown.setPlaceholder("Default Profile");
-		profileDropDown.setDataProvider(profileService.getListDataProvider());
+//		profileDropDown.setDataProvider(profileService.getListDataProvider());
 		profileDropDown.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", "small");
-		
-		//do Necessary operations for popping data
-		
-		
-		entityApplicationSelection.addComponents(appDropDown,addtnlFilesDropDown,profileDropDown);
+
+		appDropDown.addSelectionListener(selected ->{
+			selectedApp = selected.getValue();
+			addtnlFilesDropDown.setDataProvider(personalizationService.getApplicationFileDataProvider(selectedApp.getId()));
+			profileDropDown.setDataProvider(personalizationService.getProfileDataProvider(selectedApp.getId()));
+			overRideParamGrid.setDataProvider(personalizationService.getOverrideParamDataProvider(selectedApp.getId()));
+		});
+		entityApplicationSelection.addComponents(appDropDown, addtnlFilesDropDown, profileDropDown);
 		entityFormLayout.addComponent(entityApplicationSelection);
 	}
-	
+
 	private void getScheduleUpdate(FormLayout entityFormLayout) {
-	
+
 		updateDropDown = new ComboBox<>();
-		updateDropDown.setDataProvider(new ListDataProvider<>(Arrays.asList("Update 1", "Update 2",
-				"Update 3", "Update 4", "Update 5")));
+		updateDropDown.setDataProvider(
+				new ListDataProvider<>(Arrays.asList("Update 1", "Update 2", "Update 3", "Update 4", "Update 5")));
 		updateDropDown.setCaption("Schedule Update");
 		updateDropDown.setPlaceholder("Update");
-		updateDropDown.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", 
+		updateDropDown.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size",
 				"personlization-formAlignment", "small");
-		
-		//do Necessary operations for popping data
-	
+
+		// do Necessary operations for popping data
+
 		entityFormLayout.addComponent(updateDropDown);
 	}
-	
+
 	private void getOverRideParamGrid(VerticalLayout entityInformationLayout) {
 		HorizontalLayout overRideParamLabelLayout = new HorizontalLayout();
 		overRideParamLabelLayout.addStyleName("personlization-overRideParamLabelLayout");
 		HorizontalLayout overRideParamSearchButtonLayout = new HorizontalLayout();
 		overRideParamSearchButtonLayout.setWidth("100%");
 		overRideParamSearchButtonLayout.addStyleName("personlization-paramButtonLayout");
-		
+
 		HorizontalLayout overRideParamSearchLayout = new HorizontalLayout();
 		overRideParamSearchLayout.setWidth("100%");
 		HorizontalLayout overRideParamButtonLayout = new HorizontalLayout();
-		
+
 		Label overRideParamLabel = new Label("Override Parameters");
 		overRideParamLabel.addStyleName("label-style");
 		overRideParamLabel.addStyleNames(ValoTheme.LABEL_BOLD, ValoTheme.LABEL_H3);
 		overRideParamLabelLayout.addComponent(overRideParamLabel);
-		
+
 		overRideParamSearch = new TextField();
 		overRideParamSearch.setWidth("100%");
 		overRideParamSearch.setHeight(37, Unit.PIXELS);
@@ -836,25 +864,24 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		overRideParamSearch.setPlaceholder("Search");
 		overRideParamSearch.setVisible(true);
 		overRideParamSearchLayout.addComponent(overRideParamSearch);
-		
+
 		createParam = new Button(VaadinIcons.FOLDER_ADD, click -> {
-			Window createParamGridWindow=openOverRideParamWindow(overRideParamGrid);
+			Window createParamGridWindow = openOverRideParamWindow(overRideParamGrid);
 			if (createParamGridWindow.getParent() == null)
 				UI.getCurrent().addWindow(createParamGridWindow);
 		});
 		createParam.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		createParam.setDescription("Create New Parameter", ContentMode.HTML);
-		
-//		editParam = new Button(VaadinIcons.EDIT, click -> {
-//			//Todo Edit new entity
-//		});
-//		editParam.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
-		
+
+		// editParam = new Button(VaadinIcons.EDIT, click -> {
+		// //Todo Edit new entity
+		// });
+		// editParam.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
+
 		deleteParam = new Button(VaadinIcons.TRASH, click -> {
-			if (nodeTree.getSelectedItems().size()==0) {
+			if (nodeTree.getSelectedItems().size() == 0) {
 				Notification.show(NotificationUtil.PERSONALIZATION_DELETE, Notification.Type.ERROR_MESSAGE);
-			} 
-			else if (overRideParamGrid.getSelectedItems().isEmpty()) {
+			} else if (overRideParamGrid.getSelectedItems().isEmpty()) {
 				Notification.show(NotificationUtil.PERSONALIZATION_PARAM_DELETE, Notification.Type.ERROR_MESSAGE);
 			} else {
 				confirmDeleteOverRideParam(overRideParamGrid, overRideParamSearch);
@@ -862,10 +889,10 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		});
 		deleteParam.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		deleteParam.setDescription("Delete Params", ContentMode.HTML);
-		overRideParamButtonLayout.addComponents(createParam,deleteParam);
-		
+		overRideParamButtonLayout.addComponents(createParam, deleteParam);
+
 		overRideParamSearchButtonLayout.addComponents(overRideParamSearchLayout, overRideParamButtonLayout);
-		
+
 		overRideParamGrid = new Grid<>(OverRideParameters.class);
 		overRideParamGrid.addStyleNames("personlization-gridHeight");
 		overRideParamGrid.setWidth("100%");
@@ -880,15 +907,15 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		paramComboBox.setDataProvider(new ListDataProvider<>(Arrays.asList(ParameterType.values())));
 		overRideParamGrid.getColumn("type").setEditorComponent(paramComboBox);
 		overRideParamGrid.getEditor().setEnabled(true).addSaveListener(save -> {
-			/*OverRideParameters param = overRideParamGrid.getSelectedItems().iterator().next();
-			if(param.getParameter().isEmpty() || 
-					param.getDescription().isEmpty() || param.getType()==null ||
-							param.getValue().isEmpty()) {
+			// FIXME: update code for save mechanism
+			OverRideParameters param = save.getBean();
+			if (param.getParameter().isEmpty() || param.getDescription().isEmpty() || param.getType() == null
+					|| param.getValue().isEmpty()) {
 				Notification.show("Data cannot be empty in a selected row");
-			}*/
+			}
 
 		});
-		
+
 		overRideParamSearch.addValueChangeListener(valueChange -> {
 			String valueInLower = valueChange.getValue().toLowerCase();
 			ListDataProvider<OverRideParameters> paramDataProvider = (ListDataProvider<OverRideParameters>) overRideParamGrid
@@ -903,43 +930,45 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 			});
 		});
 
-		
-		entityInformationLayout.addComponents(overRideParamLabelLayout, overRideParamSearchButtonLayout, overRideParamGrid);
+		entityInformationLayout.addComponents(overRideParamLabelLayout, overRideParamSearchButtonLayout,
+				overRideParamGrid);
 	}
-	
+
 	private Window openTreeNodeEditWindow(Node nodeToEdit) {
 		Window nodeEditWindow = new Window("Edit Node");
 		String label = nodeToEdit.getLabel();
-		TextField nodeName = new TextField("Name",nodeToEdit.getLabel());
-		nodeName.addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS, "role-textbox","v-textfield-font", "v-grid-cell");
-		Button saveNode = new Button("Save",click->{
-			if(StringUtils.isNotEmpty(nodeName.getValue())){
+		TextField nodeName = new TextField("Name", nodeToEdit.getLabel());
+		nodeName.addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS, "role-textbox", "v-textfield-font", "v-grid-cell");
+		Button saveNode = new Button("Save", click -> {
+			if (StringUtils.isNotEmpty(nodeName.getValue())) {
 				nodeToEdit.setLabel(nodeName.getValue());
 				entityName.setValue(nodeName.getValue());
 				nodeTree.getDataProvider().refreshAll();
 				nodeEditWindow.close();
-				
-			}else {
-				Notification notification = Notification.show(NotificationUtil.PERSONALIZATION_EDIT_ENTITY_NAME,Type.ERROR_MESSAGE);
+
+			} else {
+				Notification notification = Notification.show(NotificationUtil.PERSONALIZATION_EDIT_ENTITY_NAME,
+						Type.ERROR_MESSAGE);
 				notification.addCloseListener(new CloseListener() {
 
 					@Override
 					public void notificationClose(CloseEvent e) {
 						nodeName.setValue(label);
-						
-					}});
+
+					}
+				});
 			}
 		});
-		
+
 		saveNode.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
-		
+
 		Button cancelNode = new Button("Cancel", click -> {
 			nodeEditWindow.close();
 		});
 		cancelNode.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		HorizontalLayout buttonLayout = new HorizontalLayout(saveNode, cancelNode);
 		FormLayout profileFormLayout = new FormLayout(nodeName);
-		
+
 		// Window Setup
 		nodeEditWindow.setContent(new VerticalLayout(profileFormLayout, buttonLayout));
 		nodeEditWindow.center();
@@ -948,7 +977,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		nodeEditWindow.setWidth(30, Unit.PERCENTAGE);
 		return nodeEditWindow;
 	}
-	
+
 	private Window openEntityWindow() {
 		Window entityWindow = new Window("Add Entity");
 		TextField entityName = new TextField("Name");
@@ -997,25 +1026,25 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 				default:
 					break;
 				}
-				personalizationService.createEntity(selectedNode,newNode);
+				personalizationService.createEntity(selectedNode, newNode);
 				try {
 					nodeTree.setTreeData(personalizationService.getTreeData());
 				} catch (ApiException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				//nodeTree.getDataProvider().refreshAll();
+				// nodeTree.getDataProvider().refreshAll();
 				entityWindow.close();
 
-			}else {
-			Notification.show(NotificationUtil.PERSONALIZATION_NEW_ENTITY_NAME, Type.ERROR_MESSAGE);
+			} else {
+				Notification.show(NotificationUtil.PERSONALIZATION_NEW_ENTITY_NAME, Type.ERROR_MESSAGE);
 			}
-			//entityWindow.close();
+			// entityWindow.close();
 		});
-		
+
 		saveProfile.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
-		//nodeTree.getTreeData().addItem(selectedNode, newNode);
-		
+		// nodeTree.getTreeData().addItem(selectedNode, newNode);
+
 		Button cancelProfile = new Button("Reset", click -> {
 			entityName.clear();
 		});
@@ -1031,7 +1060,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		entityWindow.setWidth(30, Unit.PERCENTAGE);
 		return entityWindow;
 	}
-	
+
 	private void ClearAllComponents() {
 		entityName.clear();
 		entityDescription.clear();
@@ -1046,12 +1075,12 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		profileDropDown.clear();
 		updateDropDown.clear();
 	}
-	
+
 	private void ClearGrid() {
-		//overRideParamGrid
+		// overRideParamGrid
 		overRideParamGrid.setDataProvider(new ListDataProvider<>(Arrays.asList()));
 	}
-	
+
 	private void confirmDeleteOverRideParam(Grid<OverRideParameters> overRideParamGrid, TextField overRideParamSearch) {
 		ConfirmDialog.show(this.getUI(), "Please Confirm:", "Are you sure you want to delete?", "Ok", "Cancel",
 				new ConfirmDialog.Listener() {
@@ -1061,7 +1090,8 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 							// Confirmed to continue
 							overRideParamSearch.clear();
 							overRideParamGrid.setEnabled(false);
-							overRideParamService.removeOverRidetParam(overRideParamGrid.getSelectedItems().iterator().next());
+							overRideParamService
+									.removeOverRidetParam(overRideParamGrid.getSelectedItems().iterator().next());
 							overRideParamGrid.setDataProvider(overRideParamService.getListDataProvider());
 							overRideParamGrid.getDataProvider().refreshAll();
 							overRideParamGrid.deselectAll();
@@ -1073,7 +1103,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 					}
 				});
 	}
-	
+
 	private void confirmDeleteEntity() {
 		ConfirmDialog.show(this.getUI(), "Please Confirm:", "Are you sure you want to delete?", "Ok", "Cancel",
 				new ConfirmDialog.Listener() {
@@ -1081,9 +1111,10 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 					public void onClose(ConfirmDialog dialog) {
 						if (dialog.isConfirmed()) {
 							if (nodeTree.getSelectedItems().size() == 1) {
-								//TODO add yes/no confirmation for delete
+								// TODO add yes/no confirmation for delete
 								nodeTree.getTreeData().removeItem(nodeTree.getSelectedItems().iterator().next());
-								//Notification.show("To be Deleted "+nodeTree.getSelectedItems().iterator().next(),Type.WARNING_MESSAGE);
+								// Notification.show("To be Deleted
+								// "+nodeTree.getSelectedItems().iterator().next(),Type.WARNING_MESSAGE);
 								nodeTree.getDataProvider().refreshAll();
 								ClearAllComponents();
 								ClearGrid();
@@ -1095,101 +1126,98 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 					}
 				});
 	}
-	
-	private Window openOverRideParamWindow(Grid<OverRideParameters> overRideParamGrid) {
-		
-		if(nodeTree.getSelectedItems().size()==0) {
-			Notification.show(NotificationUtil.PERSONALIZATION_CREATE_PARAM, Type.ERROR_MESSAGE);
-		}else {
-		overRideParamWindow = new Window("Add Over Ride Parameter");
-		parameterName = new TextField("Parameter");
-		parameterName.setStyleName("role-textbox");
-		parameterName.addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS, "v-textfield-font", "v-grid-cell");
-		parameterName.focus();
-		
-		parameterDescription = new TextField("Description");
-		parameterDescription.setStyleName("role-textbox");
-		parameterDescription.addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS, "v-textfield-font", "v-grid-cell");
-		
-		parameterType = new ComboBox<>("Type");
-		parameterType.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", "small");
-		parameterType.setDataProvider(new ListDataProvider<>(Arrays.asList(ParameterType.values())));
-		
-		parameterValue = new TextField("Value");
-		parameterValue.setStyleName("role-textbox");
-		parameterValue.addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS, "v-textfield-font", "v-grid-cell");
-		
-		Button saveParameter = new Button("Save", click -> {
-			if (parameterType.getValue()!=null
-					&& StringUtils.isNotEmpty(parameterName.getValue()) &&
-					StringUtils.isNotEmpty(parameterValue.getValue()) &&
-					StringUtils.isNotEmpty(parameterDescription.getValue())) {
-				OverRideParameters overRideParam = new OverRideParameters(parameterName.getValue(),
-						parameterDescription.getValue(), parameterType.getValue(), parameterValue.getValue());
-//				overRideParamService.saveOverRideParam(overRideParam);
-//				
-//				treeDataService.getTreeDataForPersonlization();
-//				List<Node> nodeList = treeDataService.getPersonlizationList();
-//				for(Node node : nodeList) {
-//					if(node.getLabel().equals(nodeTree.getSelectedItems().iterator().next().getLabel())) {
-//							
-//							DataProvider data = new ListDataProvider(node.getOverRideParamList());
-//							overRideParamGrid.setDataProvider(data);
-//							overRideParamGrid.select(overRideParam);
-//							
-//						
-//					}
-//				}
-				// appDefaultParamService.saveAppDefaultParam(appDefaultParam);
-//				List<OverRideParameters> list = new ArrayList<OverRideParameters>();
-//				list.addAll(nodeTree.getSelectedItems().iterator().next().getOverRideParamList());
-//				list.add(overRideParam);
-				
-				TreeNode node;
-				if (nodeTree.getSelectedItems().size() > 0) {
-					node = nodeTree.getSelectedItems().iterator().next();
-//					node.getOverRideParamList().add(overRideParam);
-				} else {
-					node = new TreeNode();
-					List<OverRideParameters> paramList = new ArrayList<>();
-					paramList.add(overRideParam);
-//					node.setOverRideParamList(paramList);
-				}
-				
-//				DataProvider data = new ListDataProvider(node.getOverRideParamList());
-//				overRideParamGrid.setDataProvider(data);
-//				overRideParamGrid.select(overRideParam);
-				//				List<OverRideParameters> list = nodeTree.getSelectedItems().iterator().next().getOverRideParamList();
-//				// appService.saveApp(app);
-//				list.add(overRideParam);
-//				DataProvider data = new ListDataProvider(list);
-//				overRideParamGrid.setDataProvider(data);
-				overRideParamWindow.close();
-			} else {
-				Notification.show(NotificationUtil.SAVE, Type.ERROR_MESSAGE);
-			}
-		});
-		saveParameter.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
-		
-		Button cancelParameter = new Button("Reset", click -> {
-			parameterName.clear();
-			parameterValue.clear();
-			parameterDescription.clear();
-			parameterType.clear();
-		});
-		cancelParameter.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
-		
-		HorizontalLayout buttonLayout = new HorizontalLayout(saveParameter, cancelParameter);
-		FormLayout profileFormLayout = new FormLayout(parameterName, parameterType, parameterDescription,
-				parameterValue);
 
-		// Window Setup
-		overRideParamWindow.setContent(new VerticalLayout(profileFormLayout, buttonLayout));
-		overRideParamWindow.center();
-		overRideParamWindow.setModal(true);
-		overRideParamWindow.setClosable(true);
-		overRideParamWindow.setWidth(30, Unit.PERCENTAGE);
+	private Window openOverRideParamWindow(Grid<OverRideParameters> overRideParamGrid) {
+
+		if (nodeTree.getSelectedItems().size() == 0) {
+			Notification.show(NotificationUtil.PERSONALIZATION_CREATE_PARAM, Type.ERROR_MESSAGE);
+		} else {
+			overRideParamWindow = new Window("Add Over Ride Parameter");
+			parameterName = new TextField("Parameter");
+			parameterName.setStyleName("role-textbox");
+			parameterName.addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS, "v-textfield-font", "v-grid-cell");
+			parameterName.focus();
+
+			parameterDescription = new TextField("Description");
+			parameterDescription.setStyleName("role-textbox");
+			parameterDescription.addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS, "v-textfield-font", "v-grid-cell");
+
+			parameterType = new ComboBox<>("Type");
+			parameterType.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", "small");
+			parameterType.setDataProvider(new ListDataProvider<>(Arrays.asList(ParameterType.values())));
+
+			parameterValue = new TextField("Value");
+			parameterValue.setStyleName("role-textbox");
+			parameterValue.addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS, "v-textfield-font", "v-grid-cell");
+
+			Button saveParameter = new Button("Save", click -> {
+				if (parameterType.getValue() != null && StringUtils.isNotEmpty(parameterName.getValue())
+						&& StringUtils.isNotEmpty(parameterValue.getValue())
+						&& StringUtils.isNotEmpty(parameterDescription.getValue())) {
+					OverRideParameters overRideParam = new OverRideParameters(-1L,parameterName.getValue(),
+							parameterDescription.getValue(), parameterType.getValue(), parameterValue.getValue());
+					
+					//FIXME : write create mechanism for override
+					
+					// overRideParamService.saveOverRideParam(overRideParam);
+					//
+					// treeDataService.getTreeDataForPersonlization();
+					// List<Node> nodeList = treeDataService.getPersonlizationList();
+					// for(Node node : nodeList) {
+					// if(node.getLabel().equals(nodeTree.getSelectedItems().iterator().next().getLabel()))
+					// {
+					//
+					// DataProvider data = new ListDataProvider(node.getOverRideParamList());
+					// overRideParamGrid.setDataProvider(data);
+					// overRideParamGrid.select(overRideParam);
+					//
+					//
+					// }
+					// }
+					// appDefaultParamService.saveAppDefaultParam(appDefaultParam);
+					// List<OverRideParameters> list = new ArrayList<OverRideParameters>();
+					// list.addAll(nodeTree.getSelectedItems().iterator().next().getOverRideParamList());
+					// list.add(overRideParam);
+
+					TreeNode node;
+					if (nodeTree.getSelectedItems().size() > 0) {
+						node = nodeTree.getSelectedItems().iterator().next();
+						// node.getOverRideParamList().add(overRideParam);
+					} else {
+						node = new TreeNode();
+						List<OverRideParameters> paramList = new ArrayList<>();
+						paramList.add(overRideParam);
+						// node.setOverRideParamList(paramList);
+					}
+					
+					 overRideParamGrid.setDataProvider(personalizationService.getOverrideParamDataProvider(selectedApp.getId()));
+					 overRideParamGrid.select(overRideParam);
+					 overRideParamWindow.close();
+				} else {
+					Notification.show(NotificationUtil.SAVE, Type.ERROR_MESSAGE);
+				}
+			});
+			saveParameter.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
+
+			Button cancelParameter = new Button("Reset", click -> {
+				parameterName.clear();
+				parameterValue.clear();
+				parameterDescription.clear();
+				parameterType.clear();
+			});
+			cancelParameter.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
+
+			HorizontalLayout buttonLayout = new HorizontalLayout(saveParameter, cancelParameter);
+			FormLayout profileFormLayout = new FormLayout(parameterName, parameterType, parameterDescription,
+					parameterValue);
+
+			// Window Setup
+			overRideParamWindow.setContent(new VerticalLayout(profileFormLayout, buttonLayout));
+			overRideParamWindow.center();
+			overRideParamWindow.setModal(true);
+			overRideParamWindow.setClosable(true);
+			overRideParamWindow.setWidth(30, Unit.PERCENTAGE);
 		}
-		return overRideParamWindow;	
+		return overRideParamWindow;
 	}
 }

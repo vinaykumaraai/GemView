@@ -68,7 +68,7 @@ public class ApplicationFile extends File {
 	@Override
 	public String toString() {
 		// TODO Auto-generated method stub
-		return super.getName();
+		return name;
 	}
 public ApplicationFile(Long id,String name,String description,String value) {
 	super(name);

@@ -41,8 +41,7 @@ public class OverRideParameters extends AbstractEntity {
 		// TODO Auto-generated constructor stub
 				super(false);
 	}
-	public OverRideParameters(String parameter, String description, ParameterType type, String Value) {
-		super(false);
+	public OverRideParameters(Long id, String parameter, String description, ParameterType type, String Value) {
 		Objects.requireNonNull(parameter);
 		Objects.requireNonNull(description);
 		Objects.requireNonNull(type);
@@ -51,6 +50,7 @@ public class OverRideParameters extends AbstractEntity {
 		this.description = description;
 		this.type = type;
 		this.value = Value;
+		this.setId(id);
 
 	}
 	public String getParameter() {

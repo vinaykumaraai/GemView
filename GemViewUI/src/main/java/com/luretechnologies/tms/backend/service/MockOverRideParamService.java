@@ -52,31 +52,31 @@ public class MockOverRideParamService extends CrudService<OverRideParameters>{
 	@PostConstruct
 	public void createInitialOverRideParams() throws ParseException
 	{
-		OverRideParameters overRideParams = new OverRideParameters("properties", "This is for properties", ParameterType.TEXT, "Value 1");
+		OverRideParameters overRideParams = new OverRideParameters(1L,"properties", "This is for properties", ParameterType.TEXT, "Value 1");
 		overRideParams.setId(overRideParams.getId()+2);
 		overRideParamDirectory.put(overRideParams.getId(), overRideParams);
-		overRideParams = new OverRideParameters("flag", "This is for Flag", ParameterType.BOOLEAN, "Value 2");
+		overRideParams = new OverRideParameters(2L,"flag", "This is for Flag", ParameterType.BOOLEAN, "Value 2");
 		overRideParams.setId(overRideParams.getId()+3);
 		overRideParamDirectory.put(overRideParams.getId(), overRideParams);
-		overRideParams = new OverRideParameters("message", "This is for message", ParameterType.TEXT, "Value 3");
+		overRideParams = new OverRideParameters(3L,"message", "This is for message", ParameterType.TEXT, "Value 3");
 		overRideParams.setId(overRideParams.getId()+4);
 		overRideParamDirectory.put(overRideParams.getId(), overRideParams);
-		overRideParams = new OverRideParameters("Header 1", "This is for message 1", ParameterType.TEXT, "Value 4");
+		overRideParams = new OverRideParameters(4L,"Header 1", "This is for message 1", ParameterType.TEXT, "Value 4");
 		overRideParams.setId(overRideParams.getId()+5);
 		overRideParamDirectory.put(overRideParams.getId(), overRideParams);
-		overRideParams = new OverRideParameters("message 1", "This is for message 2", ParameterType.NUMERIC, "Value 5");
+		overRideParams = new OverRideParameters(5L,"message 1", "This is for message 2", ParameterType.NUMERIC, "Value 5");
 		overRideParams.setId(overRideParams.getId()+6);
 		overRideParamDirectory.put(overRideParams.getId(), overRideParams);
-		overRideParams = new OverRideParameters("Headrer 2", "This is for message 3", ParameterType.NUMERIC, "Value 6");
+		overRideParams = new OverRideParameters(6L,"Headrer 2", "This is for message 3", ParameterType.NUMERIC, "Value 6");
 		overRideParams.setId(overRideParams.getId()+7);
 		overRideParamDirectory.put(overRideParams.getId(), overRideParams);
-		overRideParams = new OverRideParameters("Headrer 3", "This is for message 4", ParameterType.TEXT, "Value 7");
+		overRideParams = new OverRideParameters(7L,"Headrer 3", "This is for message 4", ParameterType.TEXT, "Value 7");
 		overRideParams.setId(overRideParams.getId()+8);
 		overRideParamDirectory.put(overRideParams.getId(), overRideParams);
-		overRideParams = new OverRideParameters("Header 4", "This is for message 5", ParameterType.NUMERIC, "Value 8");
+		overRideParams = new OverRideParameters(8L,"Header 4", "This is for message 5", ParameterType.NUMERIC, "Value 8");
 		overRideParams.setId(overRideParams.getId()+9);
 		overRideParamDirectory.put(overRideParams.getId(), overRideParams);
-		overRideParams = new OverRideParameters("Header 5", "This is for message 6", ParameterType.TEXT, "Value 9");
+		overRideParams = new OverRideParameters(9L,"Header 5", "This is for message 6", ParameterType.TEXT, "Value 9");
 		overRideParams.setId(overRideParams.getId()+10);
 		overRideParamDirectory.put(overRideParams.getId(), overRideParams);
 	}
