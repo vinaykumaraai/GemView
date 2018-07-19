@@ -85,7 +85,7 @@ public class PersonalizationService {
 
 	public void createEntity(TreeNode parentNode, TreeNode treeNewNode) {
 		try {
-			if(RestServiceUtil.getSESSION() != null) {
+			if (RestServiceUtil.getSESSION() != null) {
 				switch (parentNode.getType()) {
 
 				case ENTERPRISE:
@@ -128,7 +128,7 @@ public class PersonalizationService {
 					terminal.setEntityId(treeNewNode.getEntityId());
 					RestServiceUtil.getInstance().getClient().getTerminalApi().createTerminal(terminal);
 					break;
-					
+
 				case TERMINAL:
 					Device device = new Device();
 					device.setAvailable(treeNewNode.isActive());
@@ -143,17 +143,17 @@ public class PersonalizationService {
 					break;
 				}
 			}
-			
-		}catch (Exception e) {
+
+		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
 		}
 
 	}
-	
+
 	public void updateEntity(TreeNode node) {
 		try {
-			if(RestServiceUtil.getSESSION() != null) {
+			if (RestServiceUtil.getSESSION() != null) {
 				switch (node.getType()) {
 				case ORGANIZATION:
 					Organization organization = new Organization();
@@ -162,7 +162,8 @@ public class PersonalizationService {
 					organization.setName(node.getLabel());
 					organization.setType(node.getType());
 					organization.setEntityId(node.getEntityId());
-					RestServiceUtil.getInstance().getClient().getOrganizationApi().updateOrganization(organization.getEntityId(), organization);
+					RestServiceUtil.getInstance().getClient().getOrganizationApi()
+							.updateOrganization(organization.getEntityId(), organization);
 					break;
 				case REGION:
 					Region region = new Region();
@@ -180,7 +181,8 @@ public class PersonalizationService {
 					merchant.setName(node.getLabel());
 					merchant.setType(node.getType());
 					merchant.setEntityId(node.getEntityId());
-					RestServiceUtil.getInstance().getClient().getMerchantApi().updateMerchant(merchant.getEntityId(), merchant);
+					RestServiceUtil.getInstance().getClient().getMerchantApi().updateMerchant(merchant.getEntityId(),
+							merchant);
 					break;
 				case TERMINAL:
 					Terminal terminal = new Terminal();
@@ -192,9 +194,10 @@ public class PersonalizationService {
 					terminal.setHeartbeat(node.isHeartBeat());
 					terminal.setSerialNumber(node.getSerialNum());
 					terminal.setEntityId(terminal.getEntityId());
-					RestServiceUtil.getInstance().getClient().getTerminalApi().updateTerminal(terminal.getEntityId(), terminal);
+					RestServiceUtil.getInstance().getClient().getTerminalApi().updateTerminal(terminal.getEntityId(),
+							terminal);
 					break;
-					
+
 				case DEVICE:
 					Device device = new Device();
 					device.setAvailable(node.isActive());
@@ -208,18 +211,19 @@ public class PersonalizationService {
 					break;
 				}
 			}
-			
-		}catch (Exception e) {
+
+		} catch (Exception e) {
 			// TODO: handle exception
 		}
 	}
 
 	public void deleteEntity(TreeNode node) {
 		try {
-			if(RestServiceUtil.getSESSION()!=null) {
+			if (RestServiceUtil.getSESSION() != null) {
 				switch (node.getType()) {
 				case ORGANIZATION:
-					RestServiceUtil.getInstance().getClient().getOrganizationApi().deleteOrganization(node.getEntityId());
+					RestServiceUtil.getInstance().getClient().getOrganizationApi()
+							.deleteOrganization(node.getEntityId());
 					break;
 				case REGION:
 					RestServiceUtil.getInstance().getClient().getRegionApi().deleteRegion(node.getEntityId());
@@ -233,16 +237,17 @@ public class PersonalizationService {
 				case DEVICE:
 					RestServiceUtil.getInstance().getClient().getDeviceApi().deleteDevice(node.getEntityId());
 					break;
-					default:
+				default:
 					break;
+				}
 			}
-			}
-			
-		}catch (Exception e) {
+
+		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
 		}
 	}
+
 	public Devices getDevicesByEntityId(String entityId) {
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
@@ -260,7 +265,7 @@ public class PersonalizationService {
 	public String getDeviceSerialNumberByEntityId(String entityId) {
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
-				getTerminalByEntityId(entityId);
+				getDeviceByEntityId(entityId);
 				if (deviceForPersonalizationView != null)
 					return deviceForPersonalizationView.getSerialNumber();
 				else
@@ -275,8 +280,11 @@ public class PersonalizationService {
 	}
 
 	private Device getDeviceByEntityId(String entityId) throws ApiException {
-		if (deviceForPersonalizationView == null & !deviceForPersonalizationView.getId().toString().equals(entityId))
+		if (deviceForPersonalizationView == null)
 			deviceForPersonalizationView = RestServiceUtil.getInstance().getClient().getDeviceApi().getDevice(entityId);
+		else if(!deviceForPersonalizationView.getEntityId().equals(entityId))
+			deviceForPersonalizationView = RestServiceUtil.getInstance().getClient().getDeviceApi().getDevice(entityId);
+
 		return deviceForPersonalizationView;
 	}
 
@@ -297,13 +305,14 @@ public class PersonalizationService {
 		}
 		return new ListDataProvider<Devices>(allDevices);
 	}
-	
-	public ListDataProvider<OverRideParameters> getOverrideParamDataProvider(Long appId){
+
+	public ListDataProvider<OverRideParameters> getOverrideParamDataProvider(Long appId) {
 		List<OverRideParameters> overRideParamList = new ArrayList<>();
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
-				for(AppParam appParam : RestServiceUtil.getInstance().getClient().getAppApi().getAppParamList(appId)) {
-					overRideParamList.add(new OverRideParameters(appParam.getId(),appParam.getName(), appParam.getDescription(), ParameterType.OTHER, appParam.getAppParamFormat().getValue()));
+				for (AppParam appParam : RestServiceUtil.getInstance().getClient().getAppApi().getAppParamList(appId)) {
+					overRideParamList.add(new OverRideParameters(appParam.getId(), appParam.getName(),
+							appParam.getDescription(), ParameterType.OTHER, appParam.getAppParamFormat().getValue()));
 				}
 			}
 
@@ -313,15 +322,14 @@ public class PersonalizationService {
 
 		return new ListDataProvider<>(overRideParamList);
 	}
-	
 
-	
-	public ListDataProvider<ApplicationFile> getApplicationFileDataProvider(Long appId){
+	public ListDataProvider<ApplicationFile> getApplicationFileDataProvider(Long appId) {
 		List<ApplicationFile> applicationFileList = new ArrayList<>();
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
-				for(AppFile appFile : RestServiceUtil.getInstance().getClient().getAppApi().getAppFileList(appId)) {
-					applicationFileList.add(new ApplicationFile(appFile.getId(),appFile.getName(), appFile.getDescription(), appFile.getDefaultValue()));
+				for (AppFile appFile : RestServiceUtil.getInstance().getClient().getAppApi().getAppFileList(appId)) {
+					applicationFileList.add(new ApplicationFile(appFile.getId(), appFile.getName(),
+							appFile.getDescription(), appFile.getDefaultValue()));
 				}
 			}
 
@@ -331,12 +339,14 @@ public class PersonalizationService {
 
 		return new ListDataProvider<>(applicationFileList);
 	}
-	public ListDataProvider<Profile> getProfileDataProvider(Long appId){
+
+	public ListDataProvider<Profile> getProfileDataProvider(Long appId) {
 		List<Profile> profileList = new ArrayList<>();
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
-				for(AppProfile appProfile : RestServiceUtil.getInstance().getClient().getAppApi().getAppProfileList(appId)) {
-					profileList.add(new Profile(appProfile.getId(),appProfile.getName()));
+				for (AppProfile appProfile : RestServiceUtil.getInstance().getClient().getAppApi()
+						.getAppProfileList(appId)) {
+					profileList.add(new Profile(appProfile.getId(), appProfile.getName()));
 				}
 			}
 
@@ -346,6 +356,7 @@ public class PersonalizationService {
 
 		return new ListDataProvider<>(profileList);
 	}
+
 	public String getTerminalSerialNumberByEntityId(String entityId) {
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
@@ -394,106 +405,113 @@ public class PersonalizationService {
 		return null;
 	}
 
-public List<AppClient> getAppListByLoggedUserEntity() {
-	List<AppClient> allAppList = new ArrayList<>();
-	try {
-		if(RestServiceUtil.getSESSION()!=null) {
-			for(App app : RestServiceUtil.getInstance().getClient().getAppApi().getApps()) {
-				allAppList.add(new AppClient(app.getId(), app.getName(), app.getDescription(),
-						app.getVersion(), app.getAvailable(), app.getActive(),getAppDefaultParamList(app.getAppParamCollection()),
-						null, getOwner(app.getOwnerId()), getAppProfileList(app.getAppprofileCollection()),
-						getApplicationFileList(app.getAppfileCollection())));
+	public List<AppClient> getAppListByLoggedUserEntity() {
+		List<AppClient> allAppList = new ArrayList<>();
+		try {
+			if (RestServiceUtil.getSESSION() != null) {
+				for (App app : RestServiceUtil.getInstance().getClient().getAppApi().getApps()) {
+					allAppList.add(new AppClient(app.getId(), app.getName(), app.getDescription(), app.getVersion(),
+							app.getAvailable(), app.getActive(), getAppDefaultParamList(app.getAppParamCollection()),
+							null, getOwner(app.getOwnerId()), getAppProfileList(app.getAppprofileCollection()),
+							getApplicationFileList(app.getAppfileCollection())));
+				}
 			}
-		}
-		
-	}catch (Exception e) {
-		// TODO: handle exception
-		e.printStackTrace();
-	}
-	return allAppList;
-}
-public void createOverRideParam(AppClient app, OverRideParameters param) {
-	try {
-		if(RestServiceUtil.getSESSION()!=null) {
-			AppParam appParam = new AppParam();
-			appParam.setAppId(app.getId());
-			appParam.setName(param.getParameter());
-			appParam.setDescription(param.getDescription());
-			appParam.setDefaultValue(param.getValue());
-			RestServiceUtil.getInstance().getClient().getAppApi().addAppParam(app.getId(), appParam);
-		}
-	}catch (Exception e) {
-		// TODO: handle exception
-		e.printStackTrace();
-	}
-}
-public void updateOverRideParam(AppClient app, OverRideParameters param) {
-	try {
-		if(RestServiceUtil.getSESSION()!=null) {
-			AppParam appParam = new AppParam();
-			appParam.setAppId(app.getId());
-			appParam.setName(param.getParameter());
-			appParam.setDescription(param.getDescription());
-			appParam.setDefaultValue(param.getValue());
-			RestServiceUtil.getInstance().getClient().getAppApi().updateAppParam(app.getId(), appParam);
-		}
-	}catch (Exception e) {
-		// TODO: handle exception
-		e.printStackTrace();
-	}
-}
 
-public void deleteOverRideParam(AppClient app, OverRideParameters param) {
-	try {
-		if(RestServiceUtil.getSESSION()!=null) {
-			RestServiceUtil.getInstance().getClient().getAppApi().deleteAppParam(app.getId(), param.getId());
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
 		}
-	}catch (Exception e) {
-		// TODO: handle exception
-		e.printStackTrace();
+		return allAppList;
 	}
-}
+
+	public void createOverRideParam(AppClient app, OverRideParameters param) {
+		try {
+			if (RestServiceUtil.getSESSION() != null) {
+				AppParam appParam = new AppParam();
+				appParam.setAppId(app.getId());
+				appParam.setName(param.getParameter());
+				appParam.setDescription(param.getDescription());
+				appParam.setDefaultValue(param.getValue());
+				RestServiceUtil.getInstance().getClient().getAppApi().addAppParam(app.getId(), appParam);
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+	}
+
+	public void updateOverRideParam(AppClient app, OverRideParameters param) {
+		try {
+			if (RestServiceUtil.getSESSION() != null) {
+				AppParam appParam = new AppParam();
+				appParam.setAppId(app.getId());
+				appParam.setName(param.getParameter());
+				appParam.setDescription(param.getDescription());
+				appParam.setDefaultValue(param.getValue());
+				RestServiceUtil.getInstance().getClient().getAppApi().updateAppParam(app.getId(), appParam);
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+	}
+
+	public void deleteOverRideParam(AppClient app, OverRideParameters param) {
+		try {
+			if (RestServiceUtil.getSESSION() != null) {
+				RestServiceUtil.getInstance().getClient().getAppApi().deleteAppParam(app.getId(), param.getId());
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+	}
 
 	/**
 	 * @param entityId
 	 * @throws ApiException
 	 */
 	private Terminal getTerminalByEntityId(String entityId) throws ApiException {
-		if (terminalForPersonalizationView == null
-				&& !terminalForPersonalizationView.getId().toString().equals(entityId))
+		if (terminalForPersonalizationView == null)
+			terminalForPersonalizationView = RestServiceUtil.getInstance().getClient().getTerminalApi()
+					.getTerminal(entityId);
+		else if (!terminalForPersonalizationView.getEntityId().equals(entityId))
 			terminalForPersonalizationView = RestServiceUtil.getInstance().getClient().getTerminalApi()
 					.getTerminal(entityId);
 
 		return terminalForPersonalizationView;
 	}
+
 	private TreeNode getOwner(Long id) {
 		TreeNode owner = null;
 		try {
-			if (RestServiceUtil.getSESSION() != null && id!=null) {
+			if (RestServiceUtil.getSESSION() != null && id != null) {
 				Entity entity = RestServiceUtil.getInstance().getClient().getEntityApi().getEntityById(id);
-				owner = new TreeNode(entity.getName(), entity.getId(), entity.getType(), entity.getEntityId(), entity.getDescription()
-						,true);
+				owner = new TreeNode(entity.getName(), entity.getId(), entity.getType(), entity.getEntityId(),
+						entity.getDescription(), true);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return owner;
 	}
+
 	private List<AppDefaultParam> getAppDefaultParamList(List<AppParam> appParamList) {
 		List<AppDefaultParam> appDefaultParamList = new ArrayList<>();
-		if(appParamList!=null) {
+		if (appParamList != null) {
 			for (AppParam appParam : appParamList) {
 				AppDefaultParam appDefaultParam = new AppDefaultParam(appParam.getId(), appParam.getName(),
-					appParam.getDescription(), appParam.getAppParamFormat().getValue(), appParam.getDefaultValue());
+						appParam.getDescription(), appParam.getAppParamFormat().getValue(), appParam.getDefaultValue());
 				appDefaultParamList.add(appDefaultParam);
-		}
+			}
 			return appDefaultParamList;
 		}
 		return appDefaultParamList;
 	}
+
 	private List<Profile> getAppProfileList(List<AppProfile> appProfileList) {
 		List<Profile> profileList = new ArrayList<>();
-		if(appProfileList!=null) {
+		if (appProfileList != null) {
 			for (AppProfile appProfile : appProfileList) {
 				Profile profile = new Profile(appProfile.getId(), appProfile.getName());
 				profileList.add(profile);
@@ -502,17 +520,18 @@ public void deleteOverRideParam(AppClient app, OverRideParameters param) {
 		}
 		return profileList;
 	}
+
 	private List<ApplicationFile> getApplicationFileList(List<AppFile> appFileList) {
 		List<ApplicationFile> fileList = new ArrayList<>();
-		if(appFileList!=null) {
+		if (appFileList != null) {
 			for (AppFile appFile : appFileList) {
 				ApplicationFile file = new ApplicationFile(appFile.getId(), appFile.getName(), appFile.getDescription(),
-					appFile.getDefaultValue());
+						appFile.getDefaultValue());
 				fileList.add(file);
 			}
 			return fileList;
 		}
-		
+
 		return fileList;
 	}
 

@@ -35,6 +35,12 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.luretechnologies.tms.backend.data.entity.Node;
+import com.luretechnologies.tms.backend.data.entity.TreeNode;
+import com.luretechnologies.tms.backend.data.entity.User;
+import com.luretechnologies.tms.backend.service.MockUserService;
+import com.luretechnologies.tms.backend.service.TreeDataNodeService;
+import com.luretechnologies.tms.ui.view.admin.AbstractCrudView;
 import com.vaadin.data.BeanValidationBinder;
 import com.vaadin.data.TreeData;
 import com.vaadin.data.ValidationResult;
@@ -42,26 +48,16 @@ import com.vaadin.data.Validator;
 import com.vaadin.data.ValueContext;
 import com.vaadin.data.provider.TreeDataProvider;
 import com.vaadin.data.validator.BeanValidator;
-import com.vaadin.icons.VaadinIcons;
 import com.vaadin.spring.annotation.SpringView;
-import com.luretechnologies.tms.backend.data.entity.Node;
-import com.luretechnologies.tms.backend.data.entity.User;
-import com.luretechnologies.tms.backend.service.MockUserService;
-import com.luretechnologies.tms.backend.service.TreeDataService;
-import com.luretechnologies.tms.ui.view.admin.AbstractCrudView;
-import com.luretechnologies.tms.ui.view.admin.RoleSelect;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.Component.Focusable;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.renderers.HtmlRenderer;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.NativeSelect;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
@@ -75,7 +71,7 @@ public class UserAdminView extends AbstractCrudView<User> {
 
 	// private TreeDataEntity treeData;
 
-	private Tree<Node> tree;
+	private Tree<TreeNode> tree;
 
 	private boolean passwordRequired;
 
@@ -105,7 +101,7 @@ public class UserAdminView extends AbstractCrudView<User> {
 	public MockUserService userService;
 
 	@Autowired
-	public TreeDataService treeDataService;
+	public TreeDataNodeService treeDataService;
 
 	@Autowired
 	public UserAdminView(UserAdminPresenter presenter) {
@@ -232,7 +228,7 @@ public class UserAdminView extends AbstractCrudView<User> {
 	}
 
 	@Override
-	protected Tree<Node> getTree() {
+	protected Tree<TreeNode> getTree() {
 		return this.tree;
 	}
 	
@@ -338,10 +334,10 @@ public class UserAdminView extends AbstractCrudView<User> {
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	protected Tree<Node> getUserTree(TreeData<Node> treeData) {
+	protected Tree<TreeNode> getUserTree(TreeData<TreeNode> treeData) {
 		this.tree = new Tree<>();
 		this.tree.setSelectionMode(SelectionMode.SINGLE);
-		TreeDataProvider<Node> dataProvider = new TreeDataProvider<>(treeData);
+		TreeDataProvider<TreeNode> dataProvider = new TreeDataProvider<>(treeData);
 		tree.setTreeData(treeData);
 
 		return tree;

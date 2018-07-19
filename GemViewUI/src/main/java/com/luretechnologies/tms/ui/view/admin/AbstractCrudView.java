@@ -32,20 +32,24 @@
 package com.luretechnologies.tms.ui.view.admin;
 
 import java.io.Serializable;
-import java.util.List;
 
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.vaadin.dialogs.ConfirmDialog;
 
+import com.luretechnologies.client.restlib.common.ApiException;
+import com.luretechnologies.tms.app.HasLogger;
+import com.luretechnologies.tms.backend.data.Role;
+import com.luretechnologies.tms.backend.data.entity.AbstractEntity;
+import com.luretechnologies.tms.backend.data.entity.TreeNode;
+import com.luretechnologies.tms.backend.service.TreeDataNodeService;
+import com.luretechnologies.tms.ui.NotificationUtil;
 import com.vaadin.data.BeanValidationBinder;
 import com.vaadin.data.HasValue;
 import com.vaadin.data.TreeData;
 import com.vaadin.data.provider.DataProvider;
-import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.data.provider.TreeDataProvider;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.event.ShortcutListener;
@@ -54,34 +58,22 @@ import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewBeforeLeaveEvent;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.Page;
-import com.vaadin.server.Sizeable.Unit;
-import com.luretechnologies.tms.app.HasLogger;
-import com.luretechnologies.tms.backend.data.Role;
-import com.luretechnologies.tms.backend.data.entity.AbstractEntity;
-import com.luretechnologies.tms.backend.data.entity.Node;
-import com.luretechnologies.tms.backend.data.entity.NodeLevel;
-import com.luretechnologies.tms.backend.data.entity.User;
-import com.luretechnologies.tms.backend.service.TreeDataService;
-import com.luretechnologies.tms.ui.NotificationUtil;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.Component.Focusable;
-import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.NativeSelect;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.components.grid.SingleSelectionModel;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -129,7 +121,7 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 	public static TextField treeNodeSearch;
 
 	@Autowired
-	public TreeDataService treeDataService;
+	public TreeDataNodeService treeDataService;
 
 	@Override
 	public void enter(ViewChangeEvent event) {
@@ -149,9 +141,11 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 		getUpdate().setCaption(CAPTION_UPDATE);
 		getCancel().setCaption(CAPTION_DISCARD);
 		getTree().setItemIconGenerator(item -> {
-			switch (item.getLevel()) {
-			case ENTITY:
+			switch (item.getType()) {
+			case ENTERPRISE:
 				return VaadinIcons.BUILDING_O;
+			case ORGANIZATION:
+				return VaadinIcons.BOOK;
 			case MERCHANT:
 				return VaadinIcons.SHOP;
 			case REGION:
@@ -221,9 +215,15 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 		treeNodeSearch.setPlaceholder("Search");
 		configureTreeNodeSearch();
 		treePanelLayout.addComponentAsFirst(treeNodeSearch);
-		Tree<Node> treeComponent = getUserTree(treeDataService.getTreeDataForUser());
-		treePanelLayout.addComponent(treeComponent);
-		treePanelLayout.setComponentAlignment(treeComponent, Alignment.BOTTOM_LEFT);
+		Tree<TreeNode> treeComponent;
+		try {
+			treeComponent = getUserTree(treeDataService.getTreeData());
+			treePanelLayout.addComponent(treeComponent);
+			treePanelLayout.setComponentAlignment(treeComponent, Alignment.BOTTOM_LEFT);
+		} catch (ApiException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
 		treePanelLayout.setStyleName("split-Height-ButtonLayout");
 		treePanelLayout.addStyleName("user-treeLayout");
 		verticalPanelLayout.addComponent(treePanelLayout);
@@ -316,10 +316,16 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 					getPassword().getValue()==null || getPassword().isEmpty()) {
 				Notification.show(NotificationUtil.SAVE, Notification.Type.ERROR_MESSAGE);
 			}else {
-				Node selectedNode = getTree().getSelectedItems().iterator().next();
+				TreeNode selectedNode = getTree().getSelectedItems().iterator().next();
 				getPresenter().updateClicked();
-				DataProvider data = new TreeDataProvider(treeDataService.getTreeDataForUser());
-				getTree().setDataProvider(data);
+				DataProvider data;
+				try {
+					data = new TreeDataProvider(treeDataService.getTreeData());
+					getTree().setDataProvider(data);
+				} catch (ApiException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				T selectedUser = getGrid().getSelectedItems().iterator().next();
 				loadGridData();
 				getTree().select(selectedNode);
@@ -329,15 +335,10 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 		});
 
 		getTree().addItemClickListener(e -> {
-			treeDataService.getTreeDataForUser();
-			List<Node> nodeList = treeDataService.getUserNodeList();
-			for(Node node : nodeList) {
-				if(node.getLabel().equals(e.getItem().getLabel())) {
-					DataProvider data = new ListDataProvider(node.getEntityList());
-					getGrid().setDataProvider(data);
-					getSearch().clear();
-				}
-			}
+//			treeDataService.getTreeData();
+			TreeNode node = e.getItem();
+			//Get the list of users based on entity
+			
 //			DataProvider data = new ListDataProvider(e.getItem().getEntityList());
 //			getGrid().setDataProvider(data);
 //			getSearch().clear();
@@ -464,10 +465,12 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 	}
 
 	public void loadGridData() {
-		for (Node node : treeDataService.getTreeDataForUser().getRootItems()) {
-			DataProvider dataList = new ListDataProvider(node.getEntityList());
-			getGrid().setDataProvider(dataList);
-		}
+//		for (Node node : treeDataService.getTreeDataForUser().getRootItems()) {
+//			DataProvider dataList = new ListDataProvider(node.getEntityList());
+//			getGrid().setDataProvider(dataList);
+//		}
+		//Call RestApi Service for users to get all Users for specific Entity
+		TreeNode selectedTreeNode = getTree().getSelectionModel().getFirstSelectedItem().get();
 	}
 
 	public void setDataProvider(DataProvider<T, Object> dataProvider) {
@@ -493,7 +496,12 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 	private void configureTreeNodeSearch() {
 		treeNodeSearch.addValueChangeListener(changed -> {
 			String valueInLower = changed.getValue().toLowerCase();
-			getTree().setTreeData(treeDataService.getFilteredTreeByNodeName(treeDataService.getTreeDataForUser(), valueInLower));
+			try {
+				getTree().setTreeData(treeDataService.getFilteredTreeByNodeName(treeDataService.getTreeData(), valueInLower));
+			} catch (ApiException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			//FIXME: only works for root node labels
 //			TreeDataProvider<Node> nodeDataProvider = (TreeDataProvider<Node>) nodeTree.getDataProvider();
 //			nodeDataProvider.setFilter(filter -> {
@@ -538,11 +546,11 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 
 	protected abstract HorizontalSplitPanel getSplitScreen();
 
-	protected abstract Tree<Node> getUserTree(TreeData<Node> treeData);
+	protected abstract Tree<TreeNode> getUserTree(TreeData<TreeNode> treeData);
 
 	protected abstract VerticalLayout userDataLayout();
 
-	protected abstract Tree<Node> getTree();
+	protected abstract Tree<TreeNode> getTree();
 
 	protected abstract TextField getUserName();
 	

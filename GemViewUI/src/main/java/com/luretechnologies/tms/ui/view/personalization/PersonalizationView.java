@@ -235,6 +235,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 			// for(Node node : nodeList) {
 			// if(node.getLabel().equals(selection.getItem().getLabel())) {
 			if (selectedNode.getDescription() != null) {
+				ClearAllComponents();
 				entityType.setValue(selectedNode.getType());
 				entityName.setValue(selectedNode.getLabel());
 				entityDescription.setValue(selectedNode.getDescription());
@@ -257,13 +258,13 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 				}
 				if (selectedNode.getType().equals(EntityTypeEnum.DEVICE)) {
 					deviceDropDown.setValue(personalizationService.getDevicesByEntityId(selectedNode.getEntityId()));
+					//TODO: device not getting loaded due to backend error
 					entitySerialNum.setValue(
 							personalizationService.getDeviceSerialNumberByEntityId(selectedNode.getEntityId()));
 				}
 
 				// updateDropDown.setValue(selectedNode.getUpdate());
 			} else {
-				ClearAllComponents();
 				ClearGrid();
 				entityType.setValue(selectedNode.getType());
 				entityName.setValue(selectedNode.getLabel());
@@ -273,6 +274,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 			// }
 			// }
 
+		
 		});
 		nodeTree.addContextClickListener(event -> {
 			if (!(event instanceof TreeContextClickEvent)) {
