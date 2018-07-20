@@ -51,16 +51,11 @@ import com.luretechnologies.tms.backend.data.entity.AppDefaultParam;
 import com.luretechnologies.tms.backend.data.entity.ApplicationFile;
 import com.luretechnologies.tms.backend.data.entity.Devices;
 import com.luretechnologies.tms.backend.data.entity.Node;
-import com.luretechnologies.tms.backend.data.entity.OverRideParameters;
-import com.luretechnologies.tms.backend.data.entity.ParameterType;
 import com.luretechnologies.tms.backend.data.entity.Profile;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
 import com.luretechnologies.tms.backend.service.AppService;
 import com.luretechnologies.tms.backend.service.ApplicationStoreService;
-import com.luretechnologies.tms.backend.service.OdometerDeviceService;
-import com.luretechnologies.tms.backend.service.OverRideParamService;
 import com.luretechnologies.tms.backend.service.PersonalizationService;
-import com.luretechnologies.tms.backend.service.ProfileService;
 import com.luretechnologies.tms.backend.service.TreeDataNodeService;
 import com.luretechnologies.tms.ui.NotificationUtil;
 import com.vaadin.data.provider.ListDataProvider;
@@ -136,17 +131,9 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 	@Autowired
 	public TreeDataNodeService treeDataNodeService;
 
-	@Autowired
-	public OverRideParamService overRideParamService;
 
 	@Autowired
 	private AppService appService;
-
-	@Autowired
-	private OdometerDeviceService deviceService;
-
-	@Autowired
-	private ProfileService profileService;
 
 	@Autowired
 	private PersonalizationService personalizationService;
