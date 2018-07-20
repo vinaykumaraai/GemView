@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html>
+<!-- 
+Hint to Vaadin that if this page is ever sent back as response to a UIDL request, the user should be redirected.
+
+Vaadin-Refresh: context://login.html
+-->
+<head>
+<title>Gem View</title>
+
+<link rel="shortcut icon" href="VAADIN/themes/apptheme/favicon.ico" />
+<meta name="viewport"
+	content="width=device-width,initial-scale=1.0,user-scalable=no">
+
+<!-- Enable these to hide browser controls when app is started from homescreen: -->
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+
+<script type="text/javascript">
+	var response; 
+    var init = function() {
+    	response = document.getElementById("response");
+      if (window.location.hash) {
+        document.getElementById("fgtpaswrd").action += window.location.hash;
+      }
+      if (window.location.search.indexOf("error")>0) {
+          document.body.className = "error";
+      }
+    }
+    
+  	function myTempFunction() {
+    		var temporaryPass=document.getElementById("tempPassword");
+    		var icon=document.getElementById("TEMPEYE");
+    		if (temporaryPass.type === "password" && temporaryPass.value!="") {
+    			temporaryPass.type = "text";
+                icon.src= "VAADIN/themes/apptheme/No_eye.png";
+            } else {
+            	temporaryPass.type = "password";
+                icon.src= "VAADIN/themes/apptheme/newEye.png";
+            }
+    }
+  	
+  	function myNewFunction() {
+		var newPass=document.getElementById("newPassword");
+		var newIcon=document.getElementById("NEWEYE");
+		if (newPass.type === "password" && newPass.value!="") {
+			newPass.type = "text";
+			newIcon.src= "VAADIN/themes/apptheme/No_eye.png";
+        } else {
+        	newPass.type = "password";
+        	newIcon.src= "VAADIN/themes/apptheme/newEye.png";
+        }
+}
+  	
+	function myConfirmFunction() {
+		var confirmPass=document.getElementById("confirmPassword");
+		var confirmIcon=document.getElementById("CONFIRMEYE");
+		if (confirmPass.type === "password" && confirmPass.value!="") {
+			confirmPass.type = "text";
+			confirmIcon.src= "VAADIN/themes/apptheme/No_eye.png";
+        } else {
+        	confirmPass.type = "password";
+        	confirmIcon.src= "VAADIN/themes/apptheme/newEye.png";
+        }
+	}
+	// Create the XHR object.
+	function createCORSRequest(method, url) {
+	  var xhr = new XMLHttpRequest();
+	  if ("withCredentials" in xhr) {
+	    // XHR for Chrome/Firefox/Opera/Safari.
+	    xhr.open(method, url, true);
+	  } else if (typeof XDomainRequest != "undefined") {
+	    // XDomainRequest for IE.
+	    xhr = new XDomainRequest();
+	    xhr.open(method, url);
+	  } else {
+	    // CORS not supported.
+	    xhr = null;
+	  }
+	  return xhr;
+	}
+
+	// Make the actual CORS request.
+	function makeCorsRequest() {
+	  // This is a sample server that supports CORS.
+	  var url = 'http://mia.lure68.net:54071/admin/api/auth/forgotUsername';
+
+	  var xhr = createCORSRequest('POST', url);
+	  if (!xhr) {
+	    alert('CORS not supported');
+	    return;
+	  }
+
+	  // Response handlers.
+	  xhr.onload = function() {
+		  var text = xhr.responseText;
+		  /* response.innerHTML = "Temporary Password has sent to your Email ID";
+		  response.style = 'color:white' */
+		  alert("Username has sent to your Email ID");
+		  navigateToLogin();
+		  /* setTimeout(navigateToLogin,5000); */
+	  };
+
+	  xhr.onerror = function() {
+		  console.log(xhr)
+		  document.body.className = "error";
+	  };
+
+	  xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	  xhr.setRequestHeader("Accept", "application/json");
+	  //xhr.setRequestHeader("Access-Control-Allow-Origin", "*")
+	  xhr.send("emailAddress="+emailId.value);
+	}
+	
+	function forgotusername(){
+		response.innerHTML = '';
+		var emailId=document.getElementById("emailId");
+		if(emailId.value=='' || emailId.value==null){
+			  document.body.className = "error";
+		  }
+		else if (window.location.search.indexOf("error")>0) {
+	          document.body.className = "error";
+	      }
+		else if(emailId.value!='' && emailId.value!=null){
+			makeCorsRequest();
+			//RestServiceUtil.getInstance().getClient().getAuthApi().forgotPassword(emailId.value);
+		}
+	}
+	
+	function navigateToLogin(){
+		window.location.replace('login.html');
+	}
+    
+	function removeError(){
+		document.body.className = "noError";
+	}
+  </script>
+<style>
+@font-face {
+	font-family: "Open Sans";
+	src: url(VAADIN/themes/valo/fonts/open-sans/OpenSans-Light-webfont.woff)
+		format("woff");
+	font-weight: 300;
+	font-color: #fffff font-style: normal;
+}
+
+@font-face {
+	font-family: "Open Sans";
+	src:
+		url(VAADIN/themes/valo/fonts/open-sans/OpenSans-Semibold-webfont.woff)
+		format("woff");
+	font-weight: 600;
+	font-style: normal;
+}
+
+html {
+	background: linear-gradient(#fff, #fff);
+}
+
+@media ( min-width : 1000px) {
+	/* load on wide screens */
+	body {
+		background-color: #f2f2f2;
+		/* background-image: url(VAADIN/themes/apptheme/bg.jpg); */
+		background-size: cover;
+	}
+}
+
+button {
+	background-color: #fffff;
+}
+
+#theform {
+	width: inherit;
+}
+
+#logo {
+	display: inline-block;
+	float: center;
+	width: 300px;
+	height: 300px;
+	background-image: url(VAADIN/themes/apptheme/company_logo.png);
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-color: #FFFFFF;
+}
+
+ /* Layout */
+*, *:before, *:after {
+	box-sizing: border-box;
+} 
+
+html, body {
+	height: 100%;
+	font: 100 16px/1.55 "Open Sans", sans-serif;
+	margin: 0;
+}
+
+/* #info {
+	color: #fff;
+	padding: 28px;
+} */
+
+#info {
+       color: #26B838;
+       text-align: center;
+       padding-top:15px
+		}
+
+#form {
+	height: 410px;
+	display: flex;
+	background-color: #216C2A;
+	justify-content: center;
+}
+
+#forgotPassword {
+	position: fixed;
+	bottom: 0;
+	right: 0;
+	width: 300px;
+	border: 3px solid #73AD21;
+}
+/* Responsive behaviour */
+@media ( max-width : 1000px) {
+
+.error form1::after {
+	content:
+		"Associated Email ID is Wrong";
+	display:block !important;
+	/* border: 1px solid red;
+	border-radius: 4px;
+	width: 100%;
+	margin-top: 16px;
+	font-size: 14px;
+	padding: 8px; */
+	
+	 color:white;
+                        margin-top: -17px !important;
+                        margin-left:70px !important;
+                        padding:0px !important; 
+                        
+}	
+
+.error label1::after {
+	content:" "attr(href)"  ";
+	color:red;
+	margin-left:279px;
+}		
+
+.error label::after {
+	content:" "attr(href)"  ";
+	color:red;
+	margin-left:3px;
+	margin-top: -6px;
+}		
+#form {
+		padding: 20px;
+	}	
+	
+	form1 {
+		width:320px;
+	}	
+	
+	label {
+	margin-top:105px !important;
+}
+
+}
+
+@media ( min-width : 1001px) {
+	body {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+	#table {
+		width: inherit;
+	}
+	#theform {
+		width: inherit;
+	}
+	#logo {
+		width: 300px;
+		height: 300px;
+		position: relative;
+		bottom: -55px;
+	}
+	#info, #form {
+		height: 420px;
+		box-shadow: 0 2px 3px rgba(0, 0, 0, .2);
+	}
+	#info {
+		background-color: #fff;
+		width: 300px;
+		border-radius: 5px 0 0 5px;
+		justify-content: center;
+	}
+	#form {
+		width: 400px;
+		padding: 20px;
+		border-radius: 0 5px 5px 0;
+	}
+	
+	.error:after {
+	content:
+		"Associated Email ID is Wrong";
+	display: block;
+	/* border: 1px solid red;
+	border-radius: 4px;
+	width: 100%;
+	margin-top: 16px;
+	font-size: 14px;
+	padding: 8px; */
+	
+	 color:white;
+			padding: 100px;
+                        margin-top: 378px;
+                        margin-left:-398px;
+}
+
+.error form1:after {
+	content: "*";
+	display: block;
+	color:red;
+    /* margin-top: -56px; */
+    margin-left:290px;
+}
+
+.error input {
+	/* display: block;
+	 border-color: red; 
+	content:"*";
+	color:red; */
+	
+	/* //content: "*";
+	display: block;
+	color:red;
+    margin-top: -56px;
+    margin-left:270px; */
+    display: blcok;
+}
+
+.error label::after {
+	content:" "attr(href)"  ";
+	color:red;
+	margin-left:3px;
+	margin-top: -6px;
+}
+
+}
+
+@media ( max-width : 360px) {
+input[type='text' ], input[type='password'] {
+	width: 70% !important;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	-ms-appearance: none;
+	-o-appearance: none;
+	appearance: none;
+	font: inherit;
+	font-size: 14px;
+	color: white;
+	height: 30px;
+	border-radius: 2px;
+	padding: 4px 9px;
+	border: 0;
+  	outline: 0;
+  	background: transparent;
+  	border-bottom: 1.4px solid lightslategrey;
+  	margin-left:75px;
+}
+}
+
+/* Elements / components theme */
+h1 {
+	font-size: 36px;
+	font-weight: 100;
+}
+
+h2 {
+	font-size: 28px;
+	font-weight: 100;
+	margin-bottom: 8px;
+}
+
+form {
+	max-width: 350px;
+	margin-top:8px;
+}
+
+label {
+	font-size: 16px;
+	color: #fffff;
+	display: flex;
+	text-align:-webkit-right;
+	padding-top:20px;
+	margin-bottom:-28px;
+}
+
+input[type='text'], input[type='password'] {
+	width: 80%;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	-ms-appearance: none;
+	-o-appearance: none;
+	appearance: none;
+	font: inherit;
+	font-size: 14px;
+	color: white;
+	height: 30px;
+	border-radius: 2px;
+	padding: 4px 9px;
+	border: 0;
+  	outline: 0;
+  	background: transparent;
+  	border-bottom: 1.4px solid lightslategrey;
+  	margin-left:75px;
+}
+
+button {
+	width: 45%;
+	float: right;
+	height: 37px;
+	border: 1px solid #666;
+	border-radius: 4px;
+	outline: none;
+	cursor: pointer;
+	color: #000;
+	text-align: center;
+	position: relative;
+	/* margin-right:-30px; */
+	margin-top:37px;
+}
+
+button1{
+	margin-top: -33px;
+	margin-right:2px;
+	float: right;
+	cursor: pointer;
+	background:transparent;
+}
+
+button1:hover{
+	cursor: pointer;
+}
+
+#button-submit:focus:after {
+	box-shadow: 0 0 0 2px rgba(0, 0, 0, .5);
+	content: "";
+	position: absolute;
+	top: -2px;
+	right: -2px;
+	bottom: -2px;
+	left: -2px;
+	border-radius: inherit;
+}
+#fixedbutton {
+    position: relative;
+    bottom: -150px;
+    right: -200px; 
+}
+
+.noError:after {
+	content: "";
+}
+
+
+
+</style>
+</head>
+<body onload="init()">
+	<div id="info" align="center">
+		<div id="logo"></div>
+		<!-- <h1 style="font-weight:bold">Your Company Logo</h1> -->
+	</div>
+	<div id="form">
+	<form1>
+		<div id="fgtpaswrd" >
+		
+			<h1 style="color:#ffff;border-bottom:1px solid;margin-top:5px">Welcome</h1>
+			<h4 style="color:#ffff;font-weight:100;margin-top:-12px">Enter your associated Email ID to which username has to sent</h4>
+			<!-- <h4 style="color:#ffff;font-weight:100;margin-top:-12px"> Enter the information to update your password</h4> -->
+			<label id="login-label" for="login" style="color:#ffff;margin-top:121px;" href="*">Email ID</label>
+			<input href="*" type="text" id="emailId" name="useremailId"
+				aria-labelledby="login-label" autofocus style="color:#ffff" autocomplete="off" spellcheck="false" onclick="removeError()"/> 
+				<!-- <button1  onclick="myTempFunction()"><img src="VAADIN/themes/apptheme/newEye.png" style="width:28px;height:28px;"id="TEMPEYE"></button1>
+				<label id="password-label" for="password" style="color:#ffff;margin-right:-8px;">New Password</label> 
+				<input type="password" id="newPassword" name="password" aria-labelledby="password-label" style="color:#ffff"/>
+				<button1  onclick="myNewFunction()"><img src="VAADIN/themes/apptheme/newEye.png" style="width:28px;height:28px;" id="NEWEYE"></button1>
+				<label id="password-label" for="password" style="color:#ffff;margin-right:-8px;">Confirm Password</label> 
+				<input type="password" id="confirmPassword" name="password" aria-labelledby="password-label" style="color:#ffff"/>
+				<button1  onclick="myConfirmFunction()"><img src="VAADIN/themes/apptheme/newEye.png" style="width:28px;height:28px;" id="CONFIRMEYE"></button1> -->
+			<button id="button-submit" onclick="forgotusername()">Continue</button>
+			<p id="response"></p>
+		<!-- <a id="fixedbutton" href="forgotPassword.html" style="color:#5e6b68">Forgot Password ?</a> -->
+		<label1 href="*"></label1>
+		</div>
+		</form1>
+	</div>
+</body>
+</html>

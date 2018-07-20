@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+<!-- 
+Hint to Vaadin that if this page is ever sent back as response to a UIDL request, the user should be redirected.
+
+Vaadin-Refresh: context://login.html
+-->
+<head>
+<title>Gem View</title>
+
+<link rel="shortcut icon" href="VAADIN/themes/apptheme/favicon.ico" />
+<meta name="viewport"
+	content="width=device-width,initial-scale=1.0,user-scalable=no">
+
+<!-- Enable these to hide browser controls when app is started from homescreen: -->
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+
+<script type="text/javascript">
+    var init = function() {
+      if (window.location.hash) {
+        document.getElementById("tfauthform").action += window.location.hash;
+      }
+      if (window.location.search.indexOf("error")>0) {
+          document.body.className = "error";
+      }
+    }
+    
+  </script>
+<style>
+@font-face {
+	font-family: "Open Sans";
+	src: url(VAADIN/themes/valo/fonts/open-sans/OpenSans-Light-webfont.woff)
+		format("woff");
+	font-weight: 300;
+	font-color: #fffff font-style: normal;
+}
+
+@font-face {
+	font-family: "Open Sans";
+	src:
+		url(VAADIN/themes/valo/fonts/open-sans/OpenSans-Semibold-webfont.woff)
+		format("woff");
+	font-weight: 600;
+	font-style: normal;
+}
+
+html {
+	background: linear-gradient(#fff, #fff);
+}
+
+@media ( min-width : 1000px) {
+	/* load on wide screens */
+	body {
+		background-color: #f2f2f2;
+		/* background-image: url(VAADIN/themes/apptheme/bg.jpg); */
+		background-size: cover;
+	}
+}
+
+button {
+	background-color: #fffff;
+}
+
+#tfauthform {
+	width: inherit;
+}
+
+#logo {
+	display: inline-block;
+	float: center;
+	width: 300px;
+	height: 300px;
+	background-image: url(VAADIN/themes/apptheme/company_logo.png);
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-color: #FFFFFF;
+}
+
+/* Layout */
+*, *:before, *:after {
+	box-sizing: border-box;
+}
+
+html, body {
+	height: 100%;
+	font: 100 16px/1.55 "Open Sans", sans-serif;
+	margin: 0;
+}
+
+/* #info {
+	color: #fff;
+	padding: 28px;
+} */
+
+#info {
+       color: #26B838;
+       text-align: center;
+       /* padding: 70px; */
+       padding-top:15px;
+		}
+
+#form {
+	/* height: 100%; */
+	display: flex;
+	background-color: #216C2A;
+	justify-content: center;
+}
+
+#forgotPassword {
+	position: fixed;
+	bottom: 0;
+	right: 0;
+	width: 300px;
+	border: 3px solid #73AD21;
+}
+/* Responsive behaviour */
+@media ( max-width : 1000px) {
+
+	#fixedbutton {
+	position: relative;
+	bottom: -23px !important;
+	right: -215px !important;
+}
+	
+}
+
+@media ( min-width : 1001px) {
+	body {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+	#table {
+		width: inherit;
+	}
+	#tfauthform {
+		width: inherit;
+	}
+	#logo {
+		/* width: 250px;
+		height: 80px;
+		position: relative;
+		bottom: -150px;
+		right: -2px; */
+		width: 300px;
+		height: 300px;
+		position: relative;
+		bottom: -55px;
+	}
+	#info, #form {
+		height: 420px;
+		box-shadow: 0 2px 3px rgba(0, 0, 0, .2);
+	}
+	#info {
+		background-color: #fff;
+		width: 300px;
+		border-radius: 5px 0 0 5px;
+		justify-content: center;
+	}
+	#form {
+		width: 400px;
+		padding: 10px;
+		border-radius: 0 5px 5px 0;
+	}
+}
+
+/* Elements / components theme */
+h1 {
+	font-size: 36px;
+	font-weight: 100;
+}
+
+h2 {
+	font-size: 28px;
+	font-weight: 100;
+	margin-bottom: 8px;
+}
+
+form {
+	max-width: 342px;
+}
+
+label {
+	font-size: 16px;
+	font-color: #fffff;
+	padding: 10px 0 5px 0;
+	display: inline-block;
+}
+
+input[type='text'], input[type='password'] {
+	width: 58%;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	-ms-appearance: none;
+	-o-appearance: none;
+	appearance: none;
+	font: inherit;
+	font-size: 14px;
+	color: white;
+	height: 30px;
+	border-radius: 2px;
+	padding: 13px 9px;
+	border: 0;
+  	outline: 0;
+  	background: transparent;
+  	border-bottom: 1.4px solid lightslategrey;
+  	margin-left:10px;
+}
+
+button {
+	width: 45%;
+	margin-top: 90px;
+	height: 37px;
+	border: 1px solid #666;
+	border-radius: 4px;
+	outline: none;
+	cursor: pointer;
+	color: #000;
+	text-align: center;
+	position: relative;
+	/* font: inherit;
+	font-weight: 600; */
+}
+
+#button-submit:focus:after {
+	box-shadow: 0 0 0 2px rgba(0, 0, 0, .5);
+	content: "";
+	position: absolute;
+	top: -2px;
+	right: -2px;
+	bottom: -2px;
+	left: -2px;
+	border-radius: inherit;
+}
+
+#fixedbutton {
+	position: relative;
+	bottom: -30px;
+	right: -235px;
+}
+
+.error input {
+	display: block;
+	border-color: red;
+}
+
+.error form:after {
+	content:
+		"Verification Code is Wrong";
+	display: block;
+	border: 1px solid red;
+	border-radius: 4px;
+	width: 100%;
+	margin-top: 16px;
+	font-size: 14px;
+	padding: 8px;
+}
+
+</style>
+</head>
+
+<body onload="init()">
+	<div id="info" align="center">
+	<div id="logo"></div>
+	<!-- <h1 style="font-weight:bold">Your Company Logo</h1> -->
+	</div>
+	<div id="form">
+		<form method="post" action="home" id="tfauthform">
+			<h1 style="color:#ffff; border-bottom:1px solid">Welcome</h1>
+			<h3 style="color:#ffff;font-weight:100; font-size:22px">Two Factor Authentication</h3>
+			<h4 style="color:#ffff; font-weight:100;margin-top:-12px;margin-bottom:28px;font-size:14px;"> A verification code has been sent to your email at j****@gmail.com</h4>
+			<label id="label" style="color:#ffff"><b>Verification code</b></label>
+			<input type="text" id="code" autocomplete="off" spellcheck="false" name="code" aria-labelledby="label" autofocus></input> 
+			<button id="button-auth" type="submit" style = "float: right">Authenticate</button>
+			<button id="button-email" type="submit" style = "float: left">Resend Email</button>
+			<a id="fixedbutton" href="forgotPassword.html" style="color:#666666" target="_blank">Forgot Password ?</a>
+		</form>
+	</div>
+</body>
+</html>
