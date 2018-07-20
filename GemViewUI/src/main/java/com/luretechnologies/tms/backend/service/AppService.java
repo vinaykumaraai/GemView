@@ -33,15 +33,15 @@ public class AppService {
 	}
 	
 	public ListDataProvider<AppMock> getListDataProvider(){
-		ListDataProvider<AppMock> appDataProvider = new ListDataProvider<>(getSortedAppList(mockAppService.getSavedList()));
+		ListDataProvider<AppMock> appDataProvider = null;/*new ListDataProvider<>(getSortedAppList(mockAppService.getSavedList()));*/
 		return appDataProvider;
 	}
 	
 	public void removeApp(AppMock app) {
-		mockAppService.deleteApp(app);
+		//mockAppService.deleteApp(app);
 	}
 	
 	public void saveApp(AppMock app) {
-		mockAppService.save(app);
+		//mockAppService.save(app);
 	}
 }

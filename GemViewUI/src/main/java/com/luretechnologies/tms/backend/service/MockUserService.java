@@ -51,30 +51,30 @@ import com.vaadin.spring.annotation.SpringComponent;
 
 
 @SpringComponent
-public class MockUserService extends CrudService<User>{
+public class MockUserService{
 	private List<User> users = new ArrayList<User>();
 	private Map<Long,User> userDirectory = new HashMap<Long, User>();
 	
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 	
-	@PostConstruct
+	/*@PostConstruct
 	public void createInitialUsers()
 	{
-		User user = new User(2L,"serafin@gmail.com", "serafin", passwordEncoder.encode("serafin"), Role.IT, "Serafin", "Fuente", true);
+		User user = new User(2L,"serafin@gmail.com", "serafin", passwordEncoder.encode("serafin"), Role.IT, "Serafin", "Fuente", true, 30);
 		user.setLocked(true);
 		userDirectory.put(user.getId(), user);
 		users.add(user);
-		user = new User(1L,"vinay@gmail.com", "Vinay", passwordEncoder.encode("admin"), Role.ADMIN, "Vinay", "Raai", true);
+		user = new User(1L,"vinay@gmail.com", "Vinay", passwordEncoder.encode("admin"), Role.ADMIN, "Vinay", "Raai", true, 40);
 		user.setLocked(true);
 		users.add(user);
 		userDirectory.put(user.getId(), user);
-		user = new User(1L,"admin@gemstonepay.com", "Admin", passwordEncoder.encode("admin"), Role.ADMIN, "Test", "Test", true);
+		user = new User(1L,"admin@gemstonepay.com", "Admin", passwordEncoder.encode("admin"), Role.ADMIN, "Test", "Test", true, 50);
 		user.setLocked(true);
 		users.add(user);
 		userDirectory.put(user.getId(), user);
 		for(int j=1; j<=10;j++) {
-			user = new User(2L,"Mock"+j+"@gmail.com", "Mock"+j, passwordEncoder.encode("admin"), Role.HR, "Vinay", "Raai", true);
+			user = new User(2L,"Mock"+j+"@gmail.com", "Mock"+j, passwordEncoder.encode("admin"), Role.HR, "Vinay", "Raai", true,j);
 			users.add(user);
 			userDirectory.put(user.getId(), user);
 		}
@@ -143,7 +143,7 @@ public class MockUserService extends CrudService<User>{
 	protected List<User> getSavedList() {
 		// TODO Auto-generated method stub
 		return users;
-	}
+	}*/
 
 
 

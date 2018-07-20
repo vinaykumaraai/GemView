@@ -33,9 +33,9 @@ package com.luretechnologies.tms.backend.data.entity;
 
 import java.util.List;
 import java.util.Objects;
+import com.luretechnologies.client.restlib.service.model.EntityTypeEnum;
 
 import com.luretechnologies.client.restlib.service.model.Entity;
-import com.luretechnologies.client.restlib.service.model.EntityTypeEnum;
 
 public class TreeNode {
 	
@@ -67,7 +67,7 @@ public class TreeNode {
 	
 	public ApplicationFile additionaFile;
 	
-	public List<OverRideParameters> overRideParamList;
+	public List<AppDefaultParam> overRideParamList;
 	
 	public TreeNode() {
 	// TODO Auto-generated constructor stub
@@ -185,10 +185,10 @@ public class TreeNode {
 	public void setProfile(Profile profile) {
 		this.profile = profile;
 	}
-	public List<OverRideParameters> getOverRideParamList() {
+	public List<AppDefaultParam> getOverRideParamList() {
 		return overRideParamList;
 	}
-	public void setOverRideParamList(List<OverRideParameters> overRideParamList) {
+	public void setOverRideParamList(List<AppDefaultParam> overRideParamList) {
 		this.overRideParamList = overRideParamList;
 	}
 	@Override

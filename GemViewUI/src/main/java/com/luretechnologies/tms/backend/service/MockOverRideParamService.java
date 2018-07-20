@@ -52,7 +52,7 @@ public class MockOverRideParamService extends CrudService<OverRideParameters>{
 	@PostConstruct
 	public void createInitialOverRideParams() throws ParseException
 	{
-		OverRideParameters overRideParams = new OverRideParameters(1L,"properties", "This is for properties", ParameterType.TEXT, "Value 1");
+		/*OverRideParameters overRideParams = new OverRideParameters(1L,"properties", "This is for properties", ParameterType.TEXT, "Value 1");
 		overRideParams.setId(overRideParams.getId()+2);
 		overRideParamDirectory.put(overRideParams.getId(), overRideParams);
 		overRideParams = new OverRideParameters(2L,"flag", "This is for Flag", ParameterType.BOOLEAN, "Value 2");
@@ -78,7 +78,7 @@ public class MockOverRideParamService extends CrudService<OverRideParameters>{
 		overRideParamDirectory.put(overRideParams.getId(), overRideParams);
 		overRideParams = new OverRideParameters(9L,"Header 5", "This is for message 6", ParameterType.TEXT, "Value 9");
 		overRideParams.setId(overRideParams.getId()+10);
-		overRideParamDirectory.put(overRideParams.getId(), overRideParams);
+		overRideParamDirectory.put(overRideParams.getId(), overRideParams);*/
 	}
 	
 	public void overRideParam(OverRideParameters overRideParam)

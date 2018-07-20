@@ -35,28 +35,28 @@ package com.luretechnologies.tms.backend.data.entity;
 public class Permission  {
 	
 	private String pageName;
-	private Boolean access;
-	private Boolean edit;
+	private Boolean read;
+	private Boolean update;
 	private Boolean delete;
-	private Boolean add;
+	private Boolean create;
 	
 	
 	public Permission() {
-		this.pageName = "Dashboard";
-		this.access = false;
-		this.edit = false;
+		this.pageName = null;
+		this.read = false;
+		this.update = false;
 		this.delete = false;
-		this.add = false;
+		this.create = false;
 	}
 
 
 	public Permission(String pageName, Boolean access, Boolean edit, Boolean delete, Boolean add) {
 		super();
 		this.pageName = pageName;
-		this.access = access;
-		this.edit = edit;
+		this.read = access;
+		this.update = edit;
 		this.delete = delete;
-		this.add = add;
+		this.create = add;
 	}
 
 
@@ -80,7 +80,7 @@ public class Permission  {
 	 * @return the access
 	 */
 	public Boolean getAccess() {
-		return access;
+		return read;
 	}
 
 
@@ -88,7 +88,7 @@ public class Permission  {
 	 * @param access the access to set
 	 */
 	public void setAccess(Boolean access) {
-		this.access = access;
+		this.read = access;
 	}
 
 
@@ -96,7 +96,7 @@ public class Permission  {
 	 * @return the edit
 	 */
 	public Boolean getEdit() {
-		return edit;
+		return update;
 	}
 
 
@@ -104,7 +104,7 @@ public class Permission  {
 	 * @param edit the edit to set
 	 */
 	public void setEdit(Boolean edit) {
-		this.edit = edit;
+		this.update = edit;
 	}
 
 
@@ -128,7 +128,7 @@ public class Permission  {
 	 * @return the add
 	 */
 	public Boolean getAdd() {
-		return add;
+		return create;
 	}
 
 
@@ -136,6 +136,14 @@ public class Permission  {
 	 * @param add the add to set
 	 */
 	public void setAdd(Boolean add) {
-		this.add = add;
+		this.create = add;
 	}
+
+
+	@Override
+	public String toString() {
+		return "pageName=" + pageName + ", read=" + read + ", update=" + update + ", delete=" + delete
+				+ ", create=" + create;
+	}
+	
 }

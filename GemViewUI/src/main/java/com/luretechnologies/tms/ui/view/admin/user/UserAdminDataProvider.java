@@ -45,17 +45,18 @@ import com.vaadin.data.provider.Query;
 import com.vaadin.spring.annotation.SpringComponent;
 import com.luretechnologies.tms.backend.data.entity.User;
 import com.luretechnologies.tms.backend.service.MockUserService;
+import com.luretechnologies.tms.backend.service.UserService;
 
 @SpringComponent
 @PrototypeScope
 public class UserAdminDataProvider extends AbstractBackEndDataProvider<User, Object> {
 
 	private static final long serialVersionUID = -3459665913532137667L;
-	private  MockUserService mockUserService;
+	private  UserService userService;
 
 	@Autowired
-	public UserAdminDataProvider(MockUserService userService) {
-		this.mockUserService = userService;
+	public UserAdminDataProvider(UserService userService) {
+		this.userService = userService;
 	}
 	
 	  @Override
@@ -71,29 +72,31 @@ public class UserAdminDataProvider extends AbstractBackEndDataProvider<User, Obj
    
 	@Override
 	public  Stream<User> fetch(Query<User,Object> query) {
-		return getUsers(query).stream();
+		//return getUsers(query).stream();
+		return null;
 	}
 
 	@Override
 	protected Stream<User> fetchFromBackEnd(Query<User, Object> query) {
-		return getUsers(query).stream();
+		//return getUsers(query).stream();
+		return null;
 	}
 
 
 
 	@Override
 	protected int sizeInBackEnd(Query<User, Object> query) {
-		getUsers(query).size();
+		//getUsers(query).size();
 		return 0;
 	}
 	
-	private List<User> getUsers(Query<User, Object> query)
+	/*private List<User> getUsers(Query<User, Object> query)
 	{
 		List<User> resultList =  mockUserService.getUsers();
 		
 		if(query.getFilter().isPresent())
 			resultList = mockUserService.getUsers().stream().filter(u -> u.getEmail().contains(query.getFilter().get().toString()) ).collect(Collectors.toList());
 		return resultList;
-	}
+	}*/
 
 }

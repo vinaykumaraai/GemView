@@ -45,11 +45,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.dialogs.ConfirmDialog;
 import org.vaadin.grid.cellrenderers.editoraware.CheckboxRenderer;
 
+import com.luretechnologies.common.enums.PermissionEnum;
+import com.luretechnologies.tms.backend.data.Role;
 import com.luretechnologies.tms.backend.data.entity.Permission;
 import com.luretechnologies.tms.backend.data.entity.Roles;
 import com.luretechnologies.tms.backend.exceptions.UserFriendlyDataException;
+import com.luretechnologies.tms.backend.service.RolesService;
 import com.luretechnologies.tms.ui.NotificationUtil;
 import com.luretechnologies.tms.ui.components.ConfirmDialogFactory;
+import com.vaadin.data.provider.DataProvider;
+import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
@@ -83,9 +88,9 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 	
 	public static final String VIEW_NAME = "roles";
 
-	Map<Integer, Roles> rolesRepo = new HashMap<>();
-	Grid<Roles> roleGrid = new Grid<Roles>();
-	private volatile Roles selectedRole;
+	Map<Long, Role> rolesRepo = new HashMap<>();
+	Grid<Role> roleGrid = new Grid<Role>();
+	private  Role selectedRole;
 	private TextField descriptions;
 	private TextField roleName;
 	private CheckBox activeBox;
@@ -96,13 +101,16 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 	public ConfirmDialogFactory confirmDialogFactory;
 	
 	@Autowired
+	public RolesService rolesService;
+	
+	@Autowired
 	public RolesView() {
-		selectedRole = new Roles();
-		Roles hd = new Roles();
-		hd.setActive(true);
+		selectedRole = new Role();
+		/*Role hd = new Role();
+		hd.setAvailable(true);
 		hd.setDescription("Help Desk Access");
-		hd.setRoleName("HD");
-		hd.setId(1);
+		hd.setName("HD");
+		hd.setId((long) 1);
 		Map<String, Permission> permissionMap = new LinkedHashMap<>();
 		permissionMap.put("Dashboard", new Permission("Dashboard", true, true, true, true));
 		permissionMap.put("Application Store", new Permission("Application Store",true, true, true, true));
@@ -116,7 +124,7 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 		permissionMap.put("Roles", new Permission("Roles",true, false, false, false));
 		permissionMap.put("Devices", new Permission("Devices",true, false, false, false));
 		permissionMap.put("System", new Permission("System", true, false, false, false));
-		hd.setPermissionMap(permissionMap);
+		//hd.setPermissionMap(permissionMap);
 		
 		Roles admin = new Roles();
 		admin.setActive(true);
@@ -181,7 +189,7 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 		rolesRepo.put(hd.getId(), hd);
 		rolesRepo.put(admin.getId(), admin);
 		rolesRepo.put(customer.getId(), customer);
-		rolesRepo.put(it.getId(), it);
+		rolesRepo.put(it.getId(), it);*/
 	}
 
 	@PostConstruct
@@ -222,7 +230,7 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 				dynamicVerticalLayout.removeAllComponents();
 				roleGrid.getDataProvider().refreshAll();
 				roleGrid.deselectAll();
-				selectedRole = new Roles();
+				selectedRole = new Role();
 				getAndLoadPermissionGrid(dynamicVerticalLayout, false);	
 			}
 		});
@@ -246,19 +254,22 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 				String rolename = roleName.getValue();
 				boolean activeValue = activeBox.getValue();
 				selectedRole.setDescription(description);
-				selectedRole.setRoleName(rolename);
-				selectedRole.setActive(activeValue);
+				selectedRole.setName(rolename);
+				selectedRole.setAvailable(activeValue);
 				if(description.isEmpty() || description== null|| rolename.isEmpty() || rolename== null) {
 					Notification.show(NotificationUtil.SAVE, Notification.Type.ERROR_MESSAGE);
 				} else {
-					Random rand = new Random();
-					int  n = rand.nextInt(50) + 1;
-					if(selectedRole.getId()==null) {
-						selectedRole.setId(n);
-					}
 				rolesRepo.put(selectedRole.getId(), selectedRole);
-				roleGrid.getDataProvider().refreshAll();
+				if(roleGrid.getSelectedItems().size()<=0) {
+					rolesService.createUpdateRole(selectedRole);
+				}else {
+					rolesService.createUpdateRole(roleGrid.getSelectedItems().iterator().next());
+				}
+				DataProvider data = new ListDataProvider(rolesService.getRoleList());
+				//roleGrid.setItems(rolesService.getRoleList());
+				roleGrid.setDataProvider(data);
 				roleGrid.select(selectedRole);
+				selectedRole = new Role();
 				dynamicVerticalLayout.removeAllComponents();
 				getAndLoadPermissionGrid(dynamicVerticalLayout, false);
 				}
@@ -300,7 +311,7 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 				
 		FormLayout formLayout = new FormLayout();
 		
-		String role = selectedRole.getRoleName() != null ? selectedRole.getRoleName(): "";
+		String role = selectedRole.getName() != null ? selectedRole.getName(): "";
 		roleName = new TextField("Role Name", role);
 		roleName.setValue(role);
 		roleName.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
@@ -308,9 +319,9 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 		roleName.setStyleName("role-textbox");
 		roleName.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
 		roleName.addStyleNames("v-textfield-font", "v-textfield-lineHeight");
-		selectedRole.setRoleName(roleName.getValue());
+		selectedRole.setName(roleName.getValue());
 		roleName.setEnabled(isEditableOnly);
-		boolean active = selectedRole.getActive();
+		boolean active = selectedRole.isAvailable();
 		activeBox = new CheckBox("Allow Access", active);
 		activeBox.addStyleName("v-textfield-font");
 		activeBox.setEnabled(isEditableOnly);
@@ -344,7 +355,6 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 		horizontalLayout.addComponent(activeCheck);
 		horizontalLayout.setComponentAlignment(roleNameFL, Alignment.MIDDLE_LEFT);
 		horizontalLayout.setComponentAlignment(activeCheck, Alignment.MIDDLE_LEFT);
-		//formLayout.addComponent(horizontalLayout);
 		formLayout.addComponent(roleName);
 		String description = selectedRole.getDescription() != null ? selectedRole.getDescription(): "";
 		descriptions = new TextField("Description", description);
@@ -361,15 +371,17 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 		formLayout.setSpacing(false);
 		formLayout.setMargin(false);
 		verticalLayout.addComponent(formLayout);
-		List<Permission> beanList = new ArrayList<>(selectedRole.getPermissionMap().values());
-		//permissionGrid.setHeightByRows(11);
+		//Role role
+		//DataProvider data = new ListDataProvider(selectedRole.getPermissions());
+		List<Permission> beanList = new ArrayList<>(selectedRole.getPermissions());
+		permissionGrid.setHeightByRows(10);
 		permissionGrid.addStyleName(ValoTheme.TABLE_BORDERLESS);
 		permissionGrid.addStyleName(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
 		permissionGrid.addStyleName(ValoTheme.TABLE_NO_VERTICAL_LINES);
 		permissionGrid.addStyleName(ValoTheme.TABLE_NO_STRIPES);
 		permissionGrid.setHeaderVisible(false);
-		//permissionGrid.setWidth("50%");
-		permissionGrid.setItems(beanList);
+		//permissionGrid.setDataProvider(data);
+		
 		
 		CheckBox access = new CheckBox();
 		access.addStyleName("v-textfield-font");
@@ -406,7 +418,8 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 		
 		permissionGrid.getEditor().setEnabled(isEditableOnly);
 		permissionGrid.getEditor().setBuffered(false);
-		permissionGrid.setSizeFull();
+		permissionGrid.setWidth("100%");
+		permissionGrid.setItems(beanList);
 		verticalLayout.addComponent(permissionGrid);
 		verticalLayout.setComponentAlignment(permissionGrid
 				, Alignment.MIDDLE_CENTER);
@@ -419,7 +432,7 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 		addNewRole.addClickListener(new ClickListener() {
 			public void buttonClick(ClickEvent event) {
 				dynamicVerticalLayout.removeAllComponents();
-				selectedRole = new Roles();
+				selectedRole = new Role();
 				getAndLoadPermissionGrid(dynamicVerticalLayout, true);	
 				roleName.focus();
 			}
@@ -463,12 +476,14 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 		buttonGroup.addComponent(deleteRole);
 		
 		roleGrid.setCaptionAsHtml(true);
-		roleGrid.addColumn(Roles::getRoleName).setCaption("Role Name");
-		roleGrid.addColumn(Roles::getDescription).setCaption("Description");
-		roleGrid.addColumn(Roles::getActive).setCaption("Active");
+		roleGrid.addColumn(Role::getName).setCaption("Role Name");
+		roleGrid.addColumn(Role::getDescription).setCaption("Description");
+		roleGrid.addColumn(Role::isAvailable).setCaption("Active");
 		
-		roleGrid.setHeightByRows(4);
-		roleGrid.setItems(rolesRepo.values());
+		roleGrid.setHeightByRows(6);
+		DataProvider data = new ListDataProvider(rolesService.getRoleList());
+		//roleGrid.setItems(rolesService.getRoleList());
+		roleGrid.setDataProvider(data);
 		roleGrid.setWidth("100%");
 		//roleGrid.setHeightByRows(6);;
 		//roleGrid.setHeight("100%");
@@ -482,7 +497,7 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 			if (e.getFirstSelectedItem().isPresent()) {
 				//Load and update the data in permission grid.
 				dynamicVerticalLayout.removeAllComponents();
-				Roles selectedRole = e.getFirstSelectedItem().get();
+				Role selectedRole = e.getFirstSelectedItem().get();
 				this.selectedRole = selectedRole;
 				getAndLoadPermissionGrid(dynamicVerticalLayout, false);
 			} else {
@@ -509,10 +524,10 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 		            public void onClose(ConfirmDialog dialog) {
 		                if (dialog.isConfirmed()) {
 		                    // Confirmed to continue
+		                	rolesService.deleteRole(selectedRole.getId());
 		                	dynamicVerticalLayout.removeAllComponents();
-		    				rolesRepo.remove(selectedRole.getRoleName());
-		    				roleGrid.getDataProvider().refreshAll();
-		    				selectedRole = new Roles();
+		                	roleGrid.setItems(rolesService.getRoleList());
+		    				selectedRole = new Role();
 		    				getAndLoadPermissionGrid(dynamicVerticalLayout, false);
 		                } else {
 		                    // User did not confirm

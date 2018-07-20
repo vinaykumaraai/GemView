@@ -32,17 +32,99 @@
 
 package com.luretechnologies.tms.backend.data;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.luretechnologies.common.enums.PermissionEnum;
+import com.luretechnologies.tms.backend.data.entity.Permission;
+
 public class Role {
 	public static final String IT = "IT";
 	public static final String HR = "HR";
 	public static final String ADMIN = "admin";
-
-	private Role() {
-		// Static methods and fields only
+	
+	private Long id;
+	private String description;
+	private String name;
+	private boolean available;
+	private List<Permission> permissions = new ArrayList<>();
+	
+	public Role() {
+		permissions.add(new Permission("DASHBOARD", false, false, false, false));
+		permissions.add( new Permission("APPSTORE",false, false, false, false));
+		permissions.add( new Permission("PERSONALIZATION",false, false, false, false));
+		permissions.add( new Permission("HEARTBEAT", false, false, false, false));
+		permissions.add(new Permission("ASSET CONTROL",false, false, false, false));
+		permissions.add( new Permission("DEVICE ODOMETER",false, false, false, false));
+		permissions.add( new Permission("AUDIT",false, false, false, false));
+		permissions.add( new Permission("USER",false, false, false, false));
+		permissions.add( new Permission("ROLE",false, false, false, false));
+		permissions.add( new Permission("SYSTEM", false, false, false, false));
 	}
+	
+	
+	public Role(Long id, String description, String name, boolean available, List<Permission> permissions) {
+		super();
+		this.id = id;
+		this.description = description;
+		this.name = name;
+		this.available = available;
+		this.permissions = permissions;
+	}
+
+
 
 	public static String[] getAllRoles() {
 		return new String[] { IT, HR, ADMIN };
 	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public boolean isAvailable() {
+		return available;
+	}
+
+	public void setAvailable(boolean available) {
+		this.available = available;
+	}
+
+	public List<Permission> getPermissions() {
+		return permissions;
+	}
+
+	public void setPermissions(List<Permission> permissions) {
+		this.permissions = permissions;
+	}
+	
+	@Override
+	public String toString() {
+		return name;
+	}
+	
+	
 
 }

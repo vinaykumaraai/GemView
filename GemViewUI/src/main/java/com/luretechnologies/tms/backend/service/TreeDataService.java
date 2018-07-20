@@ -124,18 +124,18 @@ public class TreeDataService {
 
 		// Tree<Node> tree = new Tree<>();
 		TreeData<Node> treeData = new TreeData<>();
-		List<User> userList1 = new ArrayList<User>((mockUserService.getRepository().values())); // getSortedUserList()
-		List<User> userList2 = new ArrayList<User>((mockUserService.getRepository().values()));
-		List<User> userList3 = new ArrayList<User>((mockUserService.getRepository().values()));
-		List<User> userList4 = new ArrayList<User>((mockUserService.getRepository().values()));
-		List<User> userList5 = new ArrayList<User>((mockUserService.getRepository().values()));
+		//List<User> userList1 = new ArrayList<User>((mockUserService.getRepository().values())); // getSortedUserList()
+		//List<User> userList2 = new ArrayList<User>((mockUserService.getRepository().values()));
+		//List<User> userList3 = new ArrayList<User>((mockUserService.getRepository().values()));
+		//List<User> userList4 = new ArrayList<User>((mockUserService.getRepository().values()));
+		//List<User> userList5 = new ArrayList<User>((mockUserService.getRepository().values()));
 
 		for (int index = 0; index < 3; index++) {
-			userList1.remove(index);
+			/*userList1.remove(index);
 			userList2.remove(index + 1);
 			userList3.remove(index + 0);
 			userList4.remove(index + 0);
-			userList5.remove(index + 0);
+			userList5.remove(index + 0);*/
 
 		}
 		userNodeList = new ArrayList();
@@ -143,31 +143,31 @@ public class TreeDataService {
 		Node node = new Node();
 		node.setLabel("Enterprise Entity");
 		node.setLevel(NodeLevel.ENTITY);
-		node.setEntityList(userList1);
+		//node.setEntityList(userList1);
 		userNodeList.add(node);
 
 		Node node1 = new Node();
 		node1.setLabel("Region West");
 		node1.setLevel(NodeLevel.REGION);
-		node1.setEntityList(userList2);
+		//node1.setEntityList(userList2);
 		userNodeList.add(node1);
 
 		Node node2 = new Node();
 		node2.setLabel("Merchant 1");
 		node2.setLevel(NodeLevel.MERCHANT);
-		node2.setEntityList(userList3);
+		//node2.setEntityList(userList3);
 		userNodeList.add(node2);
 
 		Node node3 = new Node();
 		node3.setLabel("Terminal Entity 1");
 		node3.setLevel(NodeLevel.TERMINAL);
-		node3.setEntityList(userList4);
+		//node3.setEntityList(userList4);
 		userNodeList.add(node3);
 
 		Node node4 = new Node();
 		node4.setLabel("Device 1");
 		node4.setLevel(NodeLevel.DEVICE);
-		node4.setEntityList(userList5);
+		//node4.setEntityList(userList5);
 		userNodeList.add(node4);
 
 		treeData.addItem(null, node);
@@ -468,7 +468,7 @@ public TreeData<ExtendedNode> getTreeDataForDebugAndAlert() {
 		}
 		persliztnNodeList = new ArrayList();
 		List<Devices> deviceList = new ArrayList<Devices>(mockOdometerDeviceService.getRepository().values());
-		List<AppMock> appList = new ArrayList<AppMock>(mockAppService.getRepository().values());
+		//List<AppMock> appList = new ArrayList<AppMock>(mockAppService.getRepository().values());
 		
 		Node node = new Node();
 		node.setLabel("Enterprise Entity");
@@ -479,7 +479,7 @@ public TreeData<ExtendedNode> getTreeDataForDebugAndAlert() {
 		node.setSerialNum("12AFDTH598U");
 		node.setHeartBeat(false);
 		node.setFrequency("120 Seconds");
-		node.setApp(appList.get(0));
+		//node.setApp(appList.get(0));
 		node.setAdditionaFiles("Entity Files ");
 		//node.setProfile(new Profile(1L,ProfileType.FOOD, "Subway"));
 		node.setUpdate("update 1");
@@ -495,7 +495,7 @@ public TreeData<ExtendedNode> getTreeDataForDebugAndAlert() {
 		node1.setSerialNum("67AFDETG670U");
 		node1.setHeartBeat(true);
 		node1.setFrequency("1 Hr");
-		node1.setApp(appList.get(1));
+		//node1.setApp(appList.get(1));
 		node1.setAdditionaFiles("Region Files ");
 		//node1.setProfile(new Profile(2L,ProfileType.FOOD, "Papa Jhones"));
 		node1.setUpdate("update 2");
@@ -511,7 +511,7 @@ public TreeData<ExtendedNode> getTreeDataForDebugAndAlert() {
 		node2.setSerialNum("8967TYHTG670U");
 		node2.setHeartBeat(true);
 		node2.setFrequency("24 Hr");
-		node2.setApp(appList.get(2));
+		//node2.setApp(appList.get(2));
 		node2.setAdditionaFiles("Merchant Files ");
 		//node2.setProfile(new Profile(4L,ProfileType.FOOD, "Star Bucks"));
 		node2.setUpdate("update 4");
@@ -527,7 +527,7 @@ public TreeData<ExtendedNode> getTreeDataForDebugAndAlert() {
 		node3.setSerialNum("3457TYHFR70U");
 		node3.setHeartBeat(true);
 		node3.setFrequency("1 week");
-		node3.setApp(appList.get(0));
+		//node3.setApp(appList.get(0));
 		node3.setAdditionaFiles("Terminal Files");
 		//node3.setProfile(new Profile(5L,ProfileType.RETAIL, "Walmart"));
 		node3.setUpdate("update 5");
@@ -543,7 +543,7 @@ public TreeData<ExtendedNode> getTreeDataForDebugAndAlert() {
 		node4.setSerialNum("9087TYHFEFT");
 		node4.setHeartBeat(true);
 		node4.setFrequency("1 month");
-		node4.setApp(appList.get(2));
+		//node4.setApp(appList.get(2));
 		node4.setAdditionaFiles("Device Files");
 		//node4.setProfile(new Profile(6L,ProfileType.RETAIL, "Target"));
 		node4.setUpdate("update 6");

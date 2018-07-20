@@ -35,6 +35,7 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -51,13 +52,17 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.dialogs.ConfirmDialog;
 
+import com.luretechnologies.client.restlib.common.ApiException;
+import com.luretechnologies.client.restlib.service.model.Heartbeat;
 import com.luretechnologies.tms.backend.data.DevicesData;
 import com.luretechnologies.tms.backend.data.entity.Debug;
 import com.luretechnologies.tms.backend.data.entity.Devices;
 import com.luretechnologies.tms.backend.data.entity.HeartBeatHistory;
 import com.luretechnologies.tms.backend.data.entity.Node;
+import com.luretechnologies.tms.backend.data.entity.TerminalClient;
 import com.luretechnologies.tms.backend.service.HeartBeatDeviceService;
 import com.luretechnologies.tms.backend.service.HeartBeatHistoryService;
+import com.luretechnologies.tms.backend.service.HeartbeatService;
 import com.luretechnologies.tms.backend.service.MockHeartBeatHistory;
 import com.luretechnologies.tms.ui.NotificationUtil;
 import com.vaadin.data.provider.DataProvider;
@@ -100,6 +105,7 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 	 */
 	private static final LocalDateTime localTimeNow = LocalDateTime.now();
 	private static final SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+	private static final DateTimeFormatter  dateFormatter1 = DateTimeFormatter.ofPattern("yyMMdd");
 	private static final String DATE_FORMAT = "dd/MM/yyyy";
 	private static final long serialVersionUID = 4663357355780258257L;
 	public static final String VIEW_NAME = "heartbeat";
@@ -111,12 +117,12 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 	private static TextField deviceLastSeen;
 	private static CheckBox activeBox;
 	private static CheckBox activateHeartBeatBox;
-	private  List<Devices> deviceList = new LinkedList<Devices>();
-	private static Devices emptyDevice = new Devices();
+	private  List<TerminalClient> terminalList = new LinkedList<TerminalClient>();
+	private static TerminalClient selectedTerminal = new TerminalClient();
 	private static TextField search, deviceSearch;
 	private static DateField startDateField, endDateField;
 	private static Button delete;
-	private static Grid<HeartBeatHistory> hbHistoryGrid;
+	private static Grid<Heartbeat> hbHistoryGrid;
 	private MockHeartBeatHistory mockHBHistory;
 	private static HorizontalSplitPanel horizontalPanel;
 	private static VerticalLayout HL = new VerticalLayout();
@@ -128,49 +134,30 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 	private static HorizontalLayout deleteLayoutHorizontal;
 	private static VerticalLayout deleteLayoutVertical;
 	private static VerticalLayout searchAndDeleteLayoutVerticalPhomeMode, verticalDeviceFormLayout,secondPanelLayout;;
-	private List<Button> terminalList;
-
+	private List<Button> terminalButtonList;
 	
 	@Autowired
-	private HeartBeatHistoryService hbHistoryService;
-	
-	@Autowired
-	private HeartBeatDeviceService heartBeatDeviceService;
+	private HeartbeatService heartBeatService;
 	
 	@Autowired
 	public HeartbeatView() {
-		//selectedDevice = new Devices();
-		emptyDevice.setManufacturer("");
-		emptyDevice.setDeviceName("");
-		emptyDevice.setDescription("");
-		emptyDevice.setActive(false);
-		emptyDevice.setSerialNumber("");
-		emptyDevice.setHeartBeat(false);
-		emptyDevice.setLastSeen("");
 	}
 	
 	@PostConstruct
-	private void inti() {
-		
-		//getDeviceData();
-		deviceList = heartBeatDeviceService.getDeviceData();
+	private void inti() throws ApiException {
+		terminalList = heartBeatService.getTerminalList();
 		setSpacing(false);
 		setMargin(false);
 		setResponsive(true);
 		setHeight("100%");
 		panel = getAndLoadSystemPanel();
-		//HorizontalSplitPanel horizontalPanel =  new HorizontalSplitPanel();
 		horizontalPanel =  new HorizontalSplitPanel();
 		secondPanelLayout = new VerticalLayout();
-		//secondPanelLayout.setSizeFull();
-		//secondPanelLayout.setWidth("100%");
 		secondPanelLayout.setStyleName("heartbeat-verticalLayout");
 		verticalDeviceFormLayout = new VerticalLayout();
 		verticalDeviceFormLayout.setWidth("100%");
 		verticalDeviceFormLayout.setStyleName("heartbeat-verticalFormLayout");
-		//VerticalLayout HL = new VerticalLayout();
 		HL = new VerticalLayout();
-		//VerticalLayout VL = new VerticalLayout();
 		VL = new VerticalLayout();
 		
 		deviceSearch = new TextField();
@@ -180,23 +167,20 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 		deviceSearch.addStyleName("v-textfield-font");
 		deviceSearch.setPlaceholder("Search");
 		
-		//configureDeviceSearchForFilter(deviceSearch);
-		
 		addDeviceLabel(secondPanelLayout);
-		getDeviceFromLayout(verticalDeviceFormLayout,emptyDevice, false );
+		getDeviceFromLayout(verticalDeviceFormLayout,selectedTerminal, false );
 		secondPanelLayout.addComponent(verticalDeviceFormLayout);
 		addDeviceHistoryLabel(secondPanelLayout);
 		getSearchAndDelete(secondPanelLayout);
 		getHBHistoryGrid(secondPanelLayout);
 		
 		horizontalPanel.setHeight("100%");
-		//List<Button> terminalList = getTerminals(verticalDeviceFormLayout);
-		terminalList = getTerminals(verticalDeviceFormLayout,deviceList);
+		terminalButtonList = getTerminals(verticalDeviceFormLayout,terminalList);
 		
 		Page.getCurrent().addBrowserWindowResizeListener(r->{
 			System.out.println("Height "+ r.getHeight() + "Width:  " + r.getWidth()+ " in pixel");
 			if(r.getWidth()< 1600 && r.getWidth() > 1150) {
-				List<HorizontalLayout> HLList = getButtonsLayout(terminalList,2);
+				List<HorizontalLayout> HLList = getButtonsLayout(terminalButtonList,2);
 				desktopMode(HLList, secondPanelLayout);
 				deletCalendarTabMode();
 				/*deviceSearch.setHeight(37, Unit.PIXELS);
@@ -204,7 +188,7 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 				startDateField.setHeight("37px");
 				endDateField.setHeight("37px");*/
 			}else if(r.getWidth()<=1150 && r.getWidth()> 1000){
-				List<HorizontalLayout> HLList = getButtonsLayout(terminalList, 1);
+				List<HorizontalLayout> HLList = getButtonsLayout(terminalButtonList, 1);
 				desktopMode(HLList, secondPanelLayout);
 				deletCalendarPhoneMode();
 				/*search.setHeight("37px");
@@ -219,7 +203,7 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 				endDateField.setHeight("37px");*/
 				VL.addStyleName("heartbeat-SearchLayout");
 			} else if(r.getWidth()<=900 && r.getWidth()>600){
-				List<HorizontalLayout> HLList = getButtonsLayout(terminalList, 2);
+				List<HorizontalLayout> HLList = getButtonsLayout(terminalButtonList, 2);
 				desktopMode(HLList, secondPanelLayout);
 				deletCalendarPhoneMode();
 				/*search.setHeight("37px");
@@ -228,7 +212,7 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 				endDateField.setHeight("37px");*/
 				
 			}else if(r.getWidth()<=600 && r.getWidth()>0) {
-				List<HorizontalLayout> HLList = getButtonsLayout(terminalList, 1);
+				List<HorizontalLayout> HLList = getButtonsLayout(terminalButtonList, 1);
 				desktopMode(HLList, secondPanelLayout);
 				deletCalendarPhoneMode();
 				//deviceSearch.setWidth("100%");
@@ -237,7 +221,7 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 				startDateField.setHeight("28px");
 				endDateField.setHeight("28px");*/
 			}else {
-				List<HorizontalLayout> HLList = getButtonsLayout(terminalList,3);
+				List<HorizontalLayout> HLList = getButtonsLayout(terminalButtonList,3);
 				desktopMode(HLList, secondPanelLayout);
 				deleteCalendarDesktopMode();
 				/*deviceSearch.setHeight(37, Unit.PIXELS);
@@ -271,7 +255,7 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 			}
 		});
 		
-		List<HorizontalLayout> HLList = getButtonsLayout(terminalList, 2);
+		List<HorizontalLayout> HLList = getButtonsLayout(terminalButtonList, 2);
 		for(HorizontalLayout hL:HLList) {
 			hL.setHeight("60px");
 			hL.setResponsive(true);
@@ -292,20 +276,24 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 		
 		panel.setContent(horizontalPanel);
 		
-		differentModesLoad(secondPanelLayout, terminalList);
+		differentModesLoad(secondPanelLayout, terminalButtonList);
 	}
 	
 	/*private void configureDeviceSearchForFilter(TextField deviceSearch) {
 		deviceSearch.addValueChangeListener(changed -> {
-			deviceSearch.setWidth("100%");
-			String valueInLower = changed.getValue().toLowerCase();
-			//FIXME: if required to be filtered based on Device name and Descriptions
-			//terminalList = getTerminals(verticalDeviceFormLayout, heartBeatDeviceService.getFilteredHeartBeatDevicesByNameOrDescription(valueInLower, deviceList));
-			List<Button> filteredButtons = terminalList.stream().filter(button -> {
-					return button.getCaption().toLowerCase().contains(valueInLower);
-			}).collect(Collectors.toList());
-//			differentModesLoad(secondPanelLayout, terminalList);
-			differentModesLoad(secondPanelLayout, filteredButtons);
+			
+			try {
+				List<Terminal> terminalList = new LinkedList<Terminal>();
+				deviceSearch.setWidth("100%");
+				String valueInLower = changed.getValue().toLowerCase();
+				terminalList= heartBeatService.searchTerminal(valueInLower);
+				List<Button> searchTerminalList = getTerminals(verticalDeviceFormLayout,terminalList);
+				differentModesLoad(secondPanelLayout, searchTerminalList);
+			} catch (ApiException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
 		});
 		
 		deviceSearch.addShortcutListener(new ShortcutListener("Clear",KeyCode.ESCAPE,null) {
@@ -432,7 +420,31 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 		deviceSearch.setStyleName("small inline-icon search");
 		deviceSearch.addStyleName("v-textfield-font");
 		deviceSearch.setPlaceholder("Search");
-		//deviceSearch.setValue(deviceSearch.getValue());
+		deviceSearch.addValueChangeListener(changed -> {
+			String valueInLower = changed.getValue().toLowerCase();
+			try {
+				List<TerminalClient> terminalList = new LinkedList<TerminalClient>();
+				deviceSearch.setWidth("100%");
+				terminalList= heartBeatService.searchTerminal(valueInLower);
+				List<Button> searchTerminalList = getTerminals(verticalDeviceFormLayout,terminalList);
+				differentModesLoad(secondPanelLayout, searchTerminalList);
+				//deviceSearch.setValue(valueInLower);
+			} catch (ApiException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		});
+		
+		/*deviceSearch.addShortcutListener(new ShortcutListener("Clear",KeyCode.ESCAPE,null) {
+			
+			@Override
+			public void handleAction(Object sender, Object target) {
+				if (target == deviceSearch) {
+					deviceSearch.clear();
+				}
+			}
+		});*/
 		
 		searchLayout.addComponent(deviceSearch);
 		VL.addComponent(searchLayout);
@@ -523,7 +535,7 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 //		panel.setContent(horizontalPanel);
 //	}
 	
-	private void getDeviceData() {
+	/*private void getDeviceData() {
 		List<HeartBeatHistory> hbHistoryListActive = hbHistoryService.getHBHistoryList();
 		List<HeartBeatHistory> hbHistoryListFail = hbHistoryService.getHBHistoryList();
 		Collections.reverse(hbHistoryListFail);
@@ -556,7 +568,7 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 					
 				}
 		}
-	}
+	}*/
 	
 	public Panel getAndLoadSystemPanel() {
 		Panel panel = new Panel();
@@ -587,23 +599,24 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 		            public void onClose(ConfirmDialog dialog) {
 		                if (dialog.isConfirmed()) {
 		                    // Confirmed to continue
-		                	hbHistoryService.removeHBHistoryDevice(hbHistoryGrid.getSelectedItems().iterator().next());
-		    				//nodeTree.getDataProvider().refreshAll();
-		                	search.clear();
-		                	loadGrid();
-		                	hbHistoryGrid.getDataProvider().refreshAll();
-		    				clearCalenderDates();
+		                	try {
+		                		List<Heartbeat> heartbeatHistortListServer = heartBeatService.deleteHeartbeat(hbHistoryGrid.getSelectedItems().iterator().next().getId());
+								DataProvider data = new ListDataProvider(heartbeatHistortListServer);
+								hbHistoryGrid.setDataProvider(data);	
+								search.clear();
+			                	hbHistoryGrid.getDataProvider().refreshAll();
+			    				clearCalenderDates();
+							} catch (ApiException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+		    				
 		                } else {
 		                    // User did not confirm
 		                    
 		                }
 		            }
 		        });
-	}
-	
-	private void loadGrid() {
-		DataProvider data = new ListDataProvider(hbHistoryService.getHBHistoryList());
-		hbHistoryGrid.setDataProvider(data);		
 	}
 	
 	private void getSearchAndDelete(VerticalLayout layout) {
@@ -635,8 +648,23 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 			}
 		});
 		search.addValueChangeListener(valueChange -> {
-			String valueInLower = valueChange.getValue().toLowerCase();
-			ListDataProvider<HeartBeatHistory> debugDataProvider = (ListDataProvider<HeartBeatHistory>) hbHistoryGrid.getDataProvider();
+			
+			try {
+				String valueInLower = valueChange.getValue().toLowerCase();
+				String endDate =null;
+				String startDate=null;
+				if(endDateField.getValue()!=null && startDateField.getValue()!=null) {
+					endDate = endDateField.getValue().format(dateFormatter1);
+					startDate = startDateField.getValue().format(dateFormatter1);
+				}
+				List<Heartbeat> heartbeatHistortListServer = heartBeatService.searchHBHistoryByText(selectedTerminal.getId(), valueInLower, startDate, endDate);
+				ListDataProvider<Heartbeat> searchDataProvider = (ListDataProvider<Heartbeat>) heartbeatHistortListServer;
+				hbHistoryGrid.setDataProvider(searchDataProvider);
+			} catch (ApiException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			/*ListDataProvider<HeartBeatHistory> debugDataProvider = (ListDataProvider<Heartbeat>) hbHistoryGrid.getDataProvider();
 			if(!debugDataProvider.getItems().isEmpty()) {
 			debugDataProvider.setFilter(filter -> {
 				String dateTime = filter.getDateTime().toLowerCase();
@@ -645,7 +673,7 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 				String process = filter.getProcess().toLowerCase();
 				return dateTime.contains(valueInLower) || IP.contains(valueInLower) || status.contains(valueInLower) || process.contains(valueInLower);
 			});
-			}
+			}*/
 		});
 		searchLayout.addComponent(search);
 		
@@ -671,7 +699,6 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 		//Vertical Initialization
 		searchAndDeleteLayoutVertical = new VerticalLayout();
 		searchAndDeleteLayoutVertical.setVisible(false);
-		//searchAndDeleteLayoutVertical.setStyleName("heartbeat-verticalLayout");
 		searchAndDeleteLayoutVertical.addStyleNames("heartbeat-historySearchLayout", "heartbeat-historySearchVerticalLayout");
 		
 		//deleteLayout Vertical Initialization
@@ -682,7 +709,6 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 		//Phone Mode
 		searchAndDeleteLayoutVerticalPhomeMode = new VerticalLayout();
 		searchAndDeleteLayoutVerticalPhomeMode.setVisible(false);
-		//searchAndDeleteLayoutVerticalPhomeMode.setStyleName("heartbeat-verticalLayout");
 		searchAndDeleteLayoutVerticalPhomeMode.addStyleNames("heartbeat-historySearchLayout", "heartbeat-historySearchVerticalLayout");
 		
 		deleteLayoutHorizontal.addComponent(startDateField);
@@ -703,8 +729,6 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 		deleteLayoutHorizontal.addComponent(delete);
 		deleteLayoutHorizontal.setVisible(true);
 		
-		//deleteLayout.setComponentAlignment(delete, Alignment.MIDDLE_RIGHT);
-		
 		searchAndDeleteLayoutHorizontal.addComponents(searchLayout, deleteLayoutHorizontal );
 		searchAndDeleteLayoutHorizontal.setComponentAlignment(searchLayout, Alignment.TOP_LEFT);
 		searchAndDeleteLayoutHorizontal.setComponentAlignment(deleteLayoutHorizontal, Alignment.MIDDLE_RIGHT);
@@ -712,15 +736,26 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 		layout.addComponent(searchAndDeleteLayoutHorizontal);
 		layout.addComponent(searchAndDeleteLayoutVertical);
 		layout.addComponent(searchAndDeleteLayoutVerticalPhomeMode);
-		//layout.setComponentAlignment(horizontalLayout, Alignment.TOP_LEFT);
 		
 		endDateField.addValueChangeListener(change ->{
 	         if(!(change.getValue() == null)) {
 	        	 if(entityTypeTextFiled.getValue()!=null && !entityTypeTextFiled.getValue().isEmpty()) {
 	        		 	if(startDateField.getValue()!=null) {
 	        	 		if(change.getValue().compareTo(startDateField.getValue()) >= 0 ) {
-	        	 				ListDataProvider<HeartBeatHistory> hbHistoryDataProvider = (ListDataProvider<HeartBeatHistory>) hbHistoryGrid.getDataProvider();
-	        	 				hbHistoryDataProvider.setFilter(filter -> {
+	        	 			String endDate = endDateField.getValue().format(dateFormatter1);
+	        	 			String startDate = startDateField.getValue().format(dateFormatter1);
+	        	 			String filter = search.getValue();
+	        	 			try {
+	        					List<Heartbeat> heartbeatHistortListServer = heartBeatService.searchHBHistoryByText(selectedTerminal.getId(), filter, startDate, endDate);
+	        					ListDataProvider<Heartbeat> searchDataProvider = (ListDataProvider<Heartbeat>) heartbeatHistortListServer;
+	        					hbHistoryGrid.setDataProvider(searchDataProvider);
+	        				} catch (ApiException e) {
+	        					// TODO Auto-generated catch block
+	        					e.printStackTrace();
+	        				}
+	        	 			
+	        	 				ListDataProvider<Heartbeat> hbHistoryDataProvider = (ListDataProvider<Heartbeat>) hbHistoryGrid.getDataProvider();
+	        	 				/*hbHistoryDataProvider.setFilter(filter -> {
 	        	 				Date hbHistoryDate = filter.getDate();
 	        	 				try {
 	        	 					return hbHistoryDate.after(dateFormatter.parse(startDateField.getValue().minusDays(1).toString())) && hbHistoryDate.before(dateFormatter.parse(change.getValue().plusDays(1).toString()));
@@ -729,7 +764,7 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 							
 	        	 					return false;
 	        	 				}
-					});
+					});*/
 				} 
 	        		 	}else {
 	        		 		Notification.show(NotificationUtil.HEARTBEAT_STARTDATE, Notification.Type.ERROR_MESSAGE);
@@ -746,7 +781,7 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 			if(change.getValue()!=null) {
 				endDateField.clear();
 				endDateField.setRangeStart(change.getValue().plusDays(1));
-				endDateField.setRangeEnd(localTimeNow.toLocalDate().plusDays(1));
+				//endDateField.setRangeEnd(localTimeNow.toLocalDate().plusDays(1));
 			}
 	});
 	}
@@ -759,23 +794,21 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 	
 	private void getHBHistoryGrid(VerticalLayout layout) {
 		VerticalLayout VL = new VerticalLayout();
-		//VL.setHeight("100%");
 		VL.setStyleName("heartbeat-verticalLayout");
-		hbHistoryGrid= new Grid<>(HeartBeatHistory.class);
+		hbHistoryGrid= new Grid<>(Heartbeat.class);
 		hbHistoryGrid.setWidth("100%");
 		hbHistoryGrid.setHeightByRows(6);
-		//hbHistoryGrid.setHeight("100%");
 		hbHistoryGrid.setResponsive(true);
 		hbHistoryGrid.setSelectionMode(SelectionMode.SINGLE);
-		hbHistoryGrid.setColumns("dateTime", "IP", "status", "process");
+		hbHistoryGrid.setColumns("occurred", "ip", "status", "message");
+		hbHistoryGrid.getColumn("occurred").setCaption("Date Time");
+		hbHistoryGrid.getColumn("message").setCaption("Process");
 		VL.addComponent(hbHistoryGrid);
 		layout.addComponent(VL);
-		//layout.setExpandRatio(VL, 4);
 	}
 	
-	private void loadGridData(Devices device) {
-		//DataProvider data = hbHistoryService.getListDataProvider().getId(device.getId());
-		DataProvider data = new ListDataProvider<>(device.getHbHistoryList());
+	private void loadGridData(Long id) throws ApiException {
+		DataProvider data = new ListDataProvider<>(heartBeatService.getHeartbeatHistory(id));
 		hbHistoryGrid.setDataProvider(data);
 	}
 	
@@ -790,49 +823,59 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 		layout.setComponentAlignment(horizontalLayout, Alignment.TOP_LEFT);
 	}
 	
-	private List<Button> getTerminals(VerticalLayout verticalDeviceFormLayout, List<Devices> devicesList){
-		int count=1;
+	private List<Button> getTerminals(VerticalLayout verticalDeviceFormLayout, List<TerminalClient> terminalList){
 		List<Button> buttons = new ArrayList<Button>();
-		DevicesData deviceData = new DevicesData();
-		for(Devices device:devicesList) {
-				if(device.isActive()==true) {
+		for(TerminalClient terminal:terminalList) {
+				if(terminal.isActivateHeartbeat()==true) {
 					Button terminalButton = new Button();
-					terminalButton.setCaption("Terminal ABC "+count);
+					int length = terminal.getLabel().length();
+					if(length<15) {
+						terminalButton.setCaption(terminal.getLabel());
+					}else {
+						terminalButton.setCaption(terminal.getLabel().substring(0, 15));
+					}
+					terminalButton.setDescription(terminal.getLabel());
 						terminalButton.setIcon(new ThemeResource("terminalGood1.png"));
 						terminalButton.addClickListener(new ClickListener() {
 							public void buttonClick(ClickEvent event) {
 								clearCalenderDates();
 								verticalDeviceFormLayout.removeAllComponents();
-								getDeviceFromLayout(verticalDeviceFormLayout, device, false);
-								if(hbHistoryService.getHBHistoryList().size()==10) {
-									loadGridData(device);
-								}else {
-									loadGrid();
-								}
+								getDeviceFromLayout(verticalDeviceFormLayout, terminal, false);
+									try {
+										loadGridData(terminal.getId());
+									} catch (ApiException e) {
+										// TODO Auto-generated catch block
+										e.printStackTrace();
+									}
 							}
 						});
 					
 					terminalButton.setPrimaryStyleName("v-heartbeat-Button");
-					count++;
 					buttons.add(terminalButton);
 				} else {
 					Button terminalButton1 = new Button();
-					terminalButton1.setCaption("Terminal ABC "+count);
+					int length = terminal.getLabel().length();
+					if(length<15) {
+						terminalButton1.setCaption(terminal.getLabel());
+					}else {
+						terminalButton1.setCaption(terminal.getLabel().substring(0, 15));
+					}
+					terminalButton1.setDescription(terminal.getLabel());
 						terminalButton1.setIcon(new ThemeResource("terminalBad1.png"));
 						terminalButton1.addClickListener(new ClickListener() {
 							public void buttonClick(ClickEvent event) {
 								clearCalenderDates();
 								verticalDeviceFormLayout.removeAllComponents();
-								getDeviceFromLayout(verticalDeviceFormLayout, device, false);
-								if(hbHistoryService.getHBHistoryList().size()==10) {
-									loadGridData(device);
-								}else {
-									loadGrid();
+								getDeviceFromLayout(verticalDeviceFormLayout, terminal, false);
+								try {
+									loadGridData(terminal.getId());
+								} catch (ApiException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
 								}
 							}
 						});
 					terminalButton1.setPrimaryStyleName("v-heartbeat-Button");
-					count++;
 					buttons.add(terminalButton1);
 				}
 				
@@ -855,6 +898,7 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 			}
 		}
 		hLList.add(hL);
+		
 		return hLList;
 		
 	}
@@ -896,34 +940,34 @@ private List<HorizontalLayout> getButtonsLayoutThirdMode(List<Button> terminalBu
 		
 	}
 	
-	private void getDeviceFromLayout(VerticalLayout layout,Devices device, boolean isEditableOnly) {
+	private void getDeviceFromLayout(VerticalLayout layout,TerminalClient terminal, boolean isEditableOnly) {
 		
 		FormLayout deviceFormLayout = new FormLayout();
 		deviceFormLayout.addStyleName("system-LabelAlignment");
 		deviceFormLayout.setWidth("100%");
 		
-		getEntityType(device, deviceFormLayout, isEditableOnly);
+		getEntityType(terminal, deviceFormLayout, isEditableOnly);
 		
-		getDeviceName(device, deviceFormLayout, isEditableOnly);
+		getDeviceName(terminal, deviceFormLayout, isEditableOnly);
 		
-		getDescription(device, deviceFormLayout, isEditableOnly);
+		getDescription(terminal, deviceFormLayout, isEditableOnly);
 		
-		getActive(device, deviceFormLayout, isEditableOnly);
+		getActive(terminal, deviceFormLayout, isEditableOnly);
 		
-		getSerailNumber(device, deviceFormLayout, isEditableOnly);
+		getSerailNumber(terminal, deviceFormLayout, isEditableOnly);
 		
-		getHBAndFrqncy(device, deviceFormLayout, isEditableOnly);
+		getHBAndFrqncy(terminal, deviceFormLayout, isEditableOnly);
 		
-		getLastSeen(device, deviceFormLayout, isEditableOnly);
+		getLastSeen(terminal, deviceFormLayout, isEditableOnly);
 		
 		layout.addComponent(deviceFormLayout);
 		
 	}
 	
-	private void getEntityType(Devices device, FormLayout deviceFormLayout, boolean isEditableOnly) {
-		String entityType = device.getManufacturer() != null ? device.getManufacturer(): "";
+	private void getEntityType(TerminalClient terminal, FormLayout deviceFormLayout, boolean isEditableOnly) {
+		String entityType = terminal.getType()!= null ? terminal.getType(): "";
 		entityTypeTextFiled = new TextField("Entity Type", entityType);
-		device.setManufacturer(entityTypeTextFiled.getValue());
+		terminal.setType(entityTypeTextFiled.getValue());
 		entityTypeTextFiled.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
 		entityTypeTextFiled.setWidth("100%");
 		entityTypeTextFiled.setStyleName("role-textbox");
@@ -933,10 +977,10 @@ private List<HorizontalLayout> getButtonsLayoutThirdMode(List<Button> terminalBu
 		deviceFormLayout.addComponent(entityTypeTextFiled);
 	}
 	
-	private void getDeviceName(Devices device, FormLayout deviceFormLayout, boolean isEditableOnly) {
-		String name = device.getDeviceName() != null ? device.getDeviceName(): "";
+	private void getDeviceName(TerminalClient terminal, FormLayout deviceFormLayout, boolean isEditableOnly) {
+		String name = terminal.getLabel() != null ? terminal.getLabel(): "";
 		deviceName = new TextField("Name", name);
-		device.setDeviceName(deviceName.getValue());
+		terminal.setLabel(deviceName.getValue());
 		deviceName.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
 		deviceName.setWidth("100%");
 		deviceName.setStyleName("role-textbox");
@@ -946,30 +990,28 @@ private List<HorizontalLayout> getButtonsLayoutThirdMode(List<Button> terminalBu
 		deviceFormLayout.addComponent(deviceName);
 	}
 	
-	private void getDescription(Devices device, FormLayout deviceFormLayout, boolean isEditableOnly) {
-		//HorizontalLayout descriptionHL = new HorizontalLayout();
-		String description = device.getDescription() != null ? device.getDescription(): "";
+	private void getDescription(TerminalClient terminal, FormLayout deviceFormLayout, boolean isEditableOnly) {
+		String description = terminal.getDescription() != null ? terminal.getDescription(): "";
 		deviceDescription = new TextField("Description", description);
-		device.setDescription(deviceDescription.getValue());
+		terminal.setDescription(deviceDescription.getValue());
 		deviceDescription.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
 		deviceDescription.setWidth("100%");
 		deviceDescription.setStyleName("role-textbox");
 		deviceDescription.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
 		deviceDescription.addStyleName("v-textfield-font");
 		deviceDescription.setEnabled(isEditableOnly);
-		//descriptionHL.addComponent(deviceDescription);
 		deviceFormLayout.addComponent(deviceDescription);
 	}
 	
-	private void getActive(Devices device, FormLayout deviceFormLayout, boolean isEditableOnly) {
+	private void getActive(TerminalClient terminal, FormLayout deviceFormLayout, boolean isEditableOnly) {
 		HorizontalLayout activeHL = new HorizontalLayout();
 		activeHL.addStyleName("heartbeat-activeLayout");
 		Label label = new Label("Active");
-		boolean activeBoxValue = device.isActive();
+		boolean activeBoxValue = terminal.isActive();
 		activeBox = new CheckBox("Allow Access", activeBoxValue);
 		activeBox.setEnabled(isEditableOnly);
 		activeBox.addStyleName("v-textfield-font");
-		device.setActive(activeBox.getValue());
+		terminal.setActive(activeBox.getValue());
 		//activeLabel = new Label("Active");
 		label.setStyleName("role-activeLable");
 		label.addStyleNames("v-textfield-font");
@@ -978,10 +1020,10 @@ private List<HorizontalLayout> getButtonsLayoutThirdMode(List<Button> terminalBu
 		deviceFormLayout.addComponent(activeHL);
 	}
 	
-	private void getSerailNumber(Devices device, FormLayout deviceFormLayout, boolean isEditableOnly) {
-		String serailNumber = device.getSerialNumber() != null ? device.getSerialNumber(): "";
+	private void getSerailNumber(TerminalClient terminal, FormLayout deviceFormLayout, boolean isEditableOnly) {
+		String serailNumber = terminal.getSerialNumber() != null ? terminal.getSerialNumber(): "";
 		deviceSerialNumber = new TextField("Serial Number", serailNumber);
-		device.setSerialNumber(deviceSerialNumber.getValue());
+		terminal.setSerialNumber(deviceSerialNumber.getValue());
 		deviceSerialNumber.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
 		deviceSerialNumber.setWidth("100%");
 		deviceSerialNumber.setStyleName("role-textbox");
@@ -991,47 +1033,42 @@ private List<HorizontalLayout> getButtonsLayoutThirdMode(List<Button> terminalBu
 		deviceFormLayout.addComponent(deviceSerialNumber);
 	}
 	
-	private void getHBAndFrqncy(Devices device, FormLayout deviceFormLayout, boolean isEditableOnly) {
+	private void getHBAndFrqncy(TerminalClient terminal, FormLayout deviceFormLayout, boolean isEditableOnly) {
 		HorizontalLayout HL = new HorizontalLayout();
 		HorizontalLayout heartBeatHL = new HorizontalLayout();
 		HL.addStyleName("heartbeat-heartBeatLayout");
-		//FormLayout freqncyFL = new FormLayout();
-		//freqncyFL.setWidth("100%");
-		//freqncyFL.setStyleName("heartbeat-frequency");
 		
 		Label label = new Label("Heartbeat");
 		label.setStyleName("role-activeLable");
 		label.addStyleNames("v-textfield-font");
 		label.addStyleName("heartbeat-checkbox");
 		
-		boolean activateHBBoxValue = device.isHeartBeat();
+		boolean activateHBBoxValue = terminal.isActivateHeartbeat();
 		activateHeartBeatBox = new CheckBox("Activate Heartbeat", activateHBBoxValue);
 		activateHeartBeatBox.setEnabled(isEditableOnly);
 		activateHeartBeatBox.addStyleName("v-textfield-font");
-		device.setHeartBeat(activateHeartBeatBox.getValue());
+		terminal.setActivateHeartbeat(activateHeartBeatBox.getValue());
 		heartBeatHL.addComponents(label, activateHeartBeatBox);
 		
-		String freqncy = device.getFrequency() != null ? device.getFrequency(): "";
-		deviceFrequency = new TextField("Frequency", freqncy);
-		device.setFrequency(deviceFrequency.getValue());
+		String freqncy = terminal.getFrequency() != null ? terminal.getFrequency().toString(): "";
+		deviceFrequency = new TextField("Frequency", freqncy.toString());
+		//terminal.setFrequency(Long.valueOf(deviceFrequency.getValue()));
 		deviceFrequency.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
 		deviceFrequency.setWidth("100%");
 		deviceFrequency.setStyleName("role-textbox");
 		deviceFrequency.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
 		deviceFrequency.addStyleName("v-textfield-font");
 		deviceFrequency.setEnabled(isEditableOnly);
-		//freqncyFL.addComponent(	deviceFrequency);
-		//HL.addComponents(heartBeatHL,freqncyFL);
 		HL.addComponent(heartBeatHL);
 		deviceFormLayout.addComponent(HL);
 		deviceFormLayout.addComponent(deviceFrequency);
 	}
 	
-	private void getLastSeen(Devices device, FormLayout deviceFormLayout, boolean isEditableOnly) {
+	private void getLastSeen(TerminalClient terminal, FormLayout deviceFormLayout, boolean isEditableOnly) {
 		//HorizontalLayout descriptionHL = new HorizontalLayout();
-		String lastSeen = device.getLastSeen() != null ? device.getLastSeen(): "";
+		String lastSeen = terminal.getLastSeen() != null ? terminal.getLastSeen(): "";
 		deviceLastSeen = new TextField("Last Seen", lastSeen);
-		device.setLastSeen(deviceLastSeen.getValue());
+		terminal.setLastSeen(deviceLastSeen.getValue());
 		deviceLastSeen.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
 		deviceLastSeen.setWidth("100%");
 		deviceLastSeen.setStyleName("role-textbox");

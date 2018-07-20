@@ -45,6 +45,7 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.tms.app.security.BackendAuthenticationProvider;
@@ -54,7 +55,7 @@ import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
 import com.vaadin.data.provider.Query;
 import com.vaadin.spring.annotation.SpringComponent;
 
-
+@Service
 @SpringComponent
 public class UserService extends CrudService<User>{
 	private List<User> users = new ArrayList<User>();
@@ -64,47 +65,160 @@ public class UserService extends CrudService<User>{
 	private PasswordEncoder passwordEncoder;
 	
 	@PostConstruct
-	public void createInitialUsers()
+	public List<User> getUsersList()
 	{
 		//Get users from Backend
+		List<User> users = new ArrayList<User>();
 		if(RestServiceUtil.getSESSION() != null) {
 			try {
 				List<com.luretechnologies.client.restlib.service.model.User> userList = RestServiceUtil.getInstance().getClient().getUserApi().getUsers();
 				for (com.luretechnologies.client.restlib.service.model.User user : userList) {
-					User clientUser = new User(user.getId(),user.getEmail(),user.getUsername(),"",user.getRole().getName(),user.getFirstName(), user.getLastName(),user.getAvailable());
+					User clientUser = new User(user.getId(),user.getEmail(),user.getUsername(),"",user.getRole().getName(),user.getFirstName(), user.getLastName(),user.getAvailable(), user.getPasswordFrequency());
 					clientUser.setLocked(true);
 					users.add(clientUser);
 					userDirectory.put(clientUser.getId(), clientUser);
 				}
+				return users;
 			} catch (ApiException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			
-		}else {
-			//TODO: show error or show some mocked user what ever you like,
 		}
-//		User user = new User("serafin@gmail.com", "serafin", passwordEncoder.encode("serafin"), Role.IT, "Serafin", "Fuente", true);
-//		user.setLocked(true);
-//		userDirectory.put(user.getId(), user);
-//		users.add(user);
-//		user = new User("vinay@gmail.com", "Vinay", passwordEncoder.encode("admin"), Role.ADMIN, "Vinay", "Raai", true);
-//		user.setLocked(true);
-//		users.add(user);
-//		userDirectory.put(user.getId(), user);
-//		user = new User("admin@gemstonepay.com", "Admin", passwordEncoder.encode("admin"), Role.ADMIN, "Test", "Test", true);
-//		user.setLocked(true);
-//		users.add(user);
-//		userDirectory.put(user.getId(), user);
-//		for(int j=1; j<=10;j++) {
-//			user = new User("Mock"+j+"@gmail.com", "Mock"+j, passwordEncoder.encode("admin"), Role.HR, "Vinay", "Raai", true);
-//			users.add(user);
-//			userDirectory.put(user.getId(), user);
-//		}
-		
+		return users;
+	}
+	
+	public List<User> getUsersListByEntityId(Long id)
+	{
+		//Get users from Backend
+		List<User> users = new ArrayList<User>();
+		if(RestServiceUtil.getSESSION() != null) {
+			try {
+				List<com.luretechnologies.client.restlib.service.model.User> userList = RestServiceUtil.getInstance().getClient().getUserApi().getUsers();
+				for (com.luretechnologies.client.restlib.service.model.User user : userList) {
+					if(id.equals(user.getEntity().getId())) {
+					User clientUser = new User(user.getId(),user.getEmail(),user.getUsername(),"",user.getRole().getName(),user.getFirstName(), user.getLastName(),user.getAvailable(), user.getPasswordFrequency());
+					clientUser.setLocked(true);
+					users.add(clientUser);
+					}
+				}
+				return users;
+			} catch (ApiException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+		return users;
 	}
 	
 	public User getUserByEmail(String email)
+	{
+		User clientUser = new User();
+		if(RestServiceUtil.getSESSION() != null) {
+			try {
+				com.luretechnologies.client.restlib.service.model.User user = RestServiceUtil.getInstance().getClient().getUserApi().getUserByEmail(email);
+				
+					clientUser = new User(user.getId(),user.getEmail(),user.getUsername(),"",user.getRole().getName(),user.getFirstName(), user.getLastName(),user.getAvailable(), user.getPasswordFrequency());
+					clientUser.setLocked(true);
+					return clientUser;
+					
+			} catch (ApiException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+		return clientUser;
+	}
+	
+	public User getUserbyId(Long id) {
+		User clientUser = new User();
+		if(RestServiceUtil.getSESSION() != null) {
+			try {
+				com.luretechnologies.client.restlib.service.model.User user = RestServiceUtil.getInstance().getClient().getUserApi().getUser(id);
+				
+					clientUser = new User(user.getId(),user.getEmail(),user.getUsername(),"",user.getRole().getName(),user.getFirstName(), user.getLastName(),user.getAvailable(), user.getPasswordFrequency());
+					clientUser.setLocked(true);
+					return clientUser;
+					
+			} catch (ApiException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+		return clientUser;
+	}
+	
+	public User getUserbyUserName(String username) {
+		User clientUser = new User();
+		if(RestServiceUtil.getSESSION() != null) {
+			try {
+				com.luretechnologies.client.restlib.service.model.User user = RestServiceUtil.getInstance().getClient().getUserApi().getUserByUserName(username);
+				
+					clientUser = new User(user.getId(),user.getEmail(),user.getUsername(),"",user.getRole().getName(),user.getFirstName(), user.getLastName(),user.getAvailable(), user.getPasswordFrequency());
+					clientUser.setLocked(true);
+					return clientUser;
+					
+			} catch (ApiException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+		return clientUser;
+	}
+	
+	public void createUser(User user) throws ApiException {
+		User clientUser = new User();
+		com.luretechnologies.client.restlib.service.model.User userServer = new com.luretechnologies.client.restlib.service.model.User();
+		if(RestServiceUtil.getSESSION() != null) {
+			try {
+				com.luretechnologies.client.restlib.service.model.Role role = RestServiceUtil.getInstance().getClient().getRoleApi().getRolebyName(user.getRole());
+				userServer.setUsername(user.getName());
+				userServer.setFirstName(user.getFirstname());
+				userServer.setLastName(user.getLastname());
+				userServer.setRole(role);
+				userServer.setEmail(user.getEmail());
+				userServer.setAvailable(user.isActive());
+				userServer.setPasswordFrequency(user.getPasswordFrequency());
+				userServer.setPassword(user.getPassword());
+				if(user.getId()!=null) {
+					com.luretechnologies.client.restlib.service.model.User updatedUser  = RestServiceUtil.getInstance().getClient().getUserApi().updateUser(user.getId(), userServer);
+					clientUser = new User(updatedUser.getId(),updatedUser.getEmail(),updatedUser.getUsername(),"",updatedUser.getRole().getName(),updatedUser.getFirstName(), updatedUser.getLastName(),updatedUser.getAvailable(), updatedUser.getPasswordFrequency());
+					clientUser.setLocked(true);	
+				}else {
+					com.luretechnologies.client.restlib.service.model.User savedUser  = RestServiceUtil.getInstance().getClient().getUserApi().createUser(userServer);
+					
+					clientUser = new User(savedUser.getId(),savedUser.getEmail(),savedUser.getUsername(),"",savedUser.getRole().getName(),savedUser.getFirstName(), savedUser.getLastName(),savedUser.getAvailable(), savedUser.getPasswordFrequency());
+					clientUser.setLocked(true);	
+				}
+					
+			} catch (ApiException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+	}
+	
+	public void deleteUser(Long id) throws ApiException {
+		
+		if(RestServiceUtil.getSESSION() != null) {
+			try {
+				
+				RestServiceUtil.getInstance().getClient().getUserApi().deleteUser(id);
+					
+			} catch (ApiException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+	}
+	
+	public User getUserByEmailClient(String email)
 	{
 		Optional<User> userMatch = users.stream().filter(u -> u.getEmail().equals(email)).findFirst();
 		if(userMatch.isPresent())

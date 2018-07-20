@@ -154,10 +154,23 @@ public class TreeDataNodeService {
 		}
 	}
 
-	public void copyTreeNode(TreeNode entity, TreeNode parentEntity) {
+	public void copyTreeNode(TreeNode entity) {
 		try {
 			if(RestServiceUtil.getSESSION()!=null) {
+				Entity parentEntity = RestServiceUtil.getInstance().getClient().getEntityApi().getEntityHierarchy(entity.getId());
 				RestServiceUtil.getInstance().getClient().getEntityApi().copyEntity(entity.getEntityId(), parentEntity.getId());
+			}
+		}catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		
+	}
+	
+	public void pasteTreeNode(TreeNode entity, TreeNode parentEntity) {
+		try {
+			if(RestServiceUtil.getSESSION()!=null) {
+				RestServiceUtil.getInstance().getClient().getEntityApi().moveEntity(entity.getId(), parentEntity.getId());
 			}
 		}catch (Exception e) {
 			// TODO: handle exception

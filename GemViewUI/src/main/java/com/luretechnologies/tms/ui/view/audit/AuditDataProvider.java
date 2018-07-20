@@ -87,11 +87,11 @@ public class AuditDataProvider extends AbstractBackEndDataProvider<User, Object>
 	}
 	
 	private List<User> getUsers(Query<User, Object> query)
-	{
-		List<User> resultList =  mockUserService.getUsers();
+	{List<User> resultList = null;
+		 /*resultList =  mockUserService.getUsers();
 		
 		if(query.getFilter().isPresent())
-			resultList = mockUserService.getUsers().stream().filter(u -> u.getEmail().contains(query.getFilter().get().toString()) ).collect(Collectors.toList());
+			resultList = mockUserService.getUsers().stream().filter(u -> u.getEmail().contains(query.getFilter().get().toString()) ).collect(Collectors.toList());*/
 		return resultList;
 	}
 

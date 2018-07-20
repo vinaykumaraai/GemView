@@ -24,8 +24,8 @@ import com.vaadin.spring.annotation.SpringComponent;
 
 
 @SpringComponent
-public class MockAppService extends CrudService<AppMock>{
-	private Map<Long,AppMock> appDirectory = new HashMap<Long, AppMock>();
+public class MockAppService{
+	/*private Map<Long,AppMock> appDirectory = new HashMap<Long, AppMock>();
 	@Autowired
 	private MockAppDefaultParamService mockAppDefaultParamService;
 	@Autowired
@@ -37,7 +37,7 @@ public class MockAppService extends CrudService<AppMock>{
 	@PostConstruct
 	public void createInitialAlertss() throws ParseException
 	{	List<Devices> deviceList = mockDeviceService.getSavedList();
-		List<User> userList = mockUserService.getSavedList();
+		//List<User> userList = mockUserService.getSavedList();
 		List<Profile> profileList = mockProfileService.getSavedList();
 		
 		AppMock app = new AppMock("Payment Application","This is Payment Application","1.0",true,mockAppDefaultParamService.getSavedList(),deviceList.get(0),userList.get(0),profileList.get(0));
@@ -104,7 +104,7 @@ public class MockAppService extends CrudService<AppMock>{
 		// TODO Auto-generated method stub
 		return appDirectory.values().stream().collect(Collectors.toList());
 	}
-
+*/
 
 
 	

@@ -29,7 +29,7 @@ import com.luretechnologies.tms.backend.data.entity.AssetHistory;
 import com.luretechnologies.tms.backend.data.entity.Debug;
 import com.luretechnologies.tms.backend.data.entity.DebugItems;
 import com.luretechnologies.tms.backend.data.entity.ExtendedNode;
-import com.luretechnologies.tms.backend.data.entity.Terminal;
+import com.luretechnologies.tms.backend.data.entity.TerminalClient;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
 import com.luretechnologies.tms.backend.service.AlertService;
 import com.luretechnologies.tms.backend.service.AssetControlService;
@@ -797,12 +797,12 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 						HorizontalLayout HL= (HorizontalLayout)deviceDebugFormLayout.getComponent(3);
 						CheckBox checkbox = (CheckBox) HL.getComponent(1);
 						checkbox.setValue(nodeTree.getSelectedItems().iterator().next().isActive());
-						Terminal terminal = assetControlService.getTerminal(nodeTree.getSelectedItems().iterator().next().getEntityId());
+						TerminalClient terminal = assetControlService.getTerminal(nodeTree.getSelectedItems().iterator().next().getEntityId());
 						if(terminal!=null) {
 							((TextField)deviceDebugFormLayout.getComponent(4)).setValue(terminal.getSerialNumber());
 							HorizontalLayout HL1= (HorizontalLayout)deviceDebugFormLayout.getComponent(5);
 							CheckBox checkbox1 = (CheckBox) HL1.getComponent(1);
-							checkbox1.setValue(terminal.isDebugActive());
+							checkbox1.setValue(terminal.isActive());
 							String date = terminal.getDuration();
 							LocalDate localDate = LocalDate.parse(date);
 							DateField dateField = (DateField)deviceDebugFormLayout.getComponent(6);

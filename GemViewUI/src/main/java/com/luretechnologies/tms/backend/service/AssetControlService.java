@@ -53,7 +53,7 @@ import com.luretechnologies.tms.backend.data.entity.Audit;
 import com.luretechnologies.tms.backend.data.entity.Debug;
 import com.luretechnologies.tms.backend.data.entity.DebugItems;
 import com.luretechnologies.tms.backend.data.entity.DeviceOdometer;
-import com.luretechnologies.tms.backend.data.entity.Terminal;
+import com.luretechnologies.tms.backend.data.entity.TerminalClient;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
 import com.vaadin.data.TreeData;
@@ -331,13 +331,13 @@ public class AssetControlService {
 		}
 	}
 	
-	public Terminal getTerminal(String entityId){
+	public TerminalClient getTerminal(String entityId){
 		try {
 			if(RestServiceUtil.getSESSION()!=null) {
 				com.luretechnologies.client.restlib.service.model.Terminal terminal = RestServiceUtil.getInstance().getClient().getTerminalApi().getTerminal(entityId);
 				if(terminal!=null) {
 					String date = new SimpleDateFormat("yyyy-MM-dd").format(terminal.getDebugExpirationDate());
-					Terminal mockTerminal = new Terminal(terminal.getSerialNumber(), terminal.getAvailable(), date);
+					TerminalClient mockTerminal = new TerminalClient(terminal.getSerialNumber(), terminal.getAvailable(), date);
 					return mockTerminal;
 				}
 			}

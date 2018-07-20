@@ -50,11 +50,13 @@ import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.navigator.ViewBeforeLeaveEvent;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.Page;
+import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.tms.app.HasLogger;
 import com.luretechnologies.tms.backend.data.entity.AbstractEntity;
 import com.luretechnologies.tms.backend.data.entity.Roles;
 import com.luretechnologies.tms.backend.data.entity.User;
 import com.luretechnologies.tms.backend.service.CrudService;
+import com.luretechnologies.tms.backend.service.UserService;
 import com.luretechnologies.tms.backend.exceptions.UserFriendlyDataException;
 import com.luretechnologies.tms.ui.components.ConfirmPopup;
 import com.luretechnologies.tms.ui.navigation.NavigationManager;
@@ -70,7 +72,7 @@ public abstract class AbstractCrudPresenter<T extends AbstractEntity, S extends 
 
 	private final NavigationManager navigationManager;
 
-	private final S service;
+	private final UserService service;
 
 	private AbstractBackEndDataProvider<T, Object> dataProvider;
 
@@ -85,7 +87,7 @@ public abstract class AbstractCrudPresenter<T extends AbstractEntity, S extends 
 
 	private final Class<T> entityType;
 
-	protected AbstractCrudPresenter(NavigationManager navigationManager, S service, Class<T> entityType,
+	protected AbstractCrudPresenter(NavigationManager navigationManager, UserService service, Class<T> entityType,
 			AbstractBackEndDataProvider<T, Object> dataProvider, BeanFactory beanFactory) {
 		this.service = service;
 		this.navigationManager = navigationManager;
@@ -116,7 +118,7 @@ public abstract class AbstractCrudPresenter<T extends AbstractEntity, S extends 
 		return binder;
 	}
 
-	protected S getService() {
+	protected UserService getService() {
 		return service;
 	}
 
@@ -133,7 +135,7 @@ public abstract class AbstractCrudPresenter<T extends AbstractEntity, S extends 
 	}
 
 	protected T loadEntity(long id) {
-		return service.load(id);
+		return (T) service.getUserbyId(id);
 	}
 
 	protected Class<T> getEntityType() {
@@ -284,9 +286,9 @@ public abstract class AbstractCrudPresenter<T extends AbstractEntity, S extends 
 		}
 
 		boolean isNew = editItem.isNew();
-		T entity;
+		T entity =null;
 		try {
-			entity = service.save(editItem);
+			//entity = service.createUser(editItem);
 		} /*
 			 * catch (OptimisticLockingFailureException e) { // Somebody else probably
 			 * edited the data at the same time Notification.
@@ -331,20 +333,21 @@ public abstract class AbstractCrudPresenter<T extends AbstractEntity, S extends 
 		navigationManager.updateViewParameter("");
 	}
 
-	public void deleteClicked() {
-		confirmDialog(editItem);
+	public void deleteClicked(Long id) {
+		confirmDialog(id);
 		dataProvider.refreshAll();
 		revertToInitialState();
 	}
 
-	public void confirmDialog(T editItem) {
+	public void confirmDialog(Long id) {
 		ConfirmDialog.show(this.getView().getViewComponent().getUI(), "Please Confirm:",
 				"Are you sure you want to delete?", "Ok", "Cancel", null, new ConfirmDialog.Listener() {
 
 					public void onClose(ConfirmDialog dialog) {
 						if (dialog.isConfirmed()) {
 							try {
-								deleteEntity(editItem);
+								service.deleteUser(id);
+								
 							} catch (UserFriendlyDataException e) {
 								Notification.show(e.getMessage(), Type.ERROR_MESSAGE);
 								getLogger().debug("Unable to delete entity of type " + editItem.getClass().getName(),
@@ -356,7 +359,10 @@ public abstract class AbstractCrudPresenter<T extends AbstractEntity, S extends 
 								 * , Type.ERROR_MESSAGE); getLogger().error("Unable to delete entity of type " +
 								 * editItem.getClass().getName(), e); return; }
 								 */
-							//getView().loadGridData();
+							catch (ApiException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
 						} else {
 							// User did not confirm
 

@@ -35,12 +35,6 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.luretechnologies.tms.backend.data.entity.Node;
-import com.luretechnologies.tms.backend.data.entity.TreeNode;
-import com.luretechnologies.tms.backend.data.entity.User;
-import com.luretechnologies.tms.backend.service.MockUserService;
-import com.luretechnologies.tms.backend.service.TreeDataNodeService;
-import com.luretechnologies.tms.ui.view.admin.AbstractCrudView;
 import com.vaadin.data.BeanValidationBinder;
 import com.vaadin.data.TreeData;
 import com.vaadin.data.ValidationResult;
@@ -48,16 +42,27 @@ import com.vaadin.data.Validator;
 import com.vaadin.data.ValueContext;
 import com.vaadin.data.provider.TreeDataProvider;
 import com.vaadin.data.validator.BeanValidator;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.spring.annotation.SpringView;
+import com.luretechnologies.tms.backend.data.entity.Node;
+import com.luretechnologies.tms.backend.data.entity.TreeNode;
+import com.luretechnologies.tms.backend.data.entity.User;
+import com.luretechnologies.tms.backend.service.MockUserService;
+import com.luretechnologies.tms.backend.service.TreeDataService;
+import com.luretechnologies.tms.ui.view.admin.AbstractCrudView;
+import com.luretechnologies.tms.ui.view.admin.RoleSelect;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.Component.Focusable;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.renderers.HtmlRenderer;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.NativeSelect;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
@@ -101,7 +106,7 @@ public class UserAdminView extends AbstractCrudView<User> {
 	public MockUserService userService;
 
 	@Autowired
-	public TreeDataNodeService treeDataService;
+	public TreeDataService treeDataService;
 
 	@Autowired
 	public UserAdminView(UserAdminPresenter presenter) {
@@ -134,7 +139,7 @@ public class UserAdminView extends AbstractCrudView<User> {
 						bean.setPassword(presenter.encodePassword(value));
 					}
 				});
-		binder.bindInstanceFields(getViewComponent());
+		//binder.bindInstanceFields(getViewComponent());
 	}
 
 	public void setPasswordRequired(boolean passwordRequired) {

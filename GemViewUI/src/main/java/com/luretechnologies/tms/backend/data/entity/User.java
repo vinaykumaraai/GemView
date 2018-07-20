@@ -56,12 +56,16 @@ public class User extends AbstractEntity {
 	private boolean active;
 
 	private boolean locked = false;
+	
+	private int passwordFrequency;
+	
+	private int verficationFrequency;
 
 	public User() {
 		// An empty constructor is needed for all beans
 	}
 
-	public User(Long id,String email, String name, String password, String role, String firstname, String lastname, boolean active) {
+	public User(Long id,String email, String name, String password, String role, String firstname, String lastname, boolean active, int passwordFrequncy) {
 		Objects.requireNonNull(email);
 		Objects.requireNonNull(name);
 		//Objects.requireNonNull(password);
@@ -69,6 +73,7 @@ public class User extends AbstractEntity {
 		Objects.requireNonNull(firstname);
 		Objects.requireNonNull(lastname);
 		Objects.requireNonNull(active);
+		Objects.requireNonNull(passwordFrequncy);
 
 		this.email = email;
 		this.name = name;
@@ -78,6 +83,23 @@ public class User extends AbstractEntity {
 		this.lastname= lastname;
 		this.active=active;
 		this.setId(id);
+		this.passwordFrequency= passwordFrequncy;
+	}
+	
+	public int getPasswordFrequency() {
+		return passwordFrequency;
+	}
+
+	public void setPasswordFrequency(int passwordFrequency) {
+		this.passwordFrequency = passwordFrequency;
+	}
+
+	public int getVerficationFrequency() {
+		return verficationFrequency;
+	}
+
+	public void setVerficationFrequency(int verficationFrequency) {
+		this.verficationFrequency = verficationFrequency;
 	}
 
 	public String getPassword() {

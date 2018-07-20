@@ -32,24 +32,20 @@
 package com.luretechnologies.tms.ui.view.admin;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.vaadin.dialogs.ConfirmDialog;
 
-import com.luretechnologies.client.restlib.common.ApiException;
-import com.luretechnologies.tms.app.HasLogger;
-import com.luretechnologies.tms.backend.data.Role;
-import com.luretechnologies.tms.backend.data.entity.AbstractEntity;
-import com.luretechnologies.tms.backend.data.entity.TreeNode;
-import com.luretechnologies.tms.backend.service.TreeDataNodeService;
-import com.luretechnologies.tms.ui.NotificationUtil;
 import com.vaadin.data.BeanValidationBinder;
 import com.vaadin.data.HasValue;
 import com.vaadin.data.TreeData;
 import com.vaadin.data.provider.DataProvider;
+import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.data.provider.TreeDataProvider;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.event.ShortcutListener;
@@ -58,22 +54,39 @@ import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewBeforeLeaveEvent;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.Page;
+import com.vaadin.server.Sizeable.Unit;
+import com.luretechnologies.client.restlib.common.ApiException;
+import com.luretechnologies.tms.app.HasLogger;
+import com.luretechnologies.tms.backend.data.Role;
+import com.luretechnologies.tms.backend.data.entity.AbstractEntity;
+import com.luretechnologies.tms.backend.data.entity.Node;
+import com.luretechnologies.tms.backend.data.entity.NodeLevel;
+import com.luretechnologies.tms.backend.data.entity.TreeNode;
+import com.luretechnologies.tms.backend.data.entity.User;
+import com.luretechnologies.tms.backend.service.RolesService;
+import com.luretechnologies.tms.backend.service.TreeDataNodeService;
+import com.luretechnologies.tms.backend.service.TreeDataService;
+import com.luretechnologies.tms.backend.service.UserService;
+import com.luretechnologies.tms.ui.NotificationUtil;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.Component.Focusable;
+import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.NativeSelect;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.components.grid.SingleSelectionModel;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -122,6 +135,12 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 
 	@Autowired
 	public TreeDataNodeService treeDataService;
+	
+	@Autowired
+	public UserService userService;
+	
+	@Autowired
+	public RolesService rolesService;
 
 	@Override
 	public void enter(ViewChangeEvent event) {
@@ -134,8 +153,7 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 	}
 
 	public void showInitialState() {
-		getForm().setEnabled(true);
-		//getForm().re
+		getForm().setEnabled(false);
 		getGrid().deselectAll();
 		getGrid().setHeightByRows(5);
 		getUpdate().setCaption(CAPTION_UPDATE);
@@ -143,9 +161,9 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 		getTree().setItemIconGenerator(item -> {
 			switch (item.getType()) {
 			case ENTERPRISE:
-				return VaadinIcons.BUILDING_O;
+				return VaadinIcons.ORIENTATION;
 			case ORGANIZATION:
-				return VaadinIcons.BOOK;
+				return VaadinIcons.BUILDING_O;
 			case MERCHANT:
 				return VaadinIcons.SHOP;
 			case REGION:
@@ -167,7 +185,6 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 			getCancel().setCaption(CAPTION_CANCEL);
 			getFirstFormField().focus();
 			getForm().setEnabled(true);
-//			getRole().d
 		} else {
 			getUpdate().setCaption(CAPTION_UPDATE);
 			getCancel().setCaption(CAPTION_DISCARD);
@@ -178,7 +195,7 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 
 	@SuppressWarnings("unchecked")
 	@PostConstruct
-	private void initLogic() {
+	private void initLogic() throws ApiException {
 		Page.getCurrent().addBrowserWindowResizeListener(r->{
 			if(r.getWidth()<=600) {
 				treeNodeSearch.setHeight(28, Unit.PIXELS);
@@ -215,15 +232,9 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 		treeNodeSearch.setPlaceholder("Search");
 		configureTreeNodeSearch();
 		treePanelLayout.addComponentAsFirst(treeNodeSearch);
-		Tree<TreeNode> treeComponent;
-		try {
-			treeComponent = getUserTree(treeDataService.getTreeData());
-			treePanelLayout.addComponent(treeComponent);
-			treePanelLayout.setComponentAlignment(treeComponent, Alignment.BOTTOM_LEFT);
-		} catch (ApiException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		}
+		Tree<TreeNode> treeComponent = getUserTree(treeDataService.getTreeData());
+		treePanelLayout.addComponent(treeComponent);
+		treePanelLayout.setComponentAlignment(treeComponent, Alignment.BOTTOM_LEFT);
 		treePanelLayout.setStyleName("split-Height-ButtonLayout");
 		treePanelLayout.addStyleName("user-treeLayout");
 		verticalPanelLayout.addComponent(treePanelLayout);
@@ -298,8 +309,22 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 			}
 
 			if (e.getFirstSelectedItem().isPresent()) {
-				getPresenter().editRequest(e.getFirstSelectedItem().get());
-//				getEdit().addClickListener(event -> getForm().setEnabled(true));
+				User user = (User) e.getAllSelectedItems().iterator().next();
+				//getPresenter().editRequest(e.getFirstSelectedItem().get());
+				getUserName().setValue(user.getName());
+				getRole().setValue(user.getRole());
+				getFirstName().setValue(user.getFirstname());
+				getLastName().setValue(user.getLastname());
+				getEmail().setValue(user.getEmail());
+				getActiveBox().setValue(user.isActive());
+				//Need to get from backend
+				getFixedIPBox().setValue(false);
+				//Need to get from backend
+				getIP().setValue("192.0.2.1");
+				getPassFreqncy().setValue(String.valueOf(user.getPasswordFrequency()));
+				//Need to get from backend
+				getVerification().setValue("30");
+				//getEdit().addClickListener(event -> getForm().setEnabled(true));
 			} else {
 				throw new IllegalStateException("This should never happen as deselection is not allowed");
 			}
@@ -318,27 +343,35 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 			}else {
 				TreeNode selectedNode = getTree().getSelectedItems().iterator().next();
 				getPresenter().updateClicked();
-				DataProvider data;
 				try {
-					data = new TreeDataProvider(treeDataService.getTreeData());
+					DataProvider data = new TreeDataProvider(treeDataService.getTreeData());
 					getTree().setDataProvider(data);
+					T selectedUser = getGrid().getSelectedItems().iterator().next();
+					loadGridData();
+					getTree().select(selectedNode);
+					getGrid().select(selectedUser);
 				} catch (ApiException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-				T selectedUser = getGrid().getSelectedItems().iterator().next();
-				loadGridData();
-				getTree().select(selectedNode);
-				getGrid().select(selectedUser);
 			}
 
 		});
 
 		getTree().addItemClickListener(e -> {
-//			treeDataService.getTreeData();
-			TreeNode node = e.getItem();
-			//Get the list of users based on entity
-			
+			List<User> userList = userService.getUsersListByEntityId(e.getItem().getId());
+			DataProvider data = new ListDataProvider(userList);
+			getGrid().setDataProvider(data);
+			getSearch().clear();
+			/*treeDataService.getTreeData();
+			List<Node> nodeList = treeDataService.getUserNodeList();
+			for(Node node : nodeList) {
+				if(node.getLabel().equals(e.getItem().getLabel())) {
+					DataProvider data = new ListDataProvider(node.getEntityList());
+					getGrid().setDataProvider(data);
+					getSearch().clear();
+				}
+			}*/
 //			DataProvider data = new ListDataProvider(e.getItem().getEntityList());
 //			getGrid().setDataProvider(data);
 //			getSearch().clear();
@@ -346,7 +379,8 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 			// selectedTreeNode=e.getItem();
 		});
 
-		getCancel().addClickListener(event -> getPresenter().cancelClicked());
+		//getCancel().addClickListener(event -> getPresenter().cancelClicked());
+		getCancel().addClickListener(event -> clearAllData());
 		getDelete().addClickListener(new ClickListener() {
 			
 			@Override
@@ -354,8 +388,12 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 				if(getGrid().getSelectedItems().isEmpty()) {
 					Notification.show(NotificationUtil.USER_DELETE, Notification.Type.ERROR_MESSAGE);
 				}else {
-				
-					getPresenter().deleteClicked();
+					
+					getPresenter().deleteClicked(getGrid().getSelectedItems().iterator().next().getId());
+					List<User> userList = userService.getUsersListByEntityId(getTree().getSelectedItems().iterator().next().getId());
+					DataProvider data = new ListDataProvider(userList);
+					getGrid().setDataProvider(data);
+					getSearch().clear();
 				}
 			}
 		});
@@ -408,7 +446,7 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
         getRole().addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size",
         		"user-rolesComboBox");
         getRole().setPlaceholder("Select Role");
-        getRole().setItems(Role.getAllRoles());
+        getRole().setItems(rolesService.getRoleNameList());
         //getRole().setValue();
         
 		getUpdate().addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
@@ -465,12 +503,28 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 	}
 
 	public void loadGridData() {
-//		for (Node node : treeDataService.getTreeDataForUser().getRootItems()) {
-//			DataProvider dataList = new ListDataProvider(node.getEntityList());
-//			getGrid().setDataProvider(dataList);
-//		}
-		//Call RestApi Service for users to get all Users for specific Entity
-		TreeNode selectedTreeNode = getTree().getSelectionModel().getFirstSelectedItem().get();
+		/*for (Node node : treeDataService.getTreeDataForUser().getRootItems()) {
+			DataProvider dataList = new ListDataProvider(node.getEntityList());
+			getGrid().setDataProvider(dataList);
+		}*/
+	}
+	
+	public void clearAllData() {
+		getUserName().clear();
+		getRole().clear();
+		getFirstName().clear();
+		getLastName().clear();
+		getEmail().clear();
+		getActiveBox().clear();
+		//Need to get from backend
+		getFixedIPBox().clear();
+		//Need to get from backend
+		getIP().clear();
+		getPassFreqncy().clear();
+		//Need to get from backend
+		getVerification().clear();
+		getPassword().clear();
+		getForm().setEnabled(false);
 	}
 
 	public void setDataProvider(DataProvider<T, Object> dataProvider) {
@@ -496,12 +550,7 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 	private void configureTreeNodeSearch() {
 		treeNodeSearch.addValueChangeListener(changed -> {
 			String valueInLower = changed.getValue().toLowerCase();
-			try {
-				getTree().setTreeData(treeDataService.getFilteredTreeByNodeName(treeDataService.getTreeData(), valueInLower));
-			} catch (ApiException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+//			getTree().setTreeData(treeDataService.getFilteredTreeByNodeName(treeDataService.getTreeDataForUser(), valueInLower));
 			//FIXME: only works for root node labels
 //			TreeDataProvider<Node> nodeDataProvider = (TreeDataProvider<Node>) nodeTree.getDataProvider();
 //			nodeDataProvider.setFilter(filter -> {

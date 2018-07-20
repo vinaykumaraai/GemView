@@ -36,7 +36,7 @@ public class BackendAuthenticationProvider implements AuthenticationProvider {
 			//User user = new User(restUser.getEmail(),restUser.getUsername(),"",restUser.getRole().getName(),restUser.getFirstName(),restUser.getLastName(),restUser.getActive());
 			//FIXME: Using mocked up data due to backend service not working
 			
-			User user = new User(1L,"test@test.com", "Admin", "Admin", Role.ADMIN, "Test", "Test", true); 
+			User user = new User(1L,"test@test.com", "Admin", "Admin", Role.ADMIN, "Test", "Test", true, 1); 
 			return new UsernamePasswordAuthenticationToken(username,password, Collections.singletonList(new SimpleGrantedAuthority(user.getRole())));
 		} catch (ApiException e) {
 			// TODO Auto-generated catch block

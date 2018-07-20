@@ -44,8 +44,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.dialogs.ConfirmDialog;
 
 import com.luretechnologies.client.restlib.common.ApiException;
+import com.luretechnologies.client.restlib.service.model.AppParamFormat;
 import com.luretechnologies.client.restlib.service.model.EntityTypeEnum;
 import com.luretechnologies.tms.backend.data.entity.AppClient;
+import com.luretechnologies.tms.backend.data.entity.AppDefaultParam;
 import com.luretechnologies.tms.backend.data.entity.ApplicationFile;
 import com.luretechnologies.tms.backend.data.entity.Devices;
 import com.luretechnologies.tms.backend.data.entity.Node;
@@ -54,6 +56,7 @@ import com.luretechnologies.tms.backend.data.entity.ParameterType;
 import com.luretechnologies.tms.backend.data.entity.Profile;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
 import com.luretechnologies.tms.backend.service.AppService;
+import com.luretechnologies.tms.backend.service.ApplicationStoreService;
 import com.luretechnologies.tms.backend.service.OdometerDeviceService;
 import com.luretechnologies.tms.backend.service.OverRideParamService;
 import com.luretechnologies.tms.backend.service.PersonalizationService;
@@ -105,8 +108,9 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 	private static Devices emptyDevice;
 	private static HorizontalSplitPanel splitScreen;
 	private static Button createEntity, copyEntity, editEntity, deleteEntity, pasteEntity, createParam, editParam,
-			deleteParam, save, cancel;
-	private static TextField entityName, entityDescription, entitySerialNum;
+			deleteParam, save, cancel, selectProfile, selectFile;
+	private static TextField entityName, entityDescription;
+	private static TextField entitySerialNum = new TextField("Serial Number");
 	private static ComboBox<Devices> deviceDropDown;
 	private static ComboBox<AppClient> appDropDown;
 	private static ComboBox<Profile> profileDropDown;
@@ -114,16 +118,17 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 	private static ComboBox<ApplicationFile> addtnlFilesDropDown;
 	private static ComboBox<String> frequencyDropDown;
 	private static CheckBox activeCheckbox, activateHeartbeat;
-	private static Grid<OverRideParameters> overRideParamGrid;
+	private static Grid<AppDefaultParam> overRideParamGrid;
 	private static TreeNode selectedNode, selectedNodeForCopy;
 	private static ComboBox<EntityTypeEnum> entityType;
+	private static ComboBox<EntityTypeEnum> entityTypeTree;
 	private static FormLayout entityFormLayout;
 	private static HorizontalLayout treeButtonLayout;
 	private static HorizontalLayout treeSearchLayout;
 	private static Tree<TreeNode> modifiedTree = new Tree<>();
 	private static TextField parameterName;
 	private static TextField parameterDescription;
-	private static ComboBox<ParameterType> parameterType;
+	private static ComboBox<String> parameterType =  new ComboBox<>("Type");
 	private static TextField parameterValue;
 	private static Window overRideParamWindow;
 	private static AppClient selectedApp;
@@ -145,6 +150,9 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 
 	@Autowired
 	private PersonalizationService personalizationService;
+	
+	@Autowired
+	private ApplicationStoreService appStoreService;
 
 	@Autowired
 	public PersonalizationView() {
@@ -211,6 +219,8 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		nodeTree.setItemIconGenerator(item -> {
 			switch (item.getType()) {
 			case ENTERPRISE:
+				return VaadinIcons.ORIENTATION;
+			case ORGANIZATION:
 				return VaadinIcons.BUILDING_O;
 			case MERCHANT:
 				return VaadinIcons.SHOP;
@@ -230,12 +240,12 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 			overRideParamGrid.setEnabled(false);
 			// treeDataService.getTreeDataForPersonlization();
 			selectedNode = selection.getItem();
+			appDropDown.setDataProvider(new ListDataProvider<>(personalizationService.getAppListByLoggedUserEntity(selectedNode.getId())));
 			// treeDataService.getTreeDataForPersonlization();
 			// List<Node> nodeList = treeDataService.getPersonlizationList();
 			// for(Node node : nodeList) {
 			// if(node.getLabel().equals(selection.getItem().getLabel())) {
 			if (selectedNode.getDescription() != null) {
-				ClearAllComponents();
 				entityType.setValue(selectedNode.getType());
 				entityName.setValue(selectedNode.getLabel());
 				entityDescription.setValue(selectedNode.getDescription());
@@ -253,18 +263,27 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 					// profileDropDown.setValue(selectedNode.getProfile());
 					if (appDropDown.getDataProvider().size(new Query<>()) > 0) {
 						// overRideParamGrid.setDataProvider();
+						appDropDown.setValue(selectedNode.getApp());
+						addtnlFilesDropDown.setValue(selectedNode.getAdditionaFile());
+						profileDropDown.setValue(selectedNode.getProfile());
+						if(selectedNode.getOverRideParamList()!=null)
+						overRideParamGrid.setItems(selectedNode.getOverRideParamList());
 					}
 
 				}
 				if (selectedNode.getType().equals(EntityTypeEnum.DEVICE)) {
 					deviceDropDown.setValue(personalizationService.getDevicesByEntityId(selectedNode.getEntityId()));
-					//TODO: device not getting loaded due to backend error
 					entitySerialNum.setValue(
 							personalizationService.getDeviceSerialNumberByEntityId(selectedNode.getEntityId()));
+					appDropDown.setValue(selectedNode.getApp());
+					addtnlFilesDropDown.setValue(selectedNode.getAdditionaFile());
+					profileDropDown.setValue(selectedNode.getProfile());
+					overRideParamGrid.setItems(selectedNode.getOverRideParamList());
 				}
 
 				// updateDropDown.setValue(selectedNode.getUpdate());
 			} else {
+				ClearAllComponents();
 				ClearGrid();
 				entityType.setValue(selectedNode.getType());
 				entityName.setValue(selectedNode.getLabel());
@@ -274,7 +293,6 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 			// }
 			// }
 
-		
 		});
 		nodeTree.addContextClickListener(event -> {
 			if (!(event instanceof TreeContextClickEvent)) {
@@ -397,6 +415,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 					Notification.show(NotificationUtil.PERSONALIZATION_ENTERPRISE_COPY, Type.ERROR_MESSAGE);
 					selectedNodeForCopy = null;
 				} else {
+					treeDataNodeService.copyTreeNode(selectedNodeForCopy);
 					pasteEntity.setEnabled(true);
 				}
 			} else {
@@ -415,7 +434,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 						Notification.show(NotificationUtil.PERSONALIZATION_PASTE, Type.ERROR_MESSAGE);
 					} else {
 						// FIXME: add the REST code copy and paste tree node.
-						treeDataNodeService.copyTreeNode(selectedNodeForCopy, toPasteNode);
+						treeDataNodeService.pasteTreeNode(selectedNodeForCopy, toPasteNode);
 						// TreeNode copyPasteNode = new TreeNode();
 						// copyPasteNode.setLevel(selectedNodeForCopy.getLevel());
 						// copyPasteNode.setLabel(selectedNodeForCopy.getLabel()+" - Copy");
@@ -590,7 +609,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 
 			node.setType(entityType.getValue());
 			node.setLabel(entityName.getValue());
-			if (deviceDropDown.getValue() != null && entityType.getValue().equals(EntityTypeEnum.TERMINAL)) {
+			if (/*deviceDropDown.getValue() != null && */entityType.getValue().equals(EntityTypeEnum.TERMINAL)) {
 				node.setDevice(deviceDropDown.getValue());
 				node.setHeartBeat(activateHeartbeat.getValue());
 				node.setFrequency(frequencyDropDown.getValue());
@@ -740,7 +759,6 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 	}
 
 	private void getEntitySerialNum(FormLayout entityFormLayout) {
-		entitySerialNum = new TextField("Serial Number");
 		entitySerialNum.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
 		entitySerialNum.setWidth("48%");
 		entitySerialNum.setStyleName("role-textbox");
@@ -798,7 +816,6 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		// Hours", "1 Hour", " 30 Minutes")));
 		appDropDown.setCaption("");
 		appDropDown.setPlaceholder("Application");
-		appDropDown.setDataProvider(new ListDataProvider<>(personalizationService.getAppListByLoggedUserEntity()));
 		appDropDown.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", "small");
 		// do Necessary operations for popping data
 
@@ -817,15 +834,32 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		profileDropDown.setPlaceholder("Default Profile");
 		// profileDropDown.setDataProvider(profileService.getListDataProvider());
 		profileDropDown.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", "small");
-
+		
+		selectProfile = new Button("", VaadinIcons.PLUS_CIRCLE);
+		selectProfile.addStyleNames("v-button-customstyle", ValoTheme.BUTTON_FRIENDLY, "personlization-plusButtons");
+		selectProfile.setDescription("Add Profiles");
+		
+		selectFile = new Button("", VaadinIcons.PLUS_CIRCLE);
+		selectFile.addStyleNames("v-button-customstyle", ValoTheme.BUTTON_FRIENDLY, "personlization-plusButtons");
+		selectFile.setDescription("Add Files");
+		
 		appDropDown.addSelectionListener(selected -> {
 			selectedApp = selected.getValue();
+			addtnlFilesDropDown.clear();
+			profileDropDown.clear();
 			addtnlFilesDropDown
 					.setDataProvider(personalizationService.getApplicationFileDataProvider(selectedApp.getId()));
 			profileDropDown.setDataProvider(personalizationService.getProfileDataProvider(selectedApp.getId()));
-			overRideParamGrid.setDataProvider(personalizationService.getOverrideParamDataProvider(selectedApp.getId()));
+			
+			try {
+				overRideParamGrid.setDataProvider(new ListDataProvider<>(appStoreService.getAppDefaultParamListByAppId(selectedApp.getId())));
+				parameterType.setDataProvider(new ListDataProvider<>(appStoreService.getAppParamTypeList(selectedApp.getId())));
+			} catch (ApiException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		});
-		entityApplicationSelection.addComponents(appDropDown, addtnlFilesDropDown, profileDropDown);
+		entityApplicationSelection.addComponents(appDropDown, selectProfile, profileDropDown, selectFile, addtnlFilesDropDown);
 		entityFormLayout.addComponent(entityApplicationSelection);
 	}
 
@@ -871,6 +905,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		overRideParamSearchLayout.addComponent(overRideParamSearch);
 
 		createParam = new Button(VaadinIcons.FOLDER_ADD, click -> {
+			clearParamValues();
 			Window createParamGridWindow = openOverRideParamWindow(overRideParamGrid);
 			if (createParamGridWindow.getParent() == null)
 				UI.getCurrent().addWindow(createParamGridWindow);
@@ -898,7 +933,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 
 		overRideParamSearchButtonLayout.addComponents(overRideParamSearchLayout, overRideParamButtonLayout);
 
-		overRideParamGrid = new Grid<>(OverRideParameters.class);
+		overRideParamGrid = new Grid<>(AppDefaultParam.class);
 		overRideParamGrid.addStyleNames("personlization-gridHeight");
 		overRideParamGrid.setWidth("100%");
 		overRideParamGrid.setHeightByRows(5);
@@ -908,28 +943,33 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		overRideParamGrid.getColumn("parameter").setEditorComponent(new TextField());
 		overRideParamGrid.getColumn("description").setEditorComponent(new TextField());
 		overRideParamGrid.getColumn("value").setEditorComponent(new TextField());
-		ComboBox<ParameterType> paramComboBox = new ComboBox<>();
-		paramComboBox.setDataProvider(new ListDataProvider<>(Arrays.asList(ParameterType.values())));
-		overRideParamGrid.getColumn("type").setEditorComponent(paramComboBox);
+		overRideParamGrid.getColumn("type").setEditorComponent(parameterType);
 		overRideParamGrid.getEditor().setEnabled(true).addSaveListener(save -> {
 			// FIXME: update code for save mechanism
-			OverRideParameters param = save.getBean();
+			AppDefaultParam param = save.getBean();
 			if (param.getParameter().isEmpty() || param.getDescription().isEmpty() || param.getType() == null
 					|| param.getValue().isEmpty()) {
 				Notification.show("Data cannot be empty in a selected row");
 			} else if (selectedApp != null)
-				personalizationService.updateOverRideParam(selectedApp, param);
-
+				//personalizationService.updateOverRideParam(selectedApp, param);
+				try {
+					AppParamFormat appParamFormat = appStoreService.getAppParamFormatByType(parameterType.getValue());
+					appStoreService.saveAppDefaultParam(selectedApp, save.getBean(), appParamFormat);
+				} catch (ApiException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 		});
+		
 
 		overRideParamSearch.addValueChangeListener(valueChange -> {
 			String valueInLower = valueChange.getValue().toLowerCase();
-			ListDataProvider<OverRideParameters> paramDataProvider = (ListDataProvider<OverRideParameters>) overRideParamGrid
+			ListDataProvider<AppDefaultParam> paramDataProvider = (ListDataProvider<AppDefaultParam>) overRideParamGrid
 					.getDataProvider();
 			paramDataProvider.setFilter(filter -> {
 				String parameterInLower = filter.getParameter().toLowerCase();
 				String descriptionInLower = filter.getDescription().toLowerCase();
-				String typeLower = filter.getType().name().toLowerCase();
+				String typeLower = filter.getType().toLowerCase();
 				String value = filter.getValue().toLowerCase();
 				return descriptionInLower.equals(valueInLower) || parameterInLower.contains(valueInLower)
 						|| typeLower.contains(valueInLower) || value.contains(valueInLower);
@@ -986,6 +1026,13 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 
 	private Window openEntityWindow() {
 		Window entityWindow = new Window("Add Entity");
+		entityTypeTree = new ComboBox<EntityTypeEnum>();
+		entityTypeTree.setCaption("Entity Type");
+		entityTypeTree.setDataProvider(new ListDataProvider<>(
+				Arrays.asList(EntityTypeEnum.ENTERPRISE, EntityTypeEnum.REGION, EntityTypeEnum.MERCHANT,
+						EntityTypeEnum.TERMINAL, EntityTypeEnum.DEVICE, EntityTypeEnum.ORGANIZATION)));
+		entityTypeTree.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size",
+				"personlization-formAlignment", "small");
 		TextField entityName = new TextField("Name");
 		entityName.setStyleName("role-textbox");
 		entityName.addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS, "v-textfield-font");
@@ -993,6 +1040,16 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		TextField entityDescription = new TextField("Description");
 		entityDescription.setStyleName("role-textbox");
 		entityDescription.addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS, "v-textfield-font");
+		TextField serialNumber = new TextField("Serial Number");
+		serialNumber.setStyleName("role-textbox");
+		serialNumber.addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS, "v-textfield-font");
+		serialNumber.setEnabled(false);
+		
+		entityTypeTree.addSelectionListener(selected -> {
+			if(entityTypeTree.getValue().toString().equals("TERMINAL") || entityTypeTree.getValue().toString().equals("DEVICE")) {
+				serialNumber.setEnabled(true);
+			}
+		});
 
 		Button saveProfile = new Button("Save", click -> {
 			if (StringUtils.isNotEmpty(entityName.getValue()) && nodeTree.getSelectedItems().size() == 1) {
@@ -1000,8 +1057,11 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 				TreeNode newNode = new TreeNode();
 				newNode.setLabel(entityName.getValue().isEmpty() ? "Child Node" : entityName.getValue());// Pick name
 				newNode.setDescription(entityDescription.getValue()); // textfield
+				if(!serialNumber.isEmpty() && serialNumber!=null) {
+					newNode.setSerialNum(serialNumber.getValue());
+				}
 				// FIXME add the REST code for adding new entity
-				if (selectedNode.getType() == EntityTypeEnum.ENTERPRISE)
+				if (selectedNode.getType() == EntityTypeEnum.ORGANIZATION)
 
 					if (selectedNode.getType() == EntityTypeEnum.REGION)
 
@@ -1015,17 +1075,48 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 								}
 
 				switch (selectedNode.getType()) {
-				case ENTERPRISE:
-					newNode.setType(EntityTypeEnum.REGION);
+				case ORGANIZATION:
+					if(entityTypeTree.getValue().toString().equals("ENTERPRISE") || entityTypeTree.getValue().toString().equals("TERMINAL") ||
+							entityTypeTree.getValue().toString().equals("DEVICE")) {
+						entityWindow.close();
+						 Notification.show("Cannot Select this entity type for Organization", Type.ERROR_MESSAGE);
+					}else {
+						newNode.setType(entityTypeTree.getValue());
+						personalizationService.createEntity(selectedNode, newNode);
+					}
 					break;
 				case MERCHANT:
-					newNode.setType(EntityTypeEnum.TERMINAL);
+					if(entityTypeTree.getValue().toString().equals("ENTERPRISE") || entityTypeTree.getValue().toString().equals("REGION") ||
+							entityTypeTree.getValue().toString().equals("MERCHANT") || entityTypeTree.getValue().toString().equals("ORGANIZARION")||
+							entityTypeTree.getValue().toString().equals("DEVICE")) {
+						entityWindow.close();
+						 Notification.show("Cannot Select this entity type for Merchant", Type.ERROR_MESSAGE);
+					}else {
+						newNode.setType(entityTypeTree.getValue());
+						personalizationService.createEntity(selectedNode, newNode);
+					}
 					break;
 				case REGION:
-					newNode.setType(EntityTypeEnum.MERCHANT);
+					if(entityTypeTree.getValue().toString().equals("ENTERPRISE") || entityTypeTree.getValue().toString().equals("REGION") ||
+							entityTypeTree.getValue().toString().equals("MERCHANT") || entityTypeTree.getValue().toString().equals("ORGANIZARION")||
+							entityTypeTree.getValue().toString().equals("DEVICE")) {
+						entityWindow.close();
+						 Notification.show("Cannot Select this entity type for Merchant", Type.ERROR_MESSAGE);
+					}else {
+						newNode.setType(entityTypeTree.getValue());
+						personalizationService.createEntity(selectedNode, newNode);
+					}
 					break;
 				case TERMINAL:
-					newNode.setType(EntityTypeEnum.DEVICE);
+					if(entityTypeTree.getValue().toString().equals("ENTERPRISE") || entityTypeTree.getValue().toString().equals("REGION") ||
+							entityTypeTree.getValue().toString().equals("MERCHANT") || entityTypeTree.getValue().toString().equals("ORGANIZARION")||
+							entityTypeTree.getValue().toString().equals("TERMINAL")) {
+						entityWindow.close();
+						 Notification.show("Cannot Select this entity type for Merchant", Type.ERROR_MESSAGE);
+					}else {
+						newNode.setType(entityTypeTree.getValue());
+						personalizationService.createEntity(selectedNode, newNode);
+					}
 					break;
 				case DEVICE:
 					entityWindow.close();
@@ -1034,7 +1125,6 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 				default:
 					break;
 				}
-				personalizationService.createEntity(selectedNode, newNode);
 				try {
 					nodeTree.setTreeData(personalizationService.getTreeData());
 				} catch (ApiException e) {
@@ -1059,7 +1149,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		});
 		cancelProfile.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		HorizontalLayout buttonLayout = new HorizontalLayout(saveProfile, cancelProfile);
-		FormLayout profileFormLayout = new FormLayout(entityName, entityDescription);
+		FormLayout profileFormLayout = new FormLayout(entityTypeTree, entityName, entityDescription, serialNumber);
 
 		// Window Setup
 		entityWindow.setContent(new VerticalLayout(profileFormLayout, buttonLayout));
@@ -1090,7 +1180,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		overRideParamGrid.setDataProvider(new ListDataProvider<>(Arrays.asList()));
 	}
 
-	private void confirmDeleteOverRideParam(Grid<OverRideParameters> overRideParamGrid, TextField overRideParamSearch) {
+	private void confirmDeleteOverRideParam(Grid<AppDefaultParam> overRideParamGrid, TextField overRideParamSearch) {
 		ConfirmDialog.show(this.getUI(), "Please Confirm:", "Are you sure you want to delete?", "Ok", "Cancel",
 				new ConfirmDialog.Listener() {
 
@@ -1099,8 +1189,15 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 							// Confirmed to continue
 							overRideParamSearch.clear();
 							overRideParamGrid.setEnabled(false);
-							personalizationService.deleteOverRideParam(selectedApp,overRideParamGrid.getSelectedItems().iterator().next());
-							overRideParamGrid.setDataProvider(personalizationService.getOverrideParamDataProvider(selectedApp.getId()));
+							try {
+								appStoreService.removeAPPParam(selectedApp.getId(), overRideParamGrid.getSelectedItems().iterator().next().getId());
+								overRideParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(appStoreService.getAppDefaultParamListByAppId(selectedApp.getId())));
+							} catch (ApiException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							//personalizationService.deleteOverRideParam(selectedApp,overRideParamGrid.getSelectedItems().iterator().next());
+							//overRideParamGrid.setDataProvider(personalizationService.getOverrideParamDataProvider(selectedApp.getId()));
 							overRideParamGrid.getDataProvider().refreshAll();
 							overRideParamGrid.deselectAll();
 							// TODO add Grid reload
@@ -1142,8 +1239,15 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 					}
 				});
 	}
+	
+	private void clearParamValues() {
+		parameterName.clear();
+		parameterValue.clear();
+		parameterDescription.clear();
+		parameterType.clear();
+	}
 
-	private Window openOverRideParamWindow(Grid<OverRideParameters> overRideParamGrid) {
+	private Window openOverRideParamWindow(Grid<AppDefaultParam> overRideParamGrid) {
 
 		if (nodeTree.getSelectedItems().size() == 0) {
 			Notification.show(NotificationUtil.PERSONALIZATION_CREATE_PARAM, Type.ERROR_MESSAGE);
@@ -1158,9 +1262,8 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 			parameterDescription.setStyleName("role-textbox");
 			parameterDescription.addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS, "v-textfield-font", "v-grid-cell");
 
-			parameterType = new ComboBox<>("Type");
 			parameterType.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", "small");
-			parameterType.setDataProvider(new ListDataProvider<>(Arrays.asList(ParameterType.values())));
+			//parameterType.setDataProvider(new ListDataProvider<>(Arrays.asList(ParameterType.values())));
 
 			parameterValue = new TextField("Value");
 			parameterValue.setStyleName("role-textbox");
@@ -1170,11 +1273,19 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 				if (parameterType.getValue() != null && StringUtils.isNotEmpty(parameterName.getValue())
 						&& StringUtils.isNotEmpty(parameterValue.getValue())
 						&& StringUtils.isNotEmpty(parameterDescription.getValue())) {
-					OverRideParameters overRideParam = new OverRideParameters(-1L, parameterName.getValue(),
+					AppDefaultParam appDefaultParam = new AppDefaultParam(null, parameterName.getValue(),
 							parameterDescription.getValue(), parameterType.getValue(), parameterValue.getValue());
 					
-					personalizationService.createOverRideParam(selectedApp,overRideParam);
+					//personalizationService.createOverRideParam(selectedApp,appDefaultParam);
+					try {
+						AppParamFormat appParamFormat = appStoreService.getAppParamFormatByType(parameterType.getValue());
+						appStoreService.saveAppDefaultParam(selectedApp, appDefaultParam, appParamFormat);
 
+					} catch (ApiException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					
 					// FIXME : write create mechanism for override
 
 					// overRideParamService.saveOverRideParam(overRideParam);
@@ -1203,14 +1314,18 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 						// node.getOverRideParamList().add(overRideParam);
 					} else {
 						node = new TreeNode();
-						List<OverRideParameters> paramList = new ArrayList<>();
-						paramList.add(overRideParam);
+						List<AppDefaultParam> paramList = new ArrayList<>();
+						paramList.add(appDefaultParam);
 						// node.setOverRideParamList(paramList);
 					}
 
-					overRideParamGrid
-							.setDataProvider(personalizationService.getOverrideParamDataProvider(selectedApp.getId()));
-					overRideParamGrid.select(overRideParam);
+					try {
+						overRideParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(appStoreService.getAppDefaultParamListByAppId(selectedApp.getId())));
+					} catch (ApiException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					overRideParamGrid.select(appDefaultParam);
 					overRideParamWindow.close();
 				} else {
 					Notification.show(NotificationUtil.SAVE, Type.ERROR_MESSAGE);
@@ -1219,10 +1334,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 			saveParameter.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 
 			Button cancelParameter = new Button("Reset", click -> {
-				parameterName.clear();
-				parameterValue.clear();
-				parameterDescription.clear();
-				parameterType.clear();
+				clearParamValues();
 			});
 			cancelParameter.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 

@@ -35,13 +35,13 @@ import java.util.Objects;
 
 public class OverRideParameters extends AbstractEntity {
 	private String parameter, description, value;
-	private ParameterType type;
+	private String type;
 	
 	public OverRideParameters() {
 		// TODO Auto-generated constructor stub
 				super(false);
 	}
-	public OverRideParameters(Long id, String parameter, String description, ParameterType type, String Value) {
+	public OverRideParameters(Long id, String parameter, String description, String type, String Value) {
 		Objects.requireNonNull(parameter);
 		Objects.requireNonNull(description);
 		Objects.requireNonNull(type);
@@ -71,10 +71,10 @@ public class OverRideParameters extends AbstractEntity {
 	public void setValue(String value) {
 		this.value = value;
 	}
-	public ParameterType getType() {
+	public String getType() {
 		return type;
 	}
-	public void setType(ParameterType type) {
+	public void setType(String type) {
 		this.type = type;
 	}
 	@Override
