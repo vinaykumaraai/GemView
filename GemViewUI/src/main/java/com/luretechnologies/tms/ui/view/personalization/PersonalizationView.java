@@ -65,6 +65,7 @@ import com.vaadin.event.ShortcutListener;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.server.Page;
+import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Alignment;
@@ -77,6 +78,7 @@ import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.CloseEvent;
 import com.vaadin.ui.Notification.CloseListener;
@@ -812,12 +814,14 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		// Files", "Device Files")));
 		addtnlFilesDropDown.setCaption("");
 		addtnlFilesDropDown.setPlaceholder("Additional Files");
+		addtnlFilesDropDown.setDescription("Files");
 		addtnlFilesDropDown.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", "small");
 
 		profileDropDown = new ComboBox<Profile>();
 		// frequencyDropDown.setDataProvider(new ListDataProvider<>(Arrays.asList("24
 		// Hours", "1 Hour", " 30 Minutes")));
 		profileDropDown.setCaption("");
+		profileDropDown.setDescription("Profile");
 		profileDropDown.setPlaceholder("Default Profile");
 		// profileDropDown.setDataProvider(profileService.getListDataProvider());
 		profileDropDown.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", "small");
@@ -830,13 +834,17 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		selectFile.addStyleNames("v-button-customstyle", ValoTheme.BUTTON_FRIENDLY, "personlization-plusButtons");
 		selectFile.setDescription("Add Files");
 		
+		selectProfile.addClickListener(click ->{
+			if(selectedApp != null)
+				UI.getCurrent().addWindow(openProfileListToAddWindow());
+		});
 		appDropDown.addSelectionListener(selected -> {
 			selectedApp = selected.getValue();
 			addtnlFilesDropDown.clear();
 			profileDropDown.clear();
-			addtnlFilesDropDown
-					.setDataProvider(personalizationService.getApplicationFileDataProvider(selectedApp.getId()));
-			profileDropDown.setDataProvider(personalizationService.getProfileDataProvider(selectedApp.getId()));
+//			addtnlFilesDropDown
+//					.setDataProvider(personalizationService.getApplicationFileDataProvider(selectedApp.getId()));
+//			profileDropDown.setDataProvider(personalizationService.getProfileDataProvider(selectedApp.getId()));
 			
 			try {
 				overRideParamGrid.setDataProvider(new ListDataProvider<>(appStoreService.getAppDefaultParamListByAppId(selectedApp.getId())));
@@ -1146,6 +1154,47 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		entityWindow.setWidth(30, Unit.PERCENTAGE);
 		return entityWindow;
 	}
+	
+	private Window openProfileListToAddWindow() {
+		Window openProfileListWindow = new Window("App Profile List");
+		
+		ListSelect<Profile> optionList = new ListSelect<>();
+		optionList.setRows(3);
+		optionList.setResponsive(true);
+		optionList.setWidth(100, Unit.PERCENTAGE);
+		optionList.setDataProvider(personalizationService.getProfileDataProvider(selectedApp.getId()));
+		Button saveNode = new Button("Add", click -> {
+			if (optionList.getValue() != null) {
+				List<Profile> profileList = profileDropDown.getDataProvider().fetch(new Query<>()).collect(Collectors.toList());
+				profileList.addAll(optionList.getValue());
+				profileDropDown.setDataProvider(new ListDataProvider<>(profileList));
+				openProfileListWindow.close();
+				// FIXME: for update
+			} else {
+				Notification notification = Notification.show("No Profile Selected",
+						Type.ERROR_MESSAGE);
+				
+			}
+		});
+
+		saveNode.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
+
+		Button cancelNode = new Button("Cancel", click -> {
+			openProfileListWindow.close();
+		});
+		cancelNode.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
+		HorizontalLayout buttonLayout = new HorizontalLayout(saveNode, cancelNode);
+		FormLayout profileFormLayout = new FormLayout(optionList);
+
+		// Window Setup
+		openProfileListWindow.setContent(new VerticalLayout(profileFormLayout, buttonLayout));
+		openProfileListWindow.center();
+		openProfileListWindow.setModal(true);
+		openProfileListWindow.setClosable(true);
+		openProfileListWindow.setWidth(30, Unit.PERCENTAGE);
+		return openProfileListWindow;
+	}
+
 
 	private void ClearAllComponents() {
 		entityName.clear();
