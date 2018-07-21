@@ -33,7 +33,7 @@ package com.luretechnologies.tms.backend.service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -54,7 +54,6 @@ import com.luretechnologies.tms.backend.data.entity.AppDefaultParam;
 import com.luretechnologies.tms.backend.data.entity.ApplicationFile;
 import com.luretechnologies.tms.backend.data.entity.Devices;
 import com.luretechnologies.tms.backend.data.entity.OverRideParameters;
-import com.luretechnologies.tms.backend.data.entity.ParameterType;
 import com.luretechnologies.tms.backend.data.entity.Profile;
 import com.luretechnologies.tms.backend.data.entity.TerminalClient;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
@@ -141,6 +140,7 @@ public class PersonalizationService {
 					device.setEntityId(treeNewNode.getEntityId());
 					device.setSerialNumber(treeNewNode.getSerialNum());
 					RestServiceUtil.getInstance().getClient().getDeviceApi().createDevice(device);
+					
 					break;
 				default:
 					break;
@@ -352,6 +352,35 @@ public class PersonalizationService {
 		}
 
 		return new ListDataProvider<>(profileList);
+	}
+	public ListDataProvider<Profile> getProfileForEntityDataProvider(Long appId,Long entityId){
+		List<Profile> profileList = new ArrayList<>();
+		try {
+			if (RestServiceUtil.getSESSION() != null) {
+				for(AppProfile appProfile : RestServiceUtil.getInstance().getClient().getAppProfileApi().getAppProfileListByEntity(appId, entityId)) {
+					profileList.add(new Profile(appProfile.getId(),appProfile.getName()));
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return new ListDataProvider<>(profileList);
+	}
+	
+	public void saveProfileForEntity(Set<Profile> profileList,Long entityId) {
+		try {
+			if (RestServiceUtil.getSESSION() != null) {
+				for(Profile profile : profileList) {
+					RestServiceUtil.getInstance().getClient().getAppProfileApi().addEntityAppProfile(profile.getId(), entityId);
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 	}
 	public String getTerminalSerialNumberByEntityId(String entityId) {
 		try {

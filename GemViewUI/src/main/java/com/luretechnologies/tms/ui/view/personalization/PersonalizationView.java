@@ -823,7 +823,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		profileDropDown.setCaption("");
 		profileDropDown.setDescription("Profile");
 		profileDropDown.setPlaceholder("Default Profile");
-		// profileDropDown.setDataProvider(profileService.getListDataProvider());
+		profileDropDown.setDataProvider(personalizationService.getProfileForEntityDataProvider(selectedApp.getId(),selectedNode.getId()));
 		profileDropDown.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", "small");
 		
 		selectProfile = new Button("", VaadinIcons.PLUS_CIRCLE);
@@ -1168,6 +1168,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 				List<Profile> profileList = profileDropDown.getDataProvider().fetch(new Query<>()).collect(Collectors.toList());
 				profileList.addAll(optionList.getValue());
 				profileDropDown.setDataProvider(new ListDataProvider<>(profileList));
+				personalizationService.saveProfileForEntity(optionList.getValue(),selectedNode.getId());
 				openProfileListWindow.close();
 				// FIXME: for update
 			} else {
