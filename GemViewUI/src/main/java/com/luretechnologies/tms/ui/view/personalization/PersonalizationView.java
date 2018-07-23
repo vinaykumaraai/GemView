@@ -105,7 +105,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 	private static Devices emptyDevice;
 	private static HorizontalSplitPanel splitScreen;
 	private static Button createEntity, copyEntity, editEntity, deleteEntity, pasteEntity, createParam, editParam,
-			deleteParam, save, cancel, selectProfile, selectFile;
+			deleteParam, save, cancel, selectProfile,deSelectProfile, selectFile;
 	private static TextField entityName, entityDescription;
 	private static TextField entitySerialNum = new TextField("Serial Number");
 	private static ComboBox<Devices> deviceDropDown;
@@ -829,6 +829,9 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		selectProfile = new Button("", VaadinIcons.PLUS_CIRCLE);
 		selectProfile.addStyleNames("v-button-customstyle", ValoTheme.BUTTON_FRIENDLY, "personlization-plusButtons");
 		selectProfile.setDescription("Add Profiles");
+		deSelectProfile = new Button("", VaadinIcons.MINUS_CIRCLE);
+		deSelectProfile.addStyleNames("v-button-customstyle", ValoTheme.BUTTON_FRIENDLY, "personlization-plusButtons");
+		deSelectProfile.setDescription("Delete Profiles");
 		
 		selectFile = new Button("", VaadinIcons.PLUS_CIRCLE);
 		selectFile.addStyleNames("v-button-customstyle", ValoTheme.BUTTON_FRIENDLY, "personlization-plusButtons");
@@ -837,6 +840,10 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		selectProfile.addClickListener(click ->{
 			if(selectedApp != null)
 				UI.getCurrent().addWindow(openProfileListToAddWindow());
+		});
+		deSelectProfile.addClickListener(click ->{
+			if(selectedApp != null)
+				UI.getCurrent().addWindow(openProfileListToDeleteWindow());
 		});
 		appDropDown.addSelectionListener(selected -> {
 			selectedApp = selected.getValue();
@@ -854,7 +861,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 				e.printStackTrace();
 			}
 		});
-		entityApplicationSelection.addComponents(appDropDown, selectProfile, profileDropDown, selectFile, addtnlFilesDropDown);
+		entityApplicationSelection.addComponents(appDropDown, selectProfile, profileDropDown,deSelectProfile,selectFile, addtnlFilesDropDown);
 		entityFormLayout.addComponent(entityApplicationSelection);
 	}
 
@@ -1166,9 +1173,50 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		Button saveNode = new Button("Add", click -> {
 			if (optionList.getValue() != null) {
 				List<Profile> profileList = profileDropDown.getDataProvider().fetch(new Query<>()).collect(Collectors.toList());
-				profileList.addAll(optionList.getValue());
+				profileList.addAll(profileList.stream().filter(profile -> !optionList.getValue().contains(profile)).collect(Collectors.toList()));
 				profileDropDown.setDataProvider(new ListDataProvider<>(profileList));
-				personalizationService.saveProfileForEntity(optionList.getValue(),selectedNode.getId());
+				personalizationService.saveProfileForEntity(profileList.stream().filter(profile -> !optionList.getValue().contains(profile)).collect(Collectors.toList()),selectedNode.getId());
+				openProfileListWindow.close();
+				// FIXME: for update
+			} else {
+				Notification notification = Notification.show("No Profile Selected",
+						Type.ERROR_MESSAGE);
+				
+			}
+		});
+
+		saveNode.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
+
+		Button cancelNode = new Button("Cancel", click -> {
+			openProfileListWindow.close();
+		});
+		cancelNode.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
+		HorizontalLayout buttonLayout = new HorizontalLayout(saveNode, cancelNode);
+		FormLayout profileFormLayout = new FormLayout(optionList);
+
+		// Window Setup
+		openProfileListWindow.setContent(new VerticalLayout(profileFormLayout, buttonLayout));
+		openProfileListWindow.center();
+		openProfileListWindow.setModal(true);
+		openProfileListWindow.setClosable(true);
+		openProfileListWindow.setWidth(30, Unit.PERCENTAGE);
+		return openProfileListWindow;
+	}
+	
+	private Window openProfileListToDeleteWindow() {
+		Window openProfileListWindow = new Window("App Profile List");
+		
+		ListSelect<Profile> optionList = new ListSelect<>();
+		optionList.setRows(3);
+		optionList.setResponsive(true);
+		optionList.setWidth(100, Unit.PERCENTAGE);
+		optionList.setDataProvider(personalizationService.getProfileDataProvider(selectedApp.getId()));
+		Button saveNode = new Button("Delete", click -> {
+			if (optionList.getValue() != null) {
+				List<Profile> profileList = profileDropDown.getDataProvider().fetch(new Query<>()).collect(Collectors.toList());
+				profileList.removeAll(profileList.stream().filter(profile -> optionList.getValue().contains(profile)).collect(Collectors.toList()));
+				profileDropDown.setDataProvider(new ListDataProvider<>(profileList));
+				personalizationService.deleteProfileForEntity(profileList.stream().filter(profile -> optionList.getValue().contains(profile)).collect(Collectors.toList()),selectedNode.getId());
 				openProfileListWindow.close();
 				// FIXME: for update
 			} else {

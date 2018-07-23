@@ -39,8 +39,17 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.vaadin.dialogs.ConfirmDialog;
 
+import com.luretechnologies.client.restlib.common.ApiException;
+import com.luretechnologies.tms.app.HasLogger;
+import com.luretechnologies.tms.backend.data.Role;
+import com.luretechnologies.tms.backend.data.entity.AbstractEntity;
+import com.luretechnologies.tms.backend.data.entity.TreeNode;
+import com.luretechnologies.tms.backend.data.entity.User;
+import com.luretechnologies.tms.backend.service.RolesService;
+import com.luretechnologies.tms.backend.service.TreeDataNodeService;
+import com.luretechnologies.tms.backend.service.UserService;
+import com.luretechnologies.tms.ui.NotificationUtil;
 import com.vaadin.data.BeanValidationBinder;
 import com.vaadin.data.HasValue;
 import com.vaadin.data.TreeData;
@@ -54,39 +63,22 @@ import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewBeforeLeaveEvent;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.Page;
-import com.vaadin.server.Sizeable.Unit;
-import com.luretechnologies.client.restlib.common.ApiException;
-import com.luretechnologies.tms.app.HasLogger;
-import com.luretechnologies.tms.backend.data.Role;
-import com.luretechnologies.tms.backend.data.entity.AbstractEntity;
-import com.luretechnologies.tms.backend.data.entity.Node;
-import com.luretechnologies.tms.backend.data.entity.NodeLevel;
-import com.luretechnologies.tms.backend.data.entity.TreeNode;
-import com.luretechnologies.tms.backend.data.entity.User;
-import com.luretechnologies.tms.backend.service.RolesService;
-import com.luretechnologies.tms.backend.service.TreeDataNodeService;
-import com.luretechnologies.tms.backend.service.TreeDataService;
-import com.luretechnologies.tms.backend.service.UserService;
-import com.luretechnologies.tms.ui.NotificationUtil;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.Component.Focusable;
-import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.NativeSelect;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.components.grid.SingleSelectionModel;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -503,10 +495,9 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 	}
 
 	public void loadGridData() {
-		/*for (Node node : treeDataService.getTreeDataForUser().getRootItems()) {
-			DataProvider dataList = new ListDataProvider(node.getEntityList());
-			getGrid().setDataProvider(dataList);
-		}*/
+		if(getTree().getSelectedItems().size() == 1) {
+			getGrid().setDataProvider(new ListDataProvider(userService.getUsersListByEntityId(getTree().getSelectionModel().getFirstSelectedItem().get().getId())));
+		}
 	}
 	
 	public void clearAllData() {

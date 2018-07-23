@@ -369,7 +369,7 @@ public class PersonalizationService {
 		return new ListDataProvider<>(profileList);
 	}
 	
-	public void saveProfileForEntity(Set<Profile> profileList,Long entityId) {
+	public void saveProfileForEntity(List<Profile> profileList,Long entityId) {
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
 				for(Profile profile : profileList) {
@@ -382,6 +382,20 @@ public class PersonalizationService {
 		}
 
 	}
+	public void deleteProfileForEntity(List<Profile> profileList,Long entityId) {
+		try {
+			if (RestServiceUtil.getSESSION() != null) {
+				for(Profile profile : profileList) {
+					RestServiceUtil.getInstance().getClient().getAppProfileApi().deleteEntityAppProfile(profile.getId(), entityId);
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+	
 	public String getTerminalSerialNumberByEntityId(String entityId) {
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
