@@ -30,61 +30,17 @@
  *
  */
 
-package com.luretechnologies.tms.backend.data.entity;
+package com.luretechnologies.tms.backend.service;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
 
-import com.luretechnologies.client.restlib.service.model.AppProfileParamValue;
+/**
+ * A data integraty violation exception containing a message intended to be
+ * shown to the end user.
+ */
+public class UserFriendlyDataException extends RuntimeException {
 
-public class Profile extends AbstractEntity {
-
-	private ProfileType type;
-	private String name;
-	private boolean active;
-	//private List<AppProfileParamValueClient> appprofileparamvalueCollection;
-	private List<AppProfileParamValue> appprofileparamvalueCollection;
-	public ProfileType getType() {
-		return type;
+	public UserFriendlyDataException(String message) {
+		super(message);
 	}
-	public void setType(ProfileType type) {
-		this.type = type;
-	}
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
-	}
-	public List<AppProfileParamValue> getAppprofileparamvalueCollection() {
-		return appprofileparamvalueCollection;
-	}
-	public void setAppprofileparamvalueCollection(List<AppProfileParamValue> appprofileparamvalueCollection) {
-		this.appprofileparamvalueCollection = appprofileparamvalueCollection;
-	}
-	
-
-	public Profile(String name) {
-		super(false);
-		Objects.requireNonNull(name);
-		this.name = name;
-	}
-	public Profile(Long id, String name, List<AppProfileParamValue> appprofileparamvalueCollection) {
-		Objects.requireNonNull(id);
-		Objects.requireNonNull(name);
-		this.name = name;
-		this.setId(id);
-	}
-	public boolean isActive() {
-		return active;
-	}
-	public void setActive(boolean active) {
-		this.active = active;
-	}
-	@Override
-	public String toString() {
-		return name.toString();
-	}	
 
 }

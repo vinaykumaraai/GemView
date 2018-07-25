@@ -37,6 +37,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -60,13 +61,13 @@ public class MockProfileService extends CrudService<Profile>{
 	@PostConstruct
 	public void createInitialProfiles() throws ParseException
 	{
-		Profile profile = new Profile(1L,"Restrurant");
+		Profile profile = new Profile(1L,"Restrurant", Collections.EMPTY_LIST);
 		profile.setId(profile.getId()+2);
 		debugDirectory.put(profile.getId(), profile);
-		 profile = new Profile(3L,"SuperMarket");
+		 profile = new Profile(3L,"SuperMarket", Collections.EMPTY_LIST);
 		 profile.setId(profile.getId()+3);
 		debugDirectory.put(profile.getId(), profile);
-		profile = new Profile(4L,"Automobile");
+		profile = new Profile(4L,"Automobile", Collections.EMPTY_LIST);
 		 profile.setId(profile.getId()+4);
 		debugDirectory.put(profile.getId(), profile);
 		 

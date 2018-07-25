@@ -34,6 +34,7 @@ package com.luretechnologies.tms.backend.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -54,6 +55,7 @@ import com.luretechnologies.tms.backend.data.entity.AppDefaultParam;
 import com.luretechnologies.tms.backend.data.entity.ApplicationFile;
 import com.luretechnologies.tms.backend.data.entity.Devices;
 import com.luretechnologies.tms.backend.data.entity.OverRideParameters;
+import com.luretechnologies.tms.backend.data.entity.ParameterType;
 import com.luretechnologies.tms.backend.data.entity.Profile;
 import com.luretechnologies.tms.backend.data.entity.TerminalClient;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
@@ -89,16 +91,28 @@ public class PersonalizationService {
 				switch (parentNode.getType()) {
 
 				case ENTERPRISE:
-					Organization organization = new Organization();
-					organization.setAvailable(treeNewNode.isActive());
-					organization.setDescription(treeNewNode.getDescription());
-					organization.setName(treeNewNode.getLabel());
-					organization.setParentId(parentNode.getId());
-					organization.setType(treeNewNode.getType());
-					organization.setEntityId(treeNewNode.getEntityId());
-					RestServiceUtil.getInstance().getClient().getOrganizationApi().createOrganization(organization);
+					if(treeNewNode.getType().toString().equals("ORGANIZATION")) {
+						Organization organization = new Organization();
+						organization.setAvailable(treeNewNode.isActive());
+						organization.setDescription(treeNewNode.getDescription());
+						organization.setName(treeNewNode.getLabel());
+						organization.setParentId(parentNode.getId());
+						organization.setType(treeNewNode.getType());
+						organization.setEntityId(treeNewNode.getEntityId());
+						RestServiceUtil.getInstance().getClient().getOrganizationApi().createOrganization(organization);
+					}/*else if(treeNewNode.getType().toString().equals("REGION")) {
+						Region region = new Region();
+						region.setAvailable(treeNewNode.isActive());
+						region.setDescription(treeNewNode.getDescription());
+						region.setName(treeNewNode.getLabel());
+						region.setParentId(parentNode.getId());
+						region.setType(treeNewNode.getType());
+						region.setEntityId(treeNewNode.getEntityId());
+						RestServiceUtil.getInstance().getClient().getRegionApi().createRegion(region);
+						}*/
 					break;
 				case ORGANIZATION:
+					if(treeNewNode.getType().toString().equals("REGION")) {
 					Region region = new Region();
 					region.setAvailable(treeNewNode.isActive());
 					region.setDescription(treeNewNode.getDescription());
@@ -107,16 +121,55 @@ public class PersonalizationService {
 					region.setType(treeNewNode.getType());
 					region.setEntityId(treeNewNode.getEntityId());
 					RestServiceUtil.getInstance().getClient().getRegionApi().createRegion(region);
+					} /*else if(treeNewNode.getType().toString().equals("MERCHANT")) {
+						Merchant merchant = new Merchant();
+						merchant.setAvailable(treeNewNode.isActive());
+						merchant.setDescription(treeNewNode.getDescription());
+						merchant.setName(treeNewNode.getLabel());
+						merchant.setParentId(parentNode.getId());
+						merchant.setType(treeNewNode.getType());
+						merchant.setEntityId(treeNewNode.getEntityId());
+						RestServiceUtil.getInstance().getClient().getMerchantApi().createMerchant(merchant);
+					}*/else if(treeNewNode.getType().toString().equals("ORGANIZATION")) {
+						Organization organizationSelf = new Organization();
+						organizationSelf.setAvailable(treeNewNode.isActive());
+						organizationSelf.setDescription(treeNewNode.getDescription());
+						organizationSelf.setName(treeNewNode.getLabel());
+						organizationSelf.setParentId(parentNode.getId());
+						organizationSelf.setType(treeNewNode.getType());
+						organizationSelf.setEntityId(treeNewNode.getEntityId());
+						RestServiceUtil.getInstance().getClient().getOrganizationApi().createOrganization(organizationSelf);
+					}
 					break;
 				case REGION:
-					Merchant merchant = new Merchant();
-					merchant.setAvailable(treeNewNode.isActive());
-					merchant.setDescription(treeNewNode.getDescription());
-					merchant.setName(treeNewNode.getLabel());
-					merchant.setParentId(parentNode.getId());
-					merchant.setType(treeNewNode.getType());
-					merchant.setEntityId(treeNewNode.getEntityId());
-					RestServiceUtil.getInstance().getClient().getMerchantApi().createMerchant(merchant);
+					/*if(treeNewNode.getType().toString().equals("REGION")) {
+						Region region = new Region();
+						region.setAvailable(treeNewNode.isActive());
+						region.setDescription(treeNewNode.getDescription());
+						region.setName(treeNewNode.getLabel());
+						region.setParentId(parentNode.getId());
+						region.setType(treeNewNode.getType());
+						region.setEntityId(treeNewNode.getEntityId());
+						RestServiceUtil.getInstance().getClient().getRegionApi().createRegion(region);
+					}else if(treeNewNode.getType().toString().equals("ORGANIZATION")) {
+						Organization organization = new Organization();
+						organization.setAvailable(treeNewNode.isActive());
+						organization.setDescription(treeNewNode.getDescription());
+						organization.setName(treeNewNode.getLabel());
+						organization.setParentId(parentNode.getId());
+						organization.setType(treeNewNode.getType());
+						organization.setEntityId(treeNewNode.getEntityId());
+						RestServiceUtil.getInstance().getClient().getOrganizationApi().createOrganization(organization);
+					}else*/ if(treeNewNode.getType().toString().equals("MERCHANT")) {
+						Merchant merchant = new Merchant();
+						merchant.setAvailable(treeNewNode.isActive());
+						merchant.setDescription(treeNewNode.getDescription());
+						merchant.setName(treeNewNode.getLabel());
+						merchant.setParentId(parentNode.getId());
+						merchant.setType(treeNewNode.getType());
+						merchant.setEntityId(treeNewNode.getEntityId());
+						RestServiceUtil.getInstance().getClient().getMerchantApi().createMerchant(merchant);
+					}
 					break;
 				case MERCHANT:
 					Terminal terminal = new Terminal();
@@ -140,7 +193,6 @@ public class PersonalizationService {
 					device.setEntityId(treeNewNode.getEntityId());
 					device.setSerialNumber(treeNewNode.getSerialNum());
 					RestServiceUtil.getInstance().getClient().getDeviceApi().createDevice(device);
-					
 					break;
 				default:
 					break;
@@ -195,7 +247,7 @@ public class PersonalizationService {
 					terminal.setFrequency(Long.parseLong(node.getFrequency()));
 					terminal.setHeartbeat(node.isHeartBeat());
 					terminal.setSerialNumber(node.getSerialNum());
-					terminal.setEntityId(terminal.getEntityId());
+					terminal.setEntityId(node.getEntityId());
 					RestServiceUtil.getInstance().getClient().getTerminalApi().updateTerminal(terminal.getEntityId(), terminal);
 					break;
 					
@@ -343,7 +395,7 @@ public class PersonalizationService {
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
 				for(AppProfile appProfile : RestServiceUtil.getInstance().getClient().getAppApi().getAppProfileList(appId)) {
-					profileList.add(new Profile(appProfile.getId(),appProfile.getName()));
+					profileList.add(new Profile(appProfile.getId(),appProfile.getName(), appProfile.getAppProfileParamValueCollection()));
 				}
 			}
 
@@ -353,49 +405,6 @@ public class PersonalizationService {
 
 		return new ListDataProvider<>(profileList);
 	}
-	public ListDataProvider<Profile> getProfileForEntityDataProvider(Long appId,Long entityId){
-		List<Profile> profileList = new ArrayList<>();
-		try {
-			if (RestServiceUtil.getSESSION() != null) {
-				for(AppProfile appProfile : RestServiceUtil.getInstance().getClient().getAppProfileApi().getAppProfileListByEntity(appId, entityId)) {
-					profileList.add(new Profile(appProfile.getId(),appProfile.getName()));
-				}
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return new ListDataProvider<>(profileList);
-	}
-	
-	public void saveProfileForEntity(List<Profile> profileList,Long entityId) {
-		try {
-			if (RestServiceUtil.getSESSION() != null) {
-				for(Profile profile : profileList) {
-					RestServiceUtil.getInstance().getClient().getAppProfileApi().addEntityAppProfile(profile.getId(), entityId);
-				}
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-	}
-	public void deleteProfileForEntity(List<Profile> profileList,Long entityId) {
-		try {
-			if (RestServiceUtil.getSESSION() != null) {
-				for(Profile profile : profileList) {
-					RestServiceUtil.getInstance().getClient().getAppProfileApi().deleteEntityAppProfile(profile.getId(), entityId);
-				}
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-	}
-	
 	public String getTerminalSerialNumberByEntityId(String entityId) {
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
@@ -455,7 +464,6 @@ public List<AppClient> getAppListByLoggedUserEntity(Long id) {
 						getApplicationFileList(app.getAppfileCollection())));
 			}
 		}
-		
 	}catch (Exception e) {
 		// TODO: handle exception
 		e.printStackTrace();
@@ -546,7 +554,7 @@ public void deleteOverRideParam(AppClient app, OverRideParameters param) {
 		List<Profile> profileList = new ArrayList<>();
 		if(appProfileList!=null) {
 			for (AppProfile appProfile : appProfileList) {
-				Profile profile = new Profile(appProfile.getId(), appProfile.getName());
+				Profile profile = new Profile(appProfile.getId(), appProfile.getName(), appProfile.getAppProfileParamValueCollection());
 				profileList.add(profile);
 			}
 			return profileList;
@@ -565,6 +573,50 @@ public void deleteOverRideParam(AppClient app, OverRideParameters param) {
 		}
 		
 		return fileList;
+	}
+	
+	public ListDataProvider<Profile> getProfileForEntityDataProvider(Long appId,Long entityId){
+		List<Profile> profileList = new ArrayList<>();
+		try {
+			if (RestServiceUtil.getSESSION() != null) {
+				for(AppProfile appProfile : RestServiceUtil.getInstance().getClient().getAppProfileApi().getAppProfileListByEntity(appId, entityId)) {
+					profileList.add(new Profile(appProfile.getId(),appProfile.getName(), appProfile.getAppProfileParamValueCollection()));
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return new ListDataProvider<>(profileList);
+	}
+	
+	public void saveProfileForEntity(List<Profile> profileList,Long entityId) {
+		try {
+			if (RestServiceUtil.getSESSION() != null) {
+				for(Profile profile : profileList) {
+					RestServiceUtil.getInstance().getClient().getAppProfileApi().addEntityAppProfile(profile.getId(), entityId);
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+	
+	public void deleteProfileForEntity(List<Profile> profileList,Long entityId) {
+		try {
+			if (RestServiceUtil.getSESSION() != null) {
+				for(Profile profile : profileList) {
+					RestServiceUtil.getInstance().getClient().getAppProfileApi().deleteEntityAppProfile(profile.getId(), entityId);
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 	}
 
 }

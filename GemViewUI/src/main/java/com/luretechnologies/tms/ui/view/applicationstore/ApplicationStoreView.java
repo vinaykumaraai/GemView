@@ -138,9 +138,13 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 	private VerticalLayout applicationListLayout;
 	private HorizontalLayout appSearchLayout ;
 	private ListSelect optionList;
-	TextField profileField = new TextField();
-	TextField profileName = new TextField("Name");
-	ComboBox<String> parameterType = new ComboBox<String>("Type");
+	private TextField profileField = new TextField();
+	private TextField profileName = new TextField("Name");
+	private ComboBox<String> parameterType = new ComboBox<String>("Type");
+	private TextField parameterName = new TextField("Name");
+	private TextField parameterDescription = new TextField("Description");
+	private Button clearAllParams;
+	
 	
 	@Autowired
 	public ApplicationStoreView() {
@@ -398,22 +402,26 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 				HorizontalLayout HL = (HorizontalLayout) applicationDetailsForm.getComponent(4);
 				CheckBox checkbox = (CheckBox) HL.getComponent(1);
 				checkbox.setValue(selectedApp.isAvailable());
+				clearAllParams.setEnabled(true);
+				appDefaultParamGrid.getEditor().setEnabled(false);
+				selectedProfile=null;
 				try {
 					appDefaultParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(appStoreService.getAppDefaultParamListByAppId(selectedApp.getId())));
 					parameterType.setDataProvider(new ListDataProvider<>(appStoreService.getAppParamTypeList(selectedApp.getId())));
 					if(profileField.getValue()!=null && profileField.getValue()!="") {
 						profileField.clear();
 					}
-					List<Profile> profileList = appStoreService.getAppProfileListByAppId(selectedApp.getId());
+					/*List<Profile> profileList = appStoreService.getAppProfileListByAppId(selectedApp.getId());
 					for(Profile profile: profileList) {
 						profileField.setValue(profile.getName());
-					}
+					}*/
 				} catch (ApiException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			
 			} else {
+				selectedProfile=null;
 				((TextField) applicationDetailsForm.getComponent(0)).clear();
 				((TextField) applicationDetailsForm.getComponent(1)).clear();
 				((TextField) applicationDetailsForm.getComponent(2)).clear();
@@ -623,18 +631,40 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		//parameterType.setDataProvider(new ListDataProvider<>(appStoreService.getAppParamTypeList(selectedApp.getId())));
 		appDefaultParamGrid.getColumn("type").setEditorComponent(parameterType);
 		appDefaultParamGrid.getColumn("value").setEditorComponent(new TextField());
-		appDefaultParamGrid.getEditor().setEnabled(true).addSaveListener(save -> {
-			try {
-				AppParamFormat appParamFormat = appStoreService.getAppParamFormatByType(parameterType.getValue());
-				appStoreService.saveAppDefaultParam(selectedApp, save.getBean(), appParamFormat);
-			} catch (NumberFormatException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (ApiException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+		
+		
+		
+		appDefaultParamGrid.getEditor().addSaveListener(save -> {
+			if(selectedProfile.getId()!=null) {
+				try {
+					AppParamFormat appParamFormat = appStoreService.getAppParamFormatByType(parameterType.getValue());
+					appStoreService.updateAppParamOfAppProfile(selectedProfile,  save.getBean(), appParamFormat);
+				} catch (ApiException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
+		/*	else {
+				try {	
+					AppParamFormat appParamFormat = appStoreService.getAppParamFormatByType(parameterType.getValue());
+					appStoreService.saveAppDefaultParam(selectedApp, save.getBean(), appParamFormat);
+				} catch (NumberFormatException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (ApiException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}*/
 
+		});
+		
+		appDefaultParamGrid.addItemClickListener(event->{
+			if(appDefaultParamGrid.getEditor().isEnabled()) {
+				appDefaultParamGrid.getColumn("parameter").setEditable(false);
+				appDefaultParamGrid.getColumn("description").setEditable(false);
+				parameterType.setEnabled(false);
+			}
 		});
 		
 		/*appDefaultParamGrid.getEditor().setEnabled(true).addCancelListener(cancel -> {
@@ -698,8 +728,9 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		createAppDefaultParamGridRow.setResponsive(true);
 		Button editAppDefaultParamGridRow = new Button(VaadinIcons.PENCIL, click -> {
 			// Try to add the inline Grid edit function
-			if (appDefaultParamGrid.getSelectedItems().size() > 0)
-				appDefaultParamGrid.getEditor().setEnabled(true);
+			if (appDefaultParamGrid.getSelectedItems().size() > 0) {
+				//appDefaultParamGrid.getEditor().setEnabled(true);
+			}
 		});
 		editAppDefaultParamGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		editAppDefaultParamGridRow.setResponsive(true);
@@ -710,6 +741,8 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			}else {
 			if (appDefaultParamGrid.getSelectedItems().isEmpty()) {
 				Notification.show(NotificationUtil.APPLICATIONSTORE_PARAM_DELETE_PARAMGRID, Type.ERROR_MESSAGE);
+			}else if(selectedProfile!=null) {
+				confirmDeleteAppProfileParam(appDefaultParamGrid.getSelectedItems().iterator().next().getId(), selectedProfile.getId(), appDefaultParamSearch);
 			} else {
 				confirmDeleteAppDefaultParam(appDefaultParamGrid.getSelectedItems().iterator().next().getId(), selectedApp.getId(), appDefaultParamSearch);
 			}
@@ -717,7 +750,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		});
 		deleteAppDefaultParamGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		deleteAppDefaultParamGridRow.setResponsive(true);
-		Button clearAllParams = new Button("Clear All", click -> {
+		clearAllParams = new Button("Clear All", click -> {
 			try {
 				if(appGrid.getSelectedItems().size()>0) {
 					appStoreService.removeAPPParamAll(selectedApp.getId());
@@ -760,13 +793,11 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		HorizontalLayout appParamHeaderButtonLayout = new HorizontalLayout(clearAllParams, profileDropDown,
 				profileField);
 		appParamHeaderButtonLayout.addStyleName("applicationStore-horizontalAlignment");
-		//appParamHeaderButtonLayout.setWidth("100%");
 		appParamHeaderButtonLayout.setEnabled(false);
 		HorizontalLayout appParamSearchLayout = new HorizontalLayout(appDefaultParamSearch);
 		appParamSearchLayout.setWidth("100%");
 		HorizontalLayout appParamButtonsLayout = new HorizontalLayout(createAppDefaultParamGridRow,
 				deleteAppDefaultParamGridRow);
-		// appParamButtonsLayout.setWidth("100%");
 		HorizontalLayout appParamGridMenuLayout = new HorizontalLayout(appParamSearchLayout, appParamButtonsLayout);
 		appParamGridMenuLayout.setWidth("100%");
 		appParamGridMenuLayout.addStyleName("applicationStore-horizontalAlignment");
@@ -832,6 +863,31 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 					}
 				});
 	}
+	
+	private void confirmDeleteAppProfileParam(Long appParamId, Long appProfileId, TextField appParamSearch) {
+		ConfirmDialog.show(this.getUI(), "Please Confirm:", "Are you sure you want to delete?", "Ok", "Cancel",
+				new ConfirmDialog.Listener() {
+
+					public void onClose(ConfirmDialog dialog) {
+						if (dialog.isConfirmed()) {
+							// Confirmed to continue
+							 
+							 try {
+								 appStoreService.removeAppProfileParam(appProfileId, appParamId);
+								appDefaultParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(appStoreService.getAppParamListByAppProfileId(appProfileId)));
+							} catch (ApiException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							 appParamSearch.clear();
+							// TODO add Grid reload
+						} else {
+							// User did not confirm
+
+						}
+					}
+				});
+	}
 
 	private Window getSmallListWindow(boolean isFileChoose, TextField field) throws ApiException {
 
@@ -844,9 +900,21 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		// FIXME: for button caption pass the value full or partial in method paramter
 		Button addNewButton, deleteButton;
 		if (isFileChoose) {
-			if (appGrid.getSelectedItems().size() > 0) {
+			/*if (appGrid.getSelectedItems().size() > 0) {
 				optionList.setDataProvider(new ListDataProvider<ApplicationFile>(appStoreService.getAllAppFileList(appGrid.getSelectedItems().iterator().next().getId())));
 				optionList.setId(FILE_CHOOSE_LIST);
+			}*/
+			
+			if(selectedProfile!=null) {
+				if (appGrid.getSelectedItems().size() > 0) {
+					optionList.setDataProvider(new ListDataProvider<AppDefaultParam>(appStoreService.getAppFileListByAppProfileId(selectedProfile.getId())));
+					optionList.setId(FILE_CHOOSE_LIST);
+				}
+			}else {
+				if (appGrid.getSelectedItems().size() > 0) {
+					optionList.setDataProvider(new ListDataProvider<ApplicationFile>(appStoreService.getAllAppFileList(appGrid.getSelectedItems().iterator().next().getId())));
+					optionList.setId(FILE_CHOOSE_LIST);
+				}
 			}
 			
 			addNewButton = new Button("Add New File", click -> {
@@ -859,11 +927,22 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			});
 			deleteButton = new Button("Delete File", click -> {
 				if (optionList.getSelectedItems().size() == 1) {
-				
-					ApplicationFile file = (ApplicationFile) optionList.getSelectedItems().iterator().next();
-					appStoreService.deleteAppFiles(appGrid.getSelectedItems().iterator().next().getId(), file.getId());
-					optionList.setDataProvider(new ListDataProvider<ApplicationFile>(appStoreService.getAllAppFileList(appGrid.getSelectedItems().iterator().next().getId())));
-					// delete the file from location and list
+					if(selectedProfile!=null) {
+						AppDefaultParam fileParam = (AppDefaultParam) optionList.getSelectedItems().iterator().next();
+						try {
+							appStoreService.deleteAppProfileFiles(selectedProfile.getId(), fileParam.getId());
+							optionList.setDataProvider(new ListDataProvider<AppDefaultParam>(appStoreService.getAppFileListByAppProfileId(selectedProfile.getId())));
+						} catch (ApiException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						
+					}else {
+						ApplicationFile file = (ApplicationFile) optionList.getSelectedItems().iterator().next();
+						appStoreService.deleteAppFiles(appGrid.getSelectedItems().iterator().next().getId(), file.getId());
+						optionList.setDataProvider(new ListDataProvider<ApplicationFile>(appStoreService.getAllAppFileList(appGrid.getSelectedItems().iterator().next().getId())));
+						// delete the file from location and list
+					}
 				}
 			});
 		} else {
@@ -876,8 +955,17 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 						String value = selection.getValue().toString();
 						field.setValue(value.substring(1, value.length() - 1));
 					}
-					if (selection.getValue() instanceof Profile) {
-						selectedProfile = (Profile) selection.getValue();
+					if (selection.getFirstSelectedItem().get() instanceof Profile) {
+						selectedProfile = (Profile) selection.getFirstSelectedItem().get();
+						
+						appDefaultParamGrid.getEditor().setEnabled(true);
+						try {
+							clearAllParams.setEnabled(false);
+							appDefaultParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(appStoreService.getAppParamListByAppProfileId(selectedProfile.getId())));
+						} catch (ApiException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
 				}
 			});
@@ -958,10 +1046,11 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 
 	private Window openAppDefaultParamWindow(Grid<AppDefaultParam> appDefaultParamGrid) throws ApiException {
 		Window appDefaultWindow = new Window("Add Default Parameter");
-		TextField parameterName = new TextField("Name");
+		parameterName.setEnabled(true);
 		parameterName.addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS, "role-textbox","v-textfield-font", "v-grid-cell");
-		TextField parameterDescription = new TextField("Description");
+		parameterDescription.setEnabled(true);
 		parameterDescription.addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS, "role-textbox","v-textfield-font", "v-grid-cell");
+		parameterType.setEnabled(true);
 		parameterType.setCaptionAsHtml(true);
 		parameterType.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", 
 				"asset-debugComboBox", "small");
@@ -981,6 +1070,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 					StringUtils.isNotEmpty(parameterActive.getValue())) {
 				AppDefaultParam appDefaultParam = new AppDefaultParam(null, parameterName.getValue(),
 						parameterDescription.getValue(), parameterType.getValue(), parameterActive.getValue());
+				
 				 try {
 					 AppParamFormat appParamFormat = appStoreService.getAppParamFormatByType(parameterType.getValue());
 					appStoreService.saveAppDefaultParam(selectedApp, appDefaultParam, appParamFormat);
@@ -991,14 +1081,23 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-				try {
-					appDefaultParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(appStoreService.getAppDefaultParamListByAppId(selectedApp.getId())));
-					appDefaultParamGrid.getEditor().setEnabled(true);
-				} catch (ApiException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				appDefaultWindow.close();
+				 if(selectedProfile.getId()!=null) {
+					 try {
+						appDefaultParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(appStoreService.getAppParamListByAppProfileId(selectedProfile.getId())));
+					} catch (ApiException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					}else {
+						try {
+							appDefaultParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(appStoreService.getAppDefaultParamListByAppId(selectedApp.getId())));
+							//appDefaultParamGrid.getEditor().setEnabled(true);
+						} catch (ApiException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+			}
+				 appDefaultWindow.close();
 			}
 		});
 		saveParameter.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");

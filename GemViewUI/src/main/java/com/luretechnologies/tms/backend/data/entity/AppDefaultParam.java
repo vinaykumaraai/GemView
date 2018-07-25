@@ -76,8 +76,7 @@ public class AppDefaultParam extends AbstractEntity {
 
 	@Override
 	public String toString() {
-		return "AppDefaultParam [parameter=" + parameter + ", description=" + description + ", type=" + type
-				+ ", active=" + value + "]";
+		return parameter;
 	}
 	 
 }

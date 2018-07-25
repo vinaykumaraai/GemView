@@ -29,62 +29,36 @@
  * Inquiries should be made to legal@luretechnologies.com
  *
  */
+package com.luretechnologies.tms.backend.service;
 
-package com.luretechnologies.tms.backend.data.entity;
-
-import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
-import com.luretechnologies.client.restlib.service.model.AppProfileParamValue;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import com.luretechnologies.tms.backend.data.entity.HeartBeatHistory;
+import com.vaadin.data.provider.ListDataProvider;
 
-public class Profile extends AbstractEntity {
-
-	private ProfileType type;
-	private String name;
-	private boolean active;
-	//private List<AppProfileParamValueClient> appprofileparamvalueCollection;
-	private List<AppProfileParamValue> appprofileparamvalueCollection;
-	public ProfileType getType() {
-		return type;
-	}
-	public void setType(ProfileType type) {
-		this.type = type;
-	}
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
-	}
-	public List<AppProfileParamValue> getAppprofileparamvalueCollection() {
-		return appprofileparamvalueCollection;
-	}
-	public void setAppprofileparamvalueCollection(List<AppProfileParamValue> appprofileparamvalueCollection) {
-		this.appprofileparamvalueCollection = appprofileparamvalueCollection;
+@Service
+public class HeartBeatHistoryService {
+	
+	private final MockHeartBeatHistory mockHBHistory;
+	
+	@Autowired
+	public HeartBeatHistoryService(MockHeartBeatHistory mockHBHistory) {
+		this.mockHBHistory=mockHBHistory;
 	}
 	
-
-	public Profile(String name) {
-		super(false);
-		Objects.requireNonNull(name);
-		this.name = name;
+	public ListDataProvider<HeartBeatHistory> getListDataProvider(){
+		ListDataProvider<HeartBeatHistory> hbHistoryDataProvider = new ListDataProvider<>(mockHBHistory.getSavedList());
+		return hbHistoryDataProvider;
 	}
-	public Profile(Long id, String name, List<AppProfileParamValue> appprofileparamvalueCollection) {
-		Objects.requireNonNull(id);
-		Objects.requireNonNull(name);
-		this.name = name;
-		this.setId(id);
+	
+	public void removeHBHistoryDevice(HeartBeatHistory hbHistory) {
+		mockHBHistory.deleteHBHistory(hbHistory);
 	}
-	public boolean isActive() {
-		return active;
+	
+	public List<HeartBeatHistory> getHBHistoryList(){
+		List<HeartBeatHistory> hbHistoryList = mockHBHistory.getSavedList();
+		return hbHistoryList;
 	}
-	public void setActive(boolean active) {
-		this.active = active;
-	}
-	@Override
-	public String toString() {
-		return name.toString();
-	}	
-
 }

@@ -29,62 +29,41 @@
  * Inquiries should be made to legal@luretechnologies.com
  *
  */
+package com.luretechnologies.tms.backend.service;
 
-package com.luretechnologies.tms.backend.data.entity;
-
-import java.util.Date;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
+import java.util.stream.Stream;
 
-import com.luretechnologies.client.restlib.service.model.AppProfileParamValue;
+import com.luretechnologies.tms.backend.data.entity.Devices;
+import com.vaadin.data.provider.Query;
+import com.vaadin.spring.annotation.SpringComponent;
 
-public class Profile extends AbstractEntity {
+@SpringComponent
+public class MockPersonlizationService extends CrudService<Devices>{
 
-	private ProfileType type;
-	private String name;
-	private boolean active;
-	//private List<AppProfileParamValueClient> appprofileparamvalueCollection;
-	private List<AppProfileParamValue> appprofileparamvalueCollection;
-	public ProfileType getType() {
-		return type;
-	}
-	public void setType(ProfileType type) {
-		this.type = type;
-	}
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
-	}
-	public List<AppProfileParamValue> getAppprofileparamvalueCollection() {
-		return appprofileparamvalueCollection;
-	}
-	public void setAppprofileparamvalueCollection(List<AppProfileParamValue> appprofileparamvalueCollection) {
-		this.appprofileparamvalueCollection = appprofileparamvalueCollection;
-	}
-	
-
-	public Profile(String name) {
-		super(false);
-		Objects.requireNonNull(name);
-		this.name = name;
-	}
-	public Profile(Long id, String name, List<AppProfileParamValue> appprofileparamvalueCollection) {
-		Objects.requireNonNull(id);
-		Objects.requireNonNull(name);
-		this.name = name;
-		this.setId(id);
-	}
-	public boolean isActive() {
-		return active;
-	}
-	public void setActive(boolean active) {
-		this.active = active;
-	}
 	@Override
-	public String toString() {
-		return name.toString();
-	}	
+	protected Map<Long, Devices> getRepository() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	protected List<Devices> getSavedList() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Stream<Devices> fetchFromBackEnd(Query<Devices, String> query) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	protected int sizeInBackEnd(Query<Devices, String> query) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 
 }

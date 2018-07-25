@@ -51,11 +51,17 @@ import com.luretechnologies.tms.backend.data.entity.AppDefaultParam;
 import com.luretechnologies.tms.backend.data.entity.ApplicationFile;
 import com.luretechnologies.tms.backend.data.entity.Devices;
 import com.luretechnologies.tms.backend.data.entity.Node;
+import com.luretechnologies.tms.backend.data.entity.OverRideParameters;
+import com.luretechnologies.tms.backend.data.entity.ParameterType;
 import com.luretechnologies.tms.backend.data.entity.Profile;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
+import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
 import com.luretechnologies.tms.backend.service.AppService;
 import com.luretechnologies.tms.backend.service.ApplicationStoreService;
+import com.luretechnologies.tms.backend.service.OdometerDeviceService;
+import com.luretechnologies.tms.backend.service.OverRideParamService;
 import com.luretechnologies.tms.backend.service.PersonalizationService;
+import com.luretechnologies.tms.backend.service.ProfileService;
 import com.luretechnologies.tms.backend.service.TreeDataNodeService;
 import com.luretechnologies.tms.ui.NotificationUtil;
 import com.vaadin.data.provider.ListDataProvider;
@@ -65,7 +71,6 @@ import com.vaadin.event.ShortcutListener;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.server.Page;
-import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Alignment;
@@ -104,8 +109,8 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 	private static TextField treeNodeSearch, overRideParamSearch;
 	private static Devices emptyDevice;
 	private static HorizontalSplitPanel splitScreen;
-	private static Button createEntity, copyEntity, editEntity, deleteEntity, pasteEntity, createParam, editParam,
-			deleteParam, save, cancel, selectProfile,deSelectProfile, selectFile;
+	private static Button createEntity, copyEntity, editEntity, deleteEntity, pasteEntity, addParam, editParam,
+			deleteParam, save, cancel, selectProfile, deSelectProfile, selectFile;
 	private static TextField entityName, entityDescription;
 	private static TextField entitySerialNum = new TextField("Serial Number");
 	private static ComboBox<Devices> deviceDropDown;
@@ -133,9 +138,17 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 	@Autowired
 	public TreeDataNodeService treeDataNodeService;
 
+	@Autowired
+	public OverRideParamService overRideParamService;
 
 	@Autowired
 	private AppService appService;
+
+	@Autowired
+	private OdometerDeviceService deviceService;
+
+	@Autowired
+	private ProfileService profileService;
 
 	@Autowired
 	private PersonalizationService personalizationService;
@@ -224,17 +237,18 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 			}
 		});
 
-		nodeTree.addItemClickListener(selection -> {
+		nodeTree.addSelectionListener(selection -> {
+			if(!selection.getFirstSelectedItem().isPresent()) {
+				ClearAllComponents();
+				ClearGrid();
+			}else {
+			
 			entityFormLayout.setEnabled(false);
 			overRideParamGrid.setEnabled(false);
-			// treeDataService.getTreeDataForPersonlization();
-			selectedNode = selection.getItem();
+			selectedNode = selection.getFirstSelectedItem().get();
 			appDropDown.setDataProvider(new ListDataProvider<>(personalizationService.getAppListByLoggedUserEntity(selectedNode.getId())));
-			// treeDataService.getTreeDataForPersonlization();
-			// List<Node> nodeList = treeDataService.getPersonlizationList();
-			// for(Node node : nodeList) {
-			// if(node.getLabel().equals(selection.getItem().getLabel())) {
-			if (selectedNode.getDescription() != null) {
+			if (selectedNode.getType().toString()!=null && !selectedNode.getType().toString().isEmpty()
+					&& selectedNode.getLabel()!=null && !selectedNode.getLabel().isEmpty()) {
 				entityType.setValue(selectedNode.getType());
 				entityName.setValue(selectedNode.getLabel());
 				entityDescription.setValue(selectedNode.getDescription());
@@ -246,19 +260,14 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 							.setValue(personalizationService.getHeartbeatByEntityId(selectedNode.getEntityId()));
 					frequencyDropDown.setValue(
 							personalizationService.getFrequencyByEntityId(selectedNode.getEntityId()).toString());
-					// FIXME: no specific app, appfile, profile is selected
-					// appDropDown.setValue(value);
-					// addtnlFilesDropDown.setValue(selectedNode.getAdditionaFiles());
-					// profileDropDown.setValue(selectedNode.getProfile());
-					if (appDropDown.getDataProvider().size(new Query<>()) > 0) {
+					/*if (appDropDown.getDataProvider().size(new Query<>()) > 0) {
 						// overRideParamGrid.setDataProvider();
 						appDropDown.setValue(selectedNode.getApp());
 						addtnlFilesDropDown.setValue(selectedNode.getAdditionaFile());
 						profileDropDown.setValue(selectedNode.getProfile());
 						if(selectedNode.getOverRideParamList()!=null)
 						overRideParamGrid.setItems(selectedNode.getOverRideParamList());
-					}
-
+					}*/
 				}
 				if (selectedNode.getType().equals(EntityTypeEnum.DEVICE)) {
 					deviceDropDown.setValue(personalizationService.getDevicesByEntityId(selectedNode.getEntityId()));
@@ -270,8 +279,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 					overRideParamGrid.setItems(selectedNode.getOverRideParamList());
 				}
 
-				// updateDropDown.setValue(selectedNode.getUpdate());
-			} else {
+			} else  {
 				ClearAllComponents();
 				ClearGrid();
 				entityType.setValue(selectedNode.getType());
@@ -279,10 +287,10 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 				entityFormLayout.setEnabled(true);
 				overRideParamGrid.setEnabled(true);
 			}
-			// }
-			// }
+			}
 
 		});
+		
 		nodeTree.addContextClickListener(event -> {
 			if (!(event instanceof TreeContextClickEvent)) {
 				return;
@@ -404,7 +412,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 					Notification.show(NotificationUtil.PERSONALIZATION_ENTERPRISE_COPY, Type.ERROR_MESSAGE);
 					selectedNodeForCopy = null;
 				} else {
-					treeDataNodeService.copyTreeNode(selectedNodeForCopy);
+					//treeDataNodeService.copyTreeNode(selectedNodeForCopy);
 					pasteEntity.setEnabled(true);
 				}
 			} else {
@@ -419,110 +427,82 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 			if (nodeTree.getSelectionModel().getFirstSelectedItem().isPresent()) {
 				if (selectedNodeForCopy != null) {
 					TreeNode toPasteNode = nodeTree.getSelectionModel().getFirstSelectedItem().get();
-					if (toPasteNode.getType().equals(selectedNodeForCopy.getType())) {
-						Notification.show(NotificationUtil.PERSONALIZATION_PASTE, Type.ERROR_MESSAGE);
-					} else {
-						// FIXME: add the REST code copy and paste tree node.
-						treeDataNodeService.pasteTreeNode(selectedNodeForCopy, toPasteNode);
-						// TreeNode copyPasteNode = new TreeNode();
-						// copyPasteNode.setLevel(selectedNodeForCopy.getLevel());
-						// copyPasteNode.setLabel(selectedNodeForCopy.getLabel()+" - Copy");
-						// copyPasteNode.setEntityList(selectedNodeForCopy.getEntityList());
-						// if (toPasteNode.getLevel().equals(NodeLevel.ENTITY)
-						// && copyPasteNode.getLevel().equals(NodeLevel.REGION)) {
-						// nodeTree.getTreeData().addItem(toPasteNode, copyPasteNode);
-						// for (Node childRegionNode :
-						// nodeTree.getTreeData().getChildren(selectedNodeForCopy)) {
-						// Node newChildRegionNode = new Node();
-						// newChildRegionNode.setLevel(childRegionNode.getLevel());
-						// newChildRegionNode.setLabel(childRegionNode.getLabel()+" - Copy");
-						// newChildRegionNode.setEntityList(childRegionNode.getEntityList());
-						// nodeTree.getTreeData().addItem(copyPasteNode, newChildRegionNode);
-						// for (Node childMerchantNode :
-						// nodeTree.getTreeData().getChildren(childRegionNode)) {
-						// Node newChildMerchantNode = new Node();
-						// newChildMerchantNode.setLevel(childMerchantNode.getLevel());
-						// newChildMerchantNode.setLabel(childMerchantNode.getLabel()+" - Copy");
-						// newChildMerchantNode.setEntityList(childMerchantNode.getEntityList());
-						// nodeTree.getTreeData().addItem(newChildRegionNode, newChildMerchantNode);
-						// for (Node childTerminalNode : nodeTree.getTreeData()
-						// .getChildren(childMerchantNode)) {
-						// Node newChildTerminalNode = new Node();
-						// newChildTerminalNode.setLevel(childTerminalNode.getLevel());
-						// newChildTerminalNode.setLabel(childTerminalNode.getLabel()+" - Copy");
-						// newChildTerminalNode.setEntityList(childTerminalNode.getEntityList());
-						// nodeTree.getTreeData().addItem(newChildMerchantNode, newChildTerminalNode);
-						// for (Node childDeviceNode : nodeTree.getTreeData()
-						// .getChildren(childTerminalNode)) {
-						// Node newChildDeviceNode = new Node();
-						// newChildDeviceNode.setLevel(childDeviceNode.getLevel());
-						// newChildDeviceNode.setLabel(childDeviceNode.getLabel()+" - Copy");
-						// newChildDeviceNode.setEntityList(childDeviceNode.getEntityList());
-						// nodeTree.getTreeData().addItem(newChildTerminalNode, newChildDeviceNode);
-						// }
-						// }
-						// }
-						// }
-						// } else if (toPasteNode.getLevel().equals(NodeLevel.REGION)
-						// && copyPasteNode.getLevel().equals(NodeLevel.MERCHANT)) {
-						// nodeTree.getTreeData().addItem(toPasteNode, copyPasteNode);
-						// for (Node childMerchantNode :
-						// nodeTree.getTreeData().getChildren(selectedNodeForCopy)) {
-						// Node newChildMerchantNode = new Node();
-						// newChildMerchantNode.setLevel(childMerchantNode.getLevel());
-						// newChildMerchantNode.setLabel(childMerchantNode.getLabel()+" - Copy");
-						// newChildMerchantNode.setEntityList(childMerchantNode.getEntityList());
-						// nodeTree.getTreeData().addItem(copyPasteNode, newChildMerchantNode);
-						// for (Node childTerminalNode :
-						// nodeTree.getTreeData().getChildren(childMerchantNode)) {
-						// Node newChildTerminalNode = new Node();
-						// newChildTerminalNode.setLevel(childTerminalNode.getLevel());
-						// newChildTerminalNode.setLabel(childTerminalNode.getLabel()+" - Copy");
-						// newChildTerminalNode.setEntityList(childTerminalNode.getEntityList());
-						// nodeTree.getTreeData().addItem(newChildMerchantNode, newChildTerminalNode);
-						// for (Node childDeviceNode :
-						// nodeTree.getTreeData().getChildren(childTerminalNode)) {
-						// Node newChildDeviceNode = new Node();
-						// newChildDeviceNode.setLevel(childDeviceNode.getLevel());
-						// newChildDeviceNode.setLabel(childDeviceNode.getLabel()+" - Copy");
-						// newChildDeviceNode.setEntityList(childDeviceNode.getEntityList());
-						// nodeTree.getTreeData().addItem(newChildTerminalNode, newChildDeviceNode);
-						// }
-						// }
-						// }
-						// } else if (toPasteNode.getLevel().equals(NodeLevel.MERCHANT)
-						// && copyPasteNode.getLevel().equals(NodeLevel.TERMINAL)) {
-						// nodeTree.getTreeData().addItem(toPasteNode, copyPasteNode);
-						// for (Node childNode :
-						// nodeTree.getTreeData().getChildren(selectedNodeForCopy)) {
-						// // FIXME: provide a common log of copy constructor
-						// Node newChildNode = new Node();
-						// newChildNode.setLabel(childNode.getLabel()+" - Copy");
-						// newChildNode.setLevel(childNode.getLevel());
-						// newChildNode.setEntityList(childNode.getEntityList());
-						// nodeTree.getTreeData().addItem(copyPasteNode, newChildNode);
-						// }
-						//
-						// } else if (toPasteNode.getLevel().equals(NodeLevel.TERMINAL)
-						// && copyPasteNode.getLevel().equals(NodeLevel.DEVICE))
-						// nodeTree.getTreeData().addItem(toPasteNode, copyPasteNode);
-						// else
-						// Notification.show("The entity " + selectedNodeForCopy.getLabel() + " can't be
-						// copied under "
-						// + toPasteNode.getLabel(), Type.ERROR_MESSAGE);
+					switch (toPasteNode.getType()) {
 
-						// nodeTree.getDataProvider().refreshAll();
-						try {
-							nodeTree.setTreeData(personalizationService.getTreeData());
-						} catch (ApiException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+					case ENTERPRISE:
+						if(selectedNodeForCopy.getType().toString().equals("ORGANIZATION") /*|| 
+								selectedNodeForCopy.getType().toString().equals("REGION")*/) {
+							
+							try {
+								treeDataNodeService.pasteTreeNode(selectedNodeForCopy, toPasteNode);
+								nodeTree.setTreeData(personalizationService.getTreeData());
+							} catch (ApiException e) {
+								e.printStackTrace();
+							}
+						} else {
+							Notification.show("Cannot Copy "+selectedNodeForCopy.getType().toString()+" entity to this level", Type.ERROR_MESSAGE);
 						}
+						break;
+					case ORGANIZATION:
+						if(selectedNodeForCopy.getType().toString().equals("ORGANIZATION") || 
+								selectedNodeForCopy.getType().toString().equals("REGION") /*|| selectedNodeForCopy.getType().toString().equals("MERCHANT")*/) {
+							try {
+								treeDataNodeService.pasteTreeNode(selectedNodeForCopy, toPasteNode);
+								nodeTree.setTreeData(personalizationService.getTreeData());
+							} catch (ApiException e) {
+								e.printStackTrace();
+							}
+							} else {
+							Notification.show("Cannot Copy "+selectedNodeForCopy.getType().toString()+" entity to this level", Type.ERROR_MESSAGE);
+						}
+						break;
+					case REGION:
+						if(/*selectedNodeForCopy.getType().toString().equals("ORGANIZATION") || 
+								selectedNodeForCopy.getType().toString().equals("REGION") || */selectedNodeForCopy.getType().toString().equals("MERCHANT")) {
+							try {
+								treeDataNodeService.pasteTreeNode(selectedNodeForCopy, toPasteNode);
+								nodeTree.setTreeData(personalizationService.getTreeData());
+							} catch (ApiException e) {
+								e.printStackTrace();
+							}
+						} else {
+							Notification.show("Cannot Copy "+selectedNodeForCopy.getType().toString()+" entity to this level", Type.ERROR_MESSAGE);
+						}
+						break;
+					case MERCHANT:
+						if(selectedNodeForCopy.getType().toString().equals("TERMINAL")) {
+							try {
+								treeDataNodeService.pasteTreeNode(selectedNodeForCopy, toPasteNode);
+								nodeTree.setTreeData(personalizationService.getTreeData());
+							} catch (ApiException e) {
+								e.printStackTrace();
+							}
+						} else {
+							Notification.show("Cannot Copy "+selectedNodeForCopy.getType().toString()+" entity to this level", Type.ERROR_MESSAGE);
+						}
+						break;
+					case TERMINAL:
+						if(selectedNodeForCopy.getType().toString().equals("DEVICE")) {
+							try {
+								treeDataNodeService.pasteTreeNode(selectedNodeForCopy, toPasteNode);
+								nodeTree.setTreeData(personalizationService.getTreeData());
+							} catch (ApiException e) {
+								e.printStackTrace();
+							}
+						} else {
+							Notification.show("Cannot Copy "+selectedNodeForCopy.getType().toString()+" entity to this level", Type.ERROR_MESSAGE);
+						}
+						break;
+					case DEVICE:
+						Notification.show("Cannot Copy "+selectedNodeForCopy.getType().toString()+" entity to this level", Type.ERROR_MESSAGE);
+						
+					default:
+						break;
+					}
 					}
 					pasteEntity.setEnabled(false);
 					modifiedTree.setTreeData(nodeTree.getTreeData());
 				}
-			}
 		});
 		pasteEntity.setEnabled(false);
 		pasteEntity.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
@@ -598,7 +578,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 
 			node.setType(entityType.getValue());
 			node.setLabel(entityName.getValue());
-			if (/*deviceDropDown.getValue() != null && */entityType.getValue().equals(EntityTypeEnum.TERMINAL)) {
+			if (/*deviceDropDown.getValue() != null && */entityType.getValue()!=null&& entityType.getValue().equals(EntityTypeEnum.TERMINAL)) {
 				node.setDevice(deviceDropDown.getValue());
 				node.setHeartBeat(activateHeartbeat.getValue());
 				node.setFrequency(frequencyDropDown.getValue());
@@ -710,7 +690,8 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 				"personlization-formAlignment", "small");
 		// do Necessary operations for popping data
 
-		entityFormLayout.addComponent(deviceDropDown);
+		//May be we use this dropdeown in future.
+		//entityFormLayout.addComponent(deviceDropDown);
 	}
 
 	private void getEntityDescription(FormLayout entityFormLayout) {
@@ -814,16 +795,16 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		// Files", "Device Files")));
 		addtnlFilesDropDown.setCaption("");
 		addtnlFilesDropDown.setPlaceholder("Additional Files");
-		addtnlFilesDropDown.setDescription("Files");
+		addtnlFilesDropDown.setDescription("Select Files");
 		addtnlFilesDropDown.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", "small");
 
 		profileDropDown = new ComboBox<Profile>();
 		// frequencyDropDown.setDataProvider(new ListDataProvider<>(Arrays.asList("24
 		// Hours", "1 Hour", " 30 Minutes")));
 		profileDropDown.setCaption("");
-		profileDropDown.setDescription("Profile");
 		profileDropDown.setPlaceholder("Default Profile");
-		profileDropDown.setDataProvider(personalizationService.getProfileForEntityDataProvider(selectedApp.getId(),selectedNode.getId()));
+		profileDropDown.setDescription("Select Profile");
+		// profileDropDown.setDataProvider(profileService.getListDataProvider());
 		profileDropDown.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", "small");
 		
 		selectProfile = new Button("", VaadinIcons.PLUS_CIRCLE);
@@ -841,19 +822,22 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 			if(selectedApp != null)
 				UI.getCurrent().addWindow(openProfileListToAddWindow());
 		});
+		
 		deSelectProfile.addClickListener(click ->{
 			if(selectedApp != null)
 				UI.getCurrent().addWindow(openProfileListToDeleteWindow());
 		});
+		
 		appDropDown.addSelectionListener(selected -> {
 			selectedApp = selected.getValue();
 			addtnlFilesDropDown.clear();
 			profileDropDown.clear();
-//			addtnlFilesDropDown
-//					.setDataProvider(personalizationService.getApplicationFileDataProvider(selectedApp.getId()));
-//			profileDropDown.setDataProvider(personalizationService.getProfileDataProvider(selectedApp.getId()));
+			addtnlFilesDropDown
+					.setDataProvider(personalizationService.getApplicationFileDataProvider(selectedApp.getId()));
+			//profileDropDown.setDataProvider(personalizationService.getProfileDataProvider(selectedApp.getId()));
 			
 			try {
+				profileDropDown.setDataProvider(personalizationService.getProfileForEntityDataProvider(selectedApp.getId(),selectedNode.getId()));
 				overRideParamGrid.setDataProvider(new ListDataProvider<>(appStoreService.getAppDefaultParamListByAppId(selectedApp.getId())));
 				parameterType.setDataProvider(new ListDataProvider<>(appStoreService.getAppParamTypeList(selectedApp.getId())));
 			} catch (ApiException e) {
@@ -861,8 +845,93 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 				e.printStackTrace();
 			}
 		});
-		entityApplicationSelection.addComponents(appDropDown, selectProfile, profileDropDown,deSelectProfile,selectFile, addtnlFilesDropDown);
+		entityApplicationSelection.addComponents(appDropDown, selectProfile, profileDropDown, deSelectProfile, selectFile, addtnlFilesDropDown);
 		entityFormLayout.addComponent(entityApplicationSelection);
+	}
+	
+	private Window openProfileListToAddWindow() {
+		Window openProfileListWindow = new Window("App Profile List");
+		
+		ListSelect<Profile> optionList = new ListSelect<>();
+		optionList.setRows(3);
+		optionList.setResponsive(true);
+		optionList.setWidth(100, Unit.PERCENTAGE);
+		optionList.setDataProvider(personalizationService.getProfileDataProvider(selectedApp.getId()));
+		Button saveNode = new Button("Add", click -> {
+			if (optionList.getValue() != null) {
+				List<Profile> profileList = profileDropDown.getDataProvider().fetch(new Query<>()).collect(Collectors.toList());
+				profileList.addAll(optionList.getValue());
+				//profileList.addAll(profileList.stream().filter(profile -> !optionList.getValue().contains(profile)).collect(Collectors.toList()));
+				profileDropDown.setDataProvider(new ListDataProvider<>(profileList));
+				personalizationService.saveProfileForEntity(profileList.stream().filter(profile -> !optionList.getValue().contains(profile)).collect(Collectors.toList()),selectedNode.getId());
+				openProfileListWindow.close();
+				// FIXME: for update
+			} else {
+				Notification notification = Notification.show("No Profile Selected",
+						Type.ERROR_MESSAGE);
+				
+			}
+		});
+
+		saveNode.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
+
+		Button cancelNode = new Button("Cancel", click -> {
+			openProfileListWindow.close();
+		});
+		cancelNode.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
+		HorizontalLayout buttonLayout = new HorizontalLayout(saveNode, cancelNode);
+		FormLayout profileFormLayout = new FormLayout(optionList);
+
+		// Window Setup
+		openProfileListWindow.setContent(new VerticalLayout(profileFormLayout, buttonLayout));
+		openProfileListWindow.center();
+		openProfileListWindow.setModal(true);
+		openProfileListWindow.setClosable(true);
+		openProfileListWindow.setWidth(30, Unit.PERCENTAGE);
+		return openProfileListWindow;
+	}
+	
+	private Window openProfileListToDeleteWindow() {
+		Window openProfileListWindow = new Window("App Profile List");
+		
+		ListSelect<Profile> optionList = new ListSelect<>();
+		optionList.setRows(3);
+		optionList.setResponsive(true);
+		optionList.setWidth(100, Unit.PERCENTAGE);
+		optionList.setDataProvider(personalizationService.getProfileDataProvider(selectedApp.getId()));
+		Button saveNode = new Button("Delete", click -> {
+			if (optionList.getValue() != null) {
+				List<Profile> profileList = profileDropDown.getDataProvider().fetch(new Query<>()).collect(Collectors.toList());
+				//profileList.removeAll(profileList.stream().filter(profile -> optionList.getValue().contains(profile)).collect(Collectors.toList()));
+				profileList.removeAll(optionList.getValue());
+				profileDropDown.setDataProvider(new ListDataProvider<>(profileList));
+				//personalizationService.deleteProfileForEntity(profileList.stream().filter(profile -> optionList.getValue().contains(profile)).collect(Collectors.toList()),selectedNode.getId());
+				personalizationService.deleteProfileForEntity(optionList.getValue().stream().collect(Collectors.toList()), selectedNode.getId());
+				openProfileListWindow.close();
+				// FIXME: for update
+			} else {
+				Notification notification = Notification.show("No Profile Selected",
+						Type.ERROR_MESSAGE);
+				
+			}
+		});
+
+		saveNode.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
+
+		Button cancelNode = new Button("Cancel", click -> {
+			openProfileListWindow.close();
+		});
+		cancelNode.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
+		HorizontalLayout buttonLayout = new HorizontalLayout(saveNode, cancelNode);
+		FormLayout profileFormLayout = new FormLayout(optionList);
+
+		// Window Setup
+		openProfileListWindow.setContent(new VerticalLayout(profileFormLayout, buttonLayout));
+		openProfileListWindow.center();
+		openProfileListWindow.setModal(true);
+		openProfileListWindow.setClosable(true);
+		openProfileListWindow.setWidth(30, Unit.PERCENTAGE);
+		return openProfileListWindow;
 	}
 
 	private void getScheduleUpdate(FormLayout entityFormLayout) {
@@ -906,14 +975,14 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		overRideParamSearch.setVisible(true);
 		overRideParamSearchLayout.addComponent(overRideParamSearch);
 
-		createParam = new Button(VaadinIcons.FOLDER_ADD, click -> {
+		addParam = new Button(VaadinIcons.PLUS_CIRCLE, click -> {
 			clearParamValues();
 			Window createParamGridWindow = openOverRideParamWindow(overRideParamGrid);
 			if (createParamGridWindow.getParent() == null)
 				UI.getCurrent().addWindow(createParamGridWindow);
 		});
-		createParam.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
-		createParam.setDescription("Create New Parameter", ContentMode.HTML);
+		addParam.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
+		addParam.setDescription("Add Parameters", ContentMode.HTML);
 
 		// editParam = new Button(VaadinIcons.EDIT, click -> {
 		// //Todo Edit new entity
@@ -931,7 +1000,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		});
 		deleteParam.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		deleteParam.setDescription("Delete Params", ContentMode.HTML);
-		overRideParamButtonLayout.addComponents(createParam, deleteParam);
+		overRideParamButtonLayout.addComponents(addParam, deleteParam);
 
 		overRideParamSearchButtonLayout.addComponents(overRideParamSearchLayout, overRideParamButtonLayout);
 
@@ -1079,12 +1148,19 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 				switch (selectedNode.getType()) {
 				case ORGANIZATION:
 					if(entityTypeTree.getValue().toString().equals("ENTERPRISE") || entityTypeTree.getValue().toString().equals("TERMINAL") ||
-							entityTypeTree.getValue().toString().equals("DEVICE")) {
+							entityTypeTree.getValue().toString().equals("DEVICE") ||entityTypeTree.getValue().toString().equals("MERCHANT")) {
 						entityWindow.close();
 						 Notification.show("Cannot Select this entity type for Organization", Type.ERROR_MESSAGE);
 					}else {
-						newNode.setType(entityTypeTree.getValue());
-						personalizationService.createEntity(selectedNode, newNode);
+						try {
+							newNode.setType(entityTypeTree.getValue());
+							personalizationService.createEntity(selectedNode, newNode);
+							nodeTree.setTreeData(personalizationService.getTreeData());
+							entityWindow.close();
+						} catch (ApiException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
 					break;
 				case MERCHANT:
@@ -1094,19 +1170,33 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 						entityWindow.close();
 						 Notification.show("Cannot Select this entity type for Merchant", Type.ERROR_MESSAGE);
 					}else {
-						newNode.setType(entityTypeTree.getValue());
-						personalizationService.createEntity(selectedNode, newNode);
+						try {
+							newNode.setType(entityTypeTree.getValue());
+							personalizationService.createEntity(selectedNode, newNode);
+							nodeTree.setTreeData(personalizationService.getTreeData());
+							entityWindow.close();
+						} catch (ApiException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
 					break;
 				case REGION:
 					if(entityTypeTree.getValue().toString().equals("ENTERPRISE") || entityTypeTree.getValue().toString().equals("REGION") ||
-							entityTypeTree.getValue().toString().equals("MERCHANT") || entityTypeTree.getValue().toString().equals("ORGANIZARION")||
-							entityTypeTree.getValue().toString().equals("DEVICE")) {
+							entityTypeTree.getValue().toString().equals("ORGANIZARION")|| entityTypeTree.getValue().toString().equals("DEVICE") ||
+							entityTypeTree.getValue().toString().equals("TERMINAL")) {
 						entityWindow.close();
 						 Notification.show("Cannot Select this entity type for Merchant", Type.ERROR_MESSAGE);
 					}else {
-						newNode.setType(entityTypeTree.getValue());
-						personalizationService.createEntity(selectedNode, newNode);
+						try {
+							newNode.setType(entityTypeTree.getValue());
+							personalizationService.createEntity(selectedNode, newNode);
+							nodeTree.setTreeData(personalizationService.getTreeData());
+							entityWindow.close();
+						} catch (ApiException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
 					break;
 				case TERMINAL:
@@ -1116,8 +1206,15 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 						entityWindow.close();
 						 Notification.show("Cannot Select this entity type for Merchant", Type.ERROR_MESSAGE);
 					}else {
-						newNode.setType(entityTypeTree.getValue());
-						personalizationService.createEntity(selectedNode, newNode);
+						try {
+							newNode.setType(entityTypeTree.getValue());
+							personalizationService.createEntity(selectedNode, newNode);
+							nodeTree.setTreeData(personalizationService.getTreeData());
+							entityWindow.close();
+						} catch (ApiException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
 					break;
 				case DEVICE:
@@ -1127,14 +1224,6 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 				default:
 					break;
 				}
-				try {
-					nodeTree.setTreeData(personalizationService.getTreeData());
-				} catch (ApiException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				// nodeTree.getDataProvider().refreshAll();
-				entityWindow.close();
 
 			} else {
 				Notification.show(NotificationUtil.PERSONALIZATION_NEW_ENTITY_NAME, Type.ERROR_MESSAGE);
@@ -1161,89 +1250,6 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		entityWindow.setWidth(30, Unit.PERCENTAGE);
 		return entityWindow;
 	}
-	
-	private Window openProfileListToAddWindow() {
-		Window openProfileListWindow = new Window("App Profile List");
-		
-		ListSelect<Profile> optionList = new ListSelect<>();
-		optionList.setRows(3);
-		optionList.setResponsive(true);
-		optionList.setWidth(100, Unit.PERCENTAGE);
-		optionList.setDataProvider(personalizationService.getProfileDataProvider(selectedApp.getId()));
-		Button saveNode = new Button("Add", click -> {
-			if (optionList.getValue() != null) {
-				List<Profile> profileList = profileDropDown.getDataProvider().fetch(new Query<>()).collect(Collectors.toList());
-				profileList.addAll(profileList.stream().filter(profile -> !optionList.getValue().contains(profile)).collect(Collectors.toList()));
-				profileDropDown.setDataProvider(new ListDataProvider<>(profileList));
-				personalizationService.saveProfileForEntity(profileList.stream().filter(profile -> !optionList.getValue().contains(profile)).collect(Collectors.toList()),selectedNode.getId());
-				openProfileListWindow.close();
-				// FIXME: for update
-			} else {
-				Notification notification = Notification.show("No Profile Selected",
-						Type.ERROR_MESSAGE);
-				
-			}
-		});
-
-		saveNode.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
-
-		Button cancelNode = new Button("Cancel", click -> {
-			openProfileListWindow.close();
-		});
-		cancelNode.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
-		HorizontalLayout buttonLayout = new HorizontalLayout(saveNode, cancelNode);
-		FormLayout profileFormLayout = new FormLayout(optionList);
-
-		// Window Setup
-		openProfileListWindow.setContent(new VerticalLayout(profileFormLayout, buttonLayout));
-		openProfileListWindow.center();
-		openProfileListWindow.setModal(true);
-		openProfileListWindow.setClosable(true);
-		openProfileListWindow.setWidth(30, Unit.PERCENTAGE);
-		return openProfileListWindow;
-	}
-	
-	private Window openProfileListToDeleteWindow() {
-		Window openProfileListWindow = new Window("App Profile List");
-		
-		ListSelect<Profile> optionList = new ListSelect<>();
-		optionList.setRows(3);
-		optionList.setResponsive(true);
-		optionList.setWidth(100, Unit.PERCENTAGE);
-		optionList.setDataProvider(personalizationService.getProfileDataProvider(selectedApp.getId()));
-		Button saveNode = new Button("Delete", click -> {
-			if (optionList.getValue() != null) {
-				List<Profile> profileList = profileDropDown.getDataProvider().fetch(new Query<>()).collect(Collectors.toList());
-				profileList.removeAll(profileList.stream().filter(profile -> optionList.getValue().contains(profile)).collect(Collectors.toList()));
-				profileDropDown.setDataProvider(new ListDataProvider<>(profileList));
-				personalizationService.deleteProfileForEntity(profileList.stream().filter(profile -> optionList.getValue().contains(profile)).collect(Collectors.toList()),selectedNode.getId());
-				openProfileListWindow.close();
-				// FIXME: for update
-			} else {
-				Notification notification = Notification.show("No Profile Selected",
-						Type.ERROR_MESSAGE);
-				
-			}
-		});
-
-		saveNode.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
-
-		Button cancelNode = new Button("Cancel", click -> {
-			openProfileListWindow.close();
-		});
-		cancelNode.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
-		HorizontalLayout buttonLayout = new HorizontalLayout(saveNode, cancelNode);
-		FormLayout profileFormLayout = new FormLayout(optionList);
-
-		// Window Setup
-		openProfileListWindow.setContent(new VerticalLayout(profileFormLayout, buttonLayout));
-		openProfileListWindow.center();
-		openProfileListWindow.setModal(true);
-		openProfileListWindow.setClosable(true);
-		openProfileListWindow.setWidth(30, Unit.PERCENTAGE);
-		return openProfileListWindow;
-	}
-
 
 	private void ClearAllComponents() {
 		entityName.clear();

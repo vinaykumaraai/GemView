@@ -29,62 +29,52 @@
  * Inquiries should be made to legal@luretechnologies.com
  *
  */
+package com.luretechnologies.tms.backend.service;
 
-package com.luretechnologies.tms.backend.data.entity;
-
-import java.util.Date;
+import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
+import java.util.stream.Collectors;
 
-import com.luretechnologies.client.restlib.service.model.AppProfileParamValue;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-public class Profile extends AbstractEntity {
+import com.luretechnologies.tms.backend.data.entity.AppDefaultParam;
+import com.luretechnologies.tms.backend.data.entity.OverRideParameters;
+import com.vaadin.data.provider.ListDataProvider;
 
-	private ProfileType type;
-	private String name;
-	private boolean active;
-	//private List<AppProfileParamValueClient> appprofileparamvalueCollection;
-	private List<AppProfileParamValue> appprofileparamvalueCollection;
-	public ProfileType getType() {
-		return type;
+@Service
+public class OverRideParamService {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	private final MockOverRideParamService mockOverRideParamService;
+	
+	@Autowired
+	public OverRideParamService(MockOverRideParamService mockRepository) {
+		this.mockOverRideParamService = mockRepository;
 	}
-	public void setType(ProfileType type) {
-		this.type = type;
-	}
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
-	}
-	public List<AppProfileParamValue> getAppprofileparamvalueCollection() {
-		return appprofileparamvalueCollection;
-	}
-	public void setAppprofileparamvalueCollection(List<AppProfileParamValue> appprofileparamvalueCollection) {
-		this.appprofileparamvalueCollection = appprofileparamvalueCollection;
+	private List<OverRideParameters> getSortedAppList(Collection<OverRideParameters> unsortedCollection){
+		List<OverRideParameters> sortedList = unsortedCollection.stream().sorted((o1,o2)->{
+			return o1.getParameter().compareTo(o2.getParameter());
+		}).collect(Collectors.toList());
+		return sortedList;
 	}
 	
+	public ListDataProvider<OverRideParameters> getListDataProvider(){
+		ListDataProvider<OverRideParameters> overRideParamDataProvider = new ListDataProvider<>(getSortedAppList(mockOverRideParamService.getSavedList()));
+		return overRideParamDataProvider;
+	}
+	
+	public void removeOverRidetParam(OverRideParameters overRideParam) {
+		mockOverRideParamService.deleteOverRideParam(overRideParam);
+	}
+	
+	public void saveOverRideParam(OverRideParameters overRideParam) {
+		mockOverRideParamService.save(overRideParam);
+	}
 
-	public Profile(String name) {
-		super(false);
-		Objects.requireNonNull(name);
-		this.name = name;
-	}
-	public Profile(Long id, String name, List<AppProfileParamValue> appprofileparamvalueCollection) {
-		Objects.requireNonNull(id);
-		Objects.requireNonNull(name);
-		this.name = name;
-		this.setId(id);
-	}
-	public boolean isActive() {
-		return active;
-	}
-	public void setActive(boolean active) {
-		this.active = active;
-	}
-	@Override
-	public String toString() {
-		return name.toString();
-	}	
 
 }

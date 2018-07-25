@@ -32,43 +32,59 @@
 package com.luretechnologies.tms.ui.view.heartbeat;
 
 import java.io.Serializable;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.dialogs.ConfirmDialog;
 
 import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.client.restlib.service.model.Heartbeat;
+import com.luretechnologies.tms.backend.data.DevicesData;
+import com.luretechnologies.tms.backend.data.entity.Debug;
+import com.luretechnologies.tms.backend.data.entity.Devices;
+import com.luretechnologies.tms.backend.data.entity.HeartBeatHistory;
+import com.luretechnologies.tms.backend.data.entity.Node;
 import com.luretechnologies.tms.backend.data.entity.TerminalClient;
+import com.luretechnologies.tms.backend.service.HeartBeatDeviceService;
+import com.luretechnologies.tms.backend.service.HeartBeatHistoryService;
 import com.luretechnologies.tms.backend.service.HeartbeatService;
 import com.luretechnologies.tms.backend.service.MockHeartBeatHistory;
 import com.luretechnologies.tms.ui.NotificationUtil;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
-import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.event.ShortcutListener;
+import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.server.Page;
+import com.vaadin.server.Resource;
 import com.vaadin.server.ThemeResource;
+import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.DateField;
+import com.vaadin.ui.DateTimeField;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Grid;
-import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
@@ -76,6 +92,9 @@ import com.vaadin.ui.Notification;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.themes.ValoTheme;
 
 @SpringView(name = HeartbeatView.VIEW_NAME)

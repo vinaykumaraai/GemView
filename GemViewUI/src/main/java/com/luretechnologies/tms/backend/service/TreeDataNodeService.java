@@ -38,13 +38,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.luretechnologies.client.restlib.common.ApiException;
+import com.luretechnologies.client.restlib.service.model.Device;
 import com.luretechnologies.client.restlib.service.model.Entity;
+import com.luretechnologies.client.restlib.service.model.Merchant;
+import com.luretechnologies.client.restlib.service.model.Organization;
+import com.luretechnologies.client.restlib.service.model.Region;
 import com.luretechnologies.client.restlib.service.model.Terminal;
 import com.luretechnologies.tms.backend.data.entity.Node;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
 import com.vaadin.data.TreeData;
 import com.vaadin.spring.annotation.SpringComponent;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 
 @SpringComponent
 @Service
@@ -170,8 +176,7 @@ public class TreeDataNodeService {
 	public void pasteTreeNode(TreeNode entity, TreeNode parentEntity) {
 		try {
 			if(RestServiceUtil.getSESSION()!=null) {
-				RestServiceUtil.getInstance().getClient().getEntityApi().moveEntity(entity.getId(), parentEntity.getId());
-			}
+				RestServiceUtil.getInstance().getClient().getEntityApi().moveEntity(entity.getId(), parentEntity.getId());			}
 		}catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
