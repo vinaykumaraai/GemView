@@ -390,11 +390,27 @@ public class PersonalizationService {
 
 		return new ListDataProvider<>(applicationFileList);
 	}
-	public ListDataProvider<Profile> getProfileDataProvider(Long appId){
+	public ListDataProvider<Profile> getProfileDataProviderForApp(Long appId){
 		List<Profile> profileList = new ArrayList<>();
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
 				for(AppProfile appProfile : RestServiceUtil.getInstance().getClient().getAppApi().getAppProfileList(appId)) {
+					profileList.add(new Profile(appProfile.getId(),appProfile.getName(), appProfile.getAppProfileParamValueCollection()));
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return new ListDataProvider<>(profileList);
+	}
+	
+	public ListDataProvider<Profile> getProfileDataProviderForEntity(Long appId,Long entityId){
+		List<Profile> profileList = new ArrayList<>();
+		try {
+			if (RestServiceUtil.getSESSION() != null) {
+				for(AppProfile appProfile : RestServiceUtil.getInstance().getClient().getAppProfileApi().getAppProfileListByEntity(appId, entityId)) {
 					profileList.add(new Profile(appProfile.getId(),appProfile.getName(), appProfile.getAppProfileParamValueCollection()));
 				}
 			}
