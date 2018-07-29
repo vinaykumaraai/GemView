@@ -486,7 +486,20 @@ public List<AppClient> getAppListByLoggedUserEntity(Long id) {
 	}
 	return allAppList;
 }
-public void createOverRideParam(AppClient app, OverRideParameters param) {
+
+public void addProfileParam(Long appProfileId,Long entityId,Set<AppDefaultParam> paramSet) {
+	try {
+		if(RestServiceUtil.getSESSION()!=null) {
+			for (AppDefaultParam param : paramSet) {
+			RestServiceUtil.getInstance().getClient().getAppProfileApi().addEntityAppProfileParam(appProfileId, entityId, param.getId());
+			}
+		}
+		}catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+}
+public void createOverRideParam(AppClient app, AppDefaultParam param) {
 	try {
 		if(RestServiceUtil.getSESSION()!=null) {
 			AppParam appParam = new AppParam();
