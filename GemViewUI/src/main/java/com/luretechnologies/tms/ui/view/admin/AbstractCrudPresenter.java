@@ -159,7 +159,12 @@ public abstract class AbstractCrudPresenter<T extends AbstractEntity, S extends 
 			if(user.isLocked()==true) {
 				Notification.show("User Cannot be deleted", Type.ERROR_MESSAGE);
 			}else {
-				service.delete(entity.getId());
+				try {
+					service.deleteUser(entity.getId());
+				} catch (ApiException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				getView().loadGridData();
 			}
 		}
@@ -233,6 +238,15 @@ public abstract class AbstractCrudPresenter<T extends AbstractEntity, S extends 
 	public void addNewClicked() {
 		runWithConfirmation(() -> {
 			T entity = createEntity();
+			if(entity instanceof User) {
+				User clientUser = (User)entity;
+				try {
+					service.createUser(clientUser);
+				} catch (ApiException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 			editItem(entity);
 		}, () -> {
 		});
