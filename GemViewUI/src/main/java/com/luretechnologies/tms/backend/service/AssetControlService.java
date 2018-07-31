@@ -31,7 +31,9 @@
  */
 package com.luretechnologies.tms.backend.service;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -170,7 +172,7 @@ public class AssetControlService {
 				List<AlertAction> historyList = RestServiceUtil.getInstance().getClient().getAlertActionApi().search(id, null, null, null, null, null);
 					for(AlertAction alertAction: historyList) {
 						Alert alert = new Alert(alertAction.getId(), alertAction.getLabel(), alertAction.getName(), 
-								alertAction.getDescription(), alertAction.getAvailable(), alertAction.getEmail());
+								alertAction.getDescription(), alertAction.getActive(), alertAction.getEmail());
 						assetAlertListNew.add(alert);	
 						}
 				}
@@ -315,12 +317,15 @@ public class AssetControlService {
 		}
 	}
 	
-	public void saveDebugAndDuration(String entityId, boolean value, Date date) {
+	public void saveDebugAndDuration(String entityId, boolean value, String date) {
 		try {
 			if(RestServiceUtil.getSESSION()!=null) {
+				
 				com.luretechnologies.client.restlib.service.model.Terminal terminal = RestServiceUtil.getInstance().getClient().getTerminalApi().getTerminal(entityId);
+				DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	            Date tempHelp = format.parse(date +" 00:00:00");
 				terminal.setAvailable(value);
-				terminal.setDebugExpirationDate(date);
+				terminal.setDebugExpirationDate(tempHelp);
 				RestServiceUtil.getInstance().getClient().getTerminalApi().updateTerminal(entityId, terminal);
 			}
 				

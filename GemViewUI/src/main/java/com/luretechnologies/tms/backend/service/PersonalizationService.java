@@ -43,9 +43,13 @@ import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.client.restlib.service.model.App;
 import com.luretechnologies.client.restlib.service.model.AppFile;
 import com.luretechnologies.client.restlib.service.model.AppParam;
+import com.luretechnologies.client.restlib.service.model.AppParamFormat;
 import com.luretechnologies.client.restlib.service.model.AppProfile;
+import com.luretechnologies.client.restlib.service.model.AppProfileParamValue;
 import com.luretechnologies.client.restlib.service.model.Device;
 import com.luretechnologies.client.restlib.service.model.Entity;
+import com.luretechnologies.client.restlib.service.model.EntityAppProfile;
+import com.luretechnologies.client.restlib.service.model.EntityAppProfileParam;
 import com.luretechnologies.client.restlib.service.model.Merchant;
 import com.luretechnologies.client.restlib.service.model.Organization;
 import com.luretechnologies.client.restlib.service.model.Region;
@@ -390,11 +394,11 @@ public class PersonalizationService {
 
 		return new ListDataProvider<>(applicationFileList);
 	}
-	public ListDataProvider<Profile> getProfileDataProviderForApp(Long appId){
+	public List<Profile> getProfileListWithOutEntity(Long appId, Long entityId){
 		List<Profile> profileList = new ArrayList<>();
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
-				for(AppProfile appProfile : RestServiceUtil.getInstance().getClient().getAppApi().getAppProfileList(appId)) {
+				for(AppProfile appProfile : RestServiceUtil.getInstance().getClient().getAppProfileApi().getAppProfileListWithoutEntity(appId, entityId)){
 					profileList.add(new Profile(appProfile.getId(),appProfile.getName(), appProfile.getAppProfileParamValueCollection()));
 				}
 			}
@@ -403,10 +407,10 @@ public class PersonalizationService {
 			e.printStackTrace();
 		}
 
-		return new ListDataProvider<>(profileList);
+		return profileList;
 	}
 	
-	public ListDataProvider<Profile> getProfileDataProviderForEntity(Long appId,Long entityId){
+	public List<Profile> getProfileListForEntity(Long appId,Long entityId){
 		List<Profile> profileList = new ArrayList<>();
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
@@ -419,8 +423,42 @@ public class PersonalizationService {
 			e.printStackTrace();
 		}
 
-		return new ListDataProvider<>(profileList);
+		return profileList;
 	}
+	
+	public List<AppDefaultParam> getFileListWithEntity(Long appProfileId){
+		List<AppDefaultParam> fileList = new ArrayList<>();
+		try {
+			if (RestServiceUtil.getSESSION() != null) {
+				for(AppParam appParamServer : RestServiceUtil.getInstance().getClient().getAppProfileApi().getAppFileListByAppProfile(appProfileId))
+				fileList.add(new AppDefaultParam(appParamServer.getId() ,appParamServer.getName(), appParamServer.getDescription(), appParamServer.getAppParamFormat().getName(),
+						appParamServer.getDefaultValue()));
+				}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return fileList;
+	}
+	
+	public List<AppDefaultParam> getFileListWithOutEntity(Long appProfileId){
+		List<AppDefaultParam> fileList = new ArrayList<>();
+		try {
+			if (RestServiceUtil.getSESSION() != null) {
+				List<AppParam> appParamList = RestServiceUtil.getInstance().getClient().getAppProfileApi().getAppFileListWithoutAppProfile(appProfileId);
+				for(AppParam appParamServer : RestServiceUtil.getInstance().getClient().getAppProfileApi().getAppFileListWithoutAppProfile(appProfileId))
+				fileList.add(new AppDefaultParam(appParamServer.getId() ,appParamServer.getName(), appParamServer.getDescription(), appParamServer.getAppParamFormat().getName(),
+						appParamServer.getDefaultValue()));
+				}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return fileList;
+	}
+	
 	public String getTerminalSerialNumberByEntityId(String entityId) {
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
@@ -486,7 +524,6 @@ public List<AppClient> getAppListByLoggedUserEntity(Long id) {
 	}
 	return allAppList;
 }
-
 public void addProfileParam(Long appProfileId,Long entityId,Set<AppDefaultParam> paramSet) {
 	try {
 		if(RestServiceUtil.getSESSION()!=null) {
@@ -499,7 +536,8 @@ public void addProfileParam(Long appProfileId,Long entityId,Set<AppDefaultParam>
 			e.printStackTrace();
 		}
 }
-public void createOverRideParam(AppClient app, AppDefaultParam param) {
+
+public void createOverRideParam(AppClient app, OverRideParameters param) {
 	try {
 		if(RestServiceUtil.getSESSION()!=null) {
 			AppParam appParam = new AppParam();
@@ -550,7 +588,7 @@ public void deleteOverRideParam(AppClient app, OverRideParameters param) {
 					.getTerminal(entityId);
 			TerminalClient terminal = new TerminalClient(terminalForPV.getId(), terminalForPV.getType().name(), terminalForPV.getName(), terminalForPV.getDescription(),
 					terminalForPV.getSerialNumber(), terminalForPV.getAvailable(),terminalForPV.getDebugActive(),
-					terminalForPV.getFrequency(), terminalForPV.getLastContact().toString());
+					terminalForPV.getFrequency(), terminalForPV.getLastContact().toString(), terminalForPV.getEntityId());
 
 		return terminal;
 	}
@@ -579,6 +617,35 @@ public void deleteOverRideParam(AppClient app, OverRideParameters param) {
 		}
 		return appDefaultParamList;
 	}
+	
+	public List<AppDefaultParam> getAppDefaultParamListWithoutEntity(Long appProfileId, Long entityId) throws ApiException {
+		List<AppDefaultParam> appDefaultParamList = new ArrayList<>();
+		if (RestServiceUtil.getSESSION() != null) {
+		List<AppParam> appParamService = RestServiceUtil.getInstance().getClient().getAppProfileApi().getAppParamListWithoutEntity(appProfileId, entityId);
+			for (AppParam appParam : appParamService) {
+				AppDefaultParam appDefaultParam = new AppDefaultParam(appParam.getId(), appParam.getName(),
+					appParam.getDescription(), appParam.getAppParamFormat().getValue(), appParam.getDefaultValue());
+				appDefaultParamList.add(appDefaultParam);
+		}
+		
+		}
+		return appDefaultParamList;
+	}
+	
+	public List<AppDefaultParam> getAppDefaultParamListWithEntity(Long appProfileId, Long entityId) throws ApiException {
+		List<AppDefaultParam> appDefaultParamList = new ArrayList<>();
+		if (RestServiceUtil.getSESSION() != null) {
+		List<AppParam> appParamService = RestServiceUtil.getInstance().getClient().getAppProfileApi().getAppParamListByEntity(appProfileId, entityId);
+			for (AppParam appParam : appParamService) {
+				AppDefaultParam appDefaultParam = new AppDefaultParam(appParam.getId(), appParam.getName(),
+					appParam.getDescription(), appParam.getAppParamFormat().getValue(), appParam.getDefaultValue());
+				appDefaultParamList.add(appDefaultParam);
+		}
+		
+		}
+		return appDefaultParamList;
+	}
+
 	private List<Profile> getAppProfileList(List<AppProfile> appProfileList) {
 		List<Profile> profileList = new ArrayList<>();
 		if(appProfileList!=null) {
@@ -620,11 +687,21 @@ public void deleteOverRideParam(AppClient app, OverRideParameters param) {
 		return new ListDataProvider<>(profileList);
 	}
 	
-	public void saveProfileForEntity(List<Profile> profileList,Long entityId) {
+	public void saveProfileForEntity(List<Profile> profileListClient,Long entityId, Long appId) {
+		List<Profile> profileList = new ArrayList<>();
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
-				for(Profile profile : profileList) {
+				List<AppProfile> profileListServer = RestServiceUtil.getInstance().getClient().getAppProfileApi().getAppProfileListByEntity(appId, entityId);
+				for(AppProfile appProfile : profileListServer) {
+					profileList.add(new Profile(appProfile.getId(),appProfile.getName(), appProfile.getAppProfileParamValueCollection()));
+				}
+				for(Profile profile : profileListClient) {
+					if(profileList.contains(profile)) {
+						
+					}else {
+					
 					RestServiceUtil.getInstance().getClient().getAppProfileApi().addEntityAppProfile(profile.getId(), entityId);
+					}
 				}
 			}
 
@@ -634,11 +711,78 @@ public void deleteOverRideParam(AppClient app, OverRideParameters param) {
 
 	}
 	
+	public void saveFileForEntity(Long appProfileId, List<AppDefaultParam> fileList,Long entityId) {
+		try {
+			if (RestServiceUtil.getSESSION() != null) {
+				for(AppDefaultParam appDefaultParamFile : fileList) {
+					RestServiceUtil.getInstance().getClient().getAppProfileApi().addEntityAppProfileParam(appProfileId, entityId, appDefaultParamFile.getId());
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+	
+	public void updateParamOfEntity(Long profileId, Long entityId, AppDefaultParam param, Long appId ) {
+		//EntityAppProfileParam entityAppProfileParam = new EntityAppProfileParam();
+		try {
+			if (RestServiceUtil.getSESSION() != null) {
+				List<AppProfile> paramList = RestServiceUtil.getInstance().getClient().getAppProfileApi().getAppProfileListByEntity(appId, entityId);
+				for(AppProfile appProfile:paramList) {
+					 List<EntityAppProfile> entityappprofileCollection = appProfile.getEntityAppProfileCollection();
+					 for(EntityAppProfile entityAppProfile:entityappprofileCollection) {
+						List<EntityAppProfileParam> entityAppProfileParamList = entityAppProfile.getEntityappprofileparamCollection();
+						for(EntityAppProfileParam entityAppProfileParam :entityAppProfileParamList) {
+							if(entityAppProfileParam.getId()==param.getId()) {
+								entityAppProfileParam.setValue(param.getValue());
+								RestServiceUtil.getInstance().getClient().getAppProfileApi().updateEntityAppProfileParam(profileId, entityId, entityAppProfileParam);
+								break;
+							}
+						}
+					 }
+				}
+				
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public void deleteProfileForEntity(List<Profile> profileList,Long entityId) {
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
 				for(Profile profile : profileList) {
 					RestServiceUtil.getInstance().getClient().getAppProfileApi().deleteEntityAppProfile(profile.getId(), entityId);
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+	
+	public void deleteFileForEntity(Long profileId, List<AppDefaultParam> fileList,Long entityId) {
+		try {
+			if (RestServiceUtil.getSESSION() != null) {
+				for(AppDefaultParam file : fileList) {
+					RestServiceUtil.getInstance().getClient().getAppProfileApi().deleteEntityAppProfileFile(profileId, entityId, file.getId());
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+	
+	public void deleteEntityAppProfileParam(Long profileId, List<AppDefaultParam> paramList,Long entityId) {
+		try {
+			if (RestServiceUtil.getSESSION() != null) {
+				for(AppDefaultParam param : paramList) {
+					RestServiceUtil.getInstance().getClient().getAppProfileApi().deleteEntityAppProfileParam(profileId, entityId, param.getId());
 				}
 			}
 

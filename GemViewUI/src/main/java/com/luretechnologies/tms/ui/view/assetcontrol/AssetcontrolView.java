@@ -77,6 +77,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 	private static final String DATE_FORMAT = "MM/dd/yyyy";
 	private static final SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
 	private static final DateTimeFormatter  dateFormatter1 = DateTimeFormatter.ofPattern("yyMMdd");
+	private static final DateTimeFormatter  dateFormatter2 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 	private static final LocalDateTime localTimeNow = LocalDateTime.now();
 	private static Grid<AssetHistory> debugGrid;
 	private static Grid<DebugItems> deviceDebugGrid;
@@ -654,7 +655,6 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		debugEndDateField.setPlaceholder("End Date");
 		debugEndDateField.setResponsive(true);
 		debugEndDateField.setDateFormat(DATE_FORMAT);
-		debugEndDateField.setDateOutOfRangeMessage("Same Date cannot be selected");
 		debugEndDateField.setDescription("End Date");
 		debugEndDateField.addStyleName("v-textfield-font");
 		
@@ -720,7 +720,9 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
         	 					e.printStackTrace();
         	 				}
 	        	 			
-				} 
+				} else {
+					Notification.show(NotificationUtil.AUDIT_SAMEDATE, Notification.Type.ERROR_MESSAGE);
+				}
 	        		 	}else {
 	        		 		Notification.show(NotificationUtil.ASSET_HISTORY_STARTDATE, Notification.Type.ERROR_MESSAGE);
 	        		 		debugEndDateField.clear();
@@ -729,6 +731,16 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 	        	Notification.show(NotificationUtil.ASSET_HISTORY_SELECTNODE, Notification.Type.ERROR_MESSAGE);
 	        	clearCalenderDates();
 	        }
+		}else {
+			List<AssetHistory> assetHistoryList = new ArrayList<>();
+			try {
+				assetHistoryList = assetControlService.getHistoryGridData(nodeTree.getSelectedItems().iterator().next().getEntityId());
+			} catch (ApiException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+				DataProvider data = new ListDataProvider(assetHistoryList);
+				debugGrid.setDataProvider(data);
 		}
 	});
 		
@@ -736,6 +748,16 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 			if(change.getValue()!=null) {
 				debugEndDateField.clear();
 				debugEndDateField.setRangeStart(change.getValue().plusDays(1));
+			}else {
+				List<AssetHistory> assetHistoryList = new ArrayList<>();
+				try {
+					assetHistoryList = assetControlService.getHistoryGridData(nodeTree.getSelectedItems().iterator().next().getEntityId());
+				} catch (ApiException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+					DataProvider data = new ListDataProvider(assetHistoryList);
+					debugGrid.setDataProvider(data);
 			}
 	});
 
@@ -1008,9 +1030,10 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 			CheckBox checkbox1 = (CheckBox) HL1.getComponent(1);
 			boolean value = checkbox1.getValue();
 			DateField dateField = (DateField)deviceDebugFormLayout.getComponent(6);
-			LocalDate localDate = dateField.getValue();
-			Date date = java.sql.Date.valueOf(localDate);
-			assetControlService.saveDebugAndDuration(nodeTree.getSelectedItems().iterator().next().getEntityId(), value, date);
+			String dateValue = dateField.getValue().format(dateFormatter2);
+			/*LocalDate localDate = dateField.getValue();
+			Date date = java.sql.Date.valueOf(localDate);*/
+			assetControlService.saveDebugAndDuration(nodeTree.getSelectedItems().iterator().next().getEntityId(), value, dateValue);
 		});
 		
 		deviceDebugStartDateField.setWidth("100%");
@@ -1024,7 +1047,6 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		deviceDebugEndDateField.setWidth("100%");
 		deviceDebugEndDateField.setDateFormat(DATE_FORMAT);
 		deviceDebugEndDateField.setPlaceholder("End Date");
-		deviceDebugEndDateField.setDateOutOfRangeMessage("Same Date cannot be selected");
 		deviceDebugEndDateField.addStyleName("v-textfield-font");
 
 		//Vertical Initialization
@@ -1110,6 +1132,12 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 	        	Notification.show(NotificationUtil.ASSET_DEBUG_SELECTNODE, Notification.Type.ERROR_MESSAGE);
 	        	clearCalenderDates();
 	        }
+		}else {
+			List<DebugItems> debugItemsList = new ArrayList<>();
+			debugItemsList= assetControlService.getDeviceDebugList(nodeTree.getSelectedItems().iterator().next().getEntityId(), 
+					nodeTree.getSelectedItems().iterator().next().getType().name());
+			DataProvider debugItemsData = new ListDataProvider(debugItemsList);
+			deviceDebugGrid.setDataProvider(debugItemsData);
 		}
 	});
 		
@@ -1117,6 +1145,12 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 			if(change.getValue()!=null) {
 				deviceDebugEndDateField.clear();
 				deviceDebugEndDateField.setRangeStart(change.getValue().plusDays(1));
+			}else {
+				List<DebugItems> debugItemsList = new ArrayList<>();
+				debugItemsList= assetControlService.getDeviceDebugList(nodeTree.getSelectedItems().iterator().next().getEntityId(), 
+						nodeTree.getSelectedItems().iterator().next().getType().name());
+				DataProvider debugItemsData = new ListDataProvider(debugItemsList);
+				deviceDebugGrid.setDataProvider(debugItemsData);
 			}
 	});
 

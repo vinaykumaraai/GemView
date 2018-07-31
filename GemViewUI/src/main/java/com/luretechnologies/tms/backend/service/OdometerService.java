@@ -104,13 +104,13 @@ public class OdometerService {
 		}
 	}
 	
-	public List<DeviceOdometer> searchOdometerGridData(String entityId, String filter) throws ApiException{
+	public List<DeviceOdometer> searchOdometerGridData(String entityId, String filter,String startDate, String endDate) throws ApiException{
 		List<DeviceOdometer> odometerListSearch = new ArrayList<>();
 		try {
 			if(RestServiceUtil.getSESSION()!=null) {
 			
 				List<HeartbeatOdometer> searchList = RestServiceUtil.getInstance().getClient().getHeartbeatApi().searchOdometer(entityId, filter, 
-						null, null, null, null);
+						startDate, endDate, null, null);
 				if(searchList!=null && !searchList.isEmpty()) {
 					for(HeartbeatOdometer heartBeatOdometer: searchList) {
 						DeviceOdometer deviceOdometer = new DeviceOdometer(heartBeatOdometer.getId(), heartBeatOdometer.getLabel(), heartBeatOdometer.getDescription(), 
@@ -141,11 +141,11 @@ public class OdometerService {
 		return null;
 	}
 	
-	public List<HeartbeatOdometer> searchByDates(String entityId, String startDate, String endDate) throws ApiException{
+	public List<HeartbeatOdometer> searchByDates(String entityId, String filter, String startDate, String endDate) throws ApiException{
 		try {
 			if(RestServiceUtil.getSESSION()!=null) {
 			
-				List<HeartbeatOdometer> odometerList = RestServiceUtil.getInstance().getClient().getHeartbeatApi().searchOdometer(entityId, null, 
+				List<HeartbeatOdometer> odometerList = RestServiceUtil.getInstance().getClient().getHeartbeatApi().searchOdometer(entityId, filter, 
 						startDate, endDate, null, null);
 				return odometerList;
 			}

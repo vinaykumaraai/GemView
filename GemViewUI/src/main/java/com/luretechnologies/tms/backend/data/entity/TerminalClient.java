@@ -55,6 +55,8 @@ public class TerminalClient {
 	
 	private String lastSeen;
 	
+	private String entityId;
+	
 	public TerminalClient() {
 	}
 	
@@ -69,7 +71,7 @@ public class TerminalClient {
 	}
 
 	public TerminalClient(Long id, String type, String label, String description, String serialNumber, boolean active,
-			boolean activateHeartbeat, Long frequency, String lastSeen) {
+			boolean activateHeartbeat, Long frequency, String lastSeen, String entityId) {
 		super();
 		this.id = id;
 		this.type = type;
@@ -80,6 +82,7 @@ public class TerminalClient {
 		this.activateHeartbeat = activateHeartbeat;
 		this.frequency = frequency;
 		this.lastSeen = lastSeen;
+		this.entityId=entityId;
 	}
 
 	public Long getId() {
@@ -189,4 +192,14 @@ public class TerminalClient {
 	public void setDuration(String duration) {
 		this.duration = duration;
 	}
+
+	public String getEntityId() {
+		return entityId;
+	}
+
+	public void setEntityId(String entityId) {
+		this.entityId = entityId;
+	}
+	
+	
 }

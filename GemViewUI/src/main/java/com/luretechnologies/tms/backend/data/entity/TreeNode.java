@@ -65,7 +65,7 @@ public class TreeNode {
 	
 	public Profile profile;
 	
-	public ApplicationFile additionaFile;
+	public AppDefaultParam additionaFile;
 	
 	public List<AppDefaultParam> overRideParamList;
 	
@@ -176,10 +176,10 @@ public class TreeNode {
 	public Profile getProfile() {
 		return profile;
 	}
-	public ApplicationFile getAdditionaFile() {
+	public AppDefaultParam getAdditionaFile() {
 		return additionaFile;
 	}
-	public void setAdditionaFile(ApplicationFile additionaFile) {
+	public void setAdditionaFile(AppDefaultParam additionaFile) {
 		this.additionaFile = additionaFile;
 	}
 	public void setProfile(Profile profile) {

@@ -132,8 +132,7 @@ public class ApplicationStoreService {
 		
 		}
 		return appDefaultParamList;
-	}
-	
+	}	
 	
 	public List<TreeNode> getOwnerList() {
 		List<TreeNode> nodeChildList = new ArrayList<>();
@@ -531,11 +530,6 @@ public class ApplicationStoreService {
 				  }
 				       appProfileParamValue.setDefaultValue(defaultParam.getValue());
 				}
-				/*appProfileParamValue.setId(appProfileParamValueClient.getId());
-				appProfileParamValue.setDefaultValue(appProfileParamValueClient.getDefaultValue());
-				appProfileParamValue.setForceUpdate(appProfileParamValueClient.getForceUpdate());
-				appProfileParamValue.setAppParamId(appProfileParamValueClient.getAppParamId());
-				appProfileParamValue.setAppProfileId(appProfileParamValueClient.);*/
 				RestServiceUtil.getInstance().getClient().getAppProfileApi().updateAppProfileParamValue(profile.getId(), appProfileParamValue);
 			}
 		} catch (Exception e) {

@@ -54,7 +54,7 @@ public class HeartbeatService {
 				for(com.luretechnologies.client.restlib.service.model.Terminal terminalServer :terminalListServer) {
 					TerminalClient terminal = new TerminalClient(terminalServer.getId(), terminalServer.getType().name(), terminalServer.getName(), terminalServer.getDescription(),
 							terminalServer.getSerialNumber(), terminalServer.getAvailable(),terminalServer.getDebugActive(),
-							terminalServer.getFrequency(), terminalServer.getLastContact().toString());
+							terminalServer.getFrequency(), terminalServer.getLastContact().toString(), terminalServer.getEntityId());
 					terminalList.add(terminal);
 				}
 				return terminalList;
@@ -73,7 +73,7 @@ public class HeartbeatService {
 				for(com.luretechnologies.client.restlib.service.model.Terminal terminalServer :terminalListServer) {
 					TerminalClient terminal = new TerminalClient(terminalServer.getId(), terminalServer.getType().name(), terminalServer.getName(), terminalServer.getDescription(),
 							terminalServer.getSerialNumber(), terminalServer.getAvailable(),terminalServer.getDebugActive(),
-							terminalServer.getFrequency(), terminalServer.getLastContact().toString());
+							terminalServer.getFrequency(), terminalServer.getLastContact().toString(), terminalServer.getEntityId());
 					terminalList.add(terminal);
 				}
 				return terminalList;
@@ -84,11 +84,11 @@ public class HeartbeatService {
 		return terminalList;
 	}
 	
-	public List<Heartbeat> getHeartbeatHistory(Long entityId) throws ApiException {
+	public List<Heartbeat> getHeartbeatHistory(String entityId) throws ApiException {
 		List<Heartbeat> heartbeatHistortListServer = new ArrayList<>();
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
-				heartbeatHistortListServer = RestServiceUtil.getInstance().getClient().getHeartbeatApi().search(entityId.toString(), null, null, null, null, null);
+				heartbeatHistortListServer = RestServiceUtil.getInstance().getClient().getHeartbeatApi().search(entityId, null, null, null, null, null);
 				return heartbeatHistortListServer;
 			}
 		} catch (Exception e) {
@@ -97,11 +97,11 @@ public class HeartbeatService {
 		return heartbeatHistortListServer;
 	}
 	
-	public List<Heartbeat> searchHBHistoryByText(Long id, String filter, String startDate, String endDate) throws ApiException {
+	public List<Heartbeat> searchHBHistoryByText(String entityId, String filter, String startDate, String endDate) throws ApiException {
 		List<Heartbeat> heartbeatHistortListServer = new ArrayList<>();
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
-				heartbeatHistortListServer = RestServiceUtil.getInstance().getClient().getHeartbeatApi().search(id.toString(), filter, startDate, endDate, null, null);
+				heartbeatHistortListServer = RestServiceUtil.getInstance().getClient().getHeartbeatApi().search(entityId, filter, startDate, endDate, null, null);
 				return heartbeatHistortListServer;
 			}
 		} catch (Exception e) {
@@ -110,11 +110,11 @@ public class HeartbeatService {
 		return heartbeatHistortListServer;
 	}
 	
-	public List<Heartbeat> searchHBHistoryByDate(Long entityId, String startdate, String endDate) throws ApiException {
+	public List<Heartbeat> searchHBHistoryByDate(String entityId, String filter, String startdate, String endDate) throws ApiException {
 		List<Heartbeat> heartbeatHistortListServer = new ArrayList<>();
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
-				heartbeatHistortListServer = RestServiceUtil.getInstance().getClient().getHeartbeatApi().search(entityId.toString(), null, startdate, endDate, null, null);
+				heartbeatHistortListServer = RestServiceUtil.getInstance().getClient().getHeartbeatApi().search(entityId, filter, startdate, endDate, null, null);
 				return heartbeatHistortListServer;
 			}
 		} catch (Exception e) {
@@ -128,7 +128,7 @@ public class HeartbeatService {
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
 				//RestServiceUtil.getInstance().getClient().getHeartbeatApi().
-				heartbeatHistortListServer = RestServiceUtil.getInstance().getClient().getHeartbeatApi().search(id.toString(), null, null, null, null, null);
+				//heartbeatHistortListServer = RestServiceUtil.getInstance().getClient().getHeartbeatApi().d
 				return heartbeatHistortListServer;
 			}
 		} catch (Exception e) {

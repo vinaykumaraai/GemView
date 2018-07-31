@@ -627,8 +627,6 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		appDefaultParamGrid.setHeightByRows(7);;
 		appDefaultParamGrid.getColumn("parameter").setEditorComponent(new TextField());
 		appDefaultParamGrid.getColumn("description").setEditorComponent(new TextField());
-		//ComboBox<ParameterType> paramComboBox = new ComboBox<>();
-		//parameterType.setDataProvider(new ListDataProvider<>(appStoreService.getAppParamTypeList(selectedApp.getId())));
 		appDefaultParamGrid.getColumn("type").setEditorComponent(parameterType);
 		appDefaultParamGrid.getColumn("value").setEditorComponent(new TextField());
 		

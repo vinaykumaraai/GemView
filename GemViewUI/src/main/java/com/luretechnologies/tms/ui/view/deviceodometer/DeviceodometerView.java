@@ -411,8 +411,14 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 			});*/
 			
 			String filter = odometerDeviceSearch.getValue();
+			String endDate =null;
+			String startDate=null;
+			if(odometerEndDateField.getValue()!=null && odometerStartDateField!=null) {
+				endDate = odometerEndDateField.getValue().format(dateFormatter1);
+				startDate = odometerStartDateField.getValue().format(dateFormatter1);
+			}
 			try {
-				List<DeviceOdometer> searchGridData = odometerDeviceService.searchOdometerGridData(nodeTree.getSelectedItems().iterator().next().getEntityId(),filter);
+				List<DeviceOdometer> searchGridData = odometerDeviceService.searchOdometerGridData(nodeTree.getSelectedItems().iterator().next().getEntityId(),filter, startDate, endDate);
 				DataProvider data = new ListDataProvider(searchGridData);
 				odometerDeviceGrid.setDataProvider(data);
 			} catch (ApiException e) {
@@ -514,10 +520,11 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
         	 		if(change.getValue().compareTo(odometerStartDateField.getValue()) >0 ) {
         	 			String endDate = odometerEndDateField.getValue().format(dateFormatter1);
         	 			String startDate = odometerStartDateField.getValue().format(dateFormatter1);
+        	 			String filter = odometerDeviceSearch.getValue();
         	 				try {
         	 					List<DeviceOdometer> odometerListFilterBydates = new ArrayList<>();
     	        	 			List<HeartbeatOdometer> odometerList;
-    	        	 			odometerList = odometerDeviceService.searchByDates(nodeTree.getSelectedItems().iterator().next().getEntityId(), startDate, endDate);
+    	        	 			odometerList = odometerDeviceService.searchByDates(nodeTree.getSelectedItems().iterator().next().getEntityId(), filter, startDate, endDate);
     	        	 			for(HeartbeatOdometer heartBeatOdometer: odometerList) {
     	        	 				DeviceOdometer deviceOdometer = new DeviceOdometer(heartBeatOdometer.getId(),heartBeatOdometer.getLabel(), heartBeatOdometer.getDescription(), 
     	        	 						heartBeatOdometer.getValue());
