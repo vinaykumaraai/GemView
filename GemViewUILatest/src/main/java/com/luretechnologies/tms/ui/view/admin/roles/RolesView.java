@@ -299,15 +299,25 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 		CheckBox edit = new CheckBox();
 		edit.addStyleName("v-textfield-font");
 		edit.setEnabled(isEditableOnly);
+		edit.addValueChangeListener(change ->{
+			if(change.getValue() && !access.getValue())
+				access.setValue(true);
+		});
 		
 		CheckBox delete = new CheckBox();
 		delete.addStyleName("v-textfield-font");
 		delete.setEnabled(isEditableOnly);
-
+		delete.addValueChangeListener(change ->{
+			if(change.getValue() && !access.getValue())
+				access.setValue(true);
+		});
 		CheckBox add = new CheckBox();
 		add.addStyleName("v-textfield-font");
 		add.setEnabled(isEditableOnly);
-		
+		add.addValueChangeListener(change ->{
+			if(change.getValue() && !access.getValue())
+				access.setValue(true);
+		});
 		permissionGrid.addColumn(Permission::getPageName).setCaption("");
 
 		permissionGrid.addColumn(Permission::getAccess, new CheckboxRenderer<>(Permission::setAccess))
