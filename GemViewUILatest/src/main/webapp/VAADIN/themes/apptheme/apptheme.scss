@@ -1,0 +1,1295 @@
+// Global variable overrides. Must be declared before importing Valo.
+
+// Defines the plaintext font size, weight and family. Font size affects general component sizing.
+//$v-font-size: 16px;
+//$v-font-weight: 300;
+//$v-font-family: "Open Sans", sans-serif;
+
+// Defines the border used by all components.
+//$v-border: 1px solid (v-shade 0.7);
+//$v-border-radius: 4px;
+
+// Affects the color of some component elements, e.g Button, Panel title, etc
+//$v-background-color: hsl(210, 0%, 98%);
+// Affects the color of content areas, e.g  Panel and Window content, TextField input etc
+//$v-app-background-color: $v-background-color;
+
+// Affects the visual appearance of all components
+//$v-gradient: v-linear 8%;
+//$v-bevel-depth: 30%;
+//$v-shadow-opacity: 5%;
+
+// Defines colors for indicating status (focus, success, failure)
+//$v-focus-color: valo-focus-color(); // Calculates a suitable color automatically
+//$v-friendly-color: #2c9720;
+//$v-error-indicator-color: #ed473b;
+
+// For more information, see: https://vaadin.com/book/-/page/themes.valo.html
+// Example variants can be copy/pasted from https://vaadin.com/wiki/-/wiki/Main/Valo+Examples
+
+// The "App Shell" template colors are based off v-focus-color
+$v-focus-color: #145A32;
+
+// Background gradient and image used for the menu, false disables
+$app-background-gradient: unquote("linear-gradient(145deg, #145A32 30%, #145A32 100%)");
+$app-background-color: #145A32;
+
+.v-Notification.error{
+	background: #216c2A !important;
+}
+
+.apptheme .app-shell[width-range~="601px-"] .navigation-bar {
+	background-color: #216C2A !important;
+	overflow-y:auto;
+	overflow-x:hidden;
+}
+
+.app-shell .navigation-bar {
+	background: #4b4b65 !important;
+	z-index: 10000 !important;
+}
+
+.app-shell[width-range~="601px-1000px"] .navigation-bar-container .navigation .v-button .v-button-caption {
+	font-size: 9.0px !important;
+	margin: 0;
+	width: 100%;
+	float: left;
+	margin-top: 3px;
+	text-align: center;
+}
+
+.app-shell .navigation-bar {
+	background: #216C2A !important;
+	z-index: 10000 !important;
+}
+
+.apptheme .app-shell .navigation-bar {
+	color: white !important;
+	background-size: cover !important;
+	background-position: top !important;
+}
+
+.app-shell .navigation {
+// 	border-top: 1px solid #5a5a79 !important;
+// 	border-bottom: 1px solid #5a5a79 !important;
+	background: #216C2A !important;
+}
+
+.apptheme .v-grid-row-selected > td {
+	background: #216C2A !important;
+}
+
+.app-shell .navigation .v-button {
+	text-align: left;
+	font-size: 14.4px;
+	text-overflow: ellipsis;
+	color: white !important;
+}
+
+.app-shell .navigation .v-icon {
+	color: #fff !important;
+}
+
+.apptheme .v-caption-inline-icon.v-caption-small span.v-icon{
+	line-height:36px !important;
+}
+
+.search-Height{
+	height:37px !important;
+}
+.v-textfield-lineHeight{
+	height: 28px !important;
+}
+
+.role-textbox{
+	border:0;
+	border-bottom: 1px solid black !important;
+}
+
+.role-name-layout{
+	margin-left:-95px !important;
+}
+
+.role-description-layout{
+	margin-left:30px !important;
+	margin-top:15px;
+}
+
+.role-activeLable{
+	padding-right:10px !important;
+}
+
+.role-activePadding{
+	padding-top:20px !important;
+}
+
+.role-gridLayout{
+	padding: 20px 0px 0px 0px !important;
+}
+
+.role-createdeleteButtonLayout{
+	margin-right:20px;
+}
+
+
+.form-layout{
+	margin-left:50px !important;
+}
+
+.device-formLayout{
+	margin-left:50px !important;
+	margin-top:-10px
+}
+
+.device-name-layout{
+	margin-left:-108px !important;
+}
+
+.device-activeButton-Layout{
+	padding-left:47px;
+}
+
+.device-activeButton{
+	margin-left:8px;
+}
+
+.device-rkiLabel{
+	margin-left:5px;
+}
+
+.device-osLabel{
+	margin-left:6px;
+}
+
+.device-checkboxAlignment{
+	margin-left:5px;
+}
+
+.odometer-verticalLayout{
+	overflow:auto !important;
+}
+
+
+
+.save-cancelButtonsAlignment{
+	padding-right:19px !important;
+// 	padding-top:5px !important;
+}
+
+.save-cancelButtonAlignmentRoles{
+	padding-right:35px !important;
+// 	padding-top:5px !important;
+}
+
+.assetAlert-activeCheckBox{
+	padding-top:12px;
+	margin-left:-68px;
+}
+
+.applicationStore-GridLayout{
+	padding: 0px 0px 0px 0px !important;
+	background-color: #fff;
+}
+
+.applicationStore-activeCheckBox{
+	padding-top:12px;
+	margin-left:-23px;
+}
+
+.applicationStore-VerticalLayout{
+	padding: 0px 37px 0px 15px !important;
+	margin-top:-60px !important;
+}
+
+.applicationStore-ApplicationDetailsLayout{
+	padding: 20px 37px 0px 15px !important;
+}
+
+.applicationStore-ApplicationStoreLayout{
+	padding: 20px 15px 0px 37px !important;
+}
+
+.applicationStore-cancelsaveApplicationLabelLayout{
+	margin-bottom: -10px;
+}
+
+.applicationStore-cancelsaveLayout{
+	margin-left: 20px;
+}
+
+.applicationStore-FormLayout{
+	margin-top:-35px;
+	margin-left:20px;
+}
+
+.applicationStore-ListLayout{
+	padding-left:12px !important;
+	padding-right:12px !important;
+	padding-bottom:12px !important;
+	padding-top:38px !important;
+}
+
+.applicationStore-UploadWindow{
+	padding-top:0px !important;
+}
+
+.applicationStore-UploadButton{
+	top:0px !important;
+}
+
+.applicationStore-GridLayoutOverflow{
+	overflow:auto !important;
+	overflow-x:hidden !important;
+}
+
+.applicationStore-horizontalAlignment{
+	margin-left: 12px !important;
+}
+
+
+// .v-caption{
+// 	white-space:initial !important;
+// }
+
+
+
+.apptheme .v-panel-caption {
+	box-sizing: border-box;
+	padding: 1px 12px !important;
+	line-height: 36px;
+	border-bottom: 1px solid #d5d5d5;
+	background-color: #fafafa;
+	background-image: -webkit-linear-gradient(top, #fafafa 2%, #f6f6f6 98%);
+	background-image: linear-gradient(to bottom,#fafafa 2%, #f6f6f6 98%);
+	color: #464646;
+	font-weight: 400;
+	font-size: 14px;
+	-webkit-box-shadow: inset 0 1px 0 white, inset 0 -1px 0 #eeeeee;
+	box-shadow: inset 0 1px 0 white, inset 0 -1px 0 #eeeeee;
+	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.05);
+	border-radius: 3px 3px 0 0;
+}
+
+.apptheme .v-panel {
+	background: white;
+	color: #474747;
+	border-radius: 0px !important;
+	border: 1px solid #d5d5d5;
+	-webkit-box-shadow: 0 2px 3px rgba(0, 0, 0, 0.05);
+	box-shadow: 0 2px 3px rgba(0, 0, 0, 0.05);
+	overflow: visible !important;
+}
+
+.apptheme .v-panel-well {
+	background: #f5f5f5;
+	color: #454545;
+	-webkit-box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.05), inset 0 2px 3px rgba(0, 0, 0, 0.05);
+	box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.05), inset 0 2px 3px rgba(0, 0, 0, 0.05);
+	border-radius: 0px !important;
+	border: 1px solid #c5c5c5;
+}
+
+.apptheme .v-verticallayout-card, .apptheme .v-horizontallayout-card{
+	background: white;
+	color: #474747;
+	border-radius: 0px !important;
+	border: 1px solid #d5d5d5;
+	-webkit-box-shadow: 0 2px 3px rgba(0, 0, 0, 0.05);
+	box-shadow: 0 2px 3px rgba(0, 0, 0, 0.05);
+	//overflow: visible !important;
+}
+
+.heartbeat-bad-terminal{
+		background-image:url(terminalBad.png);
+ 		background-size: contain;
+		background-repeat: no-repeat;
+}
+
+.heartbeat-Good-terminal{
+		background-image:url(terminalGood.png);
+ 		background-size: contain;
+		background-repeat: no-repeat;
+}
+
+.heartbeat-SearchLayout{
+		padding:0px 20px 20px 20px !important;
+}
+
+.heartbeat-verticalLayout{
+	padding: 0px 0px 0px 0px !important;
+}
+
+.heartbeat-horizontalLayout-DeviceLabel{
+	margin-bottom:-40px;
+	margin-top:18px;
+}
+
+.heartbeat-verticalFormLayout{
+	padding: 0px 37px 0px 37px !important;
+}
+
+.heartbeat-checkbox{
+	margin-right:-5px;
+	font-weight:400;
+}
+
+.heartbeat-activeLayout{
+	float:left;
+	margin-left:-61px;
+	margin-top:12px;
+}
+
+.heartbeat-heartBeatLayout{
+	float:left;
+	margin-left:-91px;
+	margin-top:12px;
+}
+
+.heartbeat-frequency{
+	margin-top: -35px;
+    margin-left: 25px;
+}
+
+.heartbeat-historyLabel{
+	margin-top: -20px !important;
+}
+
+.heartbeat-historySearchLayout{
+	margin-left: 14px;
+}
+
+.heartbeat-historySearchVerticalLayout{
+	padding: 0px 14px 0px 0px !important;
+}
+
+
+.split-height{
+		background-color: white;
+		overflow:auto !important;
+		padding: 0px 0px 0px 0px !important;
+	}
+	
+.split-height{
+		background-color: white;
+		overflow:auto !important;
+		padding: 22px 0px 22px 0px !important;
+	}
+
+.split-Height-ButtonLayout{
+		background-color: white;
+		padding: 0px 20px 0px 20px !important;
+	}
+
+.personlization-verticalFormLayout{
+	padding:0px 0px 0px 0px !important;
+}
+
+.personlization-horizontalLayout{
+	margin-left: 20px;
+	margin-top:-28px;
+}
+
+.personlization-formLayout{
+	margin-top:-45px;
+	margin-left:15px;
+}
+
+.personlization-paramButtonLayout{
+	margin-left:12px;
+	margin-top:-23px;
+}
+
+.personlization-overRideParamLabelLayout{
+	margin-top:-44px;
+}
+
+.personlization-formAlignment{
+	float:left;
+}
+
+.personlization-activeLayout{
+	margin-left:-61px;
+}
+
+.personlization-activeCheckbox{
+	margin-left:-5px;
+}
+
+.personlization-heartbeatLayout{
+	margin-left:-93px;
+}
+
+.personlization-heartbeatCheckbox{
+	margin-left:-3px;
+}
+
+.personlization-gridHeight{
+	margin-top:-8px;
+}
+
+.personlization-applicationSelectionLayout{
+	margin-top:-28px;
+}
+
+.personlization-plusButtons{
+	margin-top:25px;
+}
+
+.personlization-leftAndRightArrowButtons{
+	padding:52px 0px 37px  0px !important;
+}
+
+.dashboard-gridCaption{
+	font-size:26px !important;
+	margin-bottom:10px !important;
+	margin-left: 245px !important;
+	color:#197DE1 !important;
+	font-weight:bold !important;
+// 	<h2 style=margin-bottom:10px;margin-left:245px;color:#197DE1></h2>
+}
+.app-shell[width-range~="-1300px"] {
+	.applicationStore-VerticalLayout{
+		padding: 20px 37px 0px 15px !important;
+		margin-top:-40px !important;
+	}
+}
+
+.app-shell[width-range~="1001px-"] {
+	.v-heartbeat-Button{
+	position: relative;
+    white-space: nowrap;
+    text-align: -webkit-center;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    cursor: pointer;
+    height: 52px;
+    padding: 0 16px;
+    color: #191919;
+    font-weight: 400;
+    border-radius: 4px;
+    border: none;
+    border-top-color: #c5c5c5;
+    border-bottom-color: #bcbcbc;
+    background-color: #fafafa;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.05);
+    width: 195px;
+    box-shadow:none;
+    background:transparent;
+    color:inherit;
+    padding-top:3px;
+	}
+
+	.v-heartbeat-Button:hover{
+	background-color:rgba(186, 186, 186, 0.1);
+	}
+
+	.v-heartbeat-Button:focus{
+	border-color:#216C2A;
+	box-shadow:0 0 0 2px rgba(20, 90, 50, 0.5);
+	}
+	.v-heartBeat-GoodTerminal{
+		display: inline-block;
+	background: url(terminalGood1.png);
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-color: #FFFFFF;
+	}
+	
+// 	.h1{
+// 		font-size: 36px !important;
+// 		color:#216C2A !important;;
+// 		font-weight:bold !important;;
+// 	}
+
+.v-panel-caption{
+	font-size: 36px !important;
+		color:#216C2A !important;
+ 		font-weight:bold !important;
+ 		line-height:69px !important;
+	
+	}
+	
+	.v-caption{
+		font-size:16px !important;
+	}
+	.label-style{
+		font-size: 28px !important;
+		//color:#216C2A !important;
+ 		font-weight:bold !important;
+ 		padding-left:12px !important;
+	}
+
+	.v-button-customstyle{
+		height:37px !important;
+		padding: 0px 16px !important;
+		font-weight:400 !important;
+	}
+	.v-grid-cell{
+	font-size:16px !important;
+	}
+
+	.v-textfield-font{
+		font-size:16px !important;
+	}
+	.role-activeLayout{
+		margin-left:-64px;
+	}
+	.role-activeLabel{
+		margin-right:10px;
+		font-weight:400;
+	}
+
+	.role-RoleNameLabel{
+		margin-left:4px;
+	}
+}
+
+.app-shell[width-range~="601px-1000px"]{
+	.v-panel-caption{
+	font-size: 24px !important;
+		color:#216C2A !important;
+ 		font-weight:bold !important;
+ 		line-height:45px !important;
+	
+	}
+	.label-style{
+		font-size: 22px !important;
+		//color:#216C2A !important;
+ 		font-weight:bold !important;
+ 		padding-left:12px !important;
+	}
+
+	.v-button-customstyle{
+		font-size:14px !important;
+		height:32px !important;
+		padding: 0px 10px !important;
+		font-weight:400 !important;
+	}
+	.v-grid-cell{
+		font-size:14px !important;
+	}
+
+	.v-textfield-font{
+		font-size:14px !important;
+	}	
+
+	.v-caption{
+		font-size:14px !important;
+	}
+	
+	.v-combobox-size{
+		width:135px;
+		height:27px;
+	}
+	.v-caption{
+		font-size:13px;
+		font-weight:none;
+	}
+	.v-tree8-cell{
+		font-size:14px;
+	}
+	.device-rkiLabel{
+		margin-left:8.5px;
+	}
+
+	.device-osLabel{
+	margin-left:9px;
+	}
+
+	.role-activeLayout{
+		margin-left:-58px;
+	}
+	.role-activeLabel{
+		margin-right:8px;
+		font-weight:400;
+	}
+	.role-RoleNameLabel{
+		margin-left:4px;
+	}
+
+	.heartbeat-checkbox{
+		margin-right:-3px;
+	}
+
+	.heartbeat-activeLayout{
+		float:left;
+		margin-left:-56px;
+		margin-top:12px;
+	}
+
+	.heartbeat-heartBeatLayout{
+		float:left;
+		margin-left:-84px;
+		margin-top:12px;
+	}
+
+	.asset-alertActiveLayout{
+		float:left;
+		margin-left:-58px;
+		margin-top:12px;
+	}
+
+	.asset-alertCheckbox{
+		margin-right:-4px;
+		font-weight:400;
+	}
+
+	.asset-debugCheckboxLayout{
+		float:left;
+		margin-left:-58px;
+		margin-top:12px;
+	}
+	
+	.asset-debugCheckbox{
+		margin-right:-6px;
+		font-weight:400;
+	}
+
+// 	.user-activeBox{
+// 		margin-left: 12px !important;
+// 	}
+// 
+// 	.user-fixIPBox{
+// 		margin-left: 11px !important;
+// 	}
+
+	.user-activeLayout{
+		height: 15px !important;
+		margin-left: -60px !important;
+	}
+
+	.user-fixedIPLayout{
+		height: 15px !important;
+		margin-left: -70px !important;
+		margin-bottom:25px !important;
+		margin-top: 10px !important;
+	}
+
+	.user-passFreqncyLayout{
+		margin-top:15px !important;
+		margin-left: -82px !important;
+	}
+
+	.user-autheticationLayout{
+		float:left;
+		margin-bottom:-6px !important;
+		margin-top: 20px !important;
+		margin-left: -115px !important;
+	}
+
+	.v-caption-small span.v-icon{
+		line-height:32px !important;
+	}
+}
+
+// .app-shell[width-range~="601px-700px"]{
+// 	.v-caption-small span.v-icon{
+// 		line-height:26px !important;
+// 	}
+// }
+
+.app-shell[width-range~="-600px"]{
+	.v-panel-caption{
+	font-size: 18px !important;
+		color:#216C2A !important;
+ 		font-weight:bold !important;
+ 		line-height:30px !important;
+	
+	}
+
+.label-style{
+		font-size: 16px !important;
+		//color:#216C2A !important;
+ 		font-weight:bold !important;
+ 		padding-left:12px !important;
+	}
+.v-button-customstyle{
+	font-size:12px !important;
+		height:28px !important;
+		padding: 0px 8px !important;
+		font-weight:400 !important;
+	}
+	.v-grid-cell{
+	font-size:12px !important;
+	}
+
+	.v-textfield-font{
+		font-size:12px !important;
+	}	
+	.v-caption{
+		font-size:12px !important;
+	}
+	.v-combobox-size{
+		width:120px;
+		height:24px;
+	}
+	.v-caption{
+		font-size:12px;
+		font-weight:none;
+	}
+	.v-tree8-cell{
+		font-size:12px;
+	}
+	.device-rkiLabel{
+		margin-left:14px;
+	}
+	.device-osLabel{
+		margin-left:14.5px;
+	}
+ 	.v-caption-small span.v-icon{
+		line-height:26px !important;
+	}
+	.role-activeLayout{
+		margin-left:-53px;
+	}
+	.role-activeLabel{
+		margin-right:10px;
+		font-weight:400;
+	}
+	.role-RoleNameLabel{
+		margin-left:4px;
+	}
+	.heartbeat-checkbox{
+		margin-right:-5px;
+	}
+
+	.heartbeat-activeLayout{
+		float:left;
+		margin-left:-50px;
+		margin-top:12px;
+	}
+	
+	.heartbeat-heartBeatLayout{
+		float:left;
+		margin-left:-74px;
+		margin-top:12px;
+	}
+
+	.asset-alertActiveLayout{
+		float:left;
+		margin-left:-53px;
+		margin-top:12px;
+	}
+
+	.asset-alertCheckbox{
+		margin-right:-3px;
+		font-weight:400;
+	}
+
+	.asset-debugCheckboxLayout{
+		float:left;
+		margin-left:-63px;
+		margin-top:12px;
+	}
+
+	.asset-debugCheckbox{
+		margin-right:3px;
+		font-weight:400;
+	}
+	
+	.user-activeLayout{
+		height: 15px !important;
+		margin-left: -53px !important;
+	}
+
+	.user-fixedIPLayout{
+		height: 15px !important;
+		margin-left: -62px !important;
+		margin-bottom:25px !important;
+		margin-top: 10px !important;
+	}
+
+	.user-passFreqncyLayout{
+		margin-top:15px !important;
+		margin-left: -73px !important;
+	}
+
+	.user-autheticationLayout{
+		float:left;
+		margin-bottom:-6px !important;
+		margin-top: 20px !important;
+		margin-left: -102px !important;
+	}
+}
+
+.app-shell[width-range~="-1000px"] {
+	.v-heartbeat-Button{
+    cursor: pointer;
+    font-weight: 400;
+    margin-top:3px;
+    outline:none;
+    width:95px;
+    font-size:11px;
+	}
+
+	.v-heartbeat-Button:hover{
+		background-color:none;
+	}
+
+	.v-heartbeat-Button:focus{
+		border-color:#216C2A;
+	box-shadow:0 0 0 2px rgba(20, 90, 50, 0.5);
+	}
+
+	.v-heartbeat-Button .v-icon{
+		padding-left:25px;
+	}
+
+// 	.h1{
+// 		font-size: 24px !important;
+// 		color:#216C2A !important;;
+// 		font-weight:bold !important;;
+// 	}
+
+// 	.v-heartbeat-Button .v-heartbeat-Button-caption{
+// 	font-size: 10px;
+//     margin: 0;
+//     width: 100%;
+//     float: left;
+//     margin-top: 3px;
+// 	}
+}
+
+.label-SaveCancelAlignment{
+	margin-top: 10px;
+}
+.system-SaveCancelAlignment{
+	margin-right: 8px;
+}
+
+.system-LabelAlignment{
+	text-align:right !important;
+}
+
+.system-TypeAlignment{
+	float:left;
+	margin-top:10px;
+}
+
+.system-GridAlignment{
+	padding:0px 0px 0px 0px !important;
+}
+
+.system-ButtonLayout{
+	margin-right: 20px;
+}
+
+.audit-DeviceVerticalAlignment{
+	padding:0px 0px 0px 0px !important;
+}
+
+.audit-DeviceSearch{
+	margin:10px 0px -10px 15px !important;
+}
+
+.audit-buttonlayoutAlignment1{
+	margin-left:-25px !important;
+}
+
+.audit-buttonlayoutAlignment2{
+	margin-left:-12px !important;
+}
+
+.audit-tabAlignment{
+	padding: 0px 30px 0px 0px !important;
+}
+
+.audit-phoneAlignment{
+	padding: 0px 15px 0px 0px !important;
+}
+
+.audit-scroll{
+	overflow:visible !important;
+}
+
+.grid-AuditOdometerAlignment{
+	margin-top:10px !important;
+}
+
+.asset-historyTreeLayout{
+	margin-top: 32px;
+}
+
+.asset-historyDebugLayout{
+	overflow:scroll !important;
+	overflow-x:hidden !important;
+}
+
+.asset-alertActiveLayout{
+	float:left;
+	margin-left:-64px;
+	margin-top:12px;
+}
+
+.asset-alertCheckbox{
+	margin-right:-3px;
+	font-weight:400;
+}
+
+.assetDebug-label{
+	margin-top:-30px;
+	margin-bottom:-15px;
+}
+
+.asset-alertformLayout{
+	margin-left:30px !important;
+	margin-top: -50px !important;
+}
+
+.asset-alertDeleteLayout{
+	margin-right:20px;
+}
+
+.asset-debugSFormLayout{
+	margin-top:-50px;
+	margin-left: 30px;
+}
+
+.asset-debugCheckboxLayout{
+	float:left;
+	margin-left:-68px;
+	margin-top:12px;
+}
+
+.asset-debugComboBox{
+		float:left;
+	}
+
+.asset-debugSearch{
+	
+	padding: 0px 0px 0px 15px !important;
+
+}
+
+.user-buttonsLayout{
+	padding-right:15px !important;
+	margin-bottom: 10px !important;
+}
+
+.user-searchLayout{
+	padding-left: 15px !important;
+}
+
+.user-treeLayout{
+	padding:8px 15px 37px 15px !important;
+}
+
+.user-formLayout{
+	margin-top:15px !important;
+	margin-left: 30px !important;
+	margin-bottom:20px !important;
+}
+
+.user-activeLayout{
+	height: 15px !important;
+	margin-left: -65px !important;
+}
+
+.user-autheticationLayout{
+	float:left;
+	margin-bottom:-6px !important;
+	margin-top: 20px !important;
+	margin-left: -128px !important;
+}
+
+.user-autheticationLabel{
+	margin-left:-127px !important;
+	margin-top:20px !important;
+}
+
+.user-autheticationButton{
+	margin-left:5px !important;
+}
+
+.user-fixedIPLayout{
+	height: 15px !important;
+	margin-left: -76px !important;
+	margin-bottom:25px !important;
+	margin-top: 10px !important;
+}
+
+
+	.user-rolesComboBox{
+		float:left;margin-top:12px;
+	}
+
+.user-fixIPBox{
+	margin-left: 6px !important;
+}
+
+
+.user-activeBox{
+	margin-left: 7px !important;
+}
+
+.user-passFreqncyLayout{
+	margin-top:15px !important;
+	margin-left: -90px !important;
+}
+
+.user-passFRqncyComboBox{
+	margin-left: 5px !important;
+}
+
+.user-roles{
+	margin-top:12px !important;
+}
+
+.user-saveCancelLayout{
+	padding-right: 15px;
+}
+
+.twofactor-splitpanel{
+	text-align:center;
+	box-shadow:0 2px 3px rgba(0, 0, 0, .2);
+}
+
+.twofactor-verticalLayout{
+	background:#f2f2f2;
+	position:relative;
+ 	justify-content:center;
+	display:flex;
+}
+
+.twofactor-firstverticalLayout{
+	background:#216c2a;
+	position:relative;
+ 	justify-content:center;
+	display:flex;
+}
+
+.twofactor-firstPanel{
+	background : #fff;
+	padding: 0px 0px 0px 0px !important;
+}
+
+.twofactor-logo{
+	background-position-y: 67px;
+	background-image: url(company_logo.png);
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-color: #FFFFFF;
+}
+
+.twofactor-secondPanel{
+	background : #216c2a;
+	padding: 0px 15px 0px 15px !important;
+}
+
+.twofactor-secondPanelVertical{
+	background : #216c2a;
+	padding: 0px 0px 0px 0px !important;
+}
+
+.twofactor-welcomelabel{
+	font-size: 36px;
+	font-weight: 100;
+	color:white;
+	margin-top:20px;
+	border-bottom:1px solid white;
+}
+
+.twofactor-authlabel{
+	font-size: 22px;
+	font-weight: bold;
+	color:white;
+}
+
+.twofactor-authlabelVertical{
+	font-size: 22px;
+	font-weight: bold;
+	color:white;
+	margin-top:10px;
+}
+
+.twofactor-maillabel{
+	color:white;
+	font-weight:100;
+	font-size:14px;
+	
+}
+
+.twofactor-maillabelVertical{
+	color:white;
+	font-weight:100;
+	font-size:14px;
+	margin-top:-10px;
+}
+
+.twofactor-label{
+	border:0;
+	border-bottom: 1px solid white !important;
+	caret-color: #fff;
+	width: 214px !important;
+	color:#fff !important;
+}
+
+.twofactor-labelVertical{
+	border:0;
+	border-bottom: 1px solid white !important;
+	caret-color: #fff;
+	width: 100% !important;
+	color:#fff !important;
+}
+
+.twofactor-formLayout{
+	margin-top:37px
+}
+
+.twofactor-formLayoutVertical{
+	margin-top:-45px
+}
+
+.twofactor-buttonsLayout{
+	padding-bottom:30px
+}
+
+.twofactor-buttons{
+	font:400 14.3333px Arial;
+	font-style: normal;
+	width: 45%;
+	height: 37px;
+	border: 1px solid #666;
+	border-radius: 4px;
+	outline: none;
+	cursor: pointer;
+	color: #000;
+	text-align: center;
+	position: relative;
+	background-color: #f2f2f2;
+}
+
+
+.twofactor-buttons:focus:after {
+	box-shadow: 0 0 0 2px rgba(0, 0, 0, .5);
+	content: "";
+	position: absolute;
+	top: -2px;
+	right: -2px;
+	bottom: -2px;
+	left: -2px;
+	border-radius: inherit;
+}
+
+.twofactor-logoVertical{
+	background-position-x: center;
+	background-image: url(company_logo.png);
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-color: #FFFFFF;
+}
+
+.verfication-password-lineheight{
+	height: 32px !important;
+}
+
+.forgotpassword-labelHorizontal{
+	font-size: 22px;
+	font-weight: 500;
+	color:white;
+	margin-top:20px;
+}
+
+.forgotpassword-labelVertical{
+	font-size: 22px;
+	font-weight: 500;
+	color:white;
+	margin-top:-15px !important;
+}
+
+.forgotpassword-emaillabel{
+	border:0;
+	border-bottom: 1px solid white !important;
+	caret-color: #fff;
+	width: 100% !important;
+	color:#fff !important;
+}
+.forgotpassword-formLayoutVertical{
+	margin-top:-20px
+}
+
+.updatePassword-buttonsLayout{
+	padding-bottom:30px
+}
+
+.updatePassword-formLayout{
+	padding-bottom:-30px
+}
+
+.updatePassword-logo{
+	background-position-y: 86px;
+	background-image: url(company_logo.png);
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-color: #FFFFFF;
+}
+
+.updatepassword-formLayoutVertical{
+	margin-top:-40px
+}
+
+.apptheme .error{
+	font-weight : bolder;
+	color : red;
+}
+.apptheme .warn{
+	font-weight: bolder;
+	color : orange;
+	
+}
+.apptheme .info{
+	font-weight : bolder;
+	color : green;
+}
+.apptheme .v-window-header{
+	color: #fff !important;
+	background: #216c2a !important;
+}
+
+.apptheme .v-window-closebox, .apptheme .v-window-maximizebox, .apptheme .v-window-restorebox{
+	color: #fff !important;
+	background: #216c2a !important;
+}
+
+.apptheme .v-window-outerheader{
+	background: #216c2a !important;
+}
+
+@import '../valo/valo.scss';
+@import 'dashboardview';
+@import 'menu';
+
+@mixin apptheme {
+  @include valo;
+  @include dashboardview;
+  @include menu;
+
+  .v-errorindicator {
+    // Only show validation errors using field styles
+    display: none;
+  }
+  .Vaadin-Icons {
+    // Make Vaadin Icons behave exactly like FontAwesome
+    font-style: normal;
+    font-weight: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    display: inline-block;
+    text-align: center;
+  }
+  
+ .v-caption-inline-label{
+ 	padding: 4px 9px;
+  	display: inline-block;
+}
+
+.v-grid-tablewrapper {
+	border: 1px solid #d4d4d4;
+}
+.v-grid {
+        .v-grid-cell {
+            border: 0px;
+        }
+    }
+}
