@@ -52,13 +52,11 @@ import com.luretechnologies.tms.backend.data.entity.AppClient;
 import com.luretechnologies.tms.backend.data.entity.AppDefaultParam;
 import com.luretechnologies.tms.backend.data.entity.ApplicationFile;
 import com.luretechnologies.tms.backend.data.entity.Devices;
-import com.luretechnologies.tms.backend.data.entity.ParameterType;
+import com.luretechnologies.tms.backend.data.entity.Permission;
 import com.luretechnologies.tms.backend.data.entity.Profile;
-import com.luretechnologies.tms.backend.data.entity.ProfileType;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
-import com.luretechnologies.tms.backend.data.entity.User;
 import com.luretechnologies.tms.backend.service.ApplicationStoreService;
-import com.luretechnologies.tms.backend.service.MockUserService;
+import com.luretechnologies.tms.backend.service.RolesService;
 import com.luretechnologies.tms.ui.NotificationUtil;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
@@ -68,7 +66,6 @@ import com.vaadin.event.ShortcutListener;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.server.Page;
-import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -78,12 +75,12 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Grid.SelectionMode;
-import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.TextField;
@@ -148,6 +145,8 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 	
 	@Autowired
 	private ApplicationStoreService appStoreService;
+	@Autowired
+	private RolesService roleService;
 
 	@PostConstruct
 	private void init() throws ApiException {
@@ -211,6 +210,23 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			}
 		});
 		differentModesLoad();
+		Permission appStorePermission = roleService.getLoggedInUserRolePermissions().stream().filter(per -> per.getPageName().equals("APPSTORE")).findFirst().get();
+		try {
+			disableAllComponents();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		allowAccessBasedOnPermission(appStorePermission.getAdd(),appStorePermission.getEdit(),appStorePermission.getDelete());
+	}
+
+	private void allowAccessBasedOnPermission(Boolean add, Boolean edit, Boolean delete) {
+		HorizontalLayout appButtons = ((HorizontalLayout)((HorizontalLayout)((VerticalLayout)appStoreGridLayout.getComponent(0, 0)).getComponent(0)).getComponent(1));
+		((Button)appButtons.getComponent(0)).setEnabled(add);
+		((Button)appButtons.getComponent(1)).setEnabled(edit);
+		((Button)appButtons.getComponent(2)).setEnabled(delete);
+		saveForm.setEnabled(edit || add);
+		cancelForm.setEnabled(edit || add);
 	}
 
 	private void differentModesLoad() throws ApiException {
@@ -291,7 +307,14 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		vl.addStyleName("applicationStore-GridLayout");
 		return vl;
 	}
-
+private void disableAllComponents() throws Exception {
+	HorizontalLayout appButtons = ((HorizontalLayout)((HorizontalLayout)((VerticalLayout)appStoreGridLayout.getComponent(0, 0)).getComponent(0)).getComponent(1));
+	((Button)appButtons.getComponent(0)).setEnabled(false);
+	((Button)appButtons.getComponent(1)).setEnabled(false);
+	((Button)appButtons.getComponent(2)).setEnabled(false);
+	saveForm.setEnabled(false);
+	cancelForm.setEnabled(false);
+}
 	private VerticalLayout getApplicationListLayout() {
 		appGrid = new Grid<>(AppClient.class);
 		appGrid.setWidth("100%");
