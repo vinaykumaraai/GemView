@@ -33,6 +33,7 @@
 package com.luretechnologies.tms.ui;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -40,6 +41,9 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.luretechnologies.client.restlib.common.ApiException;
+import com.luretechnologies.common.enums.PermissionEnum;
+import com.luretechnologies.tms.backend.data.entity.Permission;
+import com.luretechnologies.tms.backend.service.RolesService;
 import com.luretechnologies.tms.ui.navigation.NavigationManager;
 import com.luretechnologies.tms.ui.view.admin.roles.RolesView;
 import com.luretechnologies.tms.ui.view.admin.user.UserAdminView;
@@ -86,10 +90,85 @@ public class MainView extends MainViewDesign implements ViewDisplay {
 		this.navigationManager = navigationManager;
 		this.viewAccessControl = viewAccessControl;
 	}
+	
+	@Autowired
+	RolesService rolesService;
 
 	@PostConstruct
-	public void init() {
-		attachNavigation(dashboard, DashboardView.class);
+	public void init() throws ApiException {
+		//TODO: Place User Role Based checks for Attaching the View(s)
+		List<Permission> loggedInUserPermissionList = rolesService.getLoggedInUserRolePermissions();
+		for(Permission permission: loggedInUserPermissionList) {
+			switch(permission.getPageName()) {
+			case "DASHBOARD":
+				if(permission.getAccess()) {
+					dashboard.setVisible(true);
+					attachNavigation(dashboard, DashboardView.class);
+				}
+				break;
+			case "APPSTORE":
+				if(permission.getAccess()) {
+				applicationstore.setVisible(true);
+				attachNavigation(applicationstore, ApplicationStoreView.class);
+				}
+				break;
+			case "PERSONALIZATION":
+				if(permission.getAccess()) {
+				personalization.setVisible(true);
+				attachNavigation(personalization, PersonalizationView.class);
+				}
+				break;
+			case "HEARTBEAT":
+				if(permission.getAccess()) {
+				heartbeat.setVisible(true);
+				attachNavigation(heartbeat, HeartbeatView.class);
+				}
+				break;
+			case "ASSET":
+				if(permission.getAccess()) {
+				assetcontrol.setVisible(true);
+				attachNavigation(assetcontrol, AssetcontrolView.class);
+				}
+				break;
+			case "ODOMETER":
+				if(permission.getAccess()) {
+				deviceodometer.setVisible(true);
+				attachNavigation(deviceodometer, DeviceodometerView.class);
+				}
+				break;
+			case "AUDIT":
+				if(permission.getAccess()) {
+				audit.setVisible(true);
+				attachNavigation(audit, AuditView.class);
+				}
+				break;
+			case "USER":
+				if(permission.getAccess()) {
+				users.setVisible(true);
+				administrationButton.setVisible(true);
+				attachNavigation(users, UserAdminView.class);
+				}
+				break;
+			case "ROLE":
+				if(permission.getAccess()) {
+				roles.setVisible(true);
+				administrationButton.setVisible(true);
+				attachNavigation(roles, RolesView.class);
+				}
+				break;
+			case "SYSTEM":
+				if(permission.getAccess()) {
+				system.setVisible(true);
+				administrationButton.setVisible(true);
+				attachNavigation(system, SystemView.class);
+				}
+				break;
+			default:
+				break;
+		}
+	}
+		
+		/*attachNavigation(dashboard, DashboardView.class);
 		attachNavigation(users, UserAdminView.class);
 		attachNavigation(roles, RolesView.class);
 		attachNavigation(applicationstore, ApplicationStoreView.class);
@@ -100,7 +179,7 @@ public class MainView extends MainViewDesign implements ViewDisplay {
 		//attachNavigation(security, SecurityView.class);
 		attachNavigation(audit, AuditView.class);
 		//attachNavigation(devices, DevicesView.class);
-		attachNavigation(system, SystemView.class);
+		attachNavigation(system, SystemView.class);*/
 		
 		menubar.setVisible(true);
 		administrationButton.addStyleName("submenuIconUp");

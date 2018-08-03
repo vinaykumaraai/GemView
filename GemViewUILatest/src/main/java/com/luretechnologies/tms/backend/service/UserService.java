@@ -51,6 +51,7 @@ import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.client.restlib.service.model.Entity;
 import com.luretechnologies.tms.app.security.BackendAuthenticationProvider;
 import com.luretechnologies.tms.backend.data.Role;
+import com.luretechnologies.tms.backend.data.entity.Permission;
 import com.luretechnologies.tms.backend.data.entity.User;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
 import com.vaadin.data.provider.Query;
@@ -236,38 +237,6 @@ public class UserService extends CrudService<User>{
 			return null;
 	}
 	
-	/*public void addUser(User user)
-	{
-		if(userDirectory.get(user.getEmail()) == null)
-		{
-			if(RestServiceUtil.getSESSION() != null) {
-			users.add(user);
-			userDirectory.put(user.getId(), user);
-			com.luretechnologies.client.restlib.service.model.User serverUser = new com.luretechnologies.client.restlib.service.model.User();
-			serverUser.setAvailable(user.isActive());
-			serverUser.setEmail(user.getEmail());
-			serverUser.setFirstName(user.getFirstname());
-			serverUser.setLastName(user.getLastname());
-			serverUser.setPassword(user.getPassword());
-			serverUser.setUsername(user.getName());
-			com.luretechnologies.client.restlib.service.model.Role serverRole = new com.luretechnologies.client.restlib.service.model.Role();
-			serverRole.setName(user.getRole());
-			//FIXME: get permission enum to create proper Role
-			//serverRole.setPermissions(Arrays.asList());
-			serverUser.setRole(serverRole);
-			try {
-				RestServiceUtil.getInstance().getClient().getUserApi().createUser(serverUser);
-			} catch (ApiException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			}
-		}
-		else
-			throw new RuntimeException("User with emailid "+user.getEmail()+"already present");
-		
-	}*/
-	
 	public void deleteUser(String emailAddress)
 	{
 		User user = userDirectory.get(emailAddress);
@@ -357,7 +326,4 @@ public class UserService extends CrudService<User>{
 		}
 		return user;		
 	}
-
-	
-
 }

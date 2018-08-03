@@ -162,7 +162,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		appStoreGridLayout.setMargin(true);
 		appStoreGridLayout.addStyleNames("applicationStore-GridLayout", "applicationStore-GridLayoutOverflow");
 		panel.setContent(appStoreGridLayout);
-
+//TODO: Put Switch case/ If else if clause for Role Permission based component SetEnable(true/false)
 		Page.getCurrent().addBrowserWindowResizeListener(r -> {
 			System.out.println("Height " + r.getHeight() + "Width:  " + r.getWidth() + " in pixel");
 			if (r.getWidth() <= 1300 && r.getWidth() >= 700) {
@@ -250,7 +250,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		appStoreGridLayout.removeAllComponents();
 		appStoreGridLayout.setColumns(1);
 		appStoreGridLayout.setRows(4);
-		appStoreGridLayout.addComponents(getAppStoreComponents());
+		appStoreGridLayout.addComponents(getAppStoreComponentsPhoneAndTabMode());
 		buttonLayout.removeAllComponents();
 		appButtonsLayout.addComponents(cancelForm, saveForm);
 		//appGridMenuLayout = new VerticalLayout()
@@ -261,6 +261,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		appStoreGridLayout.setColumns(2);
 		appStoreGridLayout.setRows(2);
 		appStoreGridLayout.addComponents(getAppStoreComponents());
+		appStoreGridLayout.getComponent(0, 1).addStyleName("applicationStore-gridLayoutHeight");
 	}
 
 	private Panel getAndLoadApplicationStorePanel() {
@@ -276,8 +277,12 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 	}
 
 	private Component[] getAppStoreComponents() throws ApiException {
-		Component[] components = { getApplicationListLayout(), getAppicationDetailsLayout(), getEmptyLayout(),
-				getApplicationDefaulParametersLayout() };
+		Component[] components = { getApplicationListLayout(), getApplicationDefaulParametersLayout(), getAppicationDetailsLayout() };
+		return components;
+	}
+	
+	private Component[] getAppStoreComponentsPhoneAndTabMode() throws ApiException {
+		Component[] components = { getApplicationListLayout(), getAppicationDetailsLayout() , getApplicationDefaulParametersLayout()};
 		return components;
 	}
 
@@ -608,7 +613,8 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		appDefaultParamGrid.addStyleName("applicationStore-horizontalAlignment");
 		appDefaultParamGrid.setColumns("parameter", "description", "type", "value");
 		appDefaultParamGrid.setWidth("100%");
-		appDefaultParamGrid.setHeightByRows(7);;
+		//appDefaultParamGrid.setHeight("100%");
+		appDefaultParamGrid.setHeightByRows(20);
 		appDefaultParamGrid.getColumn("parameter").setEditorComponent(new TextField());
 		appDefaultParamGrid.getColumn("description").setEditorComponent(new TextField());
 		appDefaultParamGrid.getColumn("type").setEditorComponent(parameterType);

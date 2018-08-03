@@ -41,12 +41,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.http.util.EntityUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.common.enums.PermissionAccessEnum;
 import com.luretechnologies.common.enums.PermissionEnum;
 import com.luretechnologies.common.enums.PermissionGroupEnum;
+import com.luretechnologies.tms.app.security.BackendAuthenticationProvider;
 import com.luretechnologies.tms.backend.data.Role;
 import com.luretechnologies.tms.backend.data.entity.Permission;
 import com.luretechnologies.tms.backend.data.entity.User;
@@ -62,16 +65,27 @@ public class RolesService {
 	private static final String DELETE ="DELETE";
 	private static final String ALL ="ALL";
 	
+	private static final String entityAllValue= "ALL_ENTITY";
+	private static final String entityReadValue= "READ_ENTITY";
+	private static final String entityCreateValue= "CREATE_ENTITY";
+	private static final String entityEditValue= "UPDATE_ENTITY";
+	private static final String entityDeleteValue= "DELETE_ENTITY";
+	
+	//private static List<PermissionEnum> entityPermission = new ArrayList<>();
+	
+	@Autowired
+	UserService userService;
+	
 	public List<Role> getRoleList(){
 		List<Role> roleClientList = new ArrayList();
-		Map<String, Permission> permissionListClient = new HashMap<>();
-		List<String> groupOccuranceList = new ArrayList<>();
-		Permission permission = new Permission();
+		//Map<String, Permission> permissionListClient = new HashMap<>();
+		//List<String> groupOccuranceList = new ArrayList<>();
+		//Permission permission = new Permission();
 		if(RestServiceUtil.getSESSION() != null) {
 			try {
 				List<com.luretechnologies.client.restlib.service.model.Role> roleList = RestServiceUtil.getInstance().getClient().getRoleApi().getRoles(null, null);
 				for (com.luretechnologies.client.restlib.service.model.Role role : roleList) {
-					List<PermissionEnum> permissions = role.getPermissions();
+					/*List<PermissionEnum> permissions = role.getPermissions();
 					permissionListClient = new HashMap<>();
 					for (PermissionEnum permissionEnum : permissions) {
 						PermissionAccessEnum permissionAccessEnum = permissionEnum.getAccess();
@@ -91,8 +105,9 @@ public class RolesService {
 						}
 					}
 					groupOccuranceList.clear();
-					List<Permission> permissionListClientSorted = sortPermissionList(permissionListClient.values());
-					Role roleClient = new Role(role.getId(),role.getDescription(),role.getName(), role.getAvailable(), permissionListClientSorted);
+					List<Permission> permissionListClientSorted = sortPermissionList(permissionListClient.values());*/
+					//Role roleClient = new Role(role.getId(),role.getDescription(),role.getName(), role.getAvailable(), permissionListClientSorted);
+					Role roleClient = getClientRole(role);
 					roleClientList.add(roleClient);
 					}
 				return roleClientList;
@@ -103,6 +118,36 @@ public class RolesService {
 			
 		}
 		return roleClientList;
+	}
+	
+	private Role getClientRole(com.luretechnologies.client.restlib.service.model.Role role) {
+		Map<String, Permission> permissionListClient = new HashMap<>();
+		List<PermissionEnum> permissions = role.getPermissions();
+		List<String> groupOccuranceList = new ArrayList<>();
+		Permission permission = new Permission();
+		permissionListClient = new HashMap<>();
+		for (PermissionEnum permissionEnum : permissions) {
+			PermissionAccessEnum permissionAccessEnum = permissionEnum.getAccess();
+			PermissionGroupEnum permissionGroupEnum = permissionEnum.getGroup();
+			if(screen.contains(permissionGroupEnum.toString())) {
+				if(!groupOccuranceList.contains(permissionGroupEnum.toString())) {
+					permission = new Permission();
+					groupOccuranceList.add(permissionGroupEnum.toString());
+					Permission permissionClient = getPermission(permissionGroupEnum, permissionAccessEnum, permission);
+					permissionListClient.put(permissionGroupEnum.toString(), permissionClient);
+				}else {
+					permission = permissionListClient.get(permissionGroupEnum.toString());
+					permissionListClient.remove(permissionGroupEnum.toString());
+					permission = getPermission(permissionGroupEnum, permissionAccessEnum, permission);
+					permissionListClient.put(permissionGroupEnum.toString(), permission);
+				}
+			}
+		}
+		groupOccuranceList.clear();
+		List<Permission> permissionListClientSorted = sortPermissionList(permissionListClient.values());
+		Role roleClient = new Role(role.getId(),role.getDescription(),role.getName(), role.getAvailable(), permissionListClientSorted);
+		return roleClient;
+		
 	}
 	
 	public List<Permission> sortPermissionList(Collection<Permission> collection){
@@ -221,6 +266,8 @@ public class RolesService {
 						
 						
 					}
+					List<PermissionEnum> entityPermission = addEntityPermissions(permissionsListServer);
+					permissionsListServer.addAll(entityPermission);
 					roleServer.setPermissions(permissionsListServer);
 					if(role.getId()==null) {
 						RestServiceUtil.getInstance().getClient().getRoleApi().createRole(roleServer);
@@ -237,6 +284,35 @@ public class RolesService {
 			
 		}
 		
+	}
+	
+	public List<PermissionEnum> addEntityPermissions(List<PermissionEnum> permissionsListServer){
+		List<PermissionEnum> entityPermission = new ArrayList<>();
+		for(PermissionEnum permissionEnum: permissionsListServer) {
+			String all=permissionEnum.toString().substring(0, 3);
+			String access=permissionEnum.toString().substring(0, 4);
+			String create=permissionEnum.toString().substring(0, 6);
+			String update=permissionEnum.toString().substring(0, 6);
+			String delete=permissionEnum.toString().substring(0, 6);
+			
+			if(!entityPermission.contains(PermissionEnum.valueOf(entityAllValue)) && all.equals("ALL")) {
+				entityPermission.add(PermissionEnum.valueOf(entityAllValue));
+				break;
+			}
+			else if(!entityPermission.contains(PermissionEnum.valueOf(entityReadValue)) && access.equals("READ")) {
+				entityPermission.add(PermissionEnum.valueOf(entityReadValue));
+			}
+			else if(!entityPermission.contains(PermissionEnum.valueOf(entityCreateValue)) && create.equals("CREATE")) {
+				entityPermission.add(PermissionEnum.valueOf(entityCreateValue));
+			}
+			else if(!entityPermission.contains(PermissionEnum.valueOf(entityEditValue)) && update.equals("UPDATE")) {
+				entityPermission.add(PermissionEnum.valueOf(entityEditValue));
+			}
+			else if(!entityPermission.contains(PermissionEnum.valueOf(entityDeleteValue)) && delete.equals("DELETE")) {
+				entityPermission.add(PermissionEnum.valueOf(entityDeleteValue));
+			}
+		}
+		return entityPermission;
 	}
 	
 	public Role deleteRole(Long id) {
@@ -307,8 +383,10 @@ public class RolesService {
 		String createValue = "CREATE_"+screenName;
 		String editValue = "UPDATE_"+screenName;
 		String deleteValue = "DELETE_"+screenName;
+		
 		if(add && access && delete && edit ) {
 			permissionsListServer.add(PermissionEnum.valueOf(allValue));
+			
 		}else if(add==true && access==true && delete==true && edit==false) {
 			permissionsListServer.add(PermissionEnum.valueOf(createValue));
 			permissionsListServer.add(PermissionEnum.valueOf(readValue));
@@ -353,5 +431,36 @@ public class RolesService {
 			permissionsListServer.add(PermissionEnum.valueOf(editValue));
 		}else if(add==false && access==false && delete==false && edit==false) {
 		}
+	}
+	
+	public Role getRoleByName(String roleName) throws ApiException {
+		Role role = new Role();
+		if(RestServiceUtil.getSESSION() != null) {
+			com.luretechnologies.client.restlib.service.model.Role roleServer = 
+					RestServiceUtil.getInstance().getClient().getRoleApi().getRolebyName(roleName);
+			role = getClientRole(roleServer);
+			
+		}
+		return role;
+		
+	}
+	
+	public List<Permission> getLoggedInUserRolePermissions() throws ApiException {
+		User user = new User();
+		List<Permission> permissionList = new ArrayList<>();
+		BackendAuthenticationProvider provider = new BackendAuthenticationProvider();
+		String username = provider.loggedInUserName();
+		if(!username.isEmpty() && username !=null) {
+			 user = userService.getUserbyUserName(username);
+			 if(user!=null) {
+				 String userRole = user.getRole();
+				 Role roleClient = getRoleByName(userRole);
+				 if(roleClient!=null) {
+					 permissionList = roleClient.getPermissions();
+				 }
+			 }	
+	}
+		return permissionList;
+
 	}
 }

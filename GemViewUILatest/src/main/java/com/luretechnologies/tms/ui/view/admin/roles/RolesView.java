@@ -311,6 +311,7 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 			if(change.getValue() && !access.getValue())
 				access.setValue(true);
 		});
+
 		CheckBox add = new CheckBox();
 		add.addStyleName("v-textfield-font");
 		add.setEnabled(isEditableOnly);
@@ -318,6 +319,7 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 			if(change.getValue() && !access.getValue())
 				access.setValue(true);
 		});
+		
 		permissionGrid.addColumn(Permission::getPageName).setCaption("");
 
 		permissionGrid.addColumn(Permission::getAccess, new CheckboxRenderer<>(Permission::setAccess))
@@ -335,6 +337,9 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 		.setCaption("Add")
 		.setEditorComponent(add, Permission::setAdd).setEditable(isEditableOnly);
 		
+		access.addListener(listener->{
+			Notification.show("Hello");
+		});
 		permissionGrid.getEditor().setEnabled(isEditableOnly);
 		permissionGrid.getEditor().setBuffered(false);
 		permissionGrid.setWidth("100%");

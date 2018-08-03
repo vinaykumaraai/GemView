@@ -49,7 +49,15 @@ public class Permission  {
 		this.create = false;
 	}
 
-
+/**
+ * 
+ * @param pageName
+ * @param access - This is to Access the view form Leftside menu bar
+ * @param edit - This means only edit.
+ * @param delete - This means only delete no edit or add
+ * @param add - This means add no edit no delete.
+ * if every thing is true.. means access, delete , edit and add are true.. enable all buttons as per page.
+ */
 	public Permission(String pageName, Boolean access, Boolean edit, Boolean delete, Boolean add) {
 		super();
 		this.pageName = pageName;
