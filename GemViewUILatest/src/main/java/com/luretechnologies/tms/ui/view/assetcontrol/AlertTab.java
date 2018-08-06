@@ -31,16 +31,12 @@
  */
 package com.luretechnologies.tms.ui.view.assetcontrol;
 
-import java.util.List;
-import java.util.Set;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.dialogs.ConfirmDialog;
 
 import com.luretechnologies.client.restlib.service.model.AlertAction;
 import com.luretechnologies.tms.backend.data.entity.Alert;
-import com.luretechnologies.tms.backend.data.entity.ExtendedNode;
-import com.luretechnologies.tms.backend.data.entity.Node;
+import com.luretechnologies.tms.backend.data.entity.Permission;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
 import com.luretechnologies.tms.backend.service.AssetControlService;
 import com.luretechnologies.tms.ui.ComponentUtil;
@@ -73,8 +69,9 @@ public class AlertTab {
 	Tree<TreeNode> nodeTree;
 	UI assetControlUI;
 	AssetControlService assetControlService;
+	Permission assetControlPermission;
 	//public AssetControlView assetView ;
-	public AlertTab(Grid<Alert> alertGrid, Tree<TreeNode> nodeTree,UI assetControlUI, AssetControlService assetControlService, Button... buttons) {
+	public AlertTab(Grid<Alert> alertGrid, Tree<TreeNode> nodeTree,UI assetControlUI, AssetControlService assetControlService,Permission assetControlpermission, Button... buttons) {
 		createAlertGridRow = buttons[0];
 		editAlertGridRow = buttons[1];
 		deleteAlertGridRow = buttons[2];
@@ -84,6 +81,7 @@ public class AlertTab {
 		this.nodeTree = nodeTree;
 		this.assetControlUI = assetControlUI;
 		this.assetControlService = assetControlService;
+		this.assetControlPermission = assetControlpermission;
 		
 	}
 	
@@ -196,6 +194,11 @@ public class AlertTab {
 			}
 		});
 		//alertLayout.setExpandRatio(alertGrid, 1);
+		cancelAlertForm.setEnabled(assetControlPermission.getAdd() || assetControlPermission.getEdit());
+		saveAlertForm.setEnabled(assetControlPermission.getAdd() || assetControlPermission.getEdit());
+		createAlertGridRow.setEnabled(assetControlPermission.getAdd() || assetControlPermission.getEdit());
+		editAlertGridRow.setEnabled(assetControlPermission.getAdd() || assetControlPermission.getEdit());
+		deleteAlertGridRow.setEnabled(assetControlPermission.getDelete());
 		return alertLayout;
 
 	}

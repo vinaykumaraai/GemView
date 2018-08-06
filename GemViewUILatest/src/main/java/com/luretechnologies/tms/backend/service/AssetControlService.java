@@ -64,7 +64,7 @@ import com.vaadin.data.TreeData;
 public class AssetControlService {
 
 	@Autowired
-	TreeDataNodeService treeDataNodeService;
+	public TreeDataNodeService treeDataNodeService;
 	
 	public TreeData<TreeNode> getTreeData() throws ApiException{
 		try {

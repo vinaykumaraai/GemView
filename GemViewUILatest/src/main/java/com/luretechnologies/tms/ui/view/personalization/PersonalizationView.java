@@ -49,13 +49,14 @@ import com.luretechnologies.client.restlib.service.model.AppParamFormat;
 import com.luretechnologies.client.restlib.service.model.EntityTypeEnum;
 import com.luretechnologies.tms.backend.data.entity.AppClient;
 import com.luretechnologies.tms.backend.data.entity.AppDefaultParam;
-import com.luretechnologies.tms.backend.data.entity.ApplicationFile;
 import com.luretechnologies.tms.backend.data.entity.Devices;
 import com.luretechnologies.tms.backend.data.entity.Node;
+import com.luretechnologies.tms.backend.data.entity.Permission;
 import com.luretechnologies.tms.backend.data.entity.Profile;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
 import com.luretechnologies.tms.backend.service.ApplicationStoreService;
 import com.luretechnologies.tms.backend.service.PersonalizationService;
+import com.luretechnologies.tms.backend.service.RolesService;
 import com.luretechnologies.tms.backend.service.TreeDataNodeService;
 import com.luretechnologies.tms.ui.NotificationUtil;
 import com.vaadin.data.provider.DataProvider;
@@ -66,7 +67,6 @@ import com.vaadin.event.ShortcutListener;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.server.Page;
-import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.shared.Position;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.spring.annotation.SpringView;
@@ -149,6 +149,9 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 	
 	@Autowired
 	private ApplicationStoreService appStoreService;
+	
+	@Autowired
+	private RolesService roleService;
 
 	@Autowired
 	public PersonalizationView() {
@@ -337,6 +340,20 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 			overRideParamSearch.setHeight(37, Unit.PIXELS);
 		}
 
+		try {
+			Permission personalizationPermission = roleService.getLoggedInUserRolePermissions().stream().filter(check -> check.getPageName().equals("PERSONALIZATION")).findFirst().get();
+			createEntity.setEnabled(personalizationPermission.getAdd());
+			copyEntity.setEnabled(personalizationPermission.getEdit());
+			editEntity.setEnabled(personalizationPermission.getEdit());
+			pasteEntity.setEnabled(personalizationPermission.getEdit());
+			deleteEntity.setEnabled(personalizationPermission.getDelete());
+			save.setEnabled(personalizationPermission.getAdd() || personalizationPermission.getEdit());
+			cancel.setEnabled(personalizationPermission.getAdd() || personalizationPermission.getEdit());
+			
+		} catch (ApiException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	private void configureTreeNodeSearch() {

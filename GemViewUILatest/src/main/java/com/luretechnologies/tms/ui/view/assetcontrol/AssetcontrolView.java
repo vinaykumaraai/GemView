@@ -29,9 +29,11 @@ import com.luretechnologies.tms.backend.data.entity.AssetHistory;
 import com.luretechnologies.tms.backend.data.entity.Debug;
 import com.luretechnologies.tms.backend.data.entity.DebugItems;
 import com.luretechnologies.tms.backend.data.entity.ExtendedNode;
+import com.luretechnologies.tms.backend.data.entity.Permission;
 import com.luretechnologies.tms.backend.data.entity.TerminalClient;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
 import com.luretechnologies.tms.backend.service.AssetControlService;
+import com.luretechnologies.tms.backend.service.RolesService;
 import com.luretechnologies.tms.ui.ComponentUtil;
 import com.luretechnologies.tms.ui.NotificationUtil;
 import com.luretechnologies.tms.ui.components.FormFieldType;
@@ -105,7 +107,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 	private static final String error = "error";
 	private static final String warn = "warn";
 	private static final String info="info";
-	
+	private static Permission assetControlPermission;
 	private static List<Debug> debugList = new ArrayList<Debug>();
 
 	@Autowired
@@ -115,10 +117,13 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 
 	
 	@Autowired
+	private RolesService roleService;
+	@Autowired
 	public AssetControlService assetControlService;
 
 	@PostConstruct
 	private void init() throws ApiException {
+		assetControlPermission = roleService.getLoggedInUserRolePermissions().stream().filter(check -> check.getPageName().equals("ASSET")).findFirst().get();
 		Page.getCurrent().addBrowserWindowResizeListener(r->{
 			System.out.println("Height "+ r.getHeight() + "Width:  " + r.getWidth()+ " in pixel");
 			if(r.getWidth()<=1575 && r.getWidth()>855) {
@@ -266,6 +271,9 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 				}
 			}
 		});
+		
+		
+		
 	}
 
 	private void clearGridData() {
@@ -398,9 +406,14 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 	private void configureTreeNodeSearch() {
 		// FIXME Not able to put Tree Search since its using a Hierarchical
 		// Dataprovider.
-		/*treeNodeSearch.addValueChangeListener(changed -> {
+		treeNodeSearch.addValueChangeListener(changed -> {
 			String valueInLower = changed.getValue().toLowerCase();
-			nodeTree.setTreeData(treeDataService.getFilteredTreeByExtendedNodeName(treeDataService.getTreeDataForDebugAndAlert(), valueInLower));
+			try {
+				nodeTree.setTreeData(assetControlService.treeDataNodeService.getFilteredTreeByNodeName(assetControlService.getTreeData(), valueInLower));
+			} catch (ApiException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		});
 		
 		treeNodeSearch.addShortcutListener(new ShortcutListener("Clear",KeyCode.ESCAPE,null) {
@@ -411,7 +424,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 					treeNodeSearch.clear();
 				}
 			}
-		});*/
+		});
 	}
 
 	private TabSheet getTabSheet() throws ApiException {
@@ -586,6 +599,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 			}
 
 		});
+		deleteHistoryGridRow.setEnabled(assetControlPermission.getDelete());
 
 		 optionsLayoutHistoryHorizontalDesktop = new HorizontalLayout();
 		optionsLayoutHistoryHorizontalDesktop.setWidth("100%");
@@ -827,7 +841,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 
 	private VerticalLayout getAlert() {
 		Button[] buttons= {createAlertGridRow,editAlertGridRow,deleteAlertGridRow,saveAlertForm,cancelAlertForm};
-		AlertTab alertTab  = new AlertTab(alertGrid, nodeTree,Page.getCurrent().getUI(), assetControlService,buttons);
+		AlertTab alertTab  = new AlertTab(alertGrid, nodeTree,Page.getCurrent().getUI(), assetControlService,assetControlPermission,buttons);
 		return alertTab.getAlert();
 	}
 
@@ -919,6 +933,8 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 				}
 			}*/
 		});
+		deleteDeviceDebugGridRow.setEnabled(assetControlPermission.getDelete());
+		saveDeviceDebug.setEnabled(assetControlPermission.getAdd() || assetControlPermission.getEdit());
 		return debugLayout;
 	}
 
