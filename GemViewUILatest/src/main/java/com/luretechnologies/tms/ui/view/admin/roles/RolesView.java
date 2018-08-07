@@ -45,6 +45,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.dialogs.ConfirmDialog;
 import org.vaadin.grid.cellrenderers.editoraware.CheckboxRenderer;
 
+import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.common.enums.PermissionEnum;
 import com.luretechnologies.tms.backend.data.Role;
 import com.luretechnologies.tms.backend.data.entity.Permission;
@@ -96,7 +97,7 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 	private CheckBox activeBox;
 	private Grid<Permission> permissionGrid;
 	private Label label;
-	
+	private static Permission rolesViewPermission;
 	@Autowired
 	public ConfirmDialogFactory confirmDialogFactory;
 	
@@ -110,6 +111,8 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 
 	@PostConstruct
 	private void init() {
+		try {
+			 rolesViewPermission = rolesService.getLoggedInUserRolePermissions().stream().filter(perm -> perm.getPageName().equals("ROLE")).findFirst().get();
 		setSpacing(true);
 		setMargin(false);
 		setResponsive(true);
@@ -136,7 +139,7 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 		dynamicVerticalLayout.setSpacing(true);
 		
 		getAndLoadPermissionGrid(dynamicVerticalLayout, false);
-		
+	
 		Button cancel = new Button("Cancel");
 		cancel.addStyleName(ValoTheme.BUTTON_FRIENDLY);
 		cancel.addStyleName("v-button-customstyle");
@@ -149,7 +152,7 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 				getAndLoadPermissionGrid(dynamicVerticalLayout, false);	
 			}
 		});
-		
+		cancel.setEnabled(rolesViewPermission.getAdd() || rolesViewPermission.getEdit());
 		HorizontalLayout layout2 = new HorizontalLayout();
 		layout2.setSizeUndefined();
 		layout2.setResponsive(true);
@@ -190,6 +193,7 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 			}
 		});
 		save.setResponsive(true);
+		save.setEnabled(rolesViewPermission.getAdd() || rolesViewPermission.getEdit());
 		layout2.addComponent(save);
 		layout2.setComponentAlignment(cancel, Alignment.MIDDLE_RIGHT);
 		layout2.setComponentAlignment(save, Alignment.MIDDLE_RIGHT);
@@ -202,6 +206,10 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 		layout.setComponentAlignment(layout2, Alignment.MIDDLE_RIGHT);
 		layout.addStyleName("grid-AuditOdometerAlignment");
 		getAndLoadRolesGrid(verticalLayout, dynamicVerticalLayout);
+		} catch (ApiException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -361,6 +369,7 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 				roleName.focus();
 			}
 		});
+		addNewRole.setEnabled(rolesViewPermission.getAdd());
 		Button editRole = new Button(VaadinIcons.EDIT);
 		editRole.addStyleName(ValoTheme.BUTTON_FRIENDLY);
 		editRole.addStyleName("v-button-customstyle");
@@ -376,6 +385,7 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 				}
 			}
 		});
+		editRole.setEnabled(rolesViewPermission.getEdit());
 		Button deleteRole = new Button(VaadinIcons.TRASH);
 		deleteRole.addStyleName(ValoTheme.BUTTON_FRIENDLY);
 		deleteRole.addStyleName("v-button-customstyle");
@@ -392,6 +402,7 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 				}
 			}
 		});
+		deleteRole.setEnabled(rolesViewPermission.getDelete());
 		HorizontalLayout buttonGroup =  new HorizontalLayout();
 		buttonGroup.addStyleName("role-createdeleteButtonLayout");
 		buttonGroup.setDefaultComponentAlignment(Alignment.MIDDLE_RIGHT);

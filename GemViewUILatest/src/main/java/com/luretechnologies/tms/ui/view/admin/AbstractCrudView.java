@@ -45,9 +45,9 @@ import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.tms.app.HasLogger;
 import com.luretechnologies.tms.backend.data.Role;
 import com.luretechnologies.tms.backend.data.entity.AbstractEntity;
+import com.luretechnologies.tms.backend.data.entity.Permission;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
 import com.luretechnologies.tms.backend.data.entity.User;
-import com.luretechnologies.tms.backend.exceptions.UserFriendlyDataException;
 import com.luretechnologies.tms.backend.service.RolesService;
 import com.luretechnologies.tms.backend.service.TreeDataNodeService;
 import com.luretechnologies.tms.backend.service.UserService;
@@ -57,13 +57,10 @@ import com.vaadin.data.HasValue;
 import com.vaadin.data.TreeData;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
-import com.vaadin.data.provider.TreeDataProvider;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.event.ShortcutListener;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
-import com.vaadin.navigator.ViewBeforeLeaveEvent;
-import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.Page;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -531,6 +528,13 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 			treeNodeSearch.setHeight(37, Unit.PIXELS);
 			getSearch().setHeight(37, Unit.PIXELS);
 		}
+		
+		Permission userScreenPermission = rolesService.getLoggedInUserRolePermissions().stream().filter(permisson -> permisson.getPageName().equals("USER")).findFirst().get();
+		getEdit().setEnabled(userScreenPermission.getEdit());
+		getAdd().setEnabled(userScreenPermission.getAdd());
+		getCancel().setEnabled(userScreenPermission.getAdd() || userScreenPermission.getEdit());
+		getDelete().setEnabled(userScreenPermission.getDelete());
+		
 	}
 
 	public void confirmDialog(Long id) {
