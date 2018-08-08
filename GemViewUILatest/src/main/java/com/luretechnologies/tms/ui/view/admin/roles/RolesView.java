@@ -298,6 +298,7 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 		permissionGrid.addStyleName(ValoTheme.TABLE_NO_VERTICAL_LINES);
 		permissionGrid.addStyleName(ValoTheme.TABLE_NO_STRIPES);
 		permissionGrid.setHeaderVisible(false);
+		permissionGrid.setId("permissionGrid");
 		
 		
 		CheckBox access = new CheckBox();
@@ -345,11 +346,13 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 		.setCaption("Add")
 		.setEditorComponent(add, Permission::setAdd).setEditable(isEditableOnly);
 		
-		access.addListener(listener->{
-			Notification.show("Hello");
-		});
 		permissionGrid.getEditor().setEnabled(isEditableOnly);
 		permissionGrid.getEditor().setBuffered(false);
+		permissionGrid.getEditor().addSaveListener(save->{
+			if(save.getBean().getAdd() || save.getBean().getEdit() || save.getBean().getDelete()) {
+				save.getBean().setAccess(true);
+			}
+		});
 		permissionGrid.setWidth("100%");
 		permissionGrid.setItems(beanList);
 		verticalLayout.addComponent(permissionGrid);
