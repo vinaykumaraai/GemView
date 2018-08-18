@@ -53,11 +53,9 @@ import com.vaadin.server.Page;
 import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.tms.app.HasLogger;
 import com.luretechnologies.tms.backend.data.entity.AbstractEntity;
-import com.luretechnologies.tms.backend.data.entity.Roles;
 import com.luretechnologies.tms.backend.data.entity.User;
 import com.luretechnologies.tms.backend.service.CrudService;
 import com.luretechnologies.tms.backend.service.UserService;
-import com.luretechnologies.tms.backend.exceptions.UserFriendlyDataException;
 import com.luretechnologies.tms.ui.components.ConfirmPopup;
 import com.luretechnologies.tms.ui.navigation.NavigationManager;
 import com.vaadin.ui.Grid;
@@ -235,7 +233,7 @@ public abstract class AbstractCrudPresenter<T extends AbstractEntity, S extends 
 		getView().editItem(isNew);
 	}
 
-	public void addNewClicked() {
+	/*public void addNewClicked() {
 		runWithConfirmation(() -> {
 			T entity = createEntity();
 			if(entity instanceof User) {
@@ -250,7 +248,7 @@ public abstract class AbstractCrudPresenter<T extends AbstractEntity, S extends 
 			editItem(entity);
 		}, () -> {
 		});
-	}
+	}*/
 
 	/**
 	 * Runs the given command if the form contains no unsaved changes or if the user
@@ -310,11 +308,11 @@ public abstract class AbstractCrudPresenter<T extends AbstractEntity, S extends 
 			 * , Type.ERROR_MESSAGE);
 			 * getLogger().debug("Optimistic locking error while saving entity of type " +
 			 * editItem.getClass().getName(), e); return; }
-			 */ catch (UserFriendlyDataException e) {
+			  catch (Exception e) {
 			Notification.show(e.getMessage(), Type.ERROR_MESSAGE);
 			getLogger().debug("Unable to update entity of type " + editItem.getClass().getName(), e);
 			return;
-		} catch (Exception e) {
+		}*/ catch (Exception e) {
 			// Something went wrong, no idea what
 			Notification.show("A problem occured while saving the data. Please check the fields.", Type.ERROR_MESSAGE);
 			getLogger().error("Unable to save entity of type " + editItem.getClass().getName(), e);

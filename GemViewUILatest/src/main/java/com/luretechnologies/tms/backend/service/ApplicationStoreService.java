@@ -53,12 +53,9 @@ import com.luretechnologies.client.restlib.service.model.EntityLevel;
 import com.luretechnologies.tms.app.security.BackendAuthenticationProvider;
 import com.luretechnologies.tms.backend.data.entity.AppClient;
 import com.luretechnologies.tms.backend.data.entity.AppDefaultParam;
-import com.luretechnologies.tms.backend.data.entity.AppProfileParamValueClient;
 import com.luretechnologies.tms.backend.data.entity.ApplicationFile;
 import com.luretechnologies.tms.backend.data.entity.Devices;
-import com.luretechnologies.tms.backend.data.entity.ParameterType;
 import com.luretechnologies.tms.backend.data.entity.Profile;
-import com.luretechnologies.tms.backend.data.entity.ProfileType;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
 import com.vaadin.data.provider.ListDataProvider;
@@ -192,7 +189,6 @@ public class ApplicationStoreService {
 
 	private List<Profile> getAppProfileList(List<AppProfile> appProfileList) {
 		List<Profile> profileList = new ArrayList<>();
-		List<AppProfileParamValueClient> appProfileParamValueClientList = new ArrayList<>();
 		if(appProfileList!=null) {
 			for (AppProfile appProfile : appProfileList) {
 				/*for(AppProfileParamValue appProfileParamValue : appProfile.getAppProfileParamValueCollection()) {
@@ -464,7 +460,9 @@ public class ApplicationStoreService {
 			List<AppParamFormat> appParamServiceList = RestServiceUtil.getInstance().getClient().getAppParamFormatApi().getAppParamFormatList();
 				for (AppParamFormat appParamFormat : appParamServiceList) {
 					String value = appParamFormat.getValue();
-					appParamTypeList.add(value);
+					if(!value.equals("file")) {
+						appParamTypeList.add(value);
+					}
 			}
 				return appParamTypeList;
 			}

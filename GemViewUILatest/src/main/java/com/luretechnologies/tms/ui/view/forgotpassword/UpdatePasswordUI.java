@@ -36,10 +36,14 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.client.restlib.service.model.UserSession;
 import com.luretechnologies.tms.app.Application;
 import com.luretechnologies.tms.app.HasLogger;
+import com.luretechnologies.tms.backend.data.entity.User;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
+import com.luretechnologies.tms.backend.service.UserService;
+import com.luretechnologies.tms.ui.MainView;
 import com.luretechnologies.tms.ui.navigation.NavigationManager;
 import com.luretechnologies.tms.ui.view.AccessDeniedView;
 import com.vaadin.annotations.Theme;
@@ -91,8 +95,12 @@ public class UpdatePasswordUI extends UI implements HasLogger, View{
 	private VerticalSplitPanel verticalPanel;
 	private ServletContext servletContext;
 	private HttpServletResponse response;
+	private MainView mainView;
 	
 
+	@Autowired
+	UserService userService;
+	
 	@Autowired
 	public UpdatePasswordUI(ServletContext servletContext, SpringViewProvider viewProvider, NavigationManager navigationManager/*, TwoFactorView twoFactorview*/) {
 		this.navigationManager = navigationManager;
@@ -104,19 +112,21 @@ public class UpdatePasswordUI extends UI implements HasLogger, View{
 	protected void init(VaadinRequest request) {
 
 		UserSession session = restUtil.getSESSION();
+		String loggedInUser = userService.getLoggedInUserName();
+		
 		Page.getCurrent().addBrowserWindowResizeListener(r->{
 			if(r.getWidth()>=1000) {
-				getHorizontalPanel(horizontalPanel, session, vl);
+				getHorizontalPanel(horizontalPanel, session, vl, loggedInUser);
 			} else if(r.getWidth()<1000) {
-				getVerticalPanel(verticalPanel, session, vl);
+				getVerticalPanel(verticalPanel, session, vl, loggedInUser);
 			}
 		});
 	
 		int width = Page.getCurrent().getBrowserWindowWidth();
 		if(width>=1000) {
-			getHorizontalPanel(horizontalPanel, session, vl);
+			getHorizontalPanel(horizontalPanel, session, vl, loggedInUser);
 		} else if(width<1000) {
-			getVerticalPanel(verticalPanel, session, vl);
+			getVerticalPanel(verticalPanel, session, vl, loggedInUser);
 		}
 		
 		setErrorHandler(event -> {
@@ -129,7 +139,7 @@ public class UpdatePasswordUI extends UI implements HasLogger, View{
 	}
 	
 	public void getHorizontalPanel(HorizontalSplitPanel panel, UserSession session,
-			VerticalLayout vl) {
+			VerticalLayout vl, String loggedInUserName) {
 	  if(session!=null) {
 		vl = new VerticalLayout();
 		vl.setSpacing(false);
@@ -168,16 +178,19 @@ public class UpdatePasswordUI extends UI implements HasLogger, View{
 		PasswordField tempPassword = new PasswordField();
 		tempPassword.setCaptionAsHtml(true);
 		tempPassword.focus();
+		tempPassword.setMaxLength(50);
 		tempPassword.setCaption("<h4 style=color:white;font-weight:bold !important;>Temporary<br>Password</h4>");
 		tempPassword.addStyleNames(ValoTheme.BUTTON_BORDERLESS, "forgotpassword-emaillabel", "verfication-password-lineheight");
 		
 		PasswordField newPassword = new PasswordField();
 		newPassword.setCaptionAsHtml(true);
+		newPassword.setMaxLength(50);
 		newPassword.setCaption("<h4 style=color:white;font-weight:bold !important;>New<br>Passowrd</h4>");
 		newPassword.addStyleNames(ValoTheme.BUTTON_BORDERLESS, "forgotpassword-emaillabel", "verfication-password-lineheight");
 		
 		PasswordField confirmPassword = new PasswordField();
 		confirmPassword.setCaptionAsHtml(true);
+		confirmPassword.setMaxLength(50);
 		confirmPassword.setCaption("<h4 style=color:white;font-weight:bold !important;>Confirm<br>Password</h4>");
 		confirmPassword.addStyleNames(ValoTheme.BUTTON_BORDERLESS, "forgotpassword-emaillabel", "verfication-password-lineheight");
 		
@@ -197,9 +210,13 @@ public class UpdatePasswordUI extends UI implements HasLogger, View{
 						&& !confirmPassword.getValue().toString().isEmpty() && confirmPassword.getValue().toString()!=null) { 
 				if(newPassword.getValue().equals(confirmPassword.getValue())) {
 					String password = confirmPassword.getValue();
-					String pattern = "(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}";
+					String pattern = "(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#!$%^&+=])(?=\\S+$).{8,}";
 					if(password.matches(pattern)) {
-						RestServiceUtil.getInstance().getClient().getAuthApi().updatePassword(session.getMaskedEmailAddress(), tempPassword.getValue(), confirmPassword.getValue());
+						try {
+							RestServiceUtil.getInstance().updatePassword(loggedInUserName, tempPassword.getValue(), confirmPassword.getValue());
+						}catch(Exception e) {
+							Notification.show("Entered Temporary Password is Wrong", Type.ERROR_MESSAGE);
+						}
 						Notification passUpdateNotify = Notification.show("Passoword is Updated", Type.ERROR_MESSAGE);
 						passUpdateNotify.setPosition(Position.TOP_CENTER);
 						passUpdateNotify.setDelayMsec(5000);
@@ -207,7 +224,13 @@ public class UpdatePasswordUI extends UI implements HasLogger, View{
 						
 							@Override
 							public void notificationClose(CloseEvent e) {
-								Page.getCurrent().setLocation(getAbsoluteUrl(Application.APP_URL+"home"));
+								Page.getCurrent().setLocation(getAbsoluteUrl(Application.LOGIN_URL));
+								/*try {
+									mainView.logout();
+								} catch (ApiException e1) {
+									// TODO Auto-generated catch block
+									e1.printStackTrace();
+								}*/
 							
 							}
 						});
@@ -259,7 +282,7 @@ public class UpdatePasswordUI extends UI implements HasLogger, View{
 	  }
 	
 	public void getVerticalPanel(VerticalSplitPanel panel, UserSession session,
-			VerticalLayout vl) {
+			VerticalLayout vl, String loggedInUserName) {
 		 if(session!=null) {
 				VerticalLayout firstvl = new VerticalLayout();
 				firstvl.addStyleName("twofactor-firstverticalLayout");
@@ -273,15 +296,12 @@ public class UpdatePasswordUI extends UI implements HasLogger, View{
 				vl.addStyleName("twofactor-verticalLayout");
 				panel = new VerticalSplitPanel();
 				VerticalLayout firstPanelLayout = new VerticalLayout();
-				//firstPanelLayout.setHeight("300px");
 				firstPanelLayout.setSizeFull();
 				VerticalLayout secondPanelLayout = new VerticalLayout();
 				firstvl.addComponent(secondPanelLayout);
 				firstvl.setComponentAlignment(secondPanelLayout, Alignment.MIDDLE_CENTER);
 				secondPanelLayout.setWidth("350px");
 				secondPanelLayout.addStyleName("twofactor-secondPanelVertical");
-				//secondPanelLayout.setSizeFull();
-				//secondPanelLayout.setHeight("395px");
 				panel.setSizeFull();
 				panel.addStyleName("twofactor-splitpanel");
 				panel.setFirstComponent(firstPanelLayout);
@@ -307,16 +327,19 @@ public class UpdatePasswordUI extends UI implements HasLogger, View{
 				PasswordField tempPassword = new PasswordField();
 				tempPassword.setCaptionAsHtml(true);
 				tempPassword.focus();
+				tempPassword.setMaxLength(50);
 				tempPassword.setCaption("<h4 style=color:white;font-weight:bold !important;>Temporary<br>Password</h4>");
 				tempPassword.addStyleNames(ValoTheme.BUTTON_BORDERLESS, "forgotpassword-emaillabel", "verfication-password-lineheight");
 				
 				PasswordField newPassword = new PasswordField();
 				newPassword.setCaptionAsHtml(true);
+				newPassword.setMaxLength(50);
 				newPassword.setCaption("<h4 style=color:white;font-weight:bold !important;>New<br>Passowrd</h4>");
 				newPassword.addStyleNames(ValoTheme.BUTTON_BORDERLESS, "forgotpassword-emaillabel", "verfication-password-lineheight");
 				
 				PasswordField confirmPassword = new PasswordField();
 				confirmPassword.setCaptionAsHtml(true);
+				confirmPassword.setMaxLength(50);
 				confirmPassword.setCaption("<h4 style=color:white;font-weight:bold !important;>Confirm<br>Password</h4>");
 				confirmPassword.addStyleNames(ValoTheme.BUTTON_BORDERLESS, "forgotpassword-emaillabel", "verfication-password-lineheight");
 				
@@ -331,27 +354,56 @@ public class UpdatePasswordUI extends UI implements HasLogger, View{
 				updatePassword.addStyleName("twofactor-buttons");
 				updatePassword.addClickListener(click -> {
 					try {
+						if(!tempPassword.getValue().toString().isEmpty() && tempPassword.getValue().toString()!=null
+								&& !newPassword.getValue().toString().isEmpty() && newPassword.getValue().toString()!=null
+								&& !confirmPassword.getValue().toString().isEmpty() && confirmPassword.getValue().toString()!=null) { 
 						if(newPassword.getValue().equals(confirmPassword.getValue())) {
-							RestServiceUtil.getInstance().getClient().getAuthApi().updatePassword(session.getMaskedEmailAddress(), tempPassword.getValue(), newPassword.getValue());
-							Notification passUpdateNotify = Notification.show("Passoword is Updated", Type.ERROR_MESSAGE);
-							passUpdateNotify.setPosition(Position.TOP_CENTER);
-							passUpdateNotify.setDelayMsec(5000);
-							passUpdateNotify.addCloseListener(new CloseListener() {
-								
-								@Override
-								public void notificationClose(CloseEvent e) {
-									Page.getCurrent().setLocation(getAbsoluteUrl(Application.APP_URL+"home"));
-									
+							String password = confirmPassword.getValue();
+							String pattern = "(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#!$%^&+=])(?=\\S+$).{8,}";
+							if(password.matches(pattern)) {
+								try {
+									RestServiceUtil.getInstance().updatePassword(loggedInUserName, tempPassword.getValue(), confirmPassword.getValue());
+								}catch(Exception e) {
+									Notification.show("Entered Temporary Password is Wrong", Type.ERROR_MESSAGE);
 								}
-							});
+								Notification passUpdateNotify = Notification.show("Passoword is Updated", Type.ERROR_MESSAGE);
+								passUpdateNotify.setPosition(Position.TOP_CENTER);
+								passUpdateNotify.setDelayMsec(5000);
+								passUpdateNotify.addCloseListener(new CloseListener() {
+								
+									@Override
+									public void notificationClose(CloseEvent e) {
+										Page.getCurrent().setLocation(getAbsoluteUrl(Application.LOGIN_URL));
+									
+									}
+								});
+							}else {
+								Notification passNotMetCreteria =Notification.show("<ul>\r\n" + 
+										"  <li>Password must contain minimum 8 characters</li>\r\n" + 
+										"  <li>Atleast a lowercase letter</li>\r\n" + 
+										"  <li>Atleast a uppercase letter</li>\r\n"+
+										"  <li>Atleast a digit</li>\r\n"+
+										"  \r\n" + 
+										"</ul>", Type.ERROR_MESSAGE);;
+								passNotMetCreteria.setHtmlContentAllowed(true);
+								passNotMetCreteria.setPosition(Position.TOP_CENTER);
+							}
 						}else {
 							Notification passNotMatch = Notification.show("New Password and Confirm Password Doesn't match", Type.ERROR_MESSAGE);
 							passNotMatch.setPosition(Position.TOP_CENTER);
 							passNotMatch.setDelayMsec(5000);
 						}
+					} else {
+						Notification emptyFields = Notification.show("Please fill all fields", Type.ERROR_MESSAGE);
+						emptyFields.setPosition(Position.TOP_CENTER);
+						emptyFields.setDelayMsec(5000);
+					}
 					} catch (Exception e) {
-						//Dont Navigate.
-						Notification.show("Entered Temp Password is wrong", Type.ERROR_MESSAGE).setPosition(Position.TOP_CENTER);
+						if(e.getMessage().equals("Failed to authenticate")) {
+							Notification passwordAuthetication = Notification.show("Given Temporary Password is wrong", Type.ERROR_MESSAGE);
+							passwordAuthetication.setPosition(Position.TOP_CENTER);
+							passwordAuthetication.setDelayMsec(3000);
+						}
 						e.printStackTrace();
 					
 					}

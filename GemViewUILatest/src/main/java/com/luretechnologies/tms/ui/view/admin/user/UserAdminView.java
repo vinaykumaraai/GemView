@@ -44,10 +44,8 @@ import com.vaadin.data.provider.TreeDataProvider;
 import com.vaadin.data.validator.BeanValidator;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.spring.annotation.SpringView;
-import com.luretechnologies.tms.backend.data.entity.Node;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
 import com.luretechnologies.tms.backend.data.entity.User;
-import com.luretechnologies.tms.backend.service.MockUserService;
 import com.luretechnologies.tms.ui.view.admin.AbstractCrudView;
 import com.luretechnologies.tms.ui.view.admin.RoleSelect;
 import com.vaadin.ui.Button;
@@ -100,9 +98,6 @@ public class UserAdminView extends AbstractCrudView<User> {
 			}
 		}
 	};
-
-	@Autowired
-	public MockUserService userService;
 
 	@Autowired
 	public UserAdminView(UserAdminPresenter presenter) {

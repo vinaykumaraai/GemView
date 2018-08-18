@@ -50,8 +50,8 @@ import com.luretechnologies.common.enums.PermissionAccessEnum;
 import com.luretechnologies.common.enums.PermissionEnum;
 import com.luretechnologies.common.enums.PermissionGroupEnum;
 import com.luretechnologies.tms.app.security.BackendAuthenticationProvider;
-import com.luretechnologies.tms.backend.data.Role;
 import com.luretechnologies.tms.backend.data.entity.Permission;
+import com.luretechnologies.tms.backend.data.entity.Role;
 import com.luretechnologies.tms.backend.data.entity.User;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
 
@@ -71,42 +71,15 @@ public class RolesService {
 	private static final String entityEditValue= "UPDATE_ENTITY";
 	private static final String entityDeleteValue= "DELETE_ENTITY";
 	
-	//private static List<PermissionEnum> entityPermission = new ArrayList<>();
-	
 	@Autowired
 	UserService userService;
 	
 	public List<Role> getRoleList(){
 		List<Role> roleClientList = new ArrayList();
-		//Map<String, Permission> permissionListClient = new HashMap<>();
-		//List<String> groupOccuranceList = new ArrayList<>();
-		//Permission permission = new Permission();
 		if(RestServiceUtil.getSESSION() != null) {
 			try {
 				List<com.luretechnologies.client.restlib.service.model.Role> roleList = RestServiceUtil.getInstance().getClient().getRoleApi().getRoles(null, null);
 				for (com.luretechnologies.client.restlib.service.model.Role role : roleList) {
-					/*List<PermissionEnum> permissions = role.getPermissions();
-					permissionListClient = new HashMap<>();
-					for (PermissionEnum permissionEnum : permissions) {
-						PermissionAccessEnum permissionAccessEnum = permissionEnum.getAccess();
-						PermissionGroupEnum permissionGroupEnum = permissionEnum.getGroup();
-						if(screen.contains(permissionGroupEnum.toString())) {
-							if(!groupOccuranceList.contains(permissionGroupEnum.toString())) {
-								permission = new Permission();
-								groupOccuranceList.add(permissionGroupEnum.toString());
-								Permission permissionClient = getPermission(permissionGroupEnum, permissionAccessEnum, permission);
-								permissionListClient.put(permissionGroupEnum.toString(), permissionClient);
-							}else {
-								permission = permissionListClient.get(permissionGroupEnum.toString());
-								permissionListClient.remove(permissionGroupEnum.toString());
-								permission = getPermission(permissionGroupEnum, permissionAccessEnum, permission);
-								permissionListClient.put(permissionGroupEnum.toString(), permission);
-							}
-						}
-					}
-					groupOccuranceList.clear();
-					List<Permission> permissionListClientSorted = sortPermissionList(permissionListClient.values());*/
-					//Role roleClient = new Role(role.getId(),role.getDescription(),role.getName(), role.getAvailable(), permissionListClientSorted);
 					Role roleClient = getClientRole(role);
 					roleClientList.add(roleClient);
 					}
@@ -148,6 +121,36 @@ public class RolesService {
 		Role roleClient = new Role(role.getId(),role.getDescription(),role.getName(), role.getAvailable(), permissionListClientSorted);
 		return roleClient;
 		
+	}
+	
+	public List<Permission> getPermissionList(List<PermissionEnum> permissionListServer){
+		Map<String, Permission> permissionListClient = new HashMap<>();
+		List<PermissionEnum> permissions = permissionListServer;
+		List<String> groupOccuranceList = new ArrayList<>();
+		Permission permission = new Permission();
+		permissionListClient = new HashMap<>();
+		if(permissions!=null && !permissions.isEmpty()) {
+		for (PermissionEnum permissionEnum : permissions) {
+			PermissionAccessEnum permissionAccessEnum = permissionEnum.getAccess();
+			PermissionGroupEnum permissionGroupEnum = permissionEnum.getGroup();
+			if(screen.contains(permissionGroupEnum.toString())) {
+				if(!groupOccuranceList.contains(permissionGroupEnum.toString())) {
+					permission = new Permission();
+					groupOccuranceList.add(permissionGroupEnum.toString());
+					Permission permissionClient = getPermission(permissionGroupEnum, permissionAccessEnum, permission);
+					permissionListClient.put(permissionGroupEnum.toString(), permissionClient);
+				}else {
+					permission = permissionListClient.get(permissionGroupEnum.toString());
+					permissionListClient.remove(permissionGroupEnum.toString());
+					permission = getPermission(permissionGroupEnum, permissionAccessEnum, permission);
+					permissionListClient.put(permissionGroupEnum.toString(), permission);
+				}
+			}
+		}
+	}
+		groupOccuranceList.clear();
+		List<Permission> permissionListClientSorted = sortPermissionList(permissionListClient.values());
+		return permissionListClientSorted;
 	}
 	
 	public List<Permission> sortPermissionList(Collection<Permission> collection){
@@ -446,20 +449,9 @@ public class RolesService {
 	}
 	
 	public List<Permission> getLoggedInUserRolePermissions() throws ApiException {
-		User user = new User();
 		List<Permission> permissionList = new ArrayList<>();
-		BackendAuthenticationProvider provider = new BackendAuthenticationProvider();
-		String username = provider.loggedInUserName();
-		if(!username.isEmpty() && username !=null) {
-			 user = userService.getUserbyUserName(username);
-			 if(user!=null) {
-				 String userRole = user.getRole();
-				 Role roleClient = getRoleByName(userRole);
-				 if(roleClient!=null) {
-					 permissionList = roleClient.getPermissions();
-				 }
-			 }	
-	}
+		List<PermissionEnum> permissionListServer = RestServiceUtil.getSESSION().getPermissions();
+		permissionList = getPermissionList(permissionListServer);
 		return permissionList;
 
 	}

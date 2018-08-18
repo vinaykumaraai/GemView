@@ -44,8 +44,6 @@ import com.luretechnologies.client.restlib.service.model.AuditUserLog;
 import com.luretechnologies.client.restlib.service.model.Entity;
 import com.luretechnologies.client.restlib.service.model.User;
 import com.luretechnologies.tms.backend.data.entity.Audit;
-import com.luretechnologies.tms.backend.data.entity.Debug;
-import com.luretechnologies.tms.backend.data.entity.Node;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
 import com.vaadin.data.TreeData;

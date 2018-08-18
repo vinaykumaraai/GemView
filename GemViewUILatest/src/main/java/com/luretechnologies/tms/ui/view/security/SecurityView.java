@@ -37,6 +37,9 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.luretechnologies.tms.ui.view.personalization.PersonalizationView;
+import com.vaadin.external.org.slf4j.Logger;
+import com.vaadin.external.org.slf4j.LoggerFactory;
 import com.vaadin.navigator.View;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Panel;
@@ -51,6 +54,7 @@ public class SecurityView extends VerticalLayout implements Serializable, View{
 	 */
 	private static final long serialVersionUID = 1635564334511078896L;
 	public static final String VIEW_NAME = "security";
+	Logger logger = LoggerFactory.getLogger(PersonalizationView.class);
 	@Autowired
 	public SecurityView() {
 		
@@ -58,6 +62,7 @@ public class SecurityView extends VerticalLayout implements Serializable, View{
 	
 	@PostConstruct
 	private void inti() {
+		try {
 		setSpacing(false);
 		setMargin(false);
 		setResponsive(true);
@@ -68,5 +73,8 @@ public class SecurityView extends VerticalLayout implements Serializable, View{
 		panel.setResponsive(true);
 		panel.setSizeFull();
         addComponent(panel);
+		}catch(Exception ex){
+			logger.info(ex.getMessage());
+		}
 	}
 }

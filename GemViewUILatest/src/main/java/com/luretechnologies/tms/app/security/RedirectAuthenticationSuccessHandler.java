@@ -73,9 +73,25 @@ public class RedirectAuthenticationSuccessHandler implements AuthenticationSucce
 	private MainView mainView;
 
 	public RedirectAuthenticationSuccessHandler() {
+	  
+	}
+
+	private String getAbsoluteUrl(String url) {
+		final String relativeUrl;
+		if (url.startsWith("/")) {
+			relativeUrl = url.substring(1);
+		} else {
+			relativeUrl = url;
+		}
+		return servletContext.getContextPath() + "/" + relativeUrl;
+	}
+
+	@Override
+	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+			Authentication authentication) throws IOException, ServletException {
 		UserSession session = RestServiceUtil.getSESSION();
 		if(session!=null) {
-
+			
 			if(!(session.isPerformTwoFactor() || session.isRequirePasswordUpdate())) {
 				  location = Application.APP_URL+"home";
 			}
@@ -108,23 +124,8 @@ public class RedirectAuthenticationSuccessHandler implements AuthenticationSucce
 				  break;
 			  }
 		  }
-		  
-	}
-
-	private String getAbsoluteUrl(String url) {
-		final String relativeUrl;
-		if (url.startsWith("/")) {
-			relativeUrl = url.substring(1);
-		} else {
-			relativeUrl = url;
-		}
-		return servletContext.getContextPath() + "/" + relativeUrl;
-	}
-
-	@Override
-	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-			Authentication authentication) throws IOException, ServletException {
 		response.sendRedirect(getAbsoluteUrl(location));
+		authList.clear();
 
 	}
 

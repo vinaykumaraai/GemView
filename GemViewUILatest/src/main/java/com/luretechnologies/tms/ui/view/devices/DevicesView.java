@@ -43,10 +43,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.dialogs.ConfirmDialog;
 
 import com.luretechnologies.tms.backend.data.entity.Devices;
-import com.luretechnologies.tms.backend.data.entity.Roles;
 import com.luretechnologies.tms.backend.data.entity.Systems;
-import com.luretechnologies.tms.ui.NotificationUtil;
 import com.luretechnologies.tms.ui.components.ConfirmDialogFactory;
+import com.luretechnologies.tms.ui.components.NotificationUtil;
+import com.luretechnologies.tms.ui.view.personalization.PersonalizationView;
+import com.vaadin.external.org.slf4j.Logger;
+import com.vaadin.external.org.slf4j.LoggerFactory;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.shared.ui.ContentMode;
@@ -88,6 +90,7 @@ public class DevicesView extends VerticalLayout implements Serializable, View{
 	private Label activeLabel;
 	private Label rkiLabel;
 	private Label osLabel;
+	Logger logger = LoggerFactory.getLogger(DevicesView.class);
 	
 	@Autowired
 	public ConfirmDialogFactory confirmDialogFactory;
@@ -153,6 +156,7 @@ public class DevicesView extends VerticalLayout implements Serializable, View{
 	
 	@PostConstruct
 	private void inti() {
+		try {
 		setHeight("100%");
 		setSpacing(false);
 		setMargin(false);
@@ -252,6 +256,9 @@ public class DevicesView extends VerticalLayout implements Serializable, View{
 		
 		getDevicesGrid(verticalLayout, deviceInfoLayout);
 		panel.setContent(verticalLayout);
+		}catch(Exception ex) {
+			logger.info(ex.getMessage());
+		}
 	}
 	
 	public Panel getAndLoadDevicePanel() {

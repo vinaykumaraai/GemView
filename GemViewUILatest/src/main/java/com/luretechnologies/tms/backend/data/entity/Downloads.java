@@ -32,52 +32,86 @@
 
 package com.luretechnologies.tms.backend.data.entity;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+public class Downloads {
 
-import com.luretechnologies.client.restlib.service.model.AppProfileParamValue;
-
-public class Profile extends AbstractEntity {
-
-	private String name;
-	private boolean active;
-	private List<AppProfileParamValue> appprofileparamvalueCollection;
-
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
-	}
-	public List<AppProfileParamValue> getAppprofileparamvalueCollection() {
-		return appprofileparamvalueCollection;
-	}
-	public void setAppprofileparamvalueCollection(List<AppProfileParamValue> appprofileparamvalueCollection) {
-		this.appprofileparamvalueCollection = appprofileparamvalueCollection;
-	}
+	private String serialNumber;
 	
+	private String organizationName;
+	
+	private String OS;
+	
+	private String incomingIP;
+	
+	private String device;
+	
+	private String completion;
+	
+	
+	
+	public Downloads(String serialNumber, String organizationName, String oS, String incomingIP, String device,
+			String completion) {
+		super();
+		this.serialNumber = serialNumber;
+		this.organizationName = organizationName;
+		this.OS = oS;
+		this.incomingIP = incomingIP;
+		this.device = device;
+		this.completion = completion;
+	}
 
-	public Profile(String name) {
-		super(false);
-		Objects.requireNonNull(name);
-		this.name = name;
+	public String getSerialNumber() {
+		return serialNumber;
 	}
-	public Profile(Long id, String name, List<AppProfileParamValue> appprofileparamvalueCollection) {
-		Objects.requireNonNull(id);
-		Objects.requireNonNull(name);
-		this.name = name;
-		this.setId(id);
+
+	public void setSerialNumber(String serialNumber) {
+		this.serialNumber = serialNumber;
 	}
-	public boolean isActive() {
-		return active;
+
+	public String getOrganizationName() {
+		return organizationName;
 	}
-	public void setActive(boolean active) {
-		this.active = active;
+
+	public void setOrganizationName(String organizationName) {
+		this.organizationName = organizationName;
 	}
+
+	public String getOS() {
+		return OS;
+	}
+
+	public void setOS(String oS) {
+		OS = oS;
+	}
+
+	public String getIncomingIP() {
+		return incomingIP;
+	}
+
+	public void setIncomingIP(String incomingIP) {
+		this.incomingIP = incomingIP;
+	}
+
+	public String getDevice() {
+		return device;
+	}
+
+	public void setDevice(String device) {
+		this.device = device;
+	}
+
+	public String getCompletion() {
+		return completion;
+	}
+
+	public void setCompletion(String completion) {
+		this.completion = completion;
+	}
+
 	@Override
 	public String toString() {
-		return name.toString();
-	}	
-
+		return "Downloads [serialNumber=" + serialNumber + ", organizationName=" + organizationName + ", OS=" + OS
+				+ ", incomingIP=" + incomingIP + ", device=" + device + ", completion=" + completion + "]";
+	}
+	
+	
 }

@@ -1,22 +1,15 @@
 package com.luretechnologies.tms.ui.view.assetcontrol;
 
 import java.io.Serializable;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
-import java.util.Set;
-import java.util.Vector;
 
 import javax.annotation.PostConstruct;
-import javax.swing.DebugGraphics;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.dialogs.ConfirmDialog;
@@ -26,20 +19,24 @@ import com.luretechnologies.client.restlib.service.model.DebugItem;
 import com.luretechnologies.client.restlib.service.model.HeartbeatAudit;
 import com.luretechnologies.tms.backend.data.entity.Alert;
 import com.luretechnologies.tms.backend.data.entity.AssetHistory;
-import com.luretechnologies.tms.backend.data.entity.Debug;
 import com.luretechnologies.tms.backend.data.entity.DebugItems;
-import com.luretechnologies.tms.backend.data.entity.ExtendedNode;
 import com.luretechnologies.tms.backend.data.entity.Permission;
 import com.luretechnologies.tms.backend.data.entity.TerminalClient;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
 import com.luretechnologies.tms.backend.service.AssetControlService;
 import com.luretechnologies.tms.backend.service.RolesService;
-import com.luretechnologies.tms.ui.ComponentUtil;
-import com.luretechnologies.tms.ui.NotificationUtil;
+import com.luretechnologies.tms.backend.service.TreeDataNodeService;
+import com.luretechnologies.tms.backend.service.UserService;
+import com.luretechnologies.tms.ui.MainView;
+import com.luretechnologies.tms.ui.components.ComponentUtil;
 import com.luretechnologies.tms.ui.components.FormFieldType;
+import com.luretechnologies.tms.ui.components.NotificationUtil;
+import com.luretechnologies.tms.ui.view.admin.AbstractCrudView;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.event.ShortcutAction.KeyCode;
+import com.vaadin.external.org.slf4j.Logger;
+import com.vaadin.external.org.slf4j.LoggerFactory;
 import com.vaadin.event.ShortcutListener;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
@@ -67,10 +64,7 @@ import com.vaadin.ui.themes.ValoTheme;
 
 @SpringView(name = AssetcontrolView.VIEW_NAME)
 public class AssetcontrolView extends VerticalLayout implements Serializable, View {
-
-	/**
-	 * 
-	 */
+	
 	private static final long serialVersionUID = 3410929503924583215L;
 	public static final String VIEW_NAME = "assetcontrolview";
 	private static final String DATE_FORMAT = "MM/dd/yyyy";
@@ -108,8 +102,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 	private static final String warn = "warn";
 	private static final String info="info";
 	private static Permission assetControlPermission;
-	private static List<Debug> debugList = new ArrayList<Debug>();
-
+	Logger logger = LoggerFactory.getLogger(AssetcontrolView.class);
 	@Autowired
 	public AssetcontrolView() {
 
@@ -117,15 +110,26 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 
 	
 	@Autowired
-	private RolesService roleService;
+	RolesService roleService;
+	
 	@Autowired
-	public AssetControlService assetControlService;
+	AssetControlService assetControlService;
+	
+	@Autowired
+	MainView mainView;
+	
+	@Autowired
+	UserService userService;
+	
+	@Autowired
+	public TreeDataNodeService treeDataNodeService;
+	
 
 	@PostConstruct
-	private void init() throws ApiException {
+	private void init() {
+		try {
 		assetControlPermission = roleService.getLoggedInUserRolePermissions().stream().filter(check -> check.getPageName().equals("ASSET")).findFirst().get();
 		Page.getCurrent().addBrowserWindowResizeListener(r->{
-			System.out.println("Height "+ r.getHeight() + "Width:  " + r.getWidth()+ " in pixel");
 			if(r.getWidth()<=1575 && r.getWidth()>855) {
 				tabMode();
 				splitScreen.setSplitPosition(30);
@@ -146,6 +150,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 				deviceDebugStartDateField.setHeight("28px");
 				deviceDebugEndDateField.setHeight("28px");
 				deviceDebugDuration.setHeight("28px");
+				mainView.getTitle().setValue(userService.getLoggedInUserName());
 			} else if(r.getWidth()>600 && r.getWidth()<=1000){
 				treeNodeSearch.setHeight(32, Unit.PIXELS);
 				historySearch.setHeight("32px");
@@ -155,6 +160,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 				deviceDebugStartDateField.setHeight("32px");
 				deviceDebugEndDateField.setHeight("32px");
 				deviceDebugDuration.setHeight("32px");
+				mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
 			}else {
 				treeNodeSearch.setHeight(37, Unit.PIXELS);
 				historySearch.setHeight("37px");
@@ -164,6 +170,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 				deviceDebugStartDateField.setHeight("37px");
 				deviceDebugEndDateField.setHeight("37px");
 				deviceDebugDuration.setHeight("37px");
+				mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
 			}
 		});
 		
@@ -238,6 +245,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 			debugEndDateField.setHeight("28px");
 			deviceDebugStartDateField.setHeight("28px");
 			deviceDebugEndDateField.setHeight("28px");
+			mainView.getTitle().setValue(userService.getLoggedInUserName());
 		} else if(width>600 && width<=1000){
 			treeNodeSearch.setHeight(32, Unit.PIXELS);
 			historySearch.setHeight("32px");
@@ -246,6 +254,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 			debugEndDateField.setHeight("32px");
 			deviceDebugStartDateField.setHeight("32px");
 			deviceDebugEndDateField.setHeight("32px");
+			mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
 		}else {
 			treeNodeSearch.setHeight(37, Unit.PIXELS);
 			historySearch.setHeight("37px");
@@ -254,11 +263,8 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 			debugEndDateField.setHeight("37px");
 			deviceDebugStartDateField.setHeight("37px");
 			deviceDebugEndDateField.setHeight("37px");
+			mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
 		}
-		
-//		if(height<=580) {
-//			historyLayoutFull.addStyleName("asset-historyDebugLayout");
-//		}
 		
 		assetTabSheet.addSelectedTabChangeListener(new SelectedTabChangeListener() {
 			@Override
@@ -272,8 +278,9 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 			}
 		});
 		
-		
-		
+		}catch(Exception ex) {
+			logger.info(ex.getMessage());
+		}
 	}
 
 	private void clearGridData() {
@@ -409,9 +416,12 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		treeNodeSearch.addValueChangeListener(changed -> {
 			String valueInLower = changed.getValue().toLowerCase();
 			try {
-				nodeTree.setTreeData(assetControlService.treeDataNodeService.getFilteredTreeByNodeName(assetControlService.getTreeData(), valueInLower));
+				if(!valueInLower.isEmpty() && valueInLower!=null) {
+					nodeTree.setTreeData(treeDataNodeService.searchTreeData(valueInLower));
+				}else {
+					nodeTree.setTreeData(treeDataNodeService.getTreeData());
+				}
 			} catch (ApiException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		});

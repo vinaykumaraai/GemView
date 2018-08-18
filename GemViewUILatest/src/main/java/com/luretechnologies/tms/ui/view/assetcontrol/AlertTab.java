@@ -39,9 +39,9 @@ import com.luretechnologies.tms.backend.data.entity.Alert;
 import com.luretechnologies.tms.backend.data.entity.Permission;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
 import com.luretechnologies.tms.backend.service.AssetControlService;
-import com.luretechnologies.tms.ui.ComponentUtil;
-import com.luretechnologies.tms.ui.NotificationUtil;
+import com.luretechnologies.tms.ui.components.ComponentUtil;
 import com.luretechnologies.tms.ui.components.FormFieldType;
+import com.luretechnologies.tms.ui.components.NotificationUtil;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.icons.VaadinIcons;
@@ -70,7 +70,6 @@ public class AlertTab {
 	UI assetControlUI;
 	AssetControlService assetControlService;
 	Permission assetControlPermission;
-	//public AssetControlView assetView ;
 	public AlertTab(Grid<Alert> alertGrid, Tree<TreeNode> nodeTree,UI assetControlUI, AssetControlService assetControlService,Permission assetControlpermission, Button... buttons) {
 		createAlertGridRow = buttons[0];
 		editAlertGridRow = buttons[1];
@@ -84,9 +83,6 @@ public class AlertTab {
 		this.assetControlPermission = assetControlpermission;
 		
 	}
-	
-//	@Autowired
-//	public TreeDataService treeDataService;
 
 	@Autowired
 	public AssetcontrolView assetView ;
@@ -95,7 +91,6 @@ public class AlertTab {
 		
 		VerticalLayout alertLayout = new VerticalLayout();
 		alertLayout.setWidth("100%");
-		//alertLayout.addStyleName(ValoTheme.LAYOUT_CARD);
 		alertLayout.addStyleName("audit-DeviceVerticalAlignment");
 		VerticalLayout alertVerticalButtonLayout = new VerticalLayout();
 		HorizontalLayout alertCommandLabel = new HorizontalLayout();
@@ -128,15 +123,6 @@ public class AlertTab {
 	
 		
 		alertLayout.addComponent(alertSaveCancleAndLabelLayout);
-		
-//		HorizontalLayout activeBoxLayout = new HorizontalLayout();
-//		//activeBoxLayout.addStyleName("heartbeat-activeLayout");
-//		Label active = new Label("Active");
-//		active.setStyleName("role-activeLable");
-//		active.addStyleNames("v-textfield-font");
-//		active.addStyleName("heartbeat-checkbox");
-//		CheckBox activeCheckBox = new CheckBox();
-//		activeBoxLayout.addComponents(active, activeCheckBox);
 		Component[] alertFormComponentArray = {
 				ComponentUtil.getFormFieldWithLabel("Alert Type", FormFieldType.TEXTBOX),
 				ComponentUtil.getFormFieldWithLabel("Name", FormFieldType.TEXTBOX),
@@ -148,10 +134,12 @@ public class AlertTab {
 		alertFormLayout.addStyleName("system-LabelAlignment");
 		formLayout.addComponent(alertFormLayout);
 		alertLayout.addComponent(formLayout);
+		
 		// Add,Delete,Edit Button Layout
 		alertVerticalButtonLayout.addComponent(getAlertGridButtonLayout(alertFormComponentArray));
 		alertLayout.addComponent(alertVerticalButtonLayout);
 		alertLayout.setComponentAlignment(alertLayout.getComponent(1), Alignment.TOP_RIGHT);
+		
 		// Alert Grid
 		alertLayout.addComponent(getAlertGrid());
 		alertGrid.addItemClickListener(item -> {
@@ -168,8 +156,8 @@ public class AlertTab {
 		});
 		alertGrid.addSelectionListener(selection -> {
 			if (selection.getFirstSelectedItem().isPresent()) {
-				editAlertGridRow.setEnabled(true);
-				deleteAlertGridRow.setEnabled(true);
+				editAlertGridRow.setEnabled(assetControlPermission.getEdit());
+				deleteAlertGridRow.setEnabled(assetControlPermission.getDelete());
 				cancelAlertForm.setEnabled(true);
 				saveAlertForm.setEnabled(true);
 			} else {
@@ -186,18 +174,17 @@ public class AlertTab {
 						checkbox.clear();
 					}
 				}
-				createAlertGridRow.setEnabled(true);
-				editAlertGridRow.setEnabled(true);
-				deleteAlertGridRow.setEnabled(true);
+				createAlertGridRow.setEnabled(assetControlPermission.getAdd());
+				editAlertGridRow.setEnabled(assetControlPermission.getEdit());
+				deleteAlertGridRow.setEnabled(assetControlPermission.getDelete());
 				cancelAlertForm.setEnabled(true);
 				saveAlertForm.setEnabled(true);
 			}
 		});
-		//alertLayout.setExpandRatio(alertGrid, 1);
 		cancelAlertForm.setEnabled(assetControlPermission.getAdd() || assetControlPermission.getEdit());
 		saveAlertForm.setEnabled(assetControlPermission.getAdd() || assetControlPermission.getEdit());
-		createAlertGridRow.setEnabled(assetControlPermission.getAdd() || assetControlPermission.getEdit());
-		editAlertGridRow.setEnabled(assetControlPermission.getAdd() || assetControlPermission.getEdit());
+		createAlertGridRow.setEnabled(assetControlPermission.getAdd());
+		editAlertGridRow.setEnabled(assetControlPermission.getEdit());
 		deleteAlertGridRow.setEnabled(assetControlPermission.getDelete());
 		return alertLayout;
 
@@ -209,7 +196,6 @@ public class AlertTab {
 	}
 	
 	private Grid<Alert> getAlertGrid() {
-		//alertGrid = new Grid<>(Alert.class);
 		alertGrid.setWidth("100%");
 		alertGrid.setHeight("100%");
 		alertGrid.addStyleName("grid-AuditOdometerAlignment");
@@ -261,9 +247,9 @@ public class AlertTab {
 						type.focus();
 				}
 
-				deleteAlertGridRow.setEnabled(true);
-				editAlertGridRow.setEnabled(true);
-				createAlertGridRow.setEnabled(true);
+				deleteAlertGridRow.setEnabled(assetControlPermission.getDelete());
+				editAlertGridRow.setEnabled(assetControlPermission.getEdit());
+				createAlertGridRow.setEnabled(assetControlPermission.getAdd());
 			}
 			}
 
@@ -324,8 +310,8 @@ public class AlertTab {
 			alert.setAvailable(checkbox.getValue());
 			alert.setEmail(((TextField) componentArray[4]).getValue());
 			cancelAlertForm.setEnabled(true);
-			editAlertGridRow.setEnabled(true);
-			deleteAlertGridRow.setEnabled(true);
+			editAlertGridRow.setEnabled(assetControlPermission.getEdit());
+			deleteAlertGridRow.setEnabled(assetControlPermission.getDelete());
 			saveAlertForm.setEnabled(true);
 			
 			Alert gridAlert = new Alert();
@@ -341,9 +327,6 @@ public class AlertTab {
 			
 			loadAlertGrid(nodeTree.getSelectedItems().iterator().next().getEntityId());
 			alertGrid.select(gridAlert);
-	
-			/*alertGrid.getDataProvider().refreshAll();
-			alertGrid.deselectAll();*/
 			}
 			}
 		});
@@ -368,8 +351,8 @@ public class AlertTab {
 				alertGrid.deselectAll();
 			}
 			cancelAlertForm.setEnabled(true);
-			editAlertGridRow.setEnabled(true);
-			deleteAlertGridRow.setEnabled(true);
+			editAlertGridRow.setEnabled(assetControlPermission.getEdit());
+			deleteAlertGridRow.setEnabled(assetControlPermission.getDelete());
 			saveAlertForm.setEnabled(true);
 			}
 		});

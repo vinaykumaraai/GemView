@@ -32,25 +32,15 @@
 
 package com.luretechnologies.tms.app;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.vaadin.spring.access.SecuredViewAccessControl;
 
 @Configuration
-@PropertySource("classpath:application.properties")
 public class ApplicationConfiguration {
-	@Value("${upload.file.location}")
-	private String fileLocation;
-	
-	public String getFileLocation() {
-		return fileLocation;
-	}
-
 	/**
 	 * The password encoder to use when encrypting passwords.
 	 */

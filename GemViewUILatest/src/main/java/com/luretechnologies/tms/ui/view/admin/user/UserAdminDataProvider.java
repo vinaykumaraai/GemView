@@ -44,7 +44,6 @@ import com.vaadin.data.provider.AbstractBackEndDataProvider;
 import com.vaadin.data.provider.Query;
 import com.vaadin.spring.annotation.SpringComponent;
 import com.luretechnologies.tms.backend.data.entity.User;
-import com.luretechnologies.tms.backend.service.MockUserService;
 import com.luretechnologies.tms.backend.service.UserService;
 
 @SpringComponent

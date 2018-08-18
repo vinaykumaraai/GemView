@@ -32,39 +32,41 @@
 package com.luretechnologies.tms.ui.view.system;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import javax.annotation.PostConstruct;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.dialogs.ConfirmDialog;
 
 import com.luretechnologies.client.restlib.common.ApiException;
-import com.luretechnologies.client.restlib.service.model.SystemParam;
-import com.luretechnologies.tms.backend.data.entity.Devices;
+import com.luretechnologies.tms.backend.data.entity.Permission;
 import com.luretechnologies.tms.backend.data.entity.Systems;
+import com.luretechnologies.tms.backend.service.RolesService;
 import com.luretechnologies.tms.backend.service.SystemService;
-import com.luretechnologies.tms.ui.ComponentUtil;
-import com.luretechnologies.tms.ui.NotificationUtil;
+import com.luretechnologies.tms.backend.service.UserService;
+import com.luretechnologies.tms.ui.MainView;
+import com.luretechnologies.tms.ui.components.ComponentUtil;
 import com.luretechnologies.tms.ui.components.ConfirmDialogFactory;
 import com.luretechnologies.tms.ui.components.FormFieldType;
+import com.luretechnologies.tms.ui.components.NotificationUtil;
+import com.luretechnologies.tms.ui.view.deviceodometer.DeviceodometerView;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
+import com.vaadin.external.org.slf4j.Logger;
+import com.vaadin.external.org.slf4j.LoggerFactory;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
+import com.vaadin.server.Page;
+import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.HorizontalLayout;
@@ -75,7 +77,6 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.Component.Focusable;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -95,6 +96,12 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 	private TextField parameterName;
 	private TextField systemValue;
 	private ComboBox<String> comboBoxType;
+	private Button save;
+	private Button cancel;
+	private Button delete;
+	private Button edit;
+	private Button create;
+	Logger logger = LoggerFactory.getLogger(SystemView.class);
 	
 	@Autowired
 	public ConfirmDialogFactory confirmDialogFactory;
@@ -102,14 +109,23 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 	@Autowired
 	public SystemService systemService;
 	
+	@Autowired
+	private RolesService roleService;
 	
+	@Autowired
+	MainView mainView;
+	
+	@Autowired
+	UserService userService;
+
 	@Autowired
 	public SystemView() {
 		selectedSystem = new Systems();
 	}
 	
 	@PostConstruct
-	private void inti() throws ApiException {
+	private void inti() {
+		try {
 		setHeight("100%");
 		setSpacing(false);
 		setMargin(false);
@@ -142,7 +158,7 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		
 		getAndLoadSystemForm(systemInfoLayout, false);
 		
-		Button cancel = new Button("Cancel");
+		cancel = new Button("Cancel");
 		cancel.addStyleName(ValoTheme.BUTTON_FRIENDLY);
 		cancel.addStyleName("v-button-customstyle");
 		cancel.setResponsive(true);
@@ -157,7 +173,7 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		});
 		layout2.addComponent(cancel);
 		
-		Button save = new Button("Save");
+		save = new Button("Save");
 		save.addStyleName(ValoTheme.BUTTON_FRIENDLY);
 		save.addStyleName("v-button-customstyle");
 		save.setResponsive(true);
@@ -172,7 +188,6 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 				String parametername = parameterName.getValue();
 				String type = comboBoxType.getValue();
 				String value = systemValue.getValue();
-				//systemDescription.addv
 				if(description.isEmpty() || description== null|| parametername.isEmpty() || parametername== null 
 						|| type.isEmpty() || type== null || value.isEmpty() || value== null) {
 					Notification.show(NotificationUtil.SAVE, Notification.Type.ERROR_MESSAGE);
@@ -200,7 +215,7 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 								clearParamComponents();
 								getAndLoadSystemForm(systemInfoLayout, false);
 							} else {
-								Notification.show("Parameter Name already exists. Please create another", Type.ERROR_MESSAGE);
+								Notification.show(NotificationUtil.SYSTEM_PARAM_EXIST, Type.ERROR_MESSAGE);
 								parameterName.focus();
 							}
 						}
@@ -223,6 +238,56 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		horizontalLayout.setComponentAlignment(layout2, Alignment.MIDDLE_RIGHT);
 		
 		getSystemGrid(verticalLayout, systemInfoLayout);
+		
+		Permission appStorePermission = roleService.getLoggedInUserRolePermissions().stream().filter(per -> per.getPageName().equals("SYSTEM")).findFirst().get();
+		try {
+			disableAllComponents();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		allowAccessBasedOnPermission(appStorePermission.getAdd(),appStorePermission.getEdit(),appStorePermission.getDelete());
+		
+		Page.getCurrent().addBrowserWindowResizeListener(r -> {
+			System.out.println("Height " + r.getHeight() + "Width:  " + r.getWidth() + " in pixel");
+			
+			if(r.getWidth()<=600) {
+				mainView.getTitle().setValue(userService.getLoggedInUserName());
+			} else if(r.getWidth()>600 && r.getWidth()<=1000){
+				mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
+			}else {
+				mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
+			}
+		});
+		
+		int width = Page.getCurrent().getBrowserWindowWidth();
+		if(width<=600) {
+			mainView.getTitle().setValue(userService.getLoggedInUserName());
+		} else if(width>600 && width<=1000){
+			mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
+		}else {
+			mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
+		}
+		
+		}catch(Exception ex) {
+			logger.info(ex.getMessage());
+		}
+	}
+	
+	private void disableAllComponents() throws Exception {
+		create.setEnabled(false);
+		edit.setEnabled(false);
+		delete.setEnabled(false);
+		save.setEnabled(false);
+		cancel.setEnabled(false);
+	}
+	
+	private void allowAccessBasedOnPermission(Boolean addBoolean, Boolean editBoolean, Boolean deleteBoolean) {
+		create.setEnabled(addBoolean);
+		edit.setEnabled(editBoolean);
+		delete.setEnabled(deleteBoolean);
+		save.setEnabled(editBoolean || addBoolean);
+		cancel.setEnabled(editBoolean || addBoolean);
 	}
 	
 	public Panel getAndLoadSystemPanel() {
@@ -348,10 +413,10 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 	}
 	
 	private void getSystemGrid(VerticalLayout verticalLayout, VerticalLayout systemInfoLayout) throws ApiException {
-		Button addNewDevice = new Button(VaadinIcons.FOLDER_ADD);
-		addNewDevice.addStyleName(ValoTheme.BUTTON_FRIENDLY);
-		addNewDevice.addStyleName("v-button-customstyle");
-		addNewDevice.addClickListener(new ClickListener() {
+		create = new Button(VaadinIcons.FOLDER_ADD);
+		create.addStyleName(ValoTheme.BUTTON_FRIENDLY);
+		create.addStyleName("v-button-customstyle");
+		create.addClickListener(new ClickListener() {
 			public void buttonClick(ClickEvent event) {
 				systemGrid.deselectAll();
 				systemInfoLayout.removeAllComponents();
@@ -361,10 +426,10 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 			}
 		});
 		
-		Button editDevice = new Button(VaadinIcons.EDIT);
-		editDevice.addStyleName(ValoTheme.BUTTON_FRIENDLY);
-		editDevice.addStyleName("v-button-customstyle");
-		editDevice.addClickListener(new ClickListener() {
+		edit = new Button(VaadinIcons.EDIT);
+		edit.addStyleName(ValoTheme.BUTTON_FRIENDLY);
+		edit.addStyleName("v-button-customstyle");
+		edit.addClickListener(new ClickListener() {
 			public void buttonClick(ClickEvent event) {
 				//parameterName.focus();
 				if(systemDescription.getValue()==null || systemDescription.getValue().isEmpty() || 
@@ -380,10 +445,10 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 			}
 		});
 		
-		Button deleteDevice = new Button(VaadinIcons.TRASH);
-		deleteDevice.addStyleName(ValoTheme.BUTTON_FRIENDLY);
-		deleteDevice.addStyleName("v-button-customstyle");
-		deleteDevice.addClickListener(new ClickListener() {
+		delete = new Button(VaadinIcons.TRASH);
+		delete.addStyleName(ValoTheme.BUTTON_FRIENDLY);
+		delete.addStyleName("v-button-customstyle");
+		delete.addClickListener(new ClickListener() {
 			
 			@Override
 			public void buttonClick(ClickEvent event) {
@@ -402,9 +467,9 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		HorizontalLayout buttonGroup =  new HorizontalLayout();
 		buttonGroup.addStyleName("system-ButtonLayout");
 		buttonGroup.setDefaultComponentAlignment(Alignment.MIDDLE_RIGHT);
-		buttonGroup.addComponent(addNewDevice);
-		buttonGroup.addComponent(editDevice);
-		buttonGroup.addComponent(deleteDevice);
+		buttonGroup.addComponent(create);
+		buttonGroup.addComponent(edit);
+		buttonGroup.addComponent(delete);
 		
 		systemGrid.setCaptionAsHtml(true);
 		systemGrid.addStyleName("v-grid-cell-fontSize");

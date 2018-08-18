@@ -42,8 +42,6 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.ComponentScan;
 import org.vaadin.spring.events.annotation.EnableEventBus;
-
-import com.luretechnologies.tms.backend.data.entity.User;
 import com.luretechnologies.tms.ui.AppUI;
 
 @SpringBootApplication(scanBasePackageClasses = { AppUI.class, Application.class})
@@ -63,14 +61,14 @@ public class Application extends SpringBootServletInitializer {
 
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
-		try {
+		/*try {
 			applicationProperties.load(Application.class.getClassLoader().getResourceAsStream("application.properties"));
 			System.out.println(
 					"File location : " + Application.applicationProperties.getProperty("upload.file.location"));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
 	}
 
 	@Override

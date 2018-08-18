@@ -39,26 +39,8 @@ import com.vaadin.server.BootstrapFragmentResponse;
 import com.vaadin.server.BootstrapListener;
 import com.vaadin.server.BootstrapPageResponse;
 
-/**
- * Adds link-tags for "add to homescreen" icons to the head-section of the
- * bootstrap page.
- * <p>
- * Generates links of the type
- *
- * <pre>
- * {@code
- * <link rel="icon" sizes="96x96" href="VAADIN/themes/apptheme/icon-96.png">
- * <link rel="apple-touch-icon" sizes="192x192" href=
-"VAADIN/themes/apptheme/icon-192.png">
- * }
- * </pre>
- * </p>
- */
 public class IconBootstrapListener implements BootstrapListener {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	
 	protected String baseUri = "theme://icon-";

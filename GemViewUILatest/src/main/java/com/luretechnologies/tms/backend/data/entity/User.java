@@ -62,15 +62,16 @@ public class User extends AbstractEntity {
 	private int verficationFrequency;
 	
 	private Long entityId;
+	
+	private String ipAddress;
 
 	public User() {
 		// An empty constructor is needed for all beans
 	}
 
-	public User(Long id,String email, String name, String role, String firstname, String lastname, boolean active, int passwordFrequncy, Long entityId) {
+	public User(Long id,String email, String name, String role, String firstname, String lastname, boolean active, int passwordFrequncy, Long entityId, String ipAddress) {
 		Objects.requireNonNull(email);
 		Objects.requireNonNull(name);
-		//Objects.requireNonNull(password);
 		Objects.requireNonNull(role);
 		Objects.requireNonNull(firstname);
 		Objects.requireNonNull(lastname);
@@ -79,7 +80,6 @@ public class User extends AbstractEntity {
 
 		this.email = email;
 		this.name = name;
-		//this.password = password;
 		this.role = role;
 		this.firstname = firstname;
 		this.lastname= lastname;
@@ -87,26 +87,24 @@ public class User extends AbstractEntity {
 		this.setId(id);
 		this.passwordFrequency= passwordFrequncy;
 		this.entityId=entityId;
+		this.ipAddress=ipAddress;
 	}
 	
-	public User(String email, String username, String role, String firstname, String lastname, boolean active, int passwordFrequncy, Long entityId) {
+	public User(String email, String username, String role, String firstname, String lastname, boolean active, int passwordFrequncy, Long entityId, String ipaddress) {
 		Objects.requireNonNull(username);
-		//Objects.requireNonNull(password);
 		Objects.requireNonNull(role);
 		Objects.requireNonNull(firstname);
 		Objects.requireNonNull(lastname);
-		//Objects.requireNonNull(active);
-		//Objects.requireNonNull(passwordFrequncy);
 
 		this.email = email;
 		this.name = username;
-		//this.password = password;
 		this.role = role;
 		this.firstname = firstname;
 		this.lastname= lastname;
 		this.active=active;
 		this.passwordFrequency= passwordFrequncy;
 		this.entityId=entityId;
+		this.ipAddress=ipAddress;
 	}
 	
 	public int getPasswordFrequency() {
@@ -195,6 +193,14 @@ public class User extends AbstractEntity {
 
 	public void setEntityId(Long entityId) {
 		this.entityId = entityId;
+	}
+	
+	public String getIpAddress() {
+		return ipAddress;
+	}
+
+	public void setIpAddress(String ipAddress) {
+		this.ipAddress = ipAddress;
 	}
 
 

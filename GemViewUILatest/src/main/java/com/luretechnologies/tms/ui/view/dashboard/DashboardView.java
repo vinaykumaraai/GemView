@@ -33,39 +33,30 @@ package com.luretechnologies.tms.ui.view.dashboard;
 
 import java.time.LocalDate;
 import java.time.Month;
-import java.time.MonthDay;
 import java.time.Year;
-import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.luretechnologies.client.restlib.service.model.DashboardCurrentDownLoads;
-import com.luretechnologies.tms.backend.data.ConnectionStats;
-import com.luretechnologies.tms.backend.data.DashboardData;
-import com.luretechnologies.tms.backend.data.Downloads;
-import com.luretechnologies.tms.backend.data.entity.AppDefaultParam;
+import com.luretechnologies.tms.backend.data.entity.ConnectionStats;
+import com.luretechnologies.tms.backend.data.entity.Downloads;
 import com.luretechnologies.tms.backend.service.DashboardService;
-import com.luretechnologies.tms.ui.components.DownloadGrid;
+import com.luretechnologies.tms.backend.service.UserService;
+import com.luretechnologies.tms.ui.MainView;
 import com.luretechnologies.tms.ui.navigation.NavigationManager;
 import com.vaadin.addon.charts.Chart;
 import com.vaadin.addon.charts.model.ChartType;
 import com.vaadin.addon.charts.model.Configuration;
 import com.vaadin.addon.charts.model.DataSeries;
 import com.vaadin.addon.charts.model.DataSeriesItem;
-import com.vaadin.addon.charts.model.Labels;
 import com.vaadin.addon.charts.model.ListSeries;
 import com.vaadin.addon.charts.model.Marker;
 import com.vaadin.addon.charts.model.PlotOptionsColumn;
@@ -73,20 +64,15 @@ import com.vaadin.addon.charts.model.PlotOptionsLine;
 import com.vaadin.addon.charts.model.Tooltip;
 import com.vaadin.addon.charts.model.XAxis;
 import com.vaadin.addon.charts.model.YAxis;
-import com.vaadin.addon.charts.model.style.Color;
-import com.vaadin.addon.charts.model.style.SolidColor;
 import com.vaadin.board.Row;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.Page;
-import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.RichTextArea;
 import com.vaadin.ui.Grid.SelectionMode;
-import com.vaadin.ui.components.grid.HeaderRow;
 
 /**
  * The dashboard view showing statistics about sales and deliveries.
@@ -111,8 +97,7 @@ public class DashboardView extends DashboardViewDesign implements View {
 	private final BoardLabel downloadFailuresLabel = new BoardLabel("DOWNLOAD FAILURES (24 HOURS)", "", "download failures (24 hours)");
 	private final BoardBox downloadFailuresBox = new BoardBox(downloadFailuresLabel);
 	private final Label currentDownloadsLabel = new Label("CURRENT DOWNLOADS");
-	
-	//private final Chart chart = new Chart(ChartType.COLUMN);
+
 	private final Chart incomingRequestCallsPerWeek = new Chart(ChartType.COLUMN);
 	private final Chart incomingServiceCallsArea = new Chart(ChartType.AREA);
 	private final Chart incomingServiceCallsPie = new Chart(ChartType.PIE);
@@ -132,6 +117,12 @@ public class DashboardView extends DashboardViewDesign implements View {
 	
 	@Autowired
 	DashboardService dashBoardService;
+	
+	@Autowired
+	MainView mainView;
+	
+	@Autowired
+	UserService userService;
 
 	@SuppressWarnings("unchecked")
 	@PostConstruct
@@ -159,9 +150,6 @@ public class DashboardView extends DashboardViewDesign implements View {
 				new BoardBox(requestPerSecondLabel), downloadFailuresBox);
 		row.addStyleName("board-row-group");
 		
-		/*row = board.addRow(new BoardBox(incomingServiceCalls));
-		row.addStyleName("board-row-panels");*/
-		
 		row = board.addRow();
 		row.addStyleName("board-row-panels");
 		
@@ -179,7 +167,21 @@ public class DashboardView extends DashboardViewDesign implements View {
 		
 		grid.setId("grid");
 		grid.setSizeFull(); 
-		 
+		
+		int width = Page.getCurrent().getBrowserWindowWidth();
+		if(width<=600) {
+			mainView.getTitle().setValue(userService.getLoggedInUserName());
+		}else {
+			mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
+		}
+		
+		Page.getCurrent().addBrowserWindowResizeListener(resizeListener->{
+			if(resizeListener.getWidth()<=600) {
+				mainView.getTitle().setValue(userService.getLoggedInUserName());
+			}else {
+				mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
+			}
+		});
 	}
 	
 	private void initIncomingCallsGraphsPie() {
@@ -241,23 +243,11 @@ public class DashboardView extends DashboardViewDesign implements View {
 	@Override
 	public void enter(ViewChangeEvent event) {
 		updateLabels(dashBoardService.getLabelData());
-		updateGraphs(fetchData());
-	}
-	
-	private DashboardData fetchData() {
-		return getDashboardData(MonthDay.now().getMonthValue(), Year.now().getValue());
-	}
-	
-	public DashboardData getDashboardData(int month, int year) {
-		
-		DashboardData data = new DashboardData();
-		data.setDeliveriesThisMonth(list);
-
-		return data;
+		updateGraphs();
 	}
 	
 	
-	private void updateGraphs(DashboardData data) {
+	private void updateGraphs() {
 		//serviceCalls.addData(new Number[][]{{0, 1}, {2, 2}, {3,8},{5,6},{10, 3}});
 		
 		callsPerPeriod[0].setData(dashBoardService.getHeartBeatDataPerDay());

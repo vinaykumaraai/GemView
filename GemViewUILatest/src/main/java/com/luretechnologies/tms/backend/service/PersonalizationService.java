@@ -43,7 +43,6 @@ import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.client.restlib.service.model.App;
 import com.luretechnologies.client.restlib.service.model.AppFile;
 import com.luretechnologies.client.restlib.service.model.AppParam;
-import com.luretechnologies.client.restlib.service.model.AppParamFormat;
 import com.luretechnologies.client.restlib.service.model.AppProfile;
 import com.luretechnologies.client.restlib.service.model.AppProfileParamValue;
 import com.luretechnologies.client.restlib.service.model.Device;
@@ -58,8 +57,6 @@ import com.luretechnologies.tms.backend.data.entity.AppClient;
 import com.luretechnologies.tms.backend.data.entity.AppDefaultParam;
 import com.luretechnologies.tms.backend.data.entity.ApplicationFile;
 import com.luretechnologies.tms.backend.data.entity.Devices;
-import com.luretechnologies.tms.backend.data.entity.OverRideParameters;
-import com.luretechnologies.tms.backend.data.entity.ParameterType;
 import com.luretechnologies.tms.backend.data.entity.Profile;
 import com.luretechnologies.tms.backend.data.entity.TerminalClient;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
@@ -104,16 +101,7 @@ public class PersonalizationService {
 						organization.setType(treeNewNode.getType());
 						organization.setEntityId(treeNewNode.getEntityId());
 						RestServiceUtil.getInstance().getClient().getOrganizationApi().createOrganization(organization);
-					}/*else if(treeNewNode.getType().toString().equals("REGION")) {
-						Region region = new Region();
-						region.setAvailable(treeNewNode.isActive());
-						region.setDescription(treeNewNode.getDescription());
-						region.setName(treeNewNode.getLabel());
-						region.setParentId(parentNode.getId());
-						region.setType(treeNewNode.getType());
-						region.setEntityId(treeNewNode.getEntityId());
-						RestServiceUtil.getInstance().getClient().getRegionApi().createRegion(region);
-						}*/
+					}
 					break;
 				case ORGANIZATION:
 					if(treeNewNode.getType().toString().equals("REGION")) {
@@ -125,16 +113,7 @@ public class PersonalizationService {
 					region.setType(treeNewNode.getType());
 					region.setEntityId(treeNewNode.getEntityId());
 					RestServiceUtil.getInstance().getClient().getRegionApi().createRegion(region);
-					} /*else if(treeNewNode.getType().toString().equals("MERCHANT")) {
-						Merchant merchant = new Merchant();
-						merchant.setAvailable(treeNewNode.isActive());
-						merchant.setDescription(treeNewNode.getDescription());
-						merchant.setName(treeNewNode.getLabel());
-						merchant.setParentId(parentNode.getId());
-						merchant.setType(treeNewNode.getType());
-						merchant.setEntityId(treeNewNode.getEntityId());
-						RestServiceUtil.getInstance().getClient().getMerchantApi().createMerchant(merchant);
-					}*/else if(treeNewNode.getType().toString().equals("ORGANIZATION")) {
+					} else if(treeNewNode.getType().toString().equals("ORGANIZATION")) {
 						Organization organizationSelf = new Organization();
 						organizationSelf.setAvailable(treeNewNode.isActive());
 						organizationSelf.setDescription(treeNewNode.getDescription());
@@ -146,25 +125,7 @@ public class PersonalizationService {
 					}
 					break;
 				case REGION:
-					/*if(treeNewNode.getType().toString().equals("REGION")) {
-						Region region = new Region();
-						region.setAvailable(treeNewNode.isActive());
-						region.setDescription(treeNewNode.getDescription());
-						region.setName(treeNewNode.getLabel());
-						region.setParentId(parentNode.getId());
-						region.setType(treeNewNode.getType());
-						region.setEntityId(treeNewNode.getEntityId());
-						RestServiceUtil.getInstance().getClient().getRegionApi().createRegion(region);
-					}else if(treeNewNode.getType().toString().equals("ORGANIZATION")) {
-						Organization organization = new Organization();
-						organization.setAvailable(treeNewNode.isActive());
-						organization.setDescription(treeNewNode.getDescription());
-						organization.setName(treeNewNode.getLabel());
-						organization.setParentId(parentNode.getId());
-						organization.setType(treeNewNode.getType());
-						organization.setEntityId(treeNewNode.getEntityId());
-						RestServiceUtil.getInstance().getClient().getOrganizationApi().createOrganization(organization);
-					}else*/ if(treeNewNode.getType().toString().equals("MERCHANT")) {
+					 if(treeNewNode.getType().toString().equals("MERCHANT")) {
 						Merchant merchant = new Merchant();
 						merchant.setAvailable(treeNewNode.isActive());
 						merchant.setDescription(treeNewNode.getDescription());
@@ -204,7 +165,6 @@ public class PersonalizationService {
 			}
 
 		} catch (Exception e) {
-			// TODO: handle exception
 			e.printStackTrace();
 		}
 
@@ -252,6 +212,7 @@ public class PersonalizationService {
 					terminal.setHeartbeat(node.isHeartBeat());
 					terminal.setSerialNumber(node.getSerialNum());
 					terminal.setEntityId(node.getEntityId());
+					
 					RestServiceUtil.getInstance().getClient().getTerminalApi().updateTerminal(terminal.getEntityId(), terminal);
 					break;
 					
@@ -270,7 +231,6 @@ public class PersonalizationService {
 			}
 			
 		}catch (Exception e) {
-			// TODO: handle exception
 		}
 	}
 
@@ -299,10 +259,10 @@ public class PersonalizationService {
 			}
 			
 		}catch (Exception e) {
-			// TODO: handle exception
 			e.printStackTrace();
 		}
 	}
+	
 	public Devices getDevicesByEntityId(String entityId) {
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
@@ -330,7 +290,6 @@ public class PersonalizationService {
 					return "";
 			}
 		} catch (Exception e) {
-			// TODO: handle exception
 			e.printStackTrace();
 		}
 		return null;
@@ -361,39 +320,6 @@ public class PersonalizationService {
 		return new ListDataProvider<Devices>(allDevices);
 	}
 	
-	public ListDataProvider<OverRideParameters> getOverrideParamDataProvider(Long appId){
-		List<OverRideParameters> overRideParamList = new ArrayList<>();
-		try {
-			if (RestServiceUtil.getSESSION() != null) {
-				for(AppParam appParam : RestServiceUtil.getInstance().getClient().getAppApi().getAppParamList(appId)) {
-					overRideParamList.add(new OverRideParameters(appParam.getId(),appParam.getName(), appParam.getDescription(),appParam.getAppParamFormat().getValue(), appParam.getDefaultValue()));
-				}
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return new ListDataProvider<>(overRideParamList);
-	}
-	
-
-	
-	public ListDataProvider<ApplicationFile> getApplicationFileDataProvider(Long appId){
-		List<ApplicationFile> applicationFileList = new ArrayList<>();
-		try {
-			if (RestServiceUtil.getSESSION() != null) {
-				for(AppFile appFile : RestServiceUtil.getInstance().getClient().getAppApi().getAppFileList(appId)) {
-					applicationFileList.add(new ApplicationFile(appFile.getId(),appFile.getName(), appFile.getDescription(), appFile.getDefaultValue()));
-				}
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return new ListDataProvider<>(applicationFileList);
-	}
 	public List<Profile> getProfileListWithOutEntity(Long appId, Long entityId){
 		List<Profile> profileList = new ArrayList<>();
 		try {
@@ -426,11 +352,11 @@ public class PersonalizationService {
 		return profileList;
 	}
 	
-	public List<AppDefaultParam> getFileListWithEntity(Long appProfileId){
+	public List<AppDefaultParam> getFileListWithEntity(Long appProfileId, Long entityId){
 		List<AppDefaultParam> fileList = new ArrayList<>();
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
-				for(AppParam appParamServer : RestServiceUtil.getInstance().getClient().getAppProfileApi().getAppFileListByAppProfile(appProfileId))
+				for(AppParam appParamServer : RestServiceUtil.getInstance().getClient().getAppProfileApi().getAppFileListByEntity(appProfileId, entityId))
 				fileList.add(new AppDefaultParam(appParamServer.getId() ,appParamServer.getName(), appParamServer.getDescription(), appParamServer.getAppParamFormat().getName(),
 						appParamServer.getDefaultValue()));
 				}
@@ -442,12 +368,12 @@ public class PersonalizationService {
 		return fileList;
 	}
 	
-	public List<AppDefaultParam> getFileListWithOutEntity(Long appProfileId){
+	public List<AppDefaultParam> getFileListWithOutEntity(Long appProfileId , Long entityId){
 		List<AppDefaultParam> fileList = new ArrayList<>();
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
 				List<AppParam> appParamList = RestServiceUtil.getInstance().getClient().getAppProfileApi().getAppFileListWithoutAppProfile(appProfileId);
-				for(AppParam appParamServer : RestServiceUtil.getInstance().getClient().getAppProfileApi().getAppFileListWithoutAppProfile(appProfileId))
+				for(AppParam appParamServer : RestServiceUtil.getInstance().getClient().getAppProfileApi().getAppFileListWithoutEntity(appProfileId, entityId))
 				fileList.add(new AppDefaultParam(appParamServer.getId() ,appParamServer.getName(), appParamServer.getDescription(), appParamServer.getAppParamFormat().getName(),
 						appParamServer.getDefaultValue()));
 				}
@@ -469,7 +395,6 @@ public class PersonalizationService {
 					return "";
 			}
 		} catch (Exception e) {
-			// TODO: handle exception
 			e.printStackTrace();
 		}
 		return null;
@@ -485,7 +410,6 @@ public class PersonalizationService {
 					return null;
 			}
 		} catch (Exception e) {
-			// TODO: handle exception
 			e.printStackTrace();
 		}
 		return null;
@@ -501,13 +425,12 @@ public class PersonalizationService {
 					return null;
 			}
 		} catch (Exception e) {
-			// TODO: handle exception
 			e.printStackTrace();
 		}
 		return null;
 	}
 
-public List<AppClient> getAppListByLoggedUserEntity(Long id) {
+	public List<AppClient> getAppListByLoggedUserEntity(Long id) {
 	List<AppClient> allAppList = new ArrayList<>();
 	try {
 		if(RestServiceUtil.getSESSION()!=null) {
@@ -519,12 +442,11 @@ public List<AppClient> getAppListByLoggedUserEntity(Long id) {
 			}
 		}
 	}catch (Exception e) {
-		// TODO: handle exception
 		e.printStackTrace();
 	}
 	return allAppList;
 }
-public void addProfileParam(Long appProfileId,Long entityId,Set<AppDefaultParam> paramSet) {
+	public void addProfileParam(Long appProfileId,Long entityId,Set<AppDefaultParam> paramSet) {
 	try {
 		if(RestServiceUtil.getSESSION()!=null) {
 			for (AppDefaultParam param : paramSet) {
@@ -537,21 +459,6 @@ public void addProfileParam(Long appProfileId,Long entityId,Set<AppDefaultParam>
 		}
 }
 
-public void createOverRideParam(AppClient app, OverRideParameters param) {
-	try {
-		if(RestServiceUtil.getSESSION()!=null) {
-			AppParam appParam = new AppParam();
-			appParam.setAppId(app.getId());
-			appParam.setName(param.getParameter());
-			appParam.setDescription(param.getDescription());
-			appParam.setDefaultValue(param.getValue());
-			RestServiceUtil.getInstance().getClient().getAppApi().addAppParam(app.getId(), appParam);
-		}
-	}catch (Exception e) {
-		// TODO: handle exception
-		e.printStackTrace();
-	}
-}
 public void updateOverRideParam(AppClient app, AppDefaultParam param) {
 	try {
 		if(RestServiceUtil.getSESSION()!=null) {
@@ -563,26 +470,10 @@ public void updateOverRideParam(AppClient app, AppDefaultParam param) {
 			RestServiceUtil.getInstance().getClient().getAppApi().updateAppParam(app.getId(), appParam);
 		}
 	}catch (Exception e) {
-		// TODO: handle exception
 		e.printStackTrace();
 	}
 }
 
-public void deleteOverRideParam(AppClient app, OverRideParameters param) {
-	try {
-		if(RestServiceUtil.getSESSION()!=null) {
-			RestServiceUtil.getInstance().getClient().getAppApi().deleteAppParam(app.getId(), param.getId());
-		}
-	}catch (Exception e) {
-		// TODO: handle exception
-		e.printStackTrace();
-	}
-}
-
-	/**
-	 * @param entityId
-	 * @throws ApiException
-	 */
 	private TerminalClient getTerminalByEntityId(String entityId) throws ApiException {
 			terminalForPV = RestServiceUtil.getInstance().getClient().getTerminalApi()
 					.getTerminal(entityId);
@@ -726,24 +617,30 @@ public void deleteOverRideParam(AppClient app, OverRideParameters param) {
 	}
 	
 	public void updateParamOfEntity(Long profileId, Long entityId, AppDefaultParam param, Long appId ) {
-		//EntityAppProfileParam entityAppProfileParam = new EntityAppProfileParam();
+		EntityAppProfileParam entityAppProfileParam = new EntityAppProfileParam();
+		AppProfileParamValue appProfileParamValue = new AppProfileParamValue();
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
-				List<AppProfile> paramList = RestServiceUtil.getInstance().getClient().getAppProfileApi().getAppProfileListByEntity(appId, entityId);
-				for(AppProfile appProfile:paramList) {
-					 List<EntityAppProfile> entityappprofileCollection = appProfile.getEntityAppProfileCollection();
-					 for(EntityAppProfile entityAppProfile:entityappprofileCollection) {
-						List<EntityAppProfileParam> entityAppProfileParamList = entityAppProfile.getEntityappprofileparamCollection();
-						for(EntityAppProfileParam entityAppProfileParam :entityAppProfileParamList) {
-							if(entityAppProfileParam.getId()==param.getId()) {
-								entityAppProfileParam.setValue(param.getValue());
-								RestServiceUtil.getInstance().getClient().getAppProfileApi().updateEntityAppProfileParam(profileId, entityId, entityAppProfileParam);
-								break;
+				 AppProfile appProfile = RestServiceUtil.getInstance().getClient().getAppProfileApi().getAppProfile(profileId);
+				 for(AppProfileParamValue appProfileParamValueList:appProfile.getAppProfileParamValueCollection()) {
+					 if(appProfileParamValueList.getAppParamId().equals(param.getId()))
+						 appProfileParamValue = appProfileParamValueList;
+				 }
+				 
+				 for(EntityAppProfile entityAppProfileList:appProfile.getEntityAppProfileCollection()) {
+					if(entityAppProfileList.getEntity().getId().equals(entityId)) {
+						if(entityAppProfileList.getEntityappprofileparamCollection()!=null) {
+							for(EntityAppProfileParam entityAppProfileParamList :entityAppProfileList.getEntityappprofileparamCollection()) {
+								if(entityAppProfileParamList.getAppProfileParamValueId().equals(appProfileParamValue.getId())) {
+									entityAppProfileParam = entityAppProfileParamList;
+									entityAppProfileParam.setValue(param.getValue());
+									RestServiceUtil.getInstance().getClient().getAppProfileApi().updateEntityAppProfileParam(profileId, entityId, entityAppProfileParam);
+									break;
+								}
 							}
-						}
-					 }
-				}
-				
+						 }
+					}
+				 }
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

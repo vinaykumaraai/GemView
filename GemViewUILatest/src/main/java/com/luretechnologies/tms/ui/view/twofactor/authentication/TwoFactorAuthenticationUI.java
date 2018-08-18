@@ -178,6 +178,7 @@ public class TwoFactorAuthenticationUI extends UI implements HasLogger, View{
 		/*Attribute attribute = new Attribute("spellcheck", "false");
 		attribute.extend(verificationCode);*/
 		verificationCode.focus();
+		verificationCode.setMaxLength(10);
 		verificationCode.setCaptionAsHtml(true);
 		verificationCode.setCaption("<h4 style=color:white;font-weight:bold !important;> Verification Code</h4>");
 		verificationCode.addStyleNames(ValoTheme.BUTTON_BORDERLESS, "twofactor-label", "verfication-password-lineheight");
@@ -302,6 +303,7 @@ public class TwoFactorAuthenticationUI extends UI implements HasLogger, View{
 				verificationCodeLayout.addStyleName("twofactor-formLayoutVertical");
 				TextField verificationCode = new TextField();
 				verificationCode.focus();
+				verificationCode.setMaxLength(10);
 				verificationCode.setCaptionAsHtml(true);
 				verificationCode.setCaption("<h4 style=color:white;font-weight:bold !important;> Verification Code</h4>");
 				verificationCode.addStyleNames(ValoTheme.BUTTON_BORDERLESS, "twofactor-labelVertical", "verfication-password-lineheight");

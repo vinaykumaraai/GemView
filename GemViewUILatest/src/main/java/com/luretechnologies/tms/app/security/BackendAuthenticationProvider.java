@@ -10,10 +10,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.client.restlib.service.model.UserSession;
-import com.luretechnologies.tms.backend.data.Role;
+import com.luretechnologies.tms.backend.data.entity.Role;
 import com.luretechnologies.tms.backend.data.entity.User;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
-import com.luretechnologies.tms.backend.service.MockUserService;
 
 /**
  * 
@@ -31,12 +30,9 @@ public class BackendAuthenticationProvider implements AuthenticationProvider {
 			  
 		  try {
 			UserSession session = RestServiceUtil.getInstance().login(username, password);
-			//RestServiceUtil.getInstance().getClient().getAuthApi().
-			//com.luretechnologies.client.restlib.service.model.User restUser = RestServiceUtil.getInstance().getClient().getUserApi().getUserByUserName(username);
-			//User user = new User(restUser.getEmail(),restUser.getUsername(),"",restUser.getRole().getName(),restUser.getFirstName(),restUser.getLastName(),restUser.getActive());
-			//FIXME: Using mocked up data due to backend service not working
-			
-			User user = new User(1L,"test@test.com", "Admin", Role.ADMIN, "Test", "Test", true, 1, Long.valueOf(3)); 
+		
+			//This user is required only for bypassing the Spring Security Configuration. Actual Role and Permission based code are  implemneted in MainView class
+			User user = new User(1L,"test@test.com", "Admin", Role.ADMIN, "Test", "Test", true, 1, Long.valueOf(3), "192.10.1.13"); 
 			return new UsernamePasswordAuthenticationToken(username,password, Collections.singletonList(new SimpleGrantedAuthority(user.getRole())));
 		} catch (ApiException e) {
 			// TODO Auto-generated catch block

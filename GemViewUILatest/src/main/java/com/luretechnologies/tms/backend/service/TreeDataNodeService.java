@@ -44,13 +44,10 @@ import com.luretechnologies.client.restlib.service.model.Merchant;
 import com.luretechnologies.client.restlib.service.model.Organization;
 import com.luretechnologies.client.restlib.service.model.Region;
 import com.luretechnologies.client.restlib.service.model.Terminal;
-import com.luretechnologies.tms.backend.data.entity.Node;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
 import com.vaadin.data.TreeData;
 import com.vaadin.spring.annotation.SpringComponent;
-import com.vaadin.ui.Notification;
-import com.vaadin.ui.Notification.Type;
 
 @SpringComponent
 @Service
@@ -160,11 +157,10 @@ public class TreeDataNodeService {
 		}
 	}
 
-	public void copyTreeNode(TreeNode entity) {
+	public void moveTreeNode(TreeNode entity, TreeNode parentEntity) {
 		try {
 			if(RestServiceUtil.getSESSION()!=null) {
-				Entity parentEntity = RestServiceUtil.getInstance().getClient().getEntityApi().getEntityHierarchy(entity.getId());
-				RestServiceUtil.getInstance().getClient().getEntityApi().copyEntity(entity.getEntityId(), parentEntity.getId());
+				RestServiceUtil.getInstance().getClient().getEntityApi().moveEntity(entity.getId(), parentEntity.getId());
 			}
 		}catch (Exception e) {
 			// TODO: handle exception
@@ -176,11 +172,63 @@ public class TreeDataNodeService {
 	public void pasteTreeNode(TreeNode entity, TreeNode parentEntity) {
 		try {
 			if(RestServiceUtil.getSESSION()!=null) {
-				RestServiceUtil.getInstance().getClient().getEntityApi().moveEntity(entity.getId(), parentEntity.getId());			}
+				RestServiceUtil.getInstance().getClient().getEntityApi().copyEntity(entity.getEntityId(), parentEntity.getId());
+				}
 		}catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
 		}
 		
+	}
+	
+	public TreeData<TreeNode> searchTreeData(String filter) throws ApiException{
+		try {
+			if(RestServiceUtil.getSESSION()!=null) {
+				List<TreeNode> treeNodeChildList = new ArrayList();
+				TreeData<TreeNode> treeData = new TreeData<>();
+					List<Organization> organizationList = RestServiceUtil.getInstance().getClient().getOrganizationApi().searchOrganizations(filter, null, null);
+					List<Region> regionList = RestServiceUtil.getInstance().getClient().getRegionApi().searchRegions(filter, null, null);
+					List<Merchant> merchantList = RestServiceUtil.getInstance().getClient().getMerchantApi().searchMerchants(filter, null, null);
+					List<Terminal> terminalList = RestServiceUtil.getInstance().getClient().getTerminalApi().searchTerminals(filter, null, null);
+					List<Device> deviceList = RestServiceUtil.getInstance().getClient().getDeviceApi().searchDevices(filter, null, null);
+				
+				for(Organization organization : organizationList) {
+					TreeNode node = new TreeNode(organization.getName(), organization.getId(), organization.getType(), organization.getEntityId(), organization.getDescription()
+							, true);
+					treeNodeChildList.add(node);
+				}
+				
+				for(Region region : regionList) {
+					TreeNode node = new TreeNode(region.getName(), region.getId(), region.getType(), region.getEntityId(), region.getDescription()
+							, true);
+					treeNodeChildList.add(node);
+				}
+				
+				for(Merchant merchant : merchantList) {
+					TreeNode node = new TreeNode(merchant.getName(), merchant.getId(), merchant.getType(), merchant.getEntityId(), merchant.getDescription()
+							, true);
+					treeNodeChildList.add(node);
+				}
+				
+				for(Terminal terminal : terminalList) {
+					TreeNode node = new TreeNode(terminal.getName(), terminal.getId(), terminal.getType(), terminal.getEntityId(), terminal.getDescription()
+							, true);
+					treeNodeChildList.add(node);
+				}
+				
+				for(Device device : deviceList) {
+					TreeNode node = new TreeNode(device.getName(), device.getId(), device.getType(), device.getEntityId(), device.getDescription()
+							, true);
+					treeNodeChildList.add(node);
+				}
+				
+				treeData.addItems(null, treeNodeChildList);
+		
+			return treeData;
+			}
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 }

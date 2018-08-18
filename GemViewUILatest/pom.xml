@@ -222,8 +222,7 @@
 			<groupId>com.luretechnologies.tms.client.rest</groupId>
 			<artifactId>admin</artifactId>
 			<version>1.0.0-SNAPSHOT</version>
-			<systemPath>${basedir}/src/main/resources/admin-1.0.0-SNAPSHOT.jar</systemPath>
-			<scope>system</scope>
+			<!-- <scope>system</scope> -->
 		</dependency>
 		
 		<!-- HTTP client: jersey-client -->

@@ -34,10 +34,8 @@ package com.luretechnologies.tms.ui.view.admin.roles;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import javax.annotation.PostConstruct;
 
@@ -46,16 +44,16 @@ import org.vaadin.dialogs.ConfirmDialog;
 import org.vaadin.grid.cellrenderers.editoraware.CheckboxRenderer;
 
 import com.luretechnologies.client.restlib.common.ApiException;
-import com.luretechnologies.common.enums.PermissionEnum;
-import com.luretechnologies.tms.backend.data.Role;
 import com.luretechnologies.tms.backend.data.entity.Permission;
-import com.luretechnologies.tms.backend.data.entity.Roles;
-import com.luretechnologies.tms.backend.exceptions.UserFriendlyDataException;
+import com.luretechnologies.tms.backend.data.entity.Role;
 import com.luretechnologies.tms.backend.service.RolesService;
-import com.luretechnologies.tms.ui.NotificationUtil;
 import com.luretechnologies.tms.ui.components.ConfirmDialogFactory;
+import com.luretechnologies.tms.ui.components.NotificationUtil;
+import com.luretechnologies.tms.ui.view.system.SystemView;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
+import com.vaadin.external.org.slf4j.Logger;
+import com.vaadin.external.org.slf4j.LoggerFactory;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
@@ -73,9 +71,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
-import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 
 
@@ -98,6 +94,8 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 	private Grid<Permission> permissionGrid;
 	private Label label;
 	private static Permission rolesViewPermission;
+	Logger logger = LoggerFactory.getLogger(RolesView.class);
+	
 	@Autowired
 	public ConfirmDialogFactory confirmDialogFactory;
 	
@@ -207,15 +205,9 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 		layout.addStyleName("grid-AuditOdometerAlignment");
 		getAndLoadRolesGrid(verticalLayout, dynamicVerticalLayout);
 		} catch (ApiException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.info(e.getMessage());
 		}
 	}
-
-	/**
-	 * Get the load
-	 * @return
-	 */
 	
 	public Panel getAndLoadRolesPanel() {
 		Panel panel = new Panel();
@@ -420,11 +412,8 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 		
 		roleGrid.setHeightByRows(6);
 		DataProvider data = new ListDataProvider(rolesService.getRoleList());
-		//roleGrid.setItems(rolesService.getRoleList());
 		roleGrid.setDataProvider(data);
 		roleGrid.setWidth("100%");
-		//roleGrid.setHeightByRows(6);;
-		//roleGrid.setHeight("100%");
 		roleGrid.setResponsive(true);
 		
 		roleGrid.addSelectionListener(e -> {
@@ -448,9 +437,7 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 		roleGridLayout.setDefaultComponentAlignment(Alignment.MIDDLE_RIGHT);
 		roleGridLayout.addComponent(buttonGroup);
 		roleGridLayout.addComponent(roleGrid);
-		//roleGridLayout.setExpandRatio(roleGrid, 1);
 		verticalLayout.addComponent(roleGridLayout);
-		//verticalLayout.setExpandRatio(roleGridLayout, 3);
 	}
 	
 	
@@ -474,10 +461,4 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 		            }
 		        });
 	}
-	
-
-	 @Override
-	 public void enter(ViewChangeEvent event) {
-	        // This view is constructed in the init() method()
-	 }
 }

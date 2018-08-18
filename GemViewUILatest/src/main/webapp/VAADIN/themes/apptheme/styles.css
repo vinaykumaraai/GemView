@@ -16667,10 +16667,10 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .apptheme .app-shell[width-range~="1001px-"] .logo, .apptheme .app-shell[width-range~="1001px-"]  .v-caption-logo {
-	font-size: 22px !important;
+	font-size: 18px !important;
 	margin-bottom: 10px !important;
-	margin-left: 43px !important;
 	color: white !important;
+	font-family: "Open Sans", sans-serif !important;
 }
 
 .apptheme .v-errorindicator {

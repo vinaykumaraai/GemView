@@ -32,18 +32,31 @@
 
 package com.luretechnologies.tms.ui;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 import com.luretechnologies.client.restlib.common.ApiException;
+import com.luretechnologies.client.restlib.service.model.UserSession;
 import com.luretechnologies.common.enums.PermissionEnum;
+import com.luretechnologies.tms.app.Application;
+import com.luretechnologies.tms.app.security.RedirectAuthenticationSuccessHandler;
 import com.luretechnologies.tms.backend.data.entity.Permission;
+import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
 import com.luretechnologies.tms.backend.service.RolesService;
+import com.luretechnologies.tms.backend.service.UserService;
 import com.luretechnologies.tms.ui.navigation.NavigationManager;
 import com.luretechnologies.tms.ui.view.admin.roles.RolesView;
 import com.luretechnologies.tms.ui.view.admin.user.UserAdminView;
@@ -55,6 +68,8 @@ import com.luretechnologies.tms.ui.view.deviceodometer.DeviceodometerView;
 import com.luretechnologies.tms.ui.view.heartbeat.HeartbeatView;
 import com.luretechnologies.tms.ui.view.personalization.PersonalizationView;
 import com.luretechnologies.tms.ui.view.system.SystemView;
+import com.vaadin.external.org.slf4j.Logger;
+import com.vaadin.external.org.slf4j.LoggerFactory;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewDisplay;
 import com.vaadin.navigator.ViewLeaveAction;
@@ -63,6 +78,7 @@ import com.vaadin.spring.access.SecuredViewAccessControl;
 import com.vaadin.spring.annotation.SpringViewDisplay;
 import com.vaadin.spring.annotation.UIScope;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
 
 /**
@@ -84,6 +100,10 @@ public class MainView extends MainViewDesign implements ViewDisplay {
 	private final Map<Class<? extends View>, Button> navigationButtons = new HashMap<>();
 	private final NavigationManager navigationManager;
 	private final SecuredViewAccessControl viewAccessControl;
+	Logger logger = LoggerFactory.getLogger(MainView.class);
+	
+	@Autowired
+	private ServletContext servletContext;
 
 	@Autowired
 	public MainView(NavigationManager navigationManager, SecuredViewAccessControl viewAccessControl) {
@@ -93,11 +113,23 @@ public class MainView extends MainViewDesign implements ViewDisplay {
 	
 	@Autowired
 	RolesService rolesService;
+	
+	@Autowired
+	UserService userService;
 
 	@PostConstruct
-	public void init() throws ApiException {
-		//TODO: Place User Role Based checks for Attaching the View(s)
-		List<Permission> loggedInUserPermissionList = rolesService.getLoggedInUserRolePermissions();
+	public void init(){
+		try {
+		List<Permission> loggedInUserPermissionList = null;
+		UserSession session = RestServiceUtil.getSESSION();
+		
+		if(session!=null) {
+			if(session.isRequirePasswordUpdate()) {
+				loggedInUserPermissionList = new ArrayList();
+			}else {
+				loggedInUserPermissionList = rolesService.getLoggedInUserRolePermissions();
+			}
+		}
 		for(Permission permission: loggedInUserPermissionList) {
 			switch(permission.getPageName()) {
 			case "DASHBOARD":
@@ -168,22 +200,8 @@ public class MainView extends MainViewDesign implements ViewDisplay {
 		}
 	}
 		
-		/*attachNavigation(dashboard, DashboardView.class);
-		attachNavigation(users, UserAdminView.class);
-		attachNavigation(roles, RolesView.class);
-		attachNavigation(applicationstore, ApplicationStoreView.class);
-		attachNavigation(personalization, PersonalizationView.class);
-		attachNavigation(heartbeat, HeartbeatView.class);
-		attachNavigation(assetcontrol, AssetcontrolView.class);
-		attachNavigation(deviceodometer, DeviceodometerView.class);
-		//attachNavigation(security, SecurityView.class);
-		attachNavigation(audit, AuditView.class);
-		//attachNavigation(devices, DevicesView.class);
-		attachNavigation(system, SystemView.class);*/
-		
 		menubar.setVisible(true);
 		administrationButton.addStyleName("submenuIconUp");
-		//administrationButton.removeStyleName("hover");
 		administrationButton.addClickListener(e->{
 			if(menubar.isVisible() && Page.getCurrent().getBrowserWindowWidth() > 1000) {
 				menubar.setVisible(false);
@@ -197,15 +215,27 @@ public class MainView extends MainViewDesign implements ViewDisplay {
 			}
 		});
 		
+		gemViewTitle.setCaptionAsHtml(true);
+		gemViewTitle.addStyleNames("v-caption-logo");
+		gemViewTitle.setValue("gemView   " + userService.getLoggedInUserName());
+		
+		
 		logout.addClickListener(e -> {
 			try {
 				logout();
-				//Page.getCurrent().setLocation(Application.LOGOUT_API_URL);
+				String URL = Page.getCurrent().getLocation().toString();
+				if(URL.contains("home")) {
+					int index = URL.indexOf("home");
+					String url = URL.substring(0, index);
+					Page.getCurrent().setLocation(url+Application.LOGIN_URL);
+				}
 			} catch (ApiException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 		});
+		}catch(Exception ex) {
+			logger.info(ex.getMessage());
+		}
 	}
 
 	/**
@@ -258,7 +288,24 @@ public class MainView extends MainViewDesign implements ViewDisplay {
 
 		navigationManager.runAfterLeaveConfirmation(doLogout);
 		
+		
 		//RestServiceUtil.getInstance().getClient().getAuthApi().logout();
+		
 	}
+	
+	public Label getTitle(){
+		return gemViewTitle;
+	}
+	
+	private String getAbsoluteUrl(String url) {
+		final String relativeUrl;
+		if (url.startsWith("/")) {
+			relativeUrl = url.substring(1);
+		} else {
+			relativeUrl = url;
+		}
+		return servletContext.getContextPath() + "/" + relativeUrl;
+	}
+
 
 }

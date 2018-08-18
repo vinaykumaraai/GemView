@@ -50,8 +50,8 @@ import org.springframework.stereotype.Service;
 import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.client.restlib.service.model.Entity;
 import com.luretechnologies.tms.app.security.BackendAuthenticationProvider;
-import com.luretechnologies.tms.backend.data.Role;
 import com.luretechnologies.tms.backend.data.entity.Permission;
+import com.luretechnologies.tms.backend.data.entity.Role;
 import com.luretechnologies.tms.backend.data.entity.User;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
 import com.vaadin.data.provider.Query;
@@ -66,7 +66,6 @@ public class UserService extends CrudService<User>{
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 	
-	@PostConstruct
 	public List<User> getUsersList()
 	{
 		//Get users from Backend
@@ -75,7 +74,7 @@ public class UserService extends CrudService<User>{
 			try {
 				List<com.luretechnologies.client.restlib.service.model.User> userList = RestServiceUtil.getInstance().getClient().getUserApi().getUsers();
 				for (com.luretechnologies.client.restlib.service.model.User user : userList) {
-					User clientUser = new User(user.getId(),user.getEmail(),user.getUsername(),user.getRole().getName(),user.getFirstName(), user.getLastName(),user.getAvailable(), user.getPasswordFrequency(), user.getEntity().getId());
+					User clientUser = new User(user.getId(),user.getEmail(),user.getUsername(),user.getRole().getName(),user.getFirstName(), user.getLastName(),user.getAvailable(), user.getPasswordFrequency(), user.getEntity().getId(), user.getAssignedIP());
 					clientUser.setLocked(true);
 					users.add(clientUser);
 					userDirectory.put(clientUser.getId(), clientUser);
@@ -90,15 +89,15 @@ public class UserService extends CrudService<User>{
 		return users;
 	}
 	
-	public List<User> getUsersListByEntityId(Long id)
+	public List<User> getUsersListByEntityId(String entityId)
 	{
 		//Get users from Backend
 		List<User> users = new ArrayList<User>();
 		if(RestServiceUtil.getSESSION() != null) {
 			try {
-				List<com.luretechnologies.client.restlib.service.model.User> userList = RestServiceUtil.getInstance().getClient().getUserApi().getUsers();
+				List<com.luretechnologies.client.restlib.service.model.User> userList = RestServiceUtil.getInstance().getClient().getUserApi().getUsersByEntity(entityId);
 				for (com.luretechnologies.client.restlib.service.model.User user : userList) {
-					User clientUser = new User(user.getId(),user.getEmail(),user.getUsername(),user.getRole().getName(),user.getFirstName(), user.getLastName(),user.getAvailable(), user.getPasswordFrequency(), user.getEntity().getId());
+					User clientUser = new User(user.getId(),user.getEmail(),user.getUsername(),user.getRole().getName(),user.getFirstName(), user.getLastName(),user.getAvailable(), user.getPasswordFrequency(), user.getEntity().getId(), user.getAssignedIP());
 					clientUser.setLocked(true);
 					users.add(clientUser);
 				}
@@ -119,7 +118,7 @@ public class UserService extends CrudService<User>{
 			try {
 				com.luretechnologies.client.restlib.service.model.User user = RestServiceUtil.getInstance().getClient().getUserApi().getUserByEmail(email);
 				
-					clientUser = new User(user.getId(),user.getEmail(),user.getUsername(),user.getRole().getName(),user.getFirstName(), user.getLastName(),user.getAvailable(), user.getPasswordFrequency(),user.getEntity().getId());
+					clientUser = new User(user.getId(),user.getEmail(),user.getUsername(),user.getRole().getName(),user.getFirstName(), user.getLastName(),user.getAvailable(), user.getPasswordFrequency(),user.getEntity().getId(), user.getAssignedIP());
 					clientUser.setLocked(true);
 					return clientUser;
 					
@@ -138,7 +137,7 @@ public class UserService extends CrudService<User>{
 			try {
 				com.luretechnologies.client.restlib.service.model.User user = RestServiceUtil.getInstance().getClient().getUserApi().getUser(id);
 				
-					clientUser = new User(user.getId(),user.getEmail(),user.getUsername(),user.getRole().getName(),user.getFirstName(), user.getLastName(),user.getAvailable(), user.getPasswordFrequency(),user.getEntity().getId());
+					clientUser = new User(user.getId(),user.getEmail(),user.getUsername(),user.getRole().getName(),user.getFirstName(), user.getLastName(),user.getAvailable(), user.getPasswordFrequency(),user.getEntity().getId(), user.getAssignedIP());
 					clientUser.setLocked(true);
 					return clientUser;
 					
@@ -157,7 +156,7 @@ public class UserService extends CrudService<User>{
 			try {
 				com.luretechnologies.client.restlib.service.model.User user = RestServiceUtil.getInstance().getClient().getUserApi().getUserByUserName(username);
 				
-					clientUser = new User(user.getId(),user.getEmail(),user.getUsername(),user.getRole().getName(),user.getFirstName(), user.getLastName(),user.getAvailable(), user.getPasswordFrequency(),user.getEntity().getId());
+					clientUser = new User(user.getId(),user.getEmail(),user.getUsername(),user.getRole().getName(),user.getFirstName(), user.getLastName(),user.getAvailable(), user.getPasswordFrequency(),user.getEntity().getId(), user.getAssignedIP());
 					clientUser.setLocked(true);
 					return clientUser;
 					
@@ -170,13 +169,13 @@ public class UserService extends CrudService<User>{
 		return clientUser;
 	}
 	
-	public void createUser(User user) throws ApiException {
+	public void createUser(User user, Long entityId) throws ApiException {
 		User clientUser = new User();
 		com.luretechnologies.client.restlib.service.model.User userServer = new com.luretechnologies.client.restlib.service.model.User();
 		if(RestServiceUtil.getSESSION() != null) {
 			try {
 				com.luretechnologies.client.restlib.service.model.Role role = RestServiceUtil.getInstance().getClient().getRoleApi().getRolebyName(user.getRole());
-				Entity entityServer = RestServiceUtil.getInstance().getClient().getEntityApi().getEntityById(user.getEntityId());
+				Entity entityServer = RestServiceUtil.getInstance().getClient().getEntityApi().getEntityById(entityId);
 				userServer.setUsername(user.getName());
 				userServer.setFirstName(user.getFirstname());
 				userServer.setLastName(user.getLastname());
@@ -189,18 +188,17 @@ public class UserService extends CrudService<User>{
 				
 				if(user.getId()!=null) {
 					com.luretechnologies.client.restlib.service.model.User updatedUser  = RestServiceUtil.getInstance().getClient().getUserApi().updateUser(user.getId(), userServer);
-					clientUser = new User(updatedUser.getId(),updatedUser.getEmail(),updatedUser.getUsername(),updatedUser.getRole().getName(),updatedUser.getFirstName(), updatedUser.getLastName(),updatedUser.getAvailable(), updatedUser.getPasswordFrequency(),updatedUser.getEntity().getId());
+					clientUser = new User(updatedUser.getId(),updatedUser.getEmail(),updatedUser.getUsername(),updatedUser.getRole().getName(),updatedUser.getFirstName(), updatedUser.getLastName(),updatedUser.getAvailable(), updatedUser.getPasswordFrequency(),updatedUser.getEntity().getId(), updatedUser.getAssignedIP());
 					clientUser.setLocked(true);	
 				}else {
 					com.luretechnologies.client.restlib.service.model.User savedUser  = RestServiceUtil.getInstance().getClient().getUserApi().createUser(userServer);
 					
-					clientUser = new User(savedUser.getId(),savedUser.getEmail(),savedUser.getUsername(),savedUser.getRole().getName(),savedUser.getFirstName(), savedUser.getLastName(),savedUser.getAvailable(), savedUser.getPasswordFrequency(), savedUser.getEntity().getId());
+					clientUser = new User(savedUser.getId(),savedUser.getEmail(),savedUser.getUsername(),savedUser.getRole().getName(),savedUser.getFirstName(), savedUser.getLastName(),savedUser.getAvailable(), savedUser.getPasswordFrequency(), savedUser.getEntity().getId(), savedUser.getAssignedIP());
 					clientUser.setLocked(true);	
 				}
 					
 			} catch (ApiException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				throw new ApiException(e);
 			}
 			
 		}
@@ -259,7 +257,7 @@ public class UserService extends CrudService<User>{
 			try {
 				List<com.luretechnologies.client.restlib.service.model.User> userList = RestServiceUtil.getInstance().getClient().getUserApi().searchUsers(filter, null, null);
 				for (com.luretechnologies.client.restlib.service.model.User user : userList) {
-					User clientUser = new User(user.getId(),user.getEmail(),user.getUsername(),user.getRole().getName(),user.getFirstName(), user.getLastName(),user.getAvailable(), user.getPasswordFrequency(), user.getEntity().getId());
+					User clientUser = new User(user.getId(),user.getEmail(),user.getUsername(),user.getRole().getName(),user.getFirstName(), user.getLastName(),user.getAvailable(), user.getPasswordFrequency(), user.getEntity().getId(), user.getAssignedIP());
 					clientUser.setLocked(true);
 					users.add(clientUser);
 				}

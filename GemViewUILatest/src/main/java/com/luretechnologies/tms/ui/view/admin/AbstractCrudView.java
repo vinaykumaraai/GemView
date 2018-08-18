@@ -43,7 +43,6 @@ import org.vaadin.dialogs.ConfirmDialog;
 
 import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.tms.app.HasLogger;
-import com.luretechnologies.tms.backend.data.Role;
 import com.luretechnologies.tms.backend.data.entity.AbstractEntity;
 import com.luretechnologies.tms.backend.data.entity.Permission;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
@@ -51,13 +50,16 @@ import com.luretechnologies.tms.backend.data.entity.User;
 import com.luretechnologies.tms.backend.service.RolesService;
 import com.luretechnologies.tms.backend.service.TreeDataNodeService;
 import com.luretechnologies.tms.backend.service.UserService;
-import com.luretechnologies.tms.ui.NotificationUtil;
+import com.luretechnologies.tms.ui.MainView;
+import com.luretechnologies.tms.ui.components.NotificationUtil;
 import com.vaadin.data.BeanValidationBinder;
 import com.vaadin.data.HasValue;
 import com.vaadin.data.TreeData;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.event.ShortcutAction.KeyCode;
+import com.vaadin.external.org.slf4j.Logger;
+import com.vaadin.external.org.slf4j.LoggerFactory;
 import com.vaadin.event.ShortcutListener;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
@@ -112,7 +114,6 @@ import com.vaadin.ui.themes.ValoTheme;
  * @param <T>
  *            the type of entity which can be edited in the view
  */
-@Secured(Role.ADMIN)
 public abstract class AbstractCrudView<T extends AbstractEntity> extends VerticalLayout implements Serializable, View, HasLogger {
 
 	public static final String CAPTION_DISCARD = "Cancel";
@@ -123,6 +124,7 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 	public static Button addTreeNode, deleteTreeNode;
 	public static TextField treeNodeInputLabel;
 	public static TextField treeNodeSearch;
+	Logger logger = LoggerFactory.getLogger(AbstractCrudView.class);
 
 	@Autowired
 	public TreeDataNodeService treeDataService;
@@ -132,21 +134,15 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 	
 	@Autowired
 	public RolesService rolesService;
+	
+	@Autowired
+	MainView mainView;
 
-	/*@Override
-	public void enter(ViewChangeEvent event) {
-		getPresenter().viewEntered(event);
-	}
-
-	@Override
-	public void beforeLeave(ViewBeforeLeaveEvent event) {
-		getPresenter().beforeLeavingView(event);
-	}*/
 
 	public void showInitialState() {
 		getForm().setEnabled(false);
 		getGrid().deselectAll();
-		getGrid().setHeightByRows(5);
+		getGrid().setHeightByRows(7);
 		getUpdate().setCaption(CAPTION_UPDATE);
 		getCancel().setCaption(CAPTION_DISCARD);
 		getTree().setItemIconGenerator(item -> {
@@ -186,35 +182,31 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 
 	@SuppressWarnings("unchecked")
 	@PostConstruct
-	private void initLogic() throws ApiException {
+	private void initLogic(){
+		try {
 		Page.getCurrent().addBrowserWindowResizeListener(r->{
 			if(r.getWidth()<=600) {
 				treeNodeSearch.setHeight(28, Unit.PIXELS);
 				getSearch().setHeight(28, Unit.PIXELS);
+				mainView.getTitle().setValue(userService.getLoggedInUserName());
 			} else if(r.getWidth()>600 && r.getWidth()<=1000){
 				treeNodeSearch.setHeight(32, Unit.PIXELS);
 				getSearch().setHeight(32, Unit.PIXELS);
+				mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
 			}else {
 				treeNodeSearch.setHeight(37, Unit.PIXELS);
 				getSearch().setHeight(37, Unit.PIXELS);
+				mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
 			}
 		});
 		
 		
 		setHeight("100%");
-		//treeNodeInputLabel = new TextField();
-		//addTreeNode = new Button("Add");
-		//deleteTreeNode = new Button("Delete");
-		//HorizontalLayout treeButtonLayout = new HorizontalLayout();
-		//treeButtonLayout.addComponent(addTreeNode);
-		//treeButtonLayout.addComponent(deleteTreeNode);
 		VerticalLayout verticalPanelLayout = new VerticalLayout();
 		verticalPanelLayout.setHeight("100%");
 		verticalPanelLayout.setStyleName("split-height");
 		VerticalLayout treePanelLayout = new VerticalLayout();
 		
-		//treePanelLayout.addComponentAsFirst(treeNodeInputLabel);
-		//treePanelLayout.addComponent(treeButtonLayout);
 		treeNodeSearch = new TextField();
 		treeNodeSearch.setWidth("100%");
 		treeNodeSearch.setIcon(VaadinIcons.SEARCH);
@@ -229,63 +221,8 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 		treePanelLayout.setStyleName("split-Height-ButtonLayout");
 		treePanelLayout.addStyleName("user-treeLayout");
 		verticalPanelLayout.addComponent(treePanelLayout);
-		//treePanelLayout.addComponent(treeComponent);
-		//treePanelLayout.setMargin(true);
-		//treePanelLayout.setComponentAlignment(treeComponent, Alignment.BOTTOM_LEFT);
 		getSplitScreen().setFirstComponent(verticalPanelLayout);
 		getSplitScreen().setSplitPosition(20);
-		//getSplitScreen().addComponent(userDataLayout());
-//		addTreeNode.addClickListener(click -> {
-//			if (getTree().getSelectedItems().size() == 1) {
-//				Node selectedNode = getTree().getSelectedItems().iterator().next();
-//				Node newNode = new Node();
-//				newNode.setLabel(treeNodeInputLabel.getValue().isEmpty()?"Child Node":treeNodeInputLabel.getValue());//Pick name from textfield
-//				//FIXME set the userlist according the node level 
-//				newNode.setUserList(selectedNode.getUserList());
-//				if (selectedNode.getLevel() == NodeLevel.ENTITY)
-//					newNode.setLevel(NodeLevel.REGION);
-//				if (selectedNode.getLevel() == NodeLevel.REGION)
-//					newNode.setLevel(NodeLevel.MERCHANT);
-//				if (selectedNode.getLevel() == NodeLevel.MERCHANT)
-//					newNode.setLevel(NodeLevel.TERMINAL);
-//				if (selectedNode.getLevel() == NodeLevel.TERMINAL)
-//					newNode.setLevel(NodeLevel.DEVICE);
-//				if(selectedNode.getLevel() == NodeLevel.DEVICE) {
-//					Notification.show("Not allowed to add node under Device", Type.ERROR_MESSAGE);
-//					return;
-//				}
-//				
-//
-//				// switch (selectedNode.getLevel()) {
-//				// case ENTITY:
-//				// break;
-//				// case MERCHANT:
-//				// break;
-//				// case REGION:
-//				// break;
-//				// case TERMINAL:
-//				// break;
-//				// case DEVICE:
-//				// break;
-//				// default:
-//				// break;
-//				// }
-//				getTree().getTreeData().addItem(selectedNode, newNode);
-//				getTree().getDataProvider().refreshAll();
-//				
-//			}
-//		});
-		
-//		deleteTreeNode.addClickListener(click->{
-//			if (getTree().getSelectedItems().size() == 1) {
-//				//TODO add yes/no confirmation for delete
-//			getTree().getTreeData().removeItem(getTree().getSelectedItems().iterator().next());
-//				Notification.show("To be Deleted "+getTree().getSelectedItems().iterator().next(),Type.WARNING_MESSAGE);
-//				getTree().getDataProvider().refreshAll();
-//			}
-//		});
-		
-		//getTree().getTreeData().addItem(selectedNode, newNode);
 		getTree().getDataProvider().refreshAll();
 		getEdit().addClickListener(event -> {
 		if(getGrid().getSelectedItems().isEmpty()) {
@@ -309,14 +246,16 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 				getLastName().setValue(user.getLastname());
 				getEmail().setValue(user.getEmail());
 				getActiveBox().setValue(user.isActive());
+				if(user.getIpAddress()!=null && !user.getIpAddress().isEmpty()) {
+					getIP().setValue(user.getIpAddress());
+				}else {
+					getIP().clear();
+				}
+				getPassFreqncy().setValue(user.getPasswordFrequency());
 				//Need to get from backend
 				getFixedIPBox().setValue(false);
 				//Need to get from backend
-				getIP().setValue("192.0.2.1");
-				getPassFreqncy().setValue(user.getPasswordFrequency());
-				//Need to get from backend
 				getVerification().setValue("30");
-				//getPassword().clear();
 			} else {
 				throw new IllegalStateException("This should never happen as deselection is not allowed");
 			}
@@ -328,7 +267,7 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 		// Button logic
 		getUpdate().addClickListener(event -> {
 			if(getTree().getSelectedItems().isEmpty()) {
-				Notification.show("Please select any entity to create user", Notification.Type.ERROR_MESSAGE);
+				Notification.show(NotificationUtil.USER_CREATE, Notification.Type.ERROR_MESSAGE);
 			}else {
 				if(getUserName().getValue()==null || getUserName().getValue().isEmpty() ||
 					getFirstName().getValue()==null || getFirstName().isEmpty() ||
@@ -343,31 +282,40 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 					if(existingUserCheck!=null && existingUserCheck.getId()!=null) {
 						try {
 							User clientUserUpdate = new User(existingUserCheck.getId(), getEmail().getValue(), getUserName().getValue(), getRole().getValue(),
-									getFirstName().getValue(), getLastName().getValue(), getActiveBox().getValue(), getPassFreqncy().getValue(), selectedNode.getId());
-							userService.createUser(clientUserUpdate);
+									getFirstName().getValue(), getLastName().getValue(), getActiveBox().getValue(), getPassFreqncy().getValue(), selectedNode.getId(), getIP().getValue());
+							userService.createUser(clientUserUpdate, selectedNode.getId());
 							loadGridData(clientUserUpdate);
 							getTree().select(selectedNode);
 							getForm().setEnabled(false);
+							clearAllData();
 						} catch (ApiException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
+							if(e1.getMessage().contains("USERNAME INVALID DATA ENTRY")) {
+								Notification.show(NotificationUtil.USER_NAME_CHECK1, Type.ERROR_MESSAGE);
+							}else if(e1.getMessage().contains("EMAIL INVALID DATA ENTRY")) {
+								Notification.show(NotificationUtil.USER_NAME_CHECK2, Type.ERROR_MESSAGE);
+							}else if(e1.getMessage().contains("DATA INTEGRITY VIOLATION")) {
+								Notification.show(NotificationUtil.USER_NAME_CHECK3, Type.ERROR_MESSAGE);
+							}
 						}
 					}else {
 				
 						try {
-							if(/*getPassword().getValue()==null || getPassword().isEmpty()*/false) {
-								Notification.show(NotificationUtil.SAVE, Notification.Type.ERROR_MESSAGE);
-								}else {
 							User clientUser = new User(getEmail().getValue(), getUserName().getValue(), getRole().getValue(),
-									getFirstName().getValue(), getLastName().getValue(), getActiveBox().getValue(), getPassFreqncy().getValue(), selectedNode.getId());
-							userService.createUser(clientUser);
+									getFirstName().getValue(), getLastName().getValue(), getActiveBox().getValue(), getPassFreqncy().getValue(), selectedNode.getId(), getIP().getValue());
+							userService.createUser(clientUser, selectedNode.getId());
 							loadGridData(clientUser);
 							getTree().select(selectedNode);
 							getForm().setEnabled(false);
-								}
+							clearAllData();
+								
 						} catch (ApiException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
+							if(e1.getMessage().contains("USERNAME INVALID DATA ENTRY")) {
+								Notification.show(NotificationUtil.USER_NAME_CHECK1, Type.ERROR_MESSAGE);
+							}else if(e1.getMessage().contains("EMAIL INVALID DATA ENTRY")) {
+								Notification.show(NotificationUtil.USER_NAME_CHECK2, Type.ERROR_MESSAGE);
+							}else if(e1.getMessage().contains("DATA INTEGRITY VIOLATION")) {
+								Notification.show(NotificationUtil.USER_NAME_CHECK3, Type.ERROR_MESSAGE);
+							}
 						}
 					}
 				}
@@ -376,28 +324,16 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 		});
 
 		getTree().addItemClickListener(e -> {
-			List<User> userList = userService.getUsersListByEntityId(e.getItem().getId());
+			List<User> userList = userService.getUsersListByEntityId(e.getItem().getEntityId());
 			DataProvider data = new ListDataProvider(userList);
 			getGrid().setDataProvider(data);
 			getSearch().clear();
-			/*treeDataService.getTreeData();
-			List<Node> nodeList = treeDataService.getUserNodeList();
-			for(Node node : nodeList) {
-				if(node.getLabel().equals(e.getItem().getLabel())) {
-					DataProvider data = new ListDataProvider(node.getEntityList());
-					getGrid().setDataProvider(data);
-					getSearch().clear();
-				}
-			}*/
-//			DataProvider data = new ListDataProvider(e.getItem().getEntityList());
-//			getGrid().setDataProvider(data);
-//			getSearch().clear();
-			//treeNodeInputLabel.clear();
-			// selectedTreeNode=e.getItem();
 		});
 
-		//getCancel().addClickListener(event -> getPresenter().cancelClicked());
-		getCancel().addClickListener(event -> clearAllData());
+		getCancel().addClickListener(event -> {
+			clearAllData();
+			getGrid().deselectAll();
+		});
 		getDelete().addClickListener(new ClickListener() {
 			
 			@Override
@@ -411,7 +347,6 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 			}
 		});
 
-		//getAdd().addClickListener(event -> getPresenter().addNewClicked());
 		getAdd().addClickListener(event -> {
 			clearAllData();
 			getForm().setEnabled(true);
@@ -452,10 +387,6 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 		getIP().addStyleNames( ValoTheme.TEXTFIELD_BORDERLESS,
 				"v-grid-cell", "v-textfield-lineHeight");
 		
-		//getPassword().setStyleName("role-textbox");
-		//getPassword().addStyleNames( ValoTheme.TEXTFIELD_BORDERLESS,
-				//"v-grid-cell", "v-textfield-lineHeight");
-		
 		getForm().addStyleNames("system-LabelAlignment", "user-formLayout");
 		
 		getVerification().setCaptionAsHtml(true);
@@ -473,7 +404,6 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
         getRole().addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size",
         		"user-rolesComboBox");
         getRole().setPlaceholder("Select Role");
-        //getRole().setItems(rolesService.getRoleNameList());
         DataProvider data = new ListDataProvider<>(rolesService.getRoleNameList());
         getRole().setDataProvider(data);
         
@@ -491,8 +421,6 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 		
 		getPassFreqnyLayout().addStyleNames("asset-debugComboBox", "user-passFreqncyLayout");
 		
-		//getAuthentication().addStyleNames("asset-debugComboBox", "user-roles");
-		
 		getSaveCancelLayout().addStyleName("user-saveCancelLayout");
 		
 		getAuthentication().addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
@@ -508,25 +436,18 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 		
 		
 		int width = Page.getCurrent().getBrowserWindowWidth();
-//		if(width >=1000) {
-//			treeNodeSearch.setHeight(37, Unit.PIXELS);
-//			getSearch().setHeight(37, Unit.PIXELS);
-//		}
-//		else {
-//			treeNodeSearch.setHeight(28, Unit.PIXELS);
-//			getSearch().setHeight(28, Unit.PIXELS);
-//		}
-		
-		//int width = Page.getCurrent().getBrowserWindowWidth();
 		if(width<=600) {
 			treeNodeSearch.setHeight(28, Unit.PIXELS);
 			getSearch().setHeight(28, Unit.PIXELS);
+			mainView.getTitle().setValue(userService.getLoggedInUserName());
 		} else if(width>600 && width<=1000){
 			treeNodeSearch.setHeight(32, Unit.PIXELS);
 			getSearch().setHeight(32, Unit.PIXELS);
+			mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
 		}else {
 			treeNodeSearch.setHeight(37, Unit.PIXELS);
 			getSearch().setHeight(37, Unit.PIXELS);
+			mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
 		}
 		
 		Permission userScreenPermission = rolesService.getLoggedInUserRolePermissions().stream().filter(permisson -> permisson.getPageName().equals("USER")).findFirst().get();
@@ -534,7 +455,10 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 		getAdd().setEnabled(userScreenPermission.getAdd());
 		getCancel().setEnabled(userScreenPermission.getAdd() || userScreenPermission.getEdit());
 		getDelete().setEnabled(userScreenPermission.getDelete());
-		
+		getUpdate().setEnabled(userScreenPermission.getAdd() || userScreenPermission.getEdit());
+		}catch(Exception ex) {
+			
+		}
 	}
 
 	public void confirmDialog(Long id) {
@@ -547,18 +471,17 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 								boolean delete = false;
 								delete = userService.deleteUser(id, delete);
 								if(delete) {
-									List<User> userList = userService.getUsersListByEntityId(getTree().getSelectedItems().iterator().next().getId());
+									List<User> userList = userService.getUsersListByEntityId(getTree().getSelectedItems().iterator().next().getEntityId());
 									DataProvider data = new ListDataProvider(userList);
 									getGrid().setDataProvider(data);
 									getSearch().clear();
 								}else {
-									Notification.show("Cannot delete Logged in User", Type.ERROR_MESSAGE);
+									Notification.show(NotificationUtil.SELF_USER_DELETE, Type.ERROR_MESSAGE);
 								}
 								
 								
 							} 
 							catch (ApiException e) {
-								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
 						} else {
@@ -570,7 +493,7 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 	}
 	public void loadGridData(User user) {
 		if(getTree().getSelectedItems().size() == 1) {
-			getGrid().setDataProvider(new ListDataProvider(userService.getUsersListByEntityId(getTree().getSelectionModel().getFirstSelectedItem().get().getId())));
+			getGrid().setDataProvider(new ListDataProvider(userService.getUsersListByEntityId(getTree().getSelectionModel().getFirstSelectedItem().get().getEntityId())));
 			getGrid().select((T) user);
 		}
 	}
@@ -583,10 +506,9 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 		getLastName().clear();
 		getEmail().clear();
 		getActiveBox().clear();
+		getIP().clear();
 		//Need to get from backend
 		getFixedIPBox().clear();
-		//Need to get from backend
-		getIP().clear();
 		getPassFreqncy().clear();
 		//Need to get from backend
 		getVerification().clear();
@@ -608,6 +530,9 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 	private void configureTreeNodeSearch() {
 		treeNodeSearch.addValueChangeListener(changed -> {
 			String valueInLower = changed.getValue().toLowerCase();
+			
+			//Search logic on UI side. Maybe useful in future.
+			
 //			getTree().setTreeData(treeDataService.getFilteredTreeByNodeName(treeDataService.getTreeDataForUser(), valueInLower));
 			//FIXME: only works for root node labels
 //			TreeDataProvider<Node> nodeDataProvider = (TreeDataProvider<Node>) nodeTree.getDataProvider();

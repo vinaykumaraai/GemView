@@ -32,17 +32,11 @@
 package com.luretechnologies.tms.ui.view.audit;
 
 import java.io.Serializable;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
@@ -51,42 +45,38 @@ import org.vaadin.dialogs.ConfirmDialog;
 
 import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.client.restlib.service.model.AuditUserLog;
-import com.luretechnologies.client.restlib.service.model.AuditUserLogType;
-import com.luretechnologies.client.restlib.service.model.Entity;
 import com.luretechnologies.tms.backend.data.entity.Audit;
-import com.luretechnologies.tms.backend.data.entity.Debug;
-import com.luretechnologies.tms.backend.data.entity.Node;
-import com.luretechnologies.tms.backend.data.entity.Systems;
+import com.luretechnologies.tms.backend.data.entity.Permission;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
-import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
 import com.luretechnologies.tms.backend.service.AuditService;
+import com.luretechnologies.tms.backend.service.RolesService;
+import com.luretechnologies.tms.backend.service.TreeDataNodeService;
+import com.luretechnologies.tms.backend.service.UserService;
 import com.luretechnologies.tms.ui.MainView;
-import com.luretechnologies.tms.ui.NotificationUtil;
+import com.luretechnologies.tms.ui.components.NotificationUtil;
+import com.luretechnologies.tms.ui.view.deviceodometer.DeviceodometerView;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.event.ShortcutAction.KeyCode;
+import com.vaadin.external.org.slf4j.Logger;
+import com.vaadin.external.org.slf4j.LoggerFactory;
 import com.vaadin.event.ShortcutListener;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.server.Page;
-import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.DateField;
-import com.vaadin.ui.DateTimeField;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
-import com.vaadin.ui.ItemCaptionGenerator;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Panel;
-import com.vaadin.ui.StyleGenerator;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
-import com.vaadin.ui.Tree.ItemClick;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -96,9 +86,6 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 	private static final String DATE_FORMAT = "MM/dd/yyyy";
 	private static final SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
 	private static final DateTimeFormatter  dateFormatter1 = DateTimeFormatter.ofPattern("yyMMdd");
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -7983511214106963682L;
 	public static final String VIEW_NAME = "audit";
 	private static final LocalDateTime localTimeNow = LocalDateTime.now();
@@ -119,6 +106,7 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 	private static final String error = "error";
 	private static final String warn = "warn";
 	private static final String info="info";
+	Logger logger = LoggerFactory.getLogger(AuditView.class);
 
 	@Autowired
 	public AuditView() {
@@ -126,15 +114,23 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 	}
 	
 	@Autowired
+	private RolesService roleService;
+	
+	@Autowired
 	public AuditService auditService;
 	
 	@Autowired
 	public MainView mainView;
+	
+	@Autowired
+	UserService userService;
+	
+	@Autowired
+	TreeDataNodeService treeDataNodeService;
 
 	@PostConstruct
-	private void init() throws ApiException {
+	private void init(){
 		try {
-		//FIXME : Sample code for browser resizing .
 		Page.getCurrent().addBrowserWindowResizeListener(r->{
 			System.out.println("Height "+ r.getHeight() + "Width:  " + r.getWidth()+ " in pixel");
 			if(r.getWidth()<=1400 && r.getWidth()>=700) {
@@ -154,16 +150,19 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 				debugEndDateField.setHeight("28px");
 				treeNodeSearch.setHeight(28, Unit.PIXELS);
 				debugSearch.setHeight(28, Unit.PIXELS);
+				mainView.getTitle().setValue(userService.getLoggedInUserName());
 			} else if(r.getWidth()>600 && r.getWidth()<=1000){
 				debugStartDateField.setHeight("32px");
 				debugEndDateField.setHeight("32px");
 				treeNodeSearch.setHeight(32, Unit.PIXELS);
 				debugSearch.setHeight(32, Unit.PIXELS);
+				mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
 			}else {
 				debugStartDateField.setHeight("100%");
 				debugEndDateField.setHeight("100%");
 				treeNodeSearch.setHeight(37, Unit.PIXELS);
 				debugSearch.setHeight(37, Unit.PIXELS);
+				mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
 			}
 		});
 		setSpacing(false);
@@ -185,9 +184,7 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		VerticalLayout treeSearchPanelLayout = new VerticalLayout();
 		treeSearchPanelLayout.addComponent(treeNodeSearch);
 		nodeTree = new Tree<TreeNode>();
-		//nodeTree.setTreeData(treeDataService.getTreeDataForDebug());
 		nodeTree.setTreeData(auditService.auditTreeData());
-		//nodeTree.deselect(item);
 		nodeTree.setItemIconGenerator(item -> {
 			switch (item.getType()) {
 			case ENTERPRISE:
@@ -235,24 +232,39 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 			debugEndDateField.setHeight("28px");
 			treeNodeSearch.setHeight(28, Unit.PIXELS);
 			debugSearch.setHeight(28, Unit.PIXELS);
+			mainView.getTitle().setValue(userService.getLoggedInUserName());
 		} else if(width>600 && width<=1000){
 			debugStartDateField.setHeight("32px");
 			debugEndDateField.setHeight("32px");
 			treeNodeSearch.setHeight(32, Unit.PIXELS);
 			debugSearch.setHeight(32, Unit.PIXELS);
+			mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
 		}else {
 			debugStartDateField.setHeight("100%");
 			debugEndDateField.setHeight("100%");
 			treeNodeSearch.setHeight(37, Unit.PIXELS);
 			debugSearch.setHeight(37, Unit.PIXELS);
+			mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
 		}
-	}catch(Exception e){
-		if(e.getMessage().equals(NotificationUtil.TOKEN_EXPIRED)) {
-			mainView.logout();
+		
+		Permission appStorePermission = roleService.getLoggedInUserRolePermissions().stream().filter(per -> per.getPageName().equals("AUDIT")).findFirst().get();
+		try {
+			disableAllComponents();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		e.printStackTrace();
+		allowAccessBasedOnPermission(appStorePermission.getAdd(),appStorePermission.getEdit(),appStorePermission.getDelete());
+	}catch(Exception ex){
+		logger.info(ex.getMessage());
 	}
 }
+	private void disableAllComponents() throws Exception {
+		deleteGridRow.setEnabled(false);
+	}
+	
+	private void allowAccessBasedOnPermission(Boolean addBoolean, Boolean editBoolean, Boolean deleteBoolean) {
+		deleteGridRow.setEnabled(deleteBoolean);
+	}
 	
 	
 	
@@ -313,17 +325,14 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		treeNodeSearch.addValueChangeListener(changed -> {
 			String valueInLower = changed.getValue().toLowerCase();
 			try {
-				List<AuditUserLog> filteredTreeData = auditService.searchTreeData(valueInLower);
+				if(!valueInLower.isEmpty() && valueInLower!=null) {
+					nodeTree.setTreeData(treeDataNodeService.searchTreeData(valueInLower));
+				}else {
+					nodeTree.setTreeData(treeDataNodeService.getTreeData());
+				}
 			} catch (ApiException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			//nodeTree.setTreeData(treeDataService.getFilteredTreeByNodeName(treeDataService.getTreeDataForDebug(), valueInLower));
-			//FIXME: only works for root node labels
-//			TreeDataProvider<Node> nodeDataProvider = (TreeDataProvider<Node>) nodeTree.getDataProvider();
-//			nodeDataProvider.setFilter(filter -> {
-//				return filter.getLabel().toLowerCase().contains(valueInLower);
-//			});
 		});
 		
 		treeNodeSearch.addShortcutListener(new ShortcutListener("Clear",KeyCode.ESCAPE,null) {
@@ -351,7 +360,7 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		                    // Confirmed to continue
 		                	try {
 								auditService.deleteGridData(id);
-								List<Audit> auditListNew = auditService.auditGridData(treeNode.getId().toString());
+								List<Audit> auditListNew = auditService.auditGridData(treeNode.getEntityId());
 								DataProvider data = new ListDataProvider(auditListNew);
 								debugGrid.setDataProvider(data);
 								nodeTree.getDataProvider().refreshAll();
@@ -604,7 +613,7 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 				if(nodeTree.getSelectedItems().size()>0) {
 					List<Audit> auditListNew;
 					try {
-						auditListNew = auditService.auditGridData(nodeTree.getSelectedItems().iterator().next().getId().toString());
+						auditListNew = auditService.auditGridData(nodeTree.getSelectedItems().iterator().next().getEntityId());
 						DataProvider data = new ListDataProvider(auditListNew);
 						 debugGrid.setDataProvider(data);
 					} catch (ApiException e) {
@@ -624,7 +633,7 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 				} else {
 				try {
 					
-					List<Audit> auditListNew = auditService.auditGridData(selection.getFirstSelectedItem().get().getId().toString());
+					List<Audit> auditListNew = auditService.auditGridData(selection.getFirstSelectedItem().get().getEntityId());
 						DataProvider data = new ListDataProvider(auditListNew);
 					 debugGrid.setDataProvider(data);
 					

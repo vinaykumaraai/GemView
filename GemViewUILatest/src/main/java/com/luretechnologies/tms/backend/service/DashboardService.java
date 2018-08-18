@@ -36,12 +36,10 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.luretechnologies.client.restlib.service.model.App;
 import com.luretechnologies.client.restlib.service.model.DashboardCurrentDownLoads;
 import com.luretechnologies.client.restlib.service.model.DashboardWidget;
-import com.luretechnologies.tms.backend.data.ConnectionStats;
-import com.luretechnologies.tms.backend.data.Downloads;
-import com.luretechnologies.tms.backend.data.entity.AppClient;
+import com.luretechnologies.tms.backend.data.entity.ConnectionStats;
+import com.luretechnologies.tms.backend.data.entity.Downloads;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
 
 @Service

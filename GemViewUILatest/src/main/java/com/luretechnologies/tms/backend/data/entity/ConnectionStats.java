@@ -32,52 +32,48 @@
 
 package com.luretechnologies.tms.backend.data.entity;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-
-import com.luretechnologies.client.restlib.service.model.AppProfileParamValue;
-
-public class Profile extends AbstractEntity {
-
-	private String name;
-	private boolean active;
-	private List<AppProfileParamValue> appprofileparamvalueCollection;
-
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
-	}
-	public List<AppProfileParamValue> getAppprofileparamvalueCollection() {
-		return appprofileparamvalueCollection;
-	}
-	public void setAppprofileparamvalueCollection(List<AppProfileParamValue> appprofileparamvalueCollection) {
-		this.appprofileparamvalueCollection = appprofileparamvalueCollection;
-	}
+public class ConnectionStats {
 	
+	public ConnectionStats() {
+		
+	}
 
-	public Profile(String name) {
-		super(false);
-		Objects.requireNonNull(name);
-		this.name = name;
+	public ConnectionStats(Integer currentConnections, Integer successfulDownloads, Integer requestPerSeconds, Integer downloadFaliures) {
+		super();
+		this.currentConnections = currentConnections;
+		this.successfulDownloads = successfulDownloads;
+		this.requestPerSeconds = requestPerSeconds;
+		this.downloadFaliures = downloadFaliures;
 	}
-	public Profile(Long id, String name, List<AppProfileParamValue> appprofileparamvalueCollection) {
-		Objects.requireNonNull(id);
-		Objects.requireNonNull(name);
-		this.name = name;
-		this.setId(id);
+
+	private Integer currentConnections;
+	private Integer successfulDownloads;
+	private Integer requestPerSeconds;
+	private Integer downloadFaliures;
+	
+	public Integer getCurrentConnections() {
+		return currentConnections;
 	}
-	public boolean isActive() {
-		return active;
+	public void setCurrentConnections(Integer currentConnections) {
+		this.currentConnections = currentConnections;
 	}
-	public void setActive(boolean active) {
-		this.active = active;
+	public Integer getSuccessfulDownloads() {
+		return successfulDownloads;
 	}
-	@Override
-	public String toString() {
-		return name.toString();
-	}	
+	public void setSuccessfulDownloads(Integer successfulDownloads) {
+		this.successfulDownloads = successfulDownloads;
+	}
+	public Integer getRequestPerSeconds() {
+		return requestPerSeconds;
+	}
+	public void setRequestPerSeconds(Integer requestPerSeconds) {
+		this.requestPerSeconds = requestPerSeconds;
+	}
+	public Integer getDownloadFaliures() {
+		return downloadFaliures;
+	}
+	public void setDownloadFaliures(Integer downloadFaliures) {
+		this.downloadFaliures = downloadFaliures;
+	}
 
 }

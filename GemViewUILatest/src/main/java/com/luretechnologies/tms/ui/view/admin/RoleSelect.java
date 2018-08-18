@@ -31,7 +31,7 @@
  */
 package com.luretechnologies.tms.ui.view.admin;
 
-import com.luretechnologies.tms.backend.data.Role;
+import com.luretechnologies.tms.backend.data.entity.Role;
 import com.vaadin.ui.ComboBox;
 
 public class RoleSelect extends ComboBox<String> {

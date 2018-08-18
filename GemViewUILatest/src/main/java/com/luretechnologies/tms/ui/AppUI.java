@@ -42,6 +42,7 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.spring.navigator.SpringViewProvider;
 import com.luretechnologies.tms.app.HasLogger;
+import com.luretechnologies.tms.app.security.RedirectAuthenticationSuccessHandler;
 import com.luretechnologies.tms.ui.navigation.NavigationManager;
 import com.luretechnologies.tms.ui.view.AccessDeniedView;
 import com.vaadin.ui.UI;
@@ -80,6 +81,7 @@ public class AppUI extends UI implements HasLogger {
 		});
 
 		viewProvider.setAccessDeniedViewClass(AccessDeniedView.class);
+		
 		setContent(mainView);
 
 		navigationManager.navigateToDefaultView();
