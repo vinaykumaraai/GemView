@@ -34,17 +34,18 @@ package com.luretechnologies.tms.ui;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.luretechnologies.tms.app.HasLogger;
+import com.luretechnologies.tms.ui.navigation.NavigationManager;
+import com.luretechnologies.tms.ui.view.AccessDeniedView;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Title;
 import com.vaadin.annotations.Viewport;
 import com.vaadin.server.DefaultErrorHandler;
 import com.vaadin.server.VaadinRequest;
+import com.vaadin.server.VaadinSession;
 import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.spring.navigator.SpringViewProvider;
-import com.luretechnologies.tms.app.HasLogger;
-import com.luretechnologies.tms.app.security.RedirectAuthenticationSuccessHandler;
-import com.luretechnologies.tms.ui.navigation.NavigationManager;
-import com.luretechnologies.tms.ui.view.AccessDeniedView;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.UI;
 
 @Theme("apptheme")
@@ -87,4 +88,10 @@ public class AppUI extends UI implements HasLogger {
 		navigationManager.navigateToDefaultView();
 	}
 
+	@Override
+	public void close() {
+		
+		Notification.show(NotificationUtil.SESSION_EXPIRED, Notification.TYPE_HUMANIZED_MESSAGE);
+	
+	}
 }
