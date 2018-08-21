@@ -443,15 +443,11 @@ private void disableAllComponents() throws Exception {
 				clearAllParams.setEnabled(delete);
 				appDefaultParamGrid.getEditor().setEnabled(false);
 				selectedProfile=null;
-				try {
 					appDefaultParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(appStoreService.getAppDefaultParamListByAppId(selectedApp.getId())));
 					parameterType.setDataProvider(new ListDataProvider<>(appStoreService.getAppParamTypeList(selectedApp.getId())));
 					if(profileField.getValue()!=null && profileField.getValue()!="") {
 						profileField.clear();
 					}
-				} catch (ApiException e) {
-					e.printStackTrace();
-				}
 				setApplicationFormComponentsEnableForAPPClick(access, add, edit, delete);
 			} else {
 				selectedProfile=null;
@@ -855,16 +851,12 @@ private void disableAllComponents() throws Exception {
 		deleteAppDefaultParamGridRow.setResponsive(true);
 		deleteAppDefaultParamGridRow.setEnabled(delete);
 		clearAllParams = new Button("Clear All", click -> {
-			try {
 				if(appGrid.getSelectedItems().size()>0) {
 					appStoreService.removeAPPParamAll(selectedApp.getId());
 					appDefaultParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(appStoreService.getAppDefaultParamListByAppId(selectedApp.getId())));
 				}else {
 					Notification.show(NotificationUtil.APPLICATIONSTORE_CLEAR_ALL_CHECK, Type.ERROR_MESSAGE);
 				}
-			} catch (ApiException e) {
-				e.printStackTrace();
-			}
 			
 		});
 		clearAllParams.addStyleNames("v-button-customstyle", ValoTheme.BUTTON_FRIENDLY);
@@ -895,12 +887,8 @@ private void disableAllComponents() throws Exception {
 			profileField.clear();
 			clearProfile.setEnabled(false);
 			selectedProfile=null;
-			try {
 				clearAllParams.setEnabled(delete);
 				appDefaultParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(appStoreService.getAppDefaultParamListByAppId(selectedApp.getId())));
-			} catch (ApiException e) {
-				e.printStackTrace();
-			}
 		});
 
 		HorizontalLayout appParamHeaderButtonLayout = new HorizontalLayout(clearAllParams, profileDropDown,
@@ -1036,12 +1024,8 @@ private void disableAllComponents() throws Exception {
 				if (optionList.getSelectedItems().size() == 1) {
 					if(selectedProfile!=null) {
 						AppDefaultParam fileParam = (AppDefaultParam) optionList.getSelectedItems().iterator().next();
-						try {
 							appStoreService.deleteAppProfileFiles(selectedProfile.getId(), fileParam.getId());
 							optionList.setDataProvider(new ListDataProvider<AppDefaultParam>(appStoreService.getAppFileListByAppProfileId(selectedProfile.getId())));
-						} catch (ApiException e) {
-							e.printStackTrace();
-						}
 						
 					}else {
 						ApplicationFile file = (ApplicationFile) optionList.getSelectedItems().iterator().next();
@@ -1070,12 +1054,8 @@ private void disableAllComponents() throws Exception {
 						selectedProfile = (Profile) selection.getFirstSelectedItem().get();
 						
 						appDefaultParamGrid.getEditor().setEnabled(true);
-						try {
 							clearAllParams.setEnabled(false);
 							appDefaultParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(appStoreService.getAppParamListByAppProfileId(selectedProfile.getId())));
-						} catch (ApiException e) {
-							e.printStackTrace();
-						}
 					}
 				}
 			});
@@ -1098,11 +1078,7 @@ private void disableAllComponents() throws Exception {
 				if (optionList.getSelectedItems().size() == 1) {
 					Profile selected = (Profile) optionList.getSelectedItems().iterator().next();
 					appStoreService.removeAppProfile(selectedApp.getId(), selected.getId());
-					try {
 						optionList.setDataProvider(appStoreService.getAppProfileListDataProvider(selectedApp.getId()));
-					} catch (ApiException e) {
-						e.printStackTrace();
-					}
 					field.clear();
 
 				}
@@ -1138,11 +1114,7 @@ private void disableAllComponents() throws Exception {
 				Profile pToSave = new Profile(profileName.getValue());
 				appStoreService.saveAppProfile(selectedApp, pToSave);
 				
-				try {
 					optionList.setDataProvider(new ListDataProvider<>(appStoreService.getAppProfileListByAppId(selectedApp.getId())));
-				} catch (ApiException e) {
-					e.printStackTrace();
-				}
 				profileWindow.close();
 			}
 		});
@@ -1199,17 +1171,9 @@ private void disableAllComponents() throws Exception {
 					e1.printStackTrace();
 				}
 				 if(selectedProfile!=null) {
-					 try {
 						appDefaultParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(appStoreService.getAppParamListByAppProfileId(selectedProfile.getId())));
-					} catch (ApiException e) {
-						e.printStackTrace();
-					}
 					}else {
-						try {
 							appDefaultParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(appStoreService.getAppDefaultParamListByAppId(selectedApp.getId())));
-						} catch (ApiException e) {
-							e.printStackTrace();
-						}
 			}
 				 appDefaultWindow.close();
 				 parameterType.setParent(null);

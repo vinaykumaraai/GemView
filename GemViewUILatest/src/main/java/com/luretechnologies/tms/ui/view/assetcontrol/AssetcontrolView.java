@@ -466,7 +466,6 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		            public void onClose(ConfirmDialog dialog) {
 		                if (dialog.isConfirmed()) {
 		                    // Confirmed to continue
-		                	try {
 								assetControlService.deleteHistoryGridData(id);
 								List<AssetHistory> historyListNew = assetControlService.getHistoryGridData(treeNode.getEntityId());
 			                	DataProvider data = new ListDataProvider(historyListNew);
@@ -474,10 +473,6 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 			                	nodeTree.getDataProvider().refreshAll();
 			    				historySearch.clear();
 			    				clearCalenderDates();
-							} catch (ApiException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
 		                } else {
 		                    // User did not confirm
 		                    
@@ -582,14 +577,9 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 			endDate = debugEndDateField.getValue().format(dateFormatter1);
  			startDate = debugStartDateField.getValue().format(dateFormatter1);
 			}
-			try {
 				List<AssetHistory> searchGridData = assetControlService.searchHistoryGridDataByText(nodeTree.getSelectedItems().iterator().next().getEntityId(),filter, startDate, endDate);
 				DataProvider data = new ListDataProvider(searchGridData);
 				debugGrid.setDataProvider(data);
-			} catch (ApiException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 			/*ListDataProvider<Debug> debugDataProvider = (ListDataProvider<Debug>) debugGrid.getDataProvider();
 			debugDataProvider.setFilter(filter -> {
 				String descriptionInLower = filter.getDescription().toLowerCase();
@@ -687,7 +677,6 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 	        	 			String endDate = debugEndDateField.getValue().format(dateFormatter1);
 	        	 			String startDate = debugStartDateField.getValue().format(dateFormatter1);
 	        	 			String filter = historySearch.getValue();
-	        	 			try {
         	 					List<AssetHistory> historyListFilterBydates = new ArrayList<>();
     	        	 			List<HeartbeatAudit> searchList = assetControlService.searchHistoryByDates(nodeTree.getSelectedItems().iterator().next().getEntityId(), filter, startDate, endDate);
     	        	 			if(searchList!=null && !searchList.isEmpty()) {
@@ -698,9 +687,6 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
     	        	 			}
     	        	 				DataProvider data = new ListDataProvider(historyListFilterBydates);
     	        	 				debugGrid.setDataProvider(data);
-        	 				} catch (ApiException e) {
-        	 					e.printStackTrace();
-        	 				}
 	        	 			
 				} else {
 					Notification.show(NotificationUtil.AUDIT_SAMEDATE, Notification.Type.ERROR_MESSAGE);
@@ -715,12 +701,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 	        }
 		}else {
 			List<AssetHistory> assetHistoryList = new ArrayList<>();
-			try {
 				assetHistoryList = assetControlService.getHistoryGridData(nodeTree.getSelectedItems().iterator().next().getEntityId());
-			} catch (ApiException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 				DataProvider data = new ListDataProvider(assetHistoryList);
 				debugGrid.setDataProvider(data);
 		}
@@ -734,12 +715,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 				historySearch.clear();
 				debugEndDateField.clear();
 				List<AssetHistory> assetHistoryList = new ArrayList<>();
-				try {
 					assetHistoryList = assetControlService.getHistoryGridData(nodeTree.getSelectedItems().iterator().next().getEntityId());
-				} catch (ApiException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
 					DataProvider data = new ListDataProvider(assetHistoryList);
 					debugGrid.setDataProvider(data);
 			}
@@ -775,12 +751,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 				switch (assetTabSheet.getTab(assetTabSheet.getSelectedTab()).getCaption().toLowerCase()) {
 				case "history":
 					List<AssetHistory> assetHistoryList = new ArrayList<>();
-					try {
 						assetHistoryList = assetControlService.getHistoryGridData(nodeTree.getSelectedItems().iterator().next().getEntityId());
-					} catch (ApiException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
 						DataProvider data = new ListDataProvider(assetHistoryList);
 						debugGrid.setDataProvider(data);
 						historySearch.clear();

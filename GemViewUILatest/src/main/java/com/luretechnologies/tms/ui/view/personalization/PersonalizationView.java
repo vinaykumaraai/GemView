@@ -815,12 +815,8 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 			addtnlFilesDropDown.clear();
 			profileDropDown.clear();
 			selectedProfile=null;
-			try {
 				profileDropDown.setDataProvider(personalizationService.getProfileForEntityDataProvider(selectedApp.getId(),selectedNode.getId()));
 				parameterType.setDataProvider(new ListDataProvider<>(appStoreService.getAppParamTypeList(selectedApp.getId())));
-			} catch (ApiException e) {
-				e.printStackTrace();
-			}
 			
 		});
 		
@@ -1547,11 +1543,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 						// node.setOverRideParamList(paramList);
 					}
 
-					try {
 						overRideParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(appStoreService.getAppDefaultParamListByAppId(selectedApp.getId())));
-					} catch (ApiException e) {
-						e.printStackTrace();
-					}
 					overRideParamGrid.select(appDefaultParam);
 					overRideParamWindow.close();
 				} else {

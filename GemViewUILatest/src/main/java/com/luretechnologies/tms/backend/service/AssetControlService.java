@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -57,11 +58,14 @@ import com.luretechnologies.tms.backend.data.entity.DeviceOdometer;
 import com.luretechnologies.tms.backend.data.entity.TerminalClient;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
+import com.luretechnologies.tms.ui.NotificationUtil;
 import com.vaadin.data.TreeData;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 
 @Service
 public class AssetControlService {
-
+	private final static Logger assetControlLogger = Logger.getLogger(AssetControlService.class);
 	@Autowired
 	public TreeDataNodeService treeDataNodeService;
 	
@@ -71,13 +75,18 @@ public class AssetControlService {
 			TreeData<TreeNode> treeData = treeDataNodeService.getTreeData();
 			return treeData;
 			}
-		}catch(Exception e) {
-			e.printStackTrace();
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+			}
+			assetControlLogger.error("API Error Occured ",ae);
+		} catch (Exception e) {
+			assetControlLogger.error("Error Occured ",e);
 		}
 		return null;
 	}
 	
-	public List<AssetHistory> getHistoryGridData(String id) throws ApiException{
+	public List<AssetHistory> getHistoryGridData(String id){
 		List<AssetHistory> assetHistoryListNew = new ArrayList<>();
 		try {
 			if(RestServiceUtil.getSESSION()!=null) {			
@@ -91,24 +100,34 @@ public class AssetControlService {
 				}
 				return assetHistoryListNew;
 			}
-		}catch(Exception e) {
-			e.printStackTrace();
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+			}
+			assetControlLogger.error("API Error Occured ",ae);
+		} catch (Exception e) {
+			assetControlLogger.error("Error Occured ",e);
 		}
 		return assetHistoryListNew;
 	}
 	
-	public void deleteHistoryGridData(Long id) throws ApiException{
+	public void deleteHistoryGridData(Long id) {
 		try {
 			if(RestServiceUtil.getSESSION()!=null) {
 			
 				RestServiceUtil.getInstance().getClient().getHeartbeatApi().deleteAudit(id);
 			}
-		}catch(Exception e) {
-			e.printStackTrace();
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+			}
+			assetControlLogger.error("API Error Occured ",ae);
+		} catch (Exception e) {
+			assetControlLogger.error("Error Occured ",e);
 		}
 	}
 	
-	public List<AssetHistory> searchHistoryGridDataByText(String entityId, String filter, String startDate, String endDate) throws ApiException{
+	public List<AssetHistory> searchHistoryGridDataByText(String entityId, String filter, String startDate, String endDate){
 		List<AssetHistory> historyListSearch = new ArrayList<>();
 		try {
 			if(RestServiceUtil.getSESSION()!=null) {
@@ -123,13 +142,18 @@ public class AssetControlService {
 				}
 				return historyListSearch;
 			}
-		}catch(Exception e) {
-			e.printStackTrace();
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+			}
+			assetControlLogger.error("API Error Occured ",ae);
+		} catch (Exception e) {
+			assetControlLogger.error("Error Occured ",e);
 		}
 		return historyListSearch;
 	}
 	
-	public List<HeartbeatAudit> searchTreeData(String filter) throws ApiException{
+	public List<HeartbeatAudit> searchTreeData(String filter){
 		try {
 			if(RestServiceUtil.getSESSION()!=null) {
 			
@@ -138,13 +162,18 @@ public class AssetControlService {
 				//RestServiceUtil.getInstance().getClient().getAuditUserLogApi().searchLogs(userId, entityId, filter, dateFrom, dateTo, pageNumber, rowsPerPage)
 				return odometerList;
 			}
-		}catch(Exception e) {
-			e.printStackTrace();
+//		}catch (ApiException ae) {
+//			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+//				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+//			}
+//			assetControlLogger.error("API Error Occured ",ae);
+		} catch (Exception e) {
+			assetControlLogger.error("Error Occured ",e);
 		}
 		return null;
 	}
 	
-	public List<HeartbeatAudit> searchHistoryByDates(String entityId, String filter, String startDate, String endDate) throws ApiException{
+	public List<HeartbeatAudit> searchHistoryByDates(String entityId, String filter, String startDate, String endDate){
 		try {
 			if(RestServiceUtil.getSESSION()!=null) {
 			if(filter!=null && !filter.isEmpty()) {
@@ -158,8 +187,13 @@ public class AssetControlService {
 			}
 				
 			}
-		}catch(Exception e) {
-			e.printStackTrace();
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+			}
+			assetControlLogger.error("API Error Occured ",ae);
+		} catch (Exception e) {
+			assetControlLogger.error("Error Occured ",e);
 		}
 		return null;
 	}
@@ -176,9 +210,13 @@ public class AssetControlService {
 						}
 				}
 				return assetAlertListNew;
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
 			}
-		catch(Exception e) {
-			e.printStackTrace();
+			assetControlLogger.error("API Error Occured ",ae);
+		} catch (Exception e) {
+			assetControlLogger.error("Error Occured ",e);
 		}
 		return assetAlertListNew;
 	}
@@ -194,9 +232,13 @@ public class AssetControlService {
 						
 				}
 				return newAlert;
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
 			}
-		catch(Exception e) {
-			e.printStackTrace();
+			assetControlLogger.error("API Error Occured ",ae);
+		} catch (Exception e) {
+			assetControlLogger.error("Error Occured ",e);
 		}
 		return newAlert;
 	}
@@ -212,9 +254,13 @@ public class AssetControlService {
 						
 				}
 				return newAlert;
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
 			}
-		catch(Exception e) {
-			e.printStackTrace();
+			assetControlLogger.error("API Error Occured ",ae);
+		} catch (Exception e) {
+			assetControlLogger.error("Error Occured ",e);
 		}
 		return newAlert;
 	}
@@ -225,9 +271,13 @@ public class AssetControlService {
 				RestServiceUtil.getInstance().getClient().getAlertActionApi().delete(id);
 				}
 				
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
 			}
-		catch(Exception e) {
-			e.printStackTrace();
+			assetControlLogger.error("API Error Occured ",ae);
+		} catch (Exception e) {
+			assetControlLogger.error("Error Occured ",e);
 		}
 	}
 	
@@ -245,9 +295,13 @@ public class AssetControlService {
 				}
 			}
 				
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
 			}
-		catch(Exception e) {
-			e.printStackTrace();
+			assetControlLogger.error("API Error Occured ",ae);
+		} catch (Exception e) {
+			assetControlLogger.error("Error Occured ",e);
 		}
 		return debugItemsList;
 	}
@@ -276,9 +330,13 @@ public class AssetControlService {
 				}
 				return debugItemsList;
 				}
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
 			}
-		catch(Exception e) {
-			e.printStackTrace();
+			assetControlLogger.error("API Error Occured ",ae);
+		} catch (Exception e) {
+			assetControlLogger.error("Error Occured ",e);
 		}
 		return debugItemsList;
 	}
@@ -297,8 +355,13 @@ public class AssetControlService {
 			}
 				
 			}
-		}catch(Exception e) {
-			e.printStackTrace();
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+			}
+			assetControlLogger.error("API Error Occured ",ae);
+		} catch (Exception e) {
+			assetControlLogger.error("Error Occured ",e);
 		}
 		return null;
 	}
@@ -309,10 +372,13 @@ public class AssetControlService {
 				RestServiceUtil.getInstance().getClient().getDebugApi().deleteDebugItem(id);;
 			}
 				
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
 			}
-		catch(Exception e) {
-			e.printStackTrace();
-			
+			assetControlLogger.error("API Error Occured ",ae);
+		} catch (Exception e) {
+			assetControlLogger.error("Error Occured ",e);
 		}
 	}
 	
@@ -328,10 +394,13 @@ public class AssetControlService {
 				RestServiceUtil.getInstance().getClient().getTerminalApi().updateTerminal(entityId, terminal);
 			}
 				
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
 			}
-		catch(Exception e) {
-			e.printStackTrace();
-			
+			assetControlLogger.error("API Error Occured ",ae);
+		} catch (Exception e) {
+			assetControlLogger.error("Error Occured ",e);
 		}
 	}
 	
@@ -346,10 +415,13 @@ public class AssetControlService {
 				}
 			}
 				
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
 			}
-		catch(Exception e) {
-			e.printStackTrace();
-			
+			assetControlLogger.error("API Error Occured ",ae);
+		} catch (Exception e) {
+			assetControlLogger.error("Error Occured ",e);
 		}
 		return null;
 	}

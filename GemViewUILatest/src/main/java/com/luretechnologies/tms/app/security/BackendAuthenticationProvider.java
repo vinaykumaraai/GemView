@@ -2,6 +2,7 @@ package com.luretechnologies.tms.app.security;
 
 import java.util.Collections;
 
+import org.apache.log4j.Logger;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -13,6 +14,9 @@ import com.luretechnologies.client.restlib.service.model.UserSession;
 import com.luretechnologies.tms.backend.data.entity.Role;
 import com.luretechnologies.tms.backend.data.entity.User;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
+import com.luretechnologies.tms.ui.NotificationUtil;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 
 /**
  * 
@@ -20,7 +24,7 @@ import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
  *
  */
 public class BackendAuthenticationProvider implements AuthenticationProvider {
-	
+	private final static Logger backendAuthenicationLogger = Logger.getLogger(BackendAuthenticationProvider.class);
 	public static String username = null;
 	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException{
@@ -37,8 +41,14 @@ public class BackendAuthenticationProvider implements AuthenticationProvider {
 		} catch (ApiException e) {
 			// TODO Auto-generated catch block
 			if(e.getMessage().contains("INVALID LOGIN CREDENTIALS")) {
-				System.out.println("Bad Credential for: "+username);
+				backendAuthenicationLogger.error("Bad Credential for: "+username);
 			}
+			
+			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+//				backendAuthenicationLogger.error("User Session Expired for  "+username);
+				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+			}
+			backendAuthenicationLogger.error("Error in Authentication",e);
 			e.printStackTrace();
 			return null;
 		}

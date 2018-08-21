@@ -37,6 +37,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import com.luretechnologies.client.restlib.common.ApiException;
@@ -58,14 +59,17 @@ import com.luretechnologies.tms.backend.data.entity.Devices;
 import com.luretechnologies.tms.backend.data.entity.Profile;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
+import com.luretechnologies.tms.ui.NotificationUtil;
 import com.vaadin.data.provider.ListDataProvider;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 
 @Service
 public class ApplicationStoreService {
-	
+	private final static Logger aplicationStoreServiceLogger = Logger.getLogger(ApplicationStoreService.class);
 	BackendAuthenticationProvider provider = new BackendAuthenticationProvider();
 
-	public List<AppClient> getAppListForGrid() throws ApiException {
+	public List<AppClient> getAppListForGrid() {
 		List<AppClient> appClientList = new ArrayList<>();
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
@@ -82,7 +86,11 @@ public class ApplicationStoreService {
 				}
 				return appClientList;
 			}
-		} catch (Exception e) {
+		} catch (ApiException e) {
+			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				aplicationStoreServiceLogger.error("User Session Expired",e);
+				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+			}
 			e.printStackTrace();
 		}
 		return appClientList;
@@ -101,10 +109,12 @@ public class ApplicationStoreService {
 		return appDefaultParamList;
 	}
 	
-	public List<AppDefaultParam> getAppDefaultParamListByAppId(Long id) throws ApiException {
+	public List<AppDefaultParam> getAppDefaultParamListByAppId(Long id) {
 		List<AppDefaultParam> appDefaultParamList = new ArrayList<>();
+		try {
 		if (RestServiceUtil.getSESSION() != null) {
-		List<AppParam> appParamService = RestServiceUtil.getInstance().getClient().getAppApi().getAppParamList(id);
+		List<AppParam> appParamService;
+			appParamService = RestServiceUtil.getInstance().getClient().getAppApi().getAppParamList(id);
 			for (AppParam appParam : appParamService) {
 				AppDefaultParam appDefaultParam = new AppDefaultParam(appParam.getId(), appParam.getName(),
 					appParam.getDescription(), appParam.getAppParamFormat().getValue(), appParam.getDefaultValue());
@@ -112,11 +122,18 @@ public class ApplicationStoreService {
 		}
 		
 		}
+		} catch (ApiException ae) {
+				if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+					Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				}
+				aplicationStoreServiceLogger.error("Error occured:",ae);
+		}
 		return appDefaultParamList;
 	}
 	
-	public List<AppDefaultParam> getAppParamListByAppProfileId(Long id) throws ApiException {
+	public List<AppDefaultParam> getAppParamListByAppProfileId(Long id){
 		List<AppDefaultParam> appDefaultParamList = new ArrayList<>();
+		try {
 		List<AppParam> appParamList = new ArrayList<>();
 		if (RestServiceUtil.getSESSION() != null) {
 		List<AppParam> appParamService = RestServiceUtil.getInstance().getClient().getAppProfileApi().getAppParamListByAppProfile(id);
@@ -126,6 +143,12 @@ public class ApplicationStoreService {
 				appDefaultParamList.add(appDefaultParam);
 		}
 		
+		}
+		}catch(ApiException  ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+			}
+			aplicationStoreServiceLogger.error("Error occured:",ae);
 		}
 		return appDefaultParamList;
 	}	
@@ -144,8 +167,16 @@ public class ApplicationStoreService {
 					return nodeChildList;
 				}
 			}
-		} catch (Exception e) {
+		} catch(ApiException  ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+			}
+			aplicationStoreServiceLogger.error("API Error Occured",ae);
+			
+		}
+		catch (Exception e) {
 			e.printStackTrace();
+			aplicationStoreServiceLogger.error("Error Occured",e);
 		}
 		
 		return nodeChildList;
@@ -180,8 +211,11 @@ public class ApplicationStoreService {
 				}
 
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+			}
+			aplicationStoreServiceLogger.error("API Error Occured",ae);
 		}
 		return nodeChildList;
 
@@ -204,17 +238,24 @@ public class ApplicationStoreService {
 		return profileList;
 	}
 	
-	public List<Profile> getAppProfileListByAppId(Long id) throws ApiException {
+	public List<Profile> getAppProfileListByAppId(Long id) {
 		List<Profile> profileList = new ArrayList<>();
+		try {
 		List<AppProfile> appProfileList = RestServiceUtil.getInstance().getClient().getAppApi().getAppProfileList(id);
 		if(appProfileList!=null) {
 			profileList=getAppProfileList(appProfileList);
 			return profileList;
 		}
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+			}
+			aplicationStoreServiceLogger.error("API Error Occured",ae);
+		}
 		return profileList;
 	}
 	
-	public ListDataProvider<Profile> getAppProfileListDataProvider(Long id) throws ApiException{
+	public ListDataProvider<Profile> getAppProfileListDataProvider(Long id){
 		ListDataProvider<Profile> debugDataProvider = new ListDataProvider<>(getAppProfileListByAppId(id));
 		return debugDataProvider;
 	}
@@ -251,14 +292,21 @@ public class ApplicationStoreService {
 					applicationFileList.add(file);
 				}
 			}
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+			}
+			aplicationStoreServiceLogger.error("API Error Occured",ae);
 		} catch (Exception e) {
+			aplicationStoreServiceLogger.error("Error ",e);
 			e.printStackTrace();
 		}
 		return applicationFileList;
 	}
 	
-	public List<AppDefaultParam> getAppFileListByAppProfileId(Long id) throws ApiException {
+	public List<AppDefaultParam> getAppFileListByAppProfileId(Long id){
 		List<AppDefaultParam> appProfileFileList = new ArrayList<>();
+		try {
 		if (RestServiceUtil.getSESSION() != null) {
 		List<AppParam> appParamService = RestServiceUtil.getInstance().getClient().getAppProfileApi().getAppFileListByAppProfile(id);
 			for (AppParam appParam : appParamService) {
@@ -269,6 +317,12 @@ public class ApplicationStoreService {
 				}
 		}
 		
+		}
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+			}
+			aplicationStoreServiceLogger.error("API Error Occured",ae);
 		}
 		return appProfileFileList;
 	}
@@ -285,20 +339,21 @@ public class ApplicationStoreService {
 					deviceList.add(deviceClient);
 				}
 			}
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+			}
+			aplicationStoreServiceLogger.error("API Error Occured ",ae);
 		} catch (Exception e) {
-			e.printStackTrace();
+			aplicationStoreServiceLogger.error("Error Occured ",e);
 		}
 		return deviceList;
 	}
 
 	public ListDataProvider<AppClient> getAppListDataProvider() {
 		ListDataProvider<AppClient> appDataProvider = null;
-		try {
 			appDataProvider = new ListDataProvider<>(getSortedAppClientList(getAppListForGrid()));
-		} catch (ApiException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		return appDataProvider;
 	}
 
@@ -364,8 +419,13 @@ public class ApplicationStoreService {
 						RestServiceUtil.getInstance().getClient().getAppApi().createApp(serverApp);
 					}
 				}
+			}catch (ApiException ae) {
+				if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+					Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				}
+				aplicationStoreServiceLogger.error("API Error Occured ",ae);
 			} catch (Exception e) {
-				e.printStackTrace();
+				aplicationStoreServiceLogger.error("Error Occured ",e);
 			}
 
 		}
@@ -377,8 +437,13 @@ public class ApplicationStoreService {
 				if (RestServiceUtil.getSESSION() != null) {
 					RestServiceUtil.getInstance().getClient().getAppApi().deleteApp(appClient.getId());
 				}
+			}catch (ApiException ae) {
+				if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+					Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				}
+				aplicationStoreServiceLogger.error("API Error Occured ",ae);
 			} catch (Exception e) {
-				e.printStackTrace();
+				aplicationStoreServiceLogger.error("Error Occured ",e);
 			}
 		}
 	}
@@ -390,8 +455,13 @@ public class ApplicationStoreService {
 				File toDeleteFile = new File(path);
 				toDeleteFile.delete();
 			}
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+			}
+			aplicationStoreServiceLogger.error("API Error Occured ",ae);
 		} catch (Exception e) {
-			e.printStackTrace();
+			aplicationStoreServiceLogger.error("Error Occured ",e);
 		}
 	}
 	
@@ -403,8 +473,13 @@ public class ApplicationStoreService {
 					RestServiceUtil.getInstance().getClient().getAppApi().deleteAppFile(appId, appParamId);
 				}
 			}
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+			}
+			aplicationStoreServiceLogger.error("API Error Occured ",ae);
 		} catch (Exception e) {
-			e.printStackTrace();
+			aplicationStoreServiceLogger.error("Error Occured ",e);
 		}
 	}
 	
@@ -416,8 +491,13 @@ public class ApplicationStoreService {
 					RestServiceUtil.getInstance().getClient().getAppProfileApi().deleteAppProfileFileValue(appProfileId, appParamId);
 				}
 			}
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+			}
+			aplicationStoreServiceLogger.error("API Error Occured ",ae);
 		} catch (Exception e) {
-			e.printStackTrace();
+			aplicationStoreServiceLogger.error("Error Occured ",e);
 		}
 	}
 	
@@ -433,8 +513,13 @@ public class ApplicationStoreService {
 					
 					RestServiceUtil.getInstance().getClient().getAppApi().addAppProfile(appClient.getId(), serverProfile);
 				}
+			}catch (ApiException ae) {
+				if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+					Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				}
+				aplicationStoreServiceLogger.error("API Error Occured ",ae);
 			} catch (Exception e) {
-				e.printStackTrace();
+				aplicationStoreServiceLogger.error("Error Occured ",e);
 			}
 		}
 	}
@@ -449,13 +534,19 @@ public class ApplicationStoreService {
 					}
 					RestServiceUtil.getInstance().getClient().getAppApi().deleteAppProfile(appId, profileId);
 				}
+			}catch (ApiException ae) {
+				if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+					Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				}
+				aplicationStoreServiceLogger.error("API Error Occured ",ae);
 			} catch (Exception e) {
-				e.printStackTrace();
+				aplicationStoreServiceLogger.error("Error Occured ",e);
 			}
 	}
 	
-	public List<String> getAppParamTypeList(Long id) throws ApiException{
+	public List<String> getAppParamTypeList(Long id){
 		List<String> appParamTypeList = new ArrayList<>();
+		try {
 		if (RestServiceUtil.getSESSION() != null) {
 			List<AppParamFormat> appParamServiceList = RestServiceUtil.getInstance().getClient().getAppParamFormatApi().getAppParamFormatList();
 				for (AppParamFormat appParamFormat : appParamServiceList) {
@@ -466,6 +557,14 @@ public class ApplicationStoreService {
 			}
 				return appParamTypeList;
 			}
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+			}
+			aplicationStoreServiceLogger.error("API Error Occured ",ae);
+		} catch (Exception e) {
+			aplicationStoreServiceLogger.error("Error Occured ",e);
+		}
 		return appParamTypeList;
 	}
 	
@@ -510,8 +609,13 @@ public class ApplicationStoreService {
 						RestServiceUtil.getInstance().getClient().getAppApi().addAppParam(appClient.getId(), appParam);
 					}
 				}
+			}catch (ApiException ae) {
+				if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+					Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				}
+				aplicationStoreServiceLogger.error("API Error Occured ",ae);
 			} catch (Exception e) {
-				e.printStackTrace();
+				aplicationStoreServiceLogger.error("Error Occured ",e);
 			}
 		}
 	}
@@ -529,20 +633,30 @@ public class ApplicationStoreService {
 				}
 				RestServiceUtil.getInstance().getClient().getAppProfileApi().updateAppProfileParamValue(profile.getId(), appProfileParamValue);
 			}
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+			}
+			aplicationStoreServiceLogger.error("API Error Occured ",ae);
 		} catch (Exception e) {
-			e.printStackTrace();
+			aplicationStoreServiceLogger.error("Error Occured ",e);
 		}
 	}
 	
-	public void removeAPPParamAll(Long appId) throws ApiException {
+	public void removeAPPParamAll(Long appId)  {
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
 			
 			RestServiceUtil.getInstance().getClient().getAppApi().deleteAllAppParam(appId);
 			
 			}
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+			}
+			aplicationStoreServiceLogger.error("API Error Occured ",ae);
 		} catch (Exception e) {
-			e.printStackTrace();
+			aplicationStoreServiceLogger.error("Error Occured ",e);
 		}
 }
 	
@@ -552,8 +666,13 @@ public class ApplicationStoreService {
 			RestServiceUtil.getInstance().getClient().getAppApi().deleteAppParam(appId, appParamId);
 			
 			}
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+			}
+			aplicationStoreServiceLogger.error("API Error Occured ",ae);
 		} catch (Exception e) {
-			e.printStackTrace();
+			aplicationStoreServiceLogger.error("Error Occured ",e);
 		}
 }
 	
@@ -563,8 +682,13 @@ public class ApplicationStoreService {
 			RestServiceUtil.getInstance().getClient().getAppProfileApi().deleteAppProfileParamValue(appProfileId, appParamId);
 			
 			}
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+			}
+			aplicationStoreServiceLogger.error("API Error Occured ",ae);
 		} catch (Exception e) {
-			e.printStackTrace();
+			aplicationStoreServiceLogger.error("Error Occured ",e);
 		}
 }
 	
@@ -583,8 +707,13 @@ public class ApplicationStoreService {
 					}
 					return appClientList;
 				}
+			}catch (ApiException ae) {
+				if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+					Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				}
+				aplicationStoreServiceLogger.error("API Error Occured ",ae);
 			} catch (Exception e) {
-				e.printStackTrace();
+				aplicationStoreServiceLogger.error("Error Occured ",e);
 			}
 			return appClientList;
 		}
@@ -598,8 +727,13 @@ public class ApplicationStoreService {
 					appDefaultParamList=getAppDefaultParamList(appParamList);
 					return appDefaultParamList;
 				}
+			}catch (ApiException ae) {
+				if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+					Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				}
+				aplicationStoreServiceLogger.error("API Error Occured ",ae);
 			} catch (Exception e) {
-				e.printStackTrace();
+				aplicationStoreServiceLogger.error("Error Occured ",e);
 			}
 			return appDefaultParamList;
 		}

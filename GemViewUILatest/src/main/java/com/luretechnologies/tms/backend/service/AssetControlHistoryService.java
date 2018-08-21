@@ -34,6 +34,7 @@ package com.luretechnologies.tms.backend.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.luretechnologies.client.restlib.common.ApiException;
@@ -44,26 +45,34 @@ import com.luretechnologies.tms.backend.data.entity.AssetHistory;
 import com.luretechnologies.tms.backend.data.entity.Audit;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
+import com.luretechnologies.tms.ui.NotificationUtil;
 import com.vaadin.data.TreeData;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 
 public class AssetControlHistoryService {
-
+private static final Logger assetControlHistoryLogger = Logger.getLogger(AssetControlHistoryService.class);
 	@Autowired
 	TreeDataNodeService treeDataNodeService;
 	
-	public TreeData<TreeNode> auditTreeData() throws ApiException{
+	public TreeData<TreeNode> auditTreeData() {
 		try {
 			if(RestServiceUtil.getSESSION()!=null) {
 			TreeData<TreeNode> treeData = treeDataNodeService.getTreeData();
 			return treeData;
 			}
-		}catch(Exception e) {
-			e.printStackTrace();
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+			}
+			assetControlHistoryLogger.error("API Error Occured ",ae);
+		} catch (Exception e) {
+			assetControlHistoryLogger.error("Error Occured ",e);
 		}
 		return null;
 	}
 	
-	public List<AssetHistory> historyGridData(String id) throws ApiException{
+	public List<AssetHistory> historyGridData(String id){
 		List<AssetHistory> assetHistoryListNew = new ArrayList<>();
 		try {
 			if(RestServiceUtil.getSESSION()!=null) {
@@ -76,8 +85,13 @@ public class AssetControlHistoryService {
 				}
 				return assetHistoryListNew;
 			}
-		}catch(Exception e) {
-			e.printStackTrace();
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+			}
+			assetControlHistoryLogger.error("API Error Occured ",ae);
+		} catch (Exception e) {
+			assetControlHistoryLogger.error("Error Occured ",e);
 		}
 		return assetHistoryListNew;
 	}
