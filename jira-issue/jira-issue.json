@@ -1,0 +1,13 @@
+{
+	"fields": {
+		"issuetype": {
+			"name": "Bug"
+		},
+		"project": {
+			"key": "ITT"
+		},
+		"summary": "An exception occurred.",
+		"description": "The exception detail - stacktrace - etc."
+	}
+}
+
