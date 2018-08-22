@@ -51,6 +51,7 @@ import com.luretechnologies.client.restlib.service.model.AppProfileParamValue;
 import com.luretechnologies.client.restlib.service.model.Device;
 import com.luretechnologies.client.restlib.service.model.Entity;
 import com.luretechnologies.client.restlib.service.model.EntityLevel;
+import com.luretechnologies.client.restlib.service.model.User;
 import com.luretechnologies.tms.app.security.BackendAuthenticationProvider;
 import com.luretechnologies.tms.backend.data.entity.AppClient;
 import com.luretechnologies.tms.backend.data.entity.AppDefaultParam;
@@ -74,7 +75,7 @@ public class ApplicationStoreService {
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
 				String username = provider.loggedInUserName();
-				com.luretechnologies.client.restlib.service.model.User user = RestServiceUtil.getInstance().getClient().getUserApi().getUserByUserName(username);
+				User user = RestServiceUtil.getInstance().getClient().getUserApi().getUserByUserName(username);
 				Long entityId = user.getEntity().getId();
 				List<App> appsList = RestServiceUtil.getInstance().getClient().getAppApi().getAppsByEntityHierarchy(entityId);
 				for (App app : appsList) {
