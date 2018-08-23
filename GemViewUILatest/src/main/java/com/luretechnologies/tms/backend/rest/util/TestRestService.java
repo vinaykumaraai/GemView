@@ -31,20 +31,12 @@
  */
 package com.luretechnologies.tms.backend.rest.util;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 //import com.luretechnologies.client.restlib.service.RestClientService;
 //import com.luretechnologies.client.restlib.service.model.UserSession;
 
 //import com.luretechnologies.client.restlib.service.RestClientService;
 //import com.luretechnologies.client.restlib.service.model.UserSession;
-
-/**
- * @author sils
- *
- */
+@Deprecated
 public class TestRestService {
 	//public void test(){
 //		try {
@@ -58,18 +50,18 @@ public class TestRestService {
 //		}
 //	}
 
-	public static void main(String...s) {
-		try {
-			RestClient.setContent("Some testing", "This is for testing");
-			RestClient.sendMessage();
-			
-		}catch(Exception e)
-		{
-			e.printStackTrace();
-		}
-		
-	}
-	
+//	public static void main(String...s) {
+//		try {
+//			RestClient.setContent("Some testing", "This is for testing");
+//			RestClient.sendMessage();
+//			
+//		}catch(Exception e)
+//		{
+//			e.printStackTrace();
+//		}
+//		
+//	}
+//	
 	
 
 	

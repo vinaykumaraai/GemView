@@ -70,6 +70,11 @@ public class RestClient {
 	 */
 	public static RESTServer restServer = context.getBean(RESTServer.class);
 
+	/**
+	 * Setting the content
+	 * @param message
+	 * @param description
+	 */
 	public static void setContent(String message, String description) {
 		try {
 		ObjectMapper mapper = new ObjectMapper();
@@ -82,6 +87,19 @@ public class RestClient {
 			restClientLogger.error("Error while setting request content ",e);
 		}
 	}
+	/**
+	 * Sending message with data
+	 * @param message
+	 * @param description
+	 */
+	public static void sendMessage(String message, String description) {
+		setContent(message, description);
+		sendMessage();
+	}
+	
+	/**
+	 * Sending message with sample data
+	 */
 	public static void sendMessage() { /**
 										 *
 										 * Setting up data to be sent to REST service

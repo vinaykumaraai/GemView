@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -57,6 +58,7 @@ import com.luretechnologies.tms.backend.data.entity.DebugItems;
 import com.luretechnologies.tms.backend.data.entity.DeviceOdometer;
 import com.luretechnologies.tms.backend.data.entity.TerminalClient;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
+import com.luretechnologies.tms.backend.rest.util.RestClient;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
 import com.luretechnologies.tms.ui.NotificationUtil;
 import com.vaadin.data.TreeData;
@@ -82,6 +84,7 @@ public class AssetControlService {
 			assetControlLogger.error("API Error Occured ",ae);
 		} catch (Exception e) {
 			assetControlLogger.error("Error Occured ",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
 		return null;
 	}
@@ -107,6 +110,8 @@ public class AssetControlService {
 			assetControlLogger.error("API Error Occured ",ae);
 		} catch (Exception e) {
 			assetControlLogger.error("Error Occured ",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			
 		}
 		return assetHistoryListNew;
 	}
@@ -124,6 +129,7 @@ public class AssetControlService {
 			assetControlLogger.error("API Error Occured ",ae);
 		} catch (Exception e) {
 			assetControlLogger.error("Error Occured ",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
 	}
 	
@@ -149,6 +155,7 @@ public class AssetControlService {
 			assetControlLogger.error("API Error Occured ",ae);
 		} catch (Exception e) {
 			assetControlLogger.error("Error Occured ",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
 		return historyListSearch;
 	}
@@ -194,6 +201,7 @@ public class AssetControlService {
 			assetControlLogger.error("API Error Occured ",ae);
 		} catch (Exception e) {
 			assetControlLogger.error("Error Occured ",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
 		return null;
 	}
@@ -217,6 +225,7 @@ public class AssetControlService {
 			assetControlLogger.error("API Error Occured ",ae);
 		} catch (Exception e) {
 			assetControlLogger.error("Error Occured ",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
 		return assetAlertListNew;
 	}
@@ -239,6 +248,7 @@ public class AssetControlService {
 			assetControlLogger.error("API Error Occured ",ae);
 		} catch (Exception e) {
 			assetControlLogger.error("Error Occured ",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
 		return newAlert;
 	}
@@ -261,6 +271,7 @@ public class AssetControlService {
 			assetControlLogger.error("API Error Occured ",ae);
 		} catch (Exception e) {
 			assetControlLogger.error("Error Occured ",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
 		return newAlert;
 	}
@@ -278,6 +289,7 @@ public class AssetControlService {
 			assetControlLogger.error("API Error Occured ",ae);
 		} catch (Exception e) {
 			assetControlLogger.error("Error Occured ",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
 	}
 	
@@ -302,6 +314,7 @@ public class AssetControlService {
 			assetControlLogger.error("API Error Occured ",ae);
 		} catch (Exception e) {
 			assetControlLogger.error("Error Occured ",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
 		return debugItemsList;
 	}
@@ -337,6 +350,7 @@ public class AssetControlService {
 			assetControlLogger.error("API Error Occured ",ae);
 		} catch (Exception e) {
 			assetControlLogger.error("Error Occured ",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
 		return debugItemsList;
 	}
@@ -379,6 +393,7 @@ public class AssetControlService {
 			assetControlLogger.error("API Error Occured ",ae);
 		} catch (Exception e) {
 			assetControlLogger.error("Error Occured ",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
 	}
 	
@@ -401,6 +416,7 @@ public class AssetControlService {
 			assetControlLogger.error("API Error Occured ",ae);
 		} catch (Exception e) {
 			assetControlLogger.error("Error Occured ",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
 	}
 	
@@ -422,6 +438,7 @@ public class AssetControlService {
 			assetControlLogger.error("API Error Occured ",ae);
 		} catch (Exception e) {
 			assetControlLogger.error("Error Occured ",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
 		return null;
 	}
