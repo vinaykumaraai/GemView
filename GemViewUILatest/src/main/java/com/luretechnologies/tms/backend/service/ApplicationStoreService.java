@@ -37,6 +37,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 
@@ -59,8 +60,10 @@ import com.luretechnologies.tms.backend.data.entity.ApplicationFile;
 import com.luretechnologies.tms.backend.data.entity.Devices;
 import com.luretechnologies.tms.backend.data.entity.Profile;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
+import com.luretechnologies.tms.backend.rest.util.RestClient;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
-import com.luretechnologies.tms.ui.NotificationUtil;
+import com.luretechnologies.tms.ui.components.ComponentUtil;
+import com.luretechnologies.tms.ui.components.NotificationUtil;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
@@ -89,11 +92,21 @@ public class ApplicationStoreService {
 			}
 		} catch (ApiException e) {
 			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-				aplicationStoreServiceLogger.error("User Session Expired",e);
-				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" getting the App List",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
 			}
-			e.printStackTrace();
+			aplicationStoreServiceLogger.error("API Error has occured while retrieving the App List",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
+			catch (Exception e) {
+				aplicationStoreServiceLogger.error("Error occured while retrieving the App List",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" getting the App List",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
 		return appClientList;
 	}
 
@@ -123,12 +136,23 @@ public class ApplicationStoreService {
 		}
 		
 		}
-		} catch (ApiException ae) {
-				if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-					Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
-				}
-				aplicationStoreServiceLogger.error("Error occured:",ae);
+		} catch (ApiException e) {
+			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving the App Default Param list by App ID",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			aplicationStoreServiceLogger.error("API Error has occured while retrieving the App Default Param list by App ID",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
+			catch (Exception e) {
+				aplicationStoreServiceLogger.error("Error occured while retrieving the App Default Param list by App ID",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving the App Default Param list by App ID",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
 		return appDefaultParamList;
 	}
 	
@@ -145,12 +169,23 @@ public class ApplicationStoreService {
 		}
 		
 		}
-		}catch(ApiException  ae) {
-			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+		}catch (ApiException e) {
+			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving the App Param list by App Profile ID",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
 			}
-			aplicationStoreServiceLogger.error("Error occured:",ae);
+			aplicationStoreServiceLogger.error("API Error has occured while retrieving the App Param list by App Profile ID",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
+			catch (Exception e) {
+				aplicationStoreServiceLogger.error("Error occured while retrieving the App Param list by App Profile ID",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving the App Param list by App Profile ID",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
 		return appDefaultParamList;
 	}	
 	
@@ -168,17 +203,23 @@ public class ApplicationStoreService {
 					return nodeChildList;
 				}
 			}
-		} catch(ApiException  ae) {
-			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+		} catch (ApiException e) {
+			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving the owners list in Application Store Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
 			}
-			aplicationStoreServiceLogger.error("API Error Occured",ae);
-			
+			aplicationStoreServiceLogger.error("API Error has occured while retrieving the owners list in Application Store Screen",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
-		catch (Exception e) {
-			e.printStackTrace();
-			aplicationStoreServiceLogger.error("Error Occured",e);
-		}
+			catch (Exception e) {
+				aplicationStoreServiceLogger.error("Error occured while retrieving the owners list in Application Store Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving the owners list in Application Store Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
 		
 		return nodeChildList;
 	}
@@ -191,9 +232,23 @@ public class ApplicationStoreService {
 				owner = new TreeNode(entity.getName(), entity.getId(), entity.getType(), entity.getEntityId(), entity.getDescription()
 						,true);
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
+		}  catch (ApiException e) {
+			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving the owner in Application Store Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			aplicationStoreServiceLogger.error("API Error has occured while retrieving the owner in Application Store Screen",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
+			catch (Exception e) {
+				aplicationStoreServiceLogger.error("Error occured while retrieving the owner in Application Store Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving the owner in Application Store Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
 		return owner;
 
 	}
@@ -212,12 +267,23 @@ public class ApplicationStoreService {
 				}
 
 			}
-		} catch (ApiException ae) {
-			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+		}  catch (ApiException e) {
+			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving the owners list by Entity ID in Application Store Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
 			}
-			aplicationStoreServiceLogger.error("API Error Occured",ae);
+			aplicationStoreServiceLogger.error("API Error has occured while retrieving the owners list by Entity ID in Application Store Screen",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
+			catch (Exception e) {
+				aplicationStoreServiceLogger.error("Error occured while retrieving the owners list by Entity ID in Application Store Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving the owners list by Entity ID in Application Store Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
 		return nodeChildList;
 
 	}
@@ -247,12 +313,23 @@ public class ApplicationStoreService {
 			profileList=getAppProfileList(appProfileList);
 			return profileList;
 		}
-		}catch (ApiException ae) {
-			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+		} catch (ApiException e) {
+			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving the App Profile List by App ID",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
 			}
-			aplicationStoreServiceLogger.error("API Error Occured",ae);
+			aplicationStoreServiceLogger.error("API Error has occured while retrieving the App Profile List by App ID",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
+			catch (Exception e) {
+				aplicationStoreServiceLogger.error("Error occured while retrieving the App Profile List by App ID",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving the App Profile List by App ID",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
 		return profileList;
 	}
 	
@@ -293,15 +370,23 @@ public class ApplicationStoreService {
 					applicationFileList.add(file);
 				}
 			}
-		}catch (ApiException ae) {
-			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+		} catch (ApiException e) {
+			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving the App file list in Application Store Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
 			}
-			aplicationStoreServiceLogger.error("API Error Occured",ae);
-		} catch (Exception e) {
-			aplicationStoreServiceLogger.error("Error ",e);
-			e.printStackTrace();
+			aplicationStoreServiceLogger.error("API Error has occured while retrieving the App file list in Application Store Screen",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
+			catch (Exception e) {
+				aplicationStoreServiceLogger.error("Error occured while retrieving the App file list in Application Store Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving the App file list in Application Store Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
 		return applicationFileList;
 	}
 	
@@ -319,12 +404,23 @@ public class ApplicationStoreService {
 		}
 		
 		}
-		}catch (ApiException ae) {
-			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+		} catch (ApiException e) {
+			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving the App file list by App Profile ID in Application Store Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
 			}
-			aplicationStoreServiceLogger.error("API Error Occured",ae);
+			aplicationStoreServiceLogger.error("API Error has occured while retrieving the App file list by App Profile ID in Application Store Screen",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
+			catch (Exception e) {
+				aplicationStoreServiceLogger.error("Error occured while retrieving the App file list by App Profile ID in Application Store Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving the App file list by App Profile ID in Application Store Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
 		return appProfileFileList;
 	}
 
@@ -340,14 +436,23 @@ public class ApplicationStoreService {
 					deviceList.add(deviceClient);
 				}
 			}
-		}catch (ApiException ae) {
-			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+		} catch (ApiException e) {
+			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving the devices list in Application Store Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
 			}
-			aplicationStoreServiceLogger.error("API Error Occured ",ae);
-		} catch (Exception e) {
-			aplicationStoreServiceLogger.error("Error Occured ",e);
+			aplicationStoreServiceLogger.error("API Error has occured while retrieving the devices list in Application Store Screen",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
+			catch (Exception e) {
+				aplicationStoreServiceLogger.error("Error occured while retrieving the devices list in Application Store Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving the devices list in Application Store Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
 		return deviceList;
 	}
 
@@ -420,14 +525,23 @@ public class ApplicationStoreService {
 						RestServiceUtil.getInstance().getClient().getAppApi().createApp(serverApp);
 					}
 				}
-			}catch (ApiException ae) {
-				if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-					Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+			} catch (ApiException e) {
+				if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+					Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}else {
+					Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" saving the App in Application Store Screen",Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
 				}
-				aplicationStoreServiceLogger.error("API Error Occured ",ae);
-			} catch (Exception e) {
-				aplicationStoreServiceLogger.error("Error Occured ",e);
+				aplicationStoreServiceLogger.error("API Error has occured while saving the App in Application Store Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 			}
+				catch (Exception e) {
+					aplicationStoreServiceLogger.error("Error occured while saving the App in Application Store Screen",e);
+					RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+					Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" saving the App in Application Store Screen",Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}
 
 		}
 	}
@@ -438,14 +552,23 @@ public class ApplicationStoreService {
 				if (RestServiceUtil.getSESSION() != null) {
 					RestServiceUtil.getInstance().getClient().getAppApi().deleteApp(appClient.getId());
 				}
-			}catch (ApiException ae) {
-				if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-					Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+			} catch (ApiException e) {
+				if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+					Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}else {
+					Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" deleting the app in Application Store Screen",Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
 				}
-				aplicationStoreServiceLogger.error("API Error Occured ",ae);
-			} catch (Exception e) {
-				aplicationStoreServiceLogger.error("Error Occured ",e);
+				aplicationStoreServiceLogger.error("API Error has occured while deleting the app in Application Store Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 			}
+				catch (Exception e) {
+					aplicationStoreServiceLogger.error("Error occured while deleting the app in Application Store Screen",e);
+					RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+					Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" deleting the app in Application Store Screen",Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}
 		}
 	}
 	
@@ -456,14 +579,23 @@ public class ApplicationStoreService {
 				File toDeleteFile = new File(path);
 				toDeleteFile.delete();
 			}
-		}catch (ApiException ae) {
-			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+		} catch (ApiException e) {
+			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" uploading the files in Application Store Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
 			}
-			aplicationStoreServiceLogger.error("API Error Occured ",ae);
-		} catch (Exception e) {
-			aplicationStoreServiceLogger.error("Error Occured ",e);
+			aplicationStoreServiceLogger.error("API Error has occured while uploading the files in Application Store Screen",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
+			catch (Exception e) {
+				aplicationStoreServiceLogger.error("Error occured while uploading the files in Application Store Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" uploading the files in Application Store Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
 	}
 	
 	public void deleteAppFiles(Long appId, Long appParamId) {
@@ -474,14 +606,23 @@ public class ApplicationStoreService {
 					RestServiceUtil.getInstance().getClient().getAppApi().deleteAppFile(appId, appParamId);
 				}
 			}
-		}catch (ApiException ae) {
-			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+		} catch (ApiException e) {
+			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" deleting the files in Application Store Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
 			}
-			aplicationStoreServiceLogger.error("API Error Occured ",ae);
-		} catch (Exception e) {
-			aplicationStoreServiceLogger.error("Error Occured ",e);
+			aplicationStoreServiceLogger.error("API Error has occured while deleting the files in Application Store Screen",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
+			catch (Exception e) {
+				aplicationStoreServiceLogger.error("Error occured while deleting the files in Application Store Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" deleting the files in Application Store Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
 	}
 	
 	public void deleteAppProfileFiles(Long appProfileId, Long appParamId) {
@@ -492,14 +633,23 @@ public class ApplicationStoreService {
 					RestServiceUtil.getInstance().getClient().getAppProfileApi().deleteAppProfileFileValue(appProfileId, appParamId);
 				}
 			}
-		}catch (ApiException ae) {
-			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+		}catch (ApiException e) {
+			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" deleting the App Profile files in Application Store Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
 			}
-			aplicationStoreServiceLogger.error("API Error Occured ",ae);
-		} catch (Exception e) {
-			aplicationStoreServiceLogger.error("Error Occured ",e);
+			aplicationStoreServiceLogger.error("API Error has occured while deleting the App Profile files in Application Store Screen",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
+			catch (Exception e) {
+				aplicationStoreServiceLogger.error("Error occured while deleting the App Profile files in Application Store Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" deleting the App Profile files in Application Store Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
 	}
 	
 	public void saveAppProfile(AppClient appClient, Profile profile) {
@@ -514,14 +664,23 @@ public class ApplicationStoreService {
 					
 					RestServiceUtil.getInstance().getClient().getAppApi().addAppProfile(appClient.getId(), serverProfile);
 				}
-			}catch (ApiException ae) {
-				if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-					Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+			}catch (ApiException e) {
+				if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+					Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}else {
+					Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" saving the App profile in Application Store Screen",Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
 				}
-				aplicationStoreServiceLogger.error("API Error Occured ",ae);
-			} catch (Exception e) {
-				aplicationStoreServiceLogger.error("Error Occured ",e);
+				aplicationStoreServiceLogger.error("API Error has occured while saving the App profile in Application Store Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 			}
+				catch (Exception e) {
+					aplicationStoreServiceLogger.error("Error occured while saving the App Profile in Application Store Screen",e);
+					RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+					Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" saving the App profile in Application Store Screen",Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}
 		}
 	}
 	
@@ -535,14 +694,23 @@ public class ApplicationStoreService {
 					}
 					RestServiceUtil.getInstance().getClient().getAppApi().deleteAppProfile(appId, profileId);
 				}
-			}catch (ApiException ae) {
-				if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-					Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+			}catch (ApiException e) {
+				if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+					Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}else {
+					Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" deleting the App Profile in Application Store Screen",Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
 				}
-				aplicationStoreServiceLogger.error("API Error Occured ",ae);
-			} catch (Exception e) {
-				aplicationStoreServiceLogger.error("Error Occured ",e);
+				aplicationStoreServiceLogger.error("API Error has occured while deleting the App Profile in Application Store Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 			}
+				catch (Exception e) {
+					aplicationStoreServiceLogger.error("Error occured while deleting the App Profile in Application Store Screen",e);
+					RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+					Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" deleting the App Profile in Application Store Screen",Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}
 	}
 	
 	public List<String> getAppParamTypeList(Long id){
@@ -558,19 +726,29 @@ public class ApplicationStoreService {
 			}
 				return appParamTypeList;
 			}
-		}catch (ApiException ae) {
-			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+		}catch (ApiException e) {
+			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving the App Param Type List in Application Store Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
 			}
-			aplicationStoreServiceLogger.error("API Error Occured ",ae);
-		} catch (Exception e) {
-			aplicationStoreServiceLogger.error("Error Occured ",e);
+			aplicationStoreServiceLogger.error("API Error has occured while retrieving the App Param Type List in Application Store Screen",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
+			catch (Exception e) {
+				aplicationStoreServiceLogger.error("Error occured while retrieving the App Param Type List in Application Store Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving the App Param Type List in Application Store Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
 		return appParamTypeList;
 	}
 	
-	public AppParamFormat getAppParamFormatByType(String type) throws ApiException{
+	public AppParamFormat getAppParamFormatByType(String type){
 		AppParamFormat appParamFormatNew = new AppParamFormat();
+		try {
 		if (RestServiceUtil.getSESSION() != null) {
 			List<AppParamFormat> appParamServiceList = RestServiceUtil.getInstance().getClient().getAppParamFormatApi().getAppParamFormatList();
 				for (AppParamFormat appParamFormat : appParamServiceList) {
@@ -579,18 +757,34 @@ public class ApplicationStoreService {
 					}	
 				}
 			}
+		}catch (ApiException e) {
+			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving the App Param format by type in Application Store Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			aplicationStoreServiceLogger.error("API Error has occured while retrieving the App Param format by type in Application Store Screen",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+		}
+			catch (Exception e) {
+				aplicationStoreServiceLogger.error("Error occured while retrieving the App Param format by type in Application Store Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving the App Param format by type in Application Store Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
 		return appParamFormatNew;
 	}
 	
-	public void saveAppDefaultParam(AppClient appClient, AppDefaultParam defaultParam, AppParamFormat appParamFormat) throws NumberFormatException, ApiException {
-		Action action = RestServiceUtil.getInstance().getClient().getActionApi().getAction(Long.valueOf("1"));
-		//EntityLevel entityLevel = RestServiceUtil.getInstance().getClient().getEntityLevelApi().getEntityLevel(Long.valueOf("1"));
+	public void saveAppDefaultParam(AppClient appClient, AppDefaultParam defaultParam, AppParamFormat appParamFormat) throws NumberFormatException {
 		EntityLevel entityLevel = new EntityLevel();
         entityLevel.setId(Long.valueOf(1));
         entityLevel.setName("EntityLevel1");
 		if (appClient != null && defaultParam != null) {
 			try {
 				if (RestServiceUtil.getSESSION() != null) {
+					Action action = RestServiceUtil.getInstance().getClient().getActionApi().getAction(Long.valueOf("1"));
 					AppParam appParam = new AppParam();
 					appParam.setAppId(appClient.getId());
 					appParam.setDescription(defaultParam.getDescription());
@@ -610,14 +804,23 @@ public class ApplicationStoreService {
 						RestServiceUtil.getInstance().getClient().getAppApi().addAppParam(appClient.getId(), appParam);
 					}
 				}
-			}catch (ApiException ae) {
-				if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-					Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+			}catch (ApiException e) {
+				if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+					Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}else {
+					Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" saving the App default param in Application Store Screen",Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
 				}
-				aplicationStoreServiceLogger.error("API Error Occured ",ae);
-			} catch (Exception e) {
-				aplicationStoreServiceLogger.error("Error Occured ",e);
+				aplicationStoreServiceLogger.error("API Error has occured while saving the App default param in Application Store Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 			}
+				catch (Exception e) {
+					aplicationStoreServiceLogger.error("Error occured while saving the App default param in Application Store Screen",e);
+					RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+					Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" saving the App default param in Application Store Screen",Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}
 		}
 	}
 	
@@ -634,14 +837,23 @@ public class ApplicationStoreService {
 				}
 				RestServiceUtil.getInstance().getClient().getAppProfileApi().updateAppProfileParamValue(profile.getId(), appProfileParamValue);
 			}
-		}catch (ApiException ae) {
-			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+		}catch (ApiException e) {
+			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" updating the App param of App Profile in Application Store Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
 			}
-			aplicationStoreServiceLogger.error("API Error Occured ",ae);
-		} catch (Exception e) {
-			aplicationStoreServiceLogger.error("Error Occured ",e);
+			aplicationStoreServiceLogger.error("API Error has occured while updating the App param of App Profile in Application Store Screen",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
+			catch (Exception e) {
+				aplicationStoreServiceLogger.error("Error occured while supdating the App param of App Profile in Application Store Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" updating the App param of App Profile in Application Store Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
 	}
 	
 	public void removeAPPParamAll(Long appId)  {
@@ -651,46 +863,73 @@ public class ApplicationStoreService {
 			RestServiceUtil.getInstance().getClient().getAppApi().deleteAllAppParam(appId);
 			
 			}
-		}catch (ApiException ae) {
-			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+		}catch (ApiException e) {
+			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" deleting all App param in Application Store Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
 			}
-			aplicationStoreServiceLogger.error("API Error Occured ",ae);
-		} catch (Exception e) {
-			aplicationStoreServiceLogger.error("Error Occured ",e);
+			aplicationStoreServiceLogger.error("API Error has occured while deleting all App param in Application Store Screen",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
+			catch (Exception e) {
+				aplicationStoreServiceLogger.error("Error occured while deleting all App param in Application Store Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" deleting all App param in Application Store Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
 }
 	
-	public void removeAPPParam(Long appId, Long appParamId) throws ApiException {
+	public void removeAPPParam(Long appId, Long appParamId) {
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
 			RestServiceUtil.getInstance().getClient().getAppApi().deleteAppParam(appId, appParamId);
 			
 			}
-		}catch (ApiException ae) {
-			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+		}catch (ApiException e) {
+			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" deleting App param in Application Store Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
 			}
-			aplicationStoreServiceLogger.error("API Error Occured ",ae);
-		} catch (Exception e) {
-			aplicationStoreServiceLogger.error("Error Occured ",e);
+			aplicationStoreServiceLogger.error("API Error has occured while deleting App param in Application Store Screen",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
+			catch (Exception e) {
+				aplicationStoreServiceLogger.error("Error occured while deleting App param in Application Store Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" deleting App param in Application Store Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
 }
 	
-	public void removeAppProfileParam(Long appProfileId, Long appParamId) throws ApiException {
+	public void removeAppProfileParam(Long appProfileId, Long appParamId){
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
 			RestServiceUtil.getInstance().getClient().getAppProfileApi().deleteAppProfileParamValue(appProfileId, appParamId);
 			
 			}
-		}catch (ApiException ae) {
-			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+		}catch (ApiException e) {
+			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" deleting all App profile param in Application Store Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
 			}
-			aplicationStoreServiceLogger.error("API Error Occured ",ae);
-		} catch (Exception e) {
-			aplicationStoreServiceLogger.error("Error Occured ",e);
+			aplicationStoreServiceLogger.error("API Error has occured while deleting all App profile param in Application Store Screen",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
+			catch (Exception e) {
+				aplicationStoreServiceLogger.error("Error occured while deleting all App profile param in Application Store Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" deleting all App profile param in Application Store Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
 }
 	
 	public List<AppClient> searchApps(String filter) {
@@ -708,14 +947,23 @@ public class ApplicationStoreService {
 					}
 					return appClientList;
 				}
-			}catch (ApiException ae) {
-				if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-					Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+			}catch (ApiException e) {
+				if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+					Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}else {
+					Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" searching Apps in Application Store Screen",Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
 				}
-				aplicationStoreServiceLogger.error("API Error Occured ",ae);
-			} catch (Exception e) {
-				aplicationStoreServiceLogger.error("Error Occured ",e);
+				aplicationStoreServiceLogger.error("API Error has occured while searching Apps in Application Store Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 			}
+				catch (Exception e) {
+					aplicationStoreServiceLogger.error("Error occured while searching Apps in Application Store Screen",e);
+					RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+					Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" searching Apps in Application Store Screen",Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}
 			return appClientList;
 		}
 	
@@ -723,22 +971,32 @@ public class ApplicationStoreService {
 		List<AppDefaultParam> appDefaultParamList = new ArrayList<>();
 			try {
 				if (RestServiceUtil.getSESSION() != null) {
-					//FIXME: No delete Param api is available
 					List<AppParam> appParamList = RestServiceUtil.getInstance().getClient().getAppApi().searchAppParam(id, filter, null, null);
 					appDefaultParamList=getAppDefaultParamList(appParamList);
 					return appDefaultParamList;
 				}
-			}catch (ApiException ae) {
-				if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-					Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+			}catch (ApiException e) {
+				if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+					Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}else {
+					Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" searching  App params in Application Store Screen",Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
 				}
-				aplicationStoreServiceLogger.error("API Error Occured ",ae);
-			} catch (Exception e) {
-				aplicationStoreServiceLogger.error("Error Occured ",e);
+				aplicationStoreServiceLogger.error("API Error has occured while searching  App params in Application Store Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 			}
+				catch (Exception e) {
+					aplicationStoreServiceLogger.error("Error occured while searching App params in Application Store Screen",e);
+					RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+					Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" searching  App params in Application Store Screen",Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}
 			return appDefaultParamList;
 		}
 
-
+	public void logApplicationStoreScreenErrors(Exception e) {
+		aplicationStoreServiceLogger.error("Error Occured", e);
+	}
 
 }

@@ -34,6 +34,8 @@ package com.luretechnologies.tms.backend.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import com.luretechnologies.client.restlib.common.ApiException;
@@ -41,12 +43,18 @@ import com.luretechnologies.client.restlib.service.model.App;
 import com.luretechnologies.client.restlib.service.model.Heartbeat;
 import com.luretechnologies.tms.backend.data.entity.AppClient;
 import com.luretechnologies.tms.backend.data.entity.TerminalClient;
+import com.luretechnologies.tms.backend.rest.util.RestClient;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
+import com.luretechnologies.tms.ui.components.ComponentUtil;
+import com.luretechnologies.tms.ui.components.NotificationUtil;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 
 @Service
 public class HeartbeatService {
+	private final static Logger heartbeatLogger = Logger.getLogger(HeartbeatService.class);
 
-	public List<TerminalClient> getTerminalList() throws ApiException {
+	public List<TerminalClient> getTerminalList(){
 		List<TerminalClient> terminalList = new ArrayList<>();
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
@@ -59,13 +67,26 @@ public class HeartbeatService {
 				}
 				return terminalList;
 			}
+		} catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving Terminal List for Hearbeat Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			heartbeatLogger.error("API Error Occured while retrieving Terminal List for Hearbeat Screen",ae);
+			RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
 		} catch (Exception e) {
-			e.printStackTrace();
+			heartbeatLogger.error("Error Occured while retrieving Terminal List for Hearbeat Screen",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving Terminal List for Hearbeat Screen",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
 		}
 		return terminalList;
 	}
 	
-	public List<TerminalClient> searchTerminal(String filter) throws ApiException {
+	public List<TerminalClient> searchTerminal(String filter) {
 		List<TerminalClient> terminalList = new ArrayList<>();
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
@@ -78,52 +99,104 @@ public class HeartbeatService {
 				}
 				return terminalList;
 			}
+		} catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" searching Terminal List for Hearbeat Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			heartbeatLogger.error("API Error Occured while searching Terminal List for Hearbeat Screen",ae);
+			RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
 		} catch (Exception e) {
-			e.printStackTrace();
+			heartbeatLogger.error("Error Occured while searching Terminal List for Hearbeat Screen",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" searching Terminal List for Hearbeat Screen",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
 		}
 		return terminalList;
 	}
 	
-	public List<Heartbeat> getHeartbeatHistory(String entityId) throws ApiException {
+	public List<Heartbeat> getHeartbeatHistory(String entityId) {
 		List<Heartbeat> heartbeatHistortListServer = new ArrayList<>();
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
 				heartbeatHistortListServer = RestServiceUtil.getInstance().getClient().getHeartbeatApi().search(entityId, null, null, null, null, null);
 				return heartbeatHistortListServer;
 			}
+		} catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving Heartbeat History",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			heartbeatLogger.error("API Error Occured while retrieving Heartbeat History",ae);
+			RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
 		} catch (Exception e) {
-			e.printStackTrace();
+			heartbeatLogger.error("Error Occured while retrieving Heartbeat History",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving Heartbeat History",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
 		}
 		return heartbeatHistortListServer;
 	}
 	
-	public List<Heartbeat> searchHBHistoryByText(String entityId, String filter, String startDate, String endDate) throws ApiException {
+	public List<Heartbeat> searchHBHistoryByText(String entityId, String filter, String startDate, String endDate) {
 		List<Heartbeat> heartbeatHistortListServer = new ArrayList<>();
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
 				heartbeatHistortListServer = RestServiceUtil.getInstance().getClient().getHeartbeatApi().search(entityId, filter, startDate, endDate, null, null);
 				return heartbeatHistortListServer;
 			}
+		} catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" searching Heartbeat History",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			heartbeatLogger.error("API Error Occured while searching Heartbeat History",ae);
+			RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
 		} catch (Exception e) {
-			e.printStackTrace();
+			heartbeatLogger.error("Error Occured while searching Heartbeat History",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" searching Heartbeat History",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
 		}
 		return heartbeatHistortListServer;
 	}
 	
-	public List<Heartbeat> searchHBHistoryByDate(String entityId, String filter, String startdate, String endDate) throws ApiException {
+	public List<Heartbeat> searchHBHistoryByDate(String entityId, String filter, String startdate, String endDate) {
 		List<Heartbeat> heartbeatHistortListServer = new ArrayList<>();
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
 				heartbeatHistortListServer = RestServiceUtil.getInstance().getClient().getHeartbeatApi().search(entityId, filter, startdate, endDate, null, null);
 				return heartbeatHistortListServer;
 			}
+		} catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" searching Heartbeat History by dates",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			heartbeatLogger.error("API Error Occured while searching Heartbeat History by dates",ae);
+			RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
 		} catch (Exception e) {
-			e.printStackTrace();
+			heartbeatLogger.error("Error Occured while searching Heartbeat History by dates",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" searching Heartbeat History by dates",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
 		}
 		return heartbeatHistortListServer;
 	}
 	
-	public List<Heartbeat> deleteHeartbeat(Long id) throws ApiException {
+	/*public List<Heartbeat> deleteHeartbeat(Long id) {
 		List<Heartbeat> heartbeatHistortListServer = new ArrayList<>();
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
@@ -131,12 +204,22 @@ public class HeartbeatService {
 				//heartbeatHistortListServer = RestServiceUtil.getInstance().getClient().getHeartbeatApi().d
 				return heartbeatHistortListServer;
 			}
+		} catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			heartbeatLogger.error("API Error Occured while deleting Heartbeat History",ae);
+			RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
 		} catch (Exception e) {
-			e.printStackTrace();
+			heartbeatLogger.error("Error Occured while deleting Heartbeat History",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
 		return heartbeatHistortListServer;
+	}*/
+	
+	public void logHeartbeatScreenErrors(Exception e) {
+		heartbeatLogger.error("Error Occured", e);
 	}
-	
-	
 	
 }

@@ -31,17 +31,32 @@
  */
 package com.luretechnologies.tms.ui.components;
 
+import javax.servlet.ServletContext;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.luretechnologies.client.restlib.common.ApiException;
+import com.luretechnologies.tms.app.Application;
+import com.luretechnologies.tms.ui.MainView;
+import com.luretechnologies.tms.ui.navigation.NavigationManager;
 import com.vaadin.data.ValidationResult;
 import com.vaadin.data.Validator;
 import com.vaadin.data.ValueContext;
+import com.vaadin.server.Page;
 import com.vaadin.server.UserError;
+import com.vaadin.shared.Position;
+import com.vaadin.spring.navigator.SpringViewProvider;
 import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.Notification.CloseEvent;
+import com.vaadin.ui.Notification.CloseListener;
+import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**
@@ -49,6 +64,17 @@ import com.vaadin.ui.themes.ValoTheme;
  *
  */
 public class ComponentUtil {
+	
+	@Autowired
+	public static MainView mainView;
+	
+	private static ServletContext servletContext;
+	
+
+	@Autowired
+	public ComponentUtil(ServletContext servletContext) {
+		this.servletContext = servletContext;
+	}
 
 	public static Component getFormFieldWithLabel(String labelName, FormFieldType type) {
 		Component component = null;
@@ -136,4 +162,27 @@ public class ComponentUtil {
             }
         });
     }
+	
+	public static void sessionExpired(Notification notification) {
+		notification.setPosition(Position.TOP_CENTER);
+		notification.setDelayMsec(5000);
+		notification.addCloseListener(new CloseListener() {
+		
+			@Override
+			public void notificationClose(CloseEvent e) {
+				Page.getCurrent().setLocation(getAbsoluteUrl(Application.LOGIN_URL));
+			
+			}
+		});
+	}
+	
+	private static String getAbsoluteUrl(String url) {
+		final String relativeUrl;
+		if (url.startsWith("/")) {
+			relativeUrl = url.substring(1);
+		} else {
+			relativeUrl = url;
+		}
+		return servletContext.getContextPath() + "/" + relativeUrl;
+	}
 }

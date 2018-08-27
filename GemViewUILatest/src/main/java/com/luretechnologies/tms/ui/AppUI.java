@@ -35,6 +35,7 @@ package com.luretechnologies.tms.ui;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.luretechnologies.tms.app.HasLogger;
+import com.luretechnologies.tms.ui.components.NotificationUtil;
 import com.luretechnologies.tms.ui.navigation.NavigationManager;
 import com.luretechnologies.tms.ui.view.AccessDeniedView;
 import com.vaadin.annotations.Theme;

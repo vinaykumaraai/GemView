@@ -36,6 +36,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -45,34 +47,43 @@ import com.luretechnologies.client.restlib.service.model.Entity;
 import com.luretechnologies.client.restlib.service.model.User;
 import com.luretechnologies.tms.backend.data.entity.Audit;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
+import com.luretechnologies.tms.backend.rest.util.RestClient;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
+import com.luretechnologies.tms.ui.components.ComponentUtil;
+import com.luretechnologies.tms.ui.components.NotificationUtil;
 import com.vaadin.data.TreeData;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.spring.annotation.SpringComponent;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Tree.ItemClick;
 
 @SpringComponent
 @Service
 public class AuditService {
+	private final static Logger auditLogger = Logger.getLogger(AuditService.class);
 	
 	@Autowired
 	TreeDataNodeService treeDataNodeService;
 	
-	public TreeData<TreeNode> auditTreeData() throws ApiException{
+	public TreeData<TreeNode> auditTreeData(){
 		try {
 			if(RestServiceUtil.getSESSION()!=null) {
 			TreeData<TreeNode> treeData = treeDataNodeService.getTreeData();
 			return treeData;
 			}
-		}catch(Exception e) {
-			e.printStackTrace();
+		}catch (Exception e) {
+			auditLogger.error("Error Occured while retrieving Audit Tree data",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  retrieving Audit Tree data",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
 		}
 		return null;
 	}
 
 	
-	public List<Audit> auditGridData(String id) throws ApiException{
+	public List<Audit> auditGridData(String id){
 		List<Audit> auditListNew = new ArrayList<>();
 		try {
 			if(RestServiceUtil.getSESSION()!=null) {
@@ -86,24 +97,50 @@ public class AuditService {
 				}
 				return auditListNew;
 			}
-		}catch(Exception e) {
-			e.printStackTrace();
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  retrieving Audit Grid Data",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			auditLogger.error("API Error Occured while retrieving Audit Grid Data",ae);
+			RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
+		} catch (Exception e) {
+			auditLogger.error("Error Occured while retrieving Audit Grid Data",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  retrieving Audit Grid Data",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
 		}
 		return auditListNew;
 	}
 	
-	public void deleteGridData(Long id) throws ApiException{
+	public void deleteGridData(Long id){
 		try {
 			if(RestServiceUtil.getSESSION()!=null) {
 			
 				RestServiceUtil.getInstance().getClient().getAuditUserLogApi().delete(id);
 			}
-		}catch(Exception e) {
-			e.printStackTrace();
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  deleting Audit Grid Data",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			auditLogger.error("API Error Occured while deleting Audit Grid Data",ae);
+			RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
+		} catch (Exception e) {
+			auditLogger.error("Error Occured while deleting Audit Grid Data",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  deleting Audit Grid Data",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
 		}
 	}
 	
-	public List<AuditUserLog> searchGridData(String filter, String startDate, String endDate) throws ApiException{
+	public List<AuditUserLog> searchGridData(String filter, String startDate, String endDate){
 		try {
 			if(RestServiceUtil.getSESSION()!=null) {
 			
@@ -111,39 +148,53 @@ public class AuditService {
 						startDate, endDate, null, null);
 				return auditList;
 			}
-		}catch(Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-	
-	public List<AuditUserLog> searchTreeData(String filter) throws ApiException{
-		try {
-			if(RestServiceUtil.getSESSION()!=null) {
-			
-				List<AuditUserLog> auditList = null;/*RestServiceUtil.getInstance().getClient().getAuditUserLogApi().searchLogs(null, null, filter, 
-						null, null, 1, 20);*/
-				//RestServiceUtil.getInstance().getClient().getAuditUserLogApi().searchLogs(userId, entityId, filter, dateFrom, dateTo, pageNumber, rowsPerPage)
-				return auditList;
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  searching Audit Grid Data",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
 			}
-		}catch(Exception e) {
-			e.printStackTrace();
+			auditLogger.error("API Error Occured while searching Audit Grid Data",ae);
+			RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
+		} catch (Exception e) {
+			auditLogger.error("Error Occured while searching Audit Grid Data",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  searching Audit Grid Data",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
 		}
 		return null;
 	}
 	
-	public List<AuditUserLog> searchByDates(String filter, String startDate, String endDate) throws ApiException{
+	public List<AuditUserLog> searchByDates(String filter, String startDate, String endDate){
 		try {
 			if(RestServiceUtil.getSESSION()!=null) {
 			
 				List<AuditUserLog> auditList = RestServiceUtil.getInstance().getClient().getAuditUserLogApi().searchLogs(null, null, filter, 
 						startDate, endDate, null, null);
-				//RestServiceUtil.getInstance().getClient().getSystemParamsApi().
 				return auditList;
 			}
-		}catch(Exception e) {
-			e.printStackTrace();
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  searching Audit Grid Data by dates",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			auditLogger.error("API Error Occured while searching Audit Grid Data by dates",ae);
+			RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
+		} catch (Exception e) {
+			auditLogger.error("Error Occured while searching Audit Grid Data by dates",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  searching Audit Grid Data by dates",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
 		}
 		return null;
+	}
+	
+	public void logAuditScreenErrors(Exception e) {
+		auditLogger.error("Error Occured", e);
 	}
 }

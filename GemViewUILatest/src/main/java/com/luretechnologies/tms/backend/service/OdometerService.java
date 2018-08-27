@@ -34,6 +34,8 @@ package com.luretechnologies.tms.backend.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -43,31 +45,41 @@ import com.luretechnologies.client.restlib.service.model.HeartbeatOdometer;
 import com.luretechnologies.client.restlib.service.model.Terminal;
 import com.luretechnologies.tms.backend.data.entity.DeviceOdometer;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
+import com.luretechnologies.tms.backend.rest.util.RestClient;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
+import com.luretechnologies.tms.ui.components.ComponentUtil;
+import com.luretechnologies.tms.ui.components.NotificationUtil;
 import com.vaadin.data.TreeData;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.spring.annotation.SpringComponent;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Tree.ItemClick;
 
 @SpringComponent
 @Service
 public class OdometerService {
 	
+	private final static Logger odometerLogger = Logger.getLogger(OdometerService.class);
+	
 	@Autowired
 	TreeDataNodeService treeDataNodeService;
 	
-	public TreeData<TreeNode> getDeviceOdometerTreeData() throws ApiException{
+	public TreeData<TreeNode> getDeviceOdometerTreeData(){
 		try {
 			TreeData<TreeNode> treeData = treeDataNodeService.getTreeData();
 			return treeData;
-		}catch(Exception e) {
-			e.printStackTrace();
+		}catch (Exception e) {
+			odometerLogger.error("Error Occured while retrieving Odometer Tree data",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  retrieving Odometer Tree data",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
 		}
 		return null;
 	}
 	
-	public List<DeviceOdometer> getOdometerGridData(String id, String type) throws ApiException{
+	public List<DeviceOdometer> getOdometerGridData(String id, String type){
 		List<DeviceOdometer> odometerListNew = new ArrayList<>();
 		try {
 			if(RestServiceUtil.getSESSION()!=null) {
@@ -87,24 +99,50 @@ public class OdometerService {
 				}
 				
 			}
-		}catch(Exception e) {
-			e.printStackTrace();
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  retrieving Odometer Grid Data",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			odometerLogger.error("API Error Occured while retrieving Odometer Grid Data",ae);
+			RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
+		} catch (Exception e) {
+			odometerLogger.error("Error Occured while retrieving Odometer Grid Data",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  retrieving Odometer Grid Data",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
 		}
 		return odometerListNew;
 	}
 	
-	public void deleteGridData(Long id) throws ApiException{
+	public void deleteGridData(Long id){
 		try {
 			if(RestServiceUtil.getSESSION()!=null) {
 			
 				RestServiceUtil.getInstance().getClient().getHeartbeatApi().deleteOdometer(id);
 			}
-		}catch(Exception e) {
-			e.printStackTrace();
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  deleting Odometer Grid Data",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			odometerLogger.error("API Error Occured while deleting Odometer Grid Data",ae);
+			RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
+		} catch (Exception e) {
+			odometerLogger.error("Error Occured while deleting Odometer Grid Data",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  deleting Odometer Grid Data",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
 		}
 	}
 	
-	public List<DeviceOdometer> searchOdometerGridData(String entityId, String filter,String startDate, String endDate) throws ApiException{
+	public List<DeviceOdometer> searchOdometerGridData(String entityId, String filter,String startDate, String endDate){
 		List<DeviceOdometer> odometerListSearch = new ArrayList<>();
 		try {
 			if(RestServiceUtil.getSESSION()!=null) {
@@ -120,28 +158,26 @@ public class OdometerService {
 				}
 				return odometerListSearch;
 			}
-		}catch(Exception e) {
-			e.printStackTrace();
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  searching Odometer Grid Data",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			odometerLogger.error("API Error Occured while searching Odometer Grid Data",ae);
+			RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
+		} catch (Exception e) {
+			odometerLogger.error("Error Occured while searching Odometer Grid Data",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  searching Odometer Grid Data",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
 		}
 		return odometerListSearch;
 	}
 	
-	public List<HeartbeatOdometer> searchTreeData(String filter) throws ApiException{
-		try {
-			if(RestServiceUtil.getSESSION()!=null) {
-			
-				List<HeartbeatOdometer> odometerList = null;/*RestServiceUtil.getInstance().getClient().getAuditUserLogApi().searchLogs(null, null, filter, 
-						null, null, 1, 20);*/
-				//RestServiceUtil.getInstance().getClient().getAuditUserLogApi().searchLogs(userId, entityId, filter, dateFrom, dateTo, pageNumber, rowsPerPage)
-				return odometerList;
-			}
-		}catch(Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-	
-	public List<HeartbeatOdometer> searchByDates(String entityId, String filter, String startDate, String endDate) throws ApiException{
+	public List<HeartbeatOdometer> searchByDates(String entityId, String filter, String startDate, String endDate){
 		try {
 			if(RestServiceUtil.getSESSION()!=null) {
 			
@@ -149,10 +185,25 @@ public class OdometerService {
 						startDate, endDate, null, null);
 				return odometerList;
 			}
-		}catch(Exception e) {
-			e.printStackTrace();
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  searching Odometer Grid Data by dates",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			odometerLogger.error("API Error Occured while searching Odometer Grid Data by dates",ae);
+			RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
+		} catch (Exception e) {
+			odometerLogger.error("Error Occured while searching Odometer Grid Data by dates",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  searching Odometer Grid Data by dates",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
 		}
 		return null;
 	}
-
+	public void logOdometerScreenErrors(Exception e) {
+		odometerLogger.error("Error Occured", e);
+	}
 }

@@ -150,4 +150,14 @@ public class NotificationUtil {
 	public static final String APPLICATIONSTORE_CLEAR_ALL_CHECK = "Select any App to delete all Parameters";
 	
 	public static final String APPLICATIONSTORE_PROFILE_DROPDOWN_CHECK = "Save the app/ select any app from app list";
+	
+	public static final String SESSION_EXPIRED = "!!!Session has Expired!!!";
+	
+	public static final String SERVER_EXCEPTION = "Server Exception while";
+	
+	public static final String TWO_FACTOR_RESEND_CODE = "Verification Code sent again";
+	
+	public static final String TWO_FACTOR_RESEND_CODE_ERROR = "Server Exception while sending the Verification code again.";
+	
+	public static final String TWO_FACTOR_VERIFICATION_ERROR = "Server Exception while Verifying the code";
 }

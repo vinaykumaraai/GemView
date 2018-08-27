@@ -103,7 +103,6 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 	private static VerticalLayout optionsLayoutVerticalPhone;
 	private static HorizontalLayout dateDeleteLayout;
 	private static VerticalLayout dateDeleteLayoutPhone;
-	Logger logger = LoggerFactory.getLogger(DeviceodometerView.class);
 	
 	private static HorizontalLayout panelTools; 
 	
@@ -249,14 +248,10 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 		}
 		
 		Permission appStorePermission = roleService.getLoggedInUserRolePermissions().stream().filter(per -> per.getPageName().equals("ODOMETER")).findFirst().get();
-		try {
 			disableAllComponents();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 		allowAccessBasedOnPermission(appStorePermission.getAdd(),appStorePermission.getEdit(),appStorePermission.getDelete());
 		} catch(Exception ex) {
-			logger.info(ex.getMessage());
+			odometerDeviceService.logOdometerScreenErrors(ex);
 		}
 	}
 	
@@ -332,15 +327,11 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 	private void configureTreeNodeSearch() {
 		treeNodeSearch.addValueChangeListener(changed -> {
 			String valueInLower = changed.getValue().toLowerCase();
-			try {
 				if(!valueInLower.isEmpty() && valueInLower!=null) {
 					nodeTree.setTreeData(treeDataNodeService.searchTreeData(valueInLower));
 				}else {
 					nodeTree.setTreeData(treeDataNodeService.getTreeData());
 				}
-			} catch (ApiException e) {
-				e.printStackTrace();
-			}
 		});
 		
 		treeNodeSearch.addShortcutListener(new ShortcutListener("Clear",KeyCode.ESCAPE,null) {
@@ -361,7 +352,6 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 		            public void onClose(ConfirmDialog dialog) {
 		                if (dialog.isConfirmed()) {
 		                    // Confirmed to continue
-		                	try {
 								odometerDeviceService.deleteGridData(id);
 								List<DeviceOdometer> odometerList = odometerDeviceService.getOdometerGridData(entityId, type);
 								DataProvider data = new ListDataProvider(odometerList);
@@ -369,9 +359,6 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 								nodeTree.getDataProvider().refreshAll();
 			    				odometerDeviceSearch.clear();
 			    				clearCalenderDates();
-							} catch (ApiException e) {
-								e.printStackTrace();
-							}
 		    				
 		                } else {
 		                    // User did not confirm
@@ -435,13 +422,9 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 				endDate = odometerEndDateField.getValue().format(dateFormatter1);
 				startDate = odometerStartDateField.getValue().format(dateFormatter1);
 			}
-			try {
 				List<DeviceOdometer> searchGridData = odometerDeviceService.searchOdometerGridData(nodeTree.getSelectedItems().iterator().next().getEntityId(),filter, startDate, endDate);
 				DataProvider data = new ListDataProvider(searchGridData);
 				odometerDeviceGrid.setDataProvider(data);
-			} catch (ApiException e) {
-				e.printStackTrace();
-			}
 			}
 		});
 
@@ -537,7 +520,6 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
         	 			String endDate = odometerEndDateField.getValue().format(dateFormatter1);
         	 			String startDate = odometerStartDateField.getValue().format(dateFormatter1);
         	 			String filter = odometerDeviceSearch.getValue();
-        	 				try {
         	 					List<DeviceOdometer> odometerListFilterBydates = new ArrayList<>();
     	        	 			List<HeartbeatOdometer> odometerList;
     	        	 			odometerList = odometerDeviceService.searchByDates(nodeTree.getSelectedItems().iterator().next().getEntityId(), filter, startDate, endDate);
@@ -548,9 +530,6 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
     	    					}
     	    					DataProvider data = new ListDataProvider(odometerListFilterBydates);
     	    					odometerDeviceGrid.setDataProvider(data);
-        	 				} catch (ApiException e) {
-        	 					e.printStackTrace();
-        	 				}
         		 	}else {
         				Notification.show(NotificationUtil.AUDIT_SAMEDATE, Notification.Type.ERROR_MESSAGE);
         				odometerStartDateField.clear();
@@ -574,16 +553,12 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 				odometerDeviceSearch.clear();
 				odometerEndDateField.clear();
 				List<DeviceOdometer> odometerListNew;
-				try {
 					if(nodeTree.getSelectedItems().size()>0) {
 					odometerListNew = odometerDeviceService.getOdometerGridData(nodeTree.getSelectedItems().iterator().next().getEntityId(),
 							nodeTree.getSelectedItems().iterator().next().getType().name());
 					DataProvider data = new ListDataProvider(odometerListNew);
 					odometerDeviceGrid.setDataProvider(data);
 					}
-				} catch (ApiException e) {
-					e.printStackTrace();
-				}
 				
 			}
 	});
@@ -594,16 +569,11 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 					DataProvider data = new ListDataProvider(auditListNew);
 					odometerDeviceGrid.setDataProvider(data);
 				}else {
-				try {
 					List<DeviceOdometer> odometerListNew = odometerDeviceService.getOdometerGridData(selection.getFirstSelectedItem().get().getEntityId(),
 							selection.getFirstSelectedItem().get().getType().name());
 					DataProvider data = new ListDataProvider(odometerListNew);
 					odometerDeviceGrid.setDataProvider(data);
 					
-				} catch (ApiException e) {
-					Notification.show(e.getMessage(), Type.ERROR_MESSAGE);
-					e.printStackTrace();
-				}
 				}
 				odometerDeviceSearch.clear();
 				clearCalenderDates();

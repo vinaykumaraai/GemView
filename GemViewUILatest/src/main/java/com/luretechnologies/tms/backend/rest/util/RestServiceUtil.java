@@ -1,8 +1,16 @@
 package com.luretechnologies.tms.backend.rest.util;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.log4j.Logger;
+
 import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.client.restlib.service.RestClientService;
 import com.luretechnologies.client.restlib.service.model.UserSession;
+import com.luretechnologies.tms.backend.service.RolesService;
+import com.luretechnologies.tms.ui.components.ComponentUtil;
+import com.luretechnologies.tms.ui.components.NotificationUtil;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 
 /**
  * 
@@ -10,6 +18,7 @@ import com.luretechnologies.client.restlib.service.model.UserSession;
  *
  */
 public class RestServiceUtil {
+	private final static Logger sessionLogger = Logger.getLogger(RestServiceUtil.class);
 
 	private static final RestServiceUtil INSTANCE = new RestServiceUtil();
 	
@@ -41,11 +50,19 @@ public class RestServiceUtil {
 		 return SESSION;
 	}
 	
-	public void updatePassword(String username,String currentPassword, String newPassword) throws Exception {
+	public void updatePassword(String username,String currentPassword, String newPassword){
 		try {
 			client.getAuthApi().updatePassword(username, currentPassword, newPassword);
-		}catch (Exception e) {
-			throw new Exception(e);
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			sessionLogger.error("API Error Occured while updating password",ae);
+			RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
+		} catch (Exception e) {
+			sessionLogger.error("Error Occured while updating password",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
 	}
 	

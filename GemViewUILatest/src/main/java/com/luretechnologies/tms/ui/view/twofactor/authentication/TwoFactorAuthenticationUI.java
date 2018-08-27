@@ -37,13 +37,20 @@ import javax.annotation.PostConstruct;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.client.restlib.service.model.UserSession;
 import com.luretechnologies.tms.app.Application;
 import com.luretechnologies.tms.app.HasLogger;
+import com.luretechnologies.tms.backend.rest.util.RestClient;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
+import com.luretechnologies.tms.backend.service.UserService;
 import com.luretechnologies.tms.ui.AppUI;
+import com.luretechnologies.tms.ui.components.ComponentUtil;
+import com.luretechnologies.tms.ui.components.NotificationUtil;
 import com.luretechnologies.tms.ui.navigation.NavigationManager;
 import com.luretechnologies.tms.ui.view.AccessDeniedView;
 import com.vaadin.annotations.Theme;
@@ -90,7 +97,6 @@ public class TwoFactorAuthenticationUI extends UI implements HasLogger, View{
 	public static final String VIEW_NAME = "twofactorauthenticationhome";
 	private final SpringViewProvider viewProvider;
 	private final NavigationManager navigationManager;
-	//private final TwoFactorView twoFactorview;
 	private VerticalLayout vl;
 	private Button resendEmail, authenticate;
 	private RestServiceUtil restUtil;
@@ -98,6 +104,7 @@ public class TwoFactorAuthenticationUI extends UI implements HasLogger, View{
 	private VerticalSplitPanel verticalPanel;
 	private ServletContext servletContext;
 	private HttpServletResponse response;
+	private final static Logger twoFactorLogger = Logger.getLogger(TwoFactorAuthenticationUI.class);
 	
 	@Autowired
 	public TwoFactorAuthenticationUI(ServletContext servletContext, SpringViewProvider viewProvider, NavigationManager navigationManager/*, TwoFactorView twoFactorview*/) {
@@ -175,8 +182,6 @@ public class TwoFactorAuthenticationUI extends UI implements HasLogger, View{
 		FormLayout verificationCodeLayout = new FormLayout();
 		verificationCodeLayout.addStyleName("twofactor-formLayout");
 		TextField verificationCode = new TextField();
-		/*Attribute attribute = new Attribute("spellcheck", "false");
-		attribute.extend(verificationCode);*/
 		verificationCode.focus();
 		verificationCode.setMaxLength(10);
 		verificationCode.setCaptionAsHtml(true);
@@ -194,23 +199,21 @@ public class TwoFactorAuthenticationUI extends UI implements HasLogger, View{
 		resendEmail.addClickListener(click -> {
 			try {
 				RestServiceUtil.getInstance().getClient().getAuthApi().resendCode();
-				Notification.show("Verification Code sent again", Type.ERROR_MESSAGE).setPosition(Position.TOP_CENTER);
-			} catch (Exception e) {
-				//Dont Navigate.
-				Notification somethingWrong = Notification.show("Something went wrong, Try to login again", Type.ERROR_MESSAGE);
-				somethingWrong.setPosition(Position.TOP_CENTER);
-				somethingWrong.setDelayMsec(3000);
-				somethingWrong.addCloseListener(new CloseListener() {
-					
-					@Override
-					public void notificationClose(CloseEvent e) {
-						Page.getCurrent().setLocation(getAbsoluteUrl(Application.LOGIN_URL));
-						
-					}
-				});
-				
-				e.printStackTrace();
-			
+				Notification.show(NotificationUtil.TWO_FACTOR_RESEND_CODE, Type.ERROR_MESSAGE).setPosition(Position.TOP_CENTER);
+			} catch (ApiException e) {
+				twoFactorLogger.error("Server Exception while sending the Verification code again", e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+					Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}
+				Notification somethingWrong = Notification.show(NotificationUtil.TWO_FACTOR_RESEND_CODE_ERROR, Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(somethingWrong);
+			}catch (Exception e) {
+				twoFactorLogger.error("Server Exception while sending the Verification code again", e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification somethingWrong = Notification.show(NotificationUtil.TWO_FACTOR_RESEND_CODE_ERROR, Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(somethingWrong);
 			}
 		});
 	
@@ -218,19 +221,31 @@ public class TwoFactorAuthenticationUI extends UI implements HasLogger, View{
 		authenticate.setWidth("100%");
 		authenticate.addStyleName("twofactor-buttons");
 		authenticate.addClickListener(click -> {
-			//FIXME: Add Two Factor Code Check
-//			navigationManager.navigateToDefaultView();
 			try {
 				RestServiceUtil.getInstance().getClient().getAuthApi().verifyCode(verificationCode.getValue());
 				Page.getCurrent().setLocation(getAbsoluteUrl(Application.APP_URL+"home"));
-			} catch (Exception e) {
-				if(e.getMessage().equals("INVALID VERIFICATION CODE") || e.getMessage().equals("EXPIRED VERIFICATION CODE RECEIVED")) {
-				Notification codeNotification = Notification.show("Entered Code is Wrong/Time, Please request again", Type.ERROR_MESSAGE);
+			} catch (ApiException e) {
+				if(e.getMessage().equals("INVALID VERIFICATION CODE")) {
+				Notification codeNotification = Notification.show("Entered Code is Wrong, Please check again", Type.ERROR_MESSAGE);
 				codeNotification.setPosition(Position.TOP_CENTER);
 				codeNotification.setDelayMsec(3000);
+				}else if(e.getMessage().equals("EXPIRED VERIFICATION CODE RECEIVED")) {
+					Notification codeNotification = Notification.show("Entered Code is Expired, Please try again with new code", Type.ERROR_MESSAGE);
+					codeNotification.setPosition(Position.TOP_CENTER);
+					codeNotification.setDelayMsec(3000);
+				}if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+					Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
 				}
-				e.printStackTrace();
-			
+				twoFactorLogger.error("Server Exception while Verifying the code", e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification somethingWrong = Notification.show(NotificationUtil.TWO_FACTOR_VERIFICATION_ERROR, Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(somethingWrong);
+			}catch (Exception e) {
+				twoFactorLogger.error("Server Exception while Verifying the code", e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification somethingWrong = Notification.show(NotificationUtil.TWO_FACTOR_VERIFICATION_ERROR, Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(somethingWrong);
 			}
 		});
 	
@@ -240,10 +255,11 @@ public class TwoFactorAuthenticationUI extends UI implements HasLogger, View{
 		vl.addComponent(panel);
 		vl.setComponentAlignment(panel, Alignment.MIDDLE_CENTER);
 		setContent(vl);
-	//navigationManager.navigateToTwoFactorView();
 	  }
 		else {
-			throw new NullPointerException("Session is null");
+			NullPointerException e = new NullPointerException("Session is null");
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			Notification.show("Login Session is Null", Type.ERROR_MESSAGE);
 			
 		}
 	  
@@ -264,13 +280,10 @@ public class TwoFactorAuthenticationUI extends UI implements HasLogger, View{
 				vl.addStyleName("twofactor-verticalLayout");
 				panel = new VerticalSplitPanel();
 				VerticalLayout firstPanelLayout = new VerticalLayout();
-				//firstPanelLayout.setHeight("300px");
 				firstPanelLayout.setSizeFull();
 				VerticalLayout secondPanelLayout = new VerticalLayout();
 				firstvl.addComponent(secondPanelLayout);
 				firstvl.setComponentAlignment(secondPanelLayout, Alignment.MIDDLE_CENTER);
-				//secondPanelLayout.setSizeFull();
-				//secondPanelLayout.setHeight("395px");
 				secondPanelLayout.setWidth("350px");
 				secondPanelLayout.setHeight("100%");
 				secondPanelLayout.addStyleName("twofactor-secondPanelVertical");
@@ -319,23 +332,21 @@ public class TwoFactorAuthenticationUI extends UI implements HasLogger, View{
 				resendEmail.addClickListener(click -> {
 					try {
 						RestServiceUtil.getInstance().getClient().getAuthApi().resendCode();
-						Notification.show("Verification Code sent again", Type.ERROR_MESSAGE).setPosition(Position.TOP_CENTER);
-					} catch (Exception e) {
-						//Dont Navigate.
-						Notification somethingWrong = Notification.show("Something went wrong, Try to login again", Type.ERROR_MESSAGE);
-						somethingWrong.setPosition(Position.TOP_CENTER);
-						somethingWrong.setDelayMsec(3000);
-						somethingWrong.addCloseListener(new CloseListener() {
-							
-							@Override
-							public void notificationClose(CloseEvent e) {
-								Page.getCurrent().setLocation(getAbsoluteUrl(Application.LOGIN_URL));
-								
-							}
-						});
-						
-						e.printStackTrace();
-					
+						Notification.show(NotificationUtil.TWO_FACTOR_RESEND_CODE, Type.ERROR_MESSAGE).setPosition(Position.TOP_CENTER);
+					} catch (ApiException e) {
+						twoFactorLogger.error("Server Exception while sending the Verification code again", e);
+						RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+						if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+							Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+							ComponentUtil.sessionExpired(notification);
+						}
+						Notification somethingWrong = Notification.show(NotificationUtil.TWO_FACTOR_RESEND_CODE_ERROR, Type.ERROR_MESSAGE);
+						ComponentUtil.sessionExpired(somethingWrong);
+					}catch (Exception e) {
+						twoFactorLogger.error("Server Exception while sending the Verification code again", e);
+						RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+						Notification somethingWrong = Notification.show(NotificationUtil.TWO_FACTOR_RESEND_CODE_ERROR, Type.ERROR_MESSAGE);
+						ComponentUtil.sessionExpired(somethingWrong);
 					}
 				});
 			
@@ -348,15 +359,29 @@ public class TwoFactorAuthenticationUI extends UI implements HasLogger, View{
 					try {
 						RestServiceUtil.getInstance().getClient().getAuthApi().verifyCode(verificationCode.getValue());
 						Page.getCurrent().setLocation(getAbsoluteUrl(Application.APP_URL+"home"));
-					} catch (Exception e) {
+					} catch (ApiException e) {
 						if(e.getMessage().equals("INVALID VERIFICATION CODE")) {
-						Notification codeNotification = Notification.show("Entered Code is Wrong/Time, Please request again", Type.ERROR_MESSAGE);
-						codeNotification.setPosition(Position.TOP_CENTER);
-						codeNotification.setDelayMsec(3000);
+							Notification codeNotification = Notification.show("Entered Code is Wrong, Please check again", Type.ERROR_MESSAGE);
+							codeNotification.setPosition(Position.TOP_CENTER);
+							codeNotification.setDelayMsec(3000);
+							}else if(e.getMessage().equals("EXPIRED VERIFICATION CODE RECEIVED")) {
+								Notification codeNotification = Notification.show("Entered Code is Expired, Please try again with new code", Type.ERROR_MESSAGE);
+								codeNotification.setPosition(Position.TOP_CENTER);
+								codeNotification.setDelayMsec(3000);
+							}if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+								Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+								ComponentUtil.sessionExpired(notification);
+							}
+							twoFactorLogger.error("Server Exception while Verifying the code", e);
+							RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+							Notification somethingWrong = Notification.show(NotificationUtil.TWO_FACTOR_VERIFICATION_ERROR, Type.ERROR_MESSAGE);
+							ComponentUtil.sessionExpired(somethingWrong);
+						}catch (Exception e) {
+							twoFactorLogger.error("Server Exception while Verifying the code", e);
+							RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+							Notification somethingWrong = Notification.show(NotificationUtil.TWO_FACTOR_VERIFICATION_ERROR, Type.ERROR_MESSAGE);
+							ComponentUtil.sessionExpired(somethingWrong);
 						}
-						e.printStackTrace();
-					
-					}
 				});
 			
 				buttonlayout.addComponents(resendEmail, authenticate);
@@ -368,7 +393,9 @@ public class TwoFactorAuthenticationUI extends UI implements HasLogger, View{
 			//navigationManager.navigateToTwoFactorView();
 			  }
 				else {
-					throw new NullPointerException("Session is null");
+					NullPointerException e = new NullPointerException("Session is null");
+					RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+					Notification.show("Login Session is Null", Type.ERROR_MESSAGE);
 					
 				}
 	}

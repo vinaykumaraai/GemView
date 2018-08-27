@@ -34,6 +34,8 @@ package com.luretechnologies.tms.backend.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -45,15 +47,22 @@ import com.luretechnologies.client.restlib.service.model.Organization;
 import com.luretechnologies.client.restlib.service.model.Region;
 import com.luretechnologies.client.restlib.service.model.Terminal;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
+import com.luretechnologies.tms.backend.rest.util.RestClient;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
+import com.luretechnologies.tms.ui.components.ComponentUtil;
+import com.luretechnologies.tms.ui.components.NotificationUtil;
 import com.vaadin.data.TreeData;
 import com.vaadin.spring.annotation.SpringComponent;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 
 @SpringComponent
 @Service
 public class TreeDataNodeService {
+	private final static Logger treeDataLogger = Logger.getLogger(TreeDataNodeService.class);
 	
-	public TreeData<TreeNode> getTreeData() throws ApiException{
+	public TreeData<TreeNode> getTreeData(){
+		
 		try {
 			if(RestServiceUtil.getSESSION()!=null) {
 				TreeData<TreeNode> treeData = new TreeData<>();
@@ -68,8 +77,21 @@ public class TreeDataNodeService {
 		
 			return treeData;
 			}
-		}catch(Exception e) {
-			e.printStackTrace();
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving Tree data or entities",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			treeDataLogger.error("API Error Occured while retrieving Tree data or entities",ae);
+			RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
+		} catch (Exception e) {
+			treeDataLogger.error("Error Occured has while retrieving Tree data or entities",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving Tree data or entities",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
 		}
 		return null;
 	}
@@ -84,9 +106,21 @@ public class TreeDataNodeService {
 					treeData.addItems(entity, subChildList);
 					treeDataRecursive(subChildList,treeData);
 				}
-			} catch (ApiException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} catch (ApiException ae) {
+				if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+					Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}else {
+					Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" doing tree data recursion",Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}
+				treeDataLogger.error("API Error Occured while doing tree data recursion",ae);
+				RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
+			} catch (Exception e) {
+				treeDataLogger.error("Error Occured has while doing tree data recursion",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" doing tree data recursion",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
 			}
 		}
 	}
@@ -162,9 +196,21 @@ public class TreeDataNodeService {
 			if(RestServiceUtil.getSESSION()!=null) {
 				RestServiceUtil.getInstance().getClient().getEntityApi().moveEntity(entity.getId(), parentEntity.getId());
 			}
-		}catch (Exception e) {
-			// TODO: handle exception
-			e.printStackTrace();
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" moving tree data or entities",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			treeDataLogger.error("API Error Occured while moving tree data or entities",ae);
+			RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
+		} catch (Exception e) {
+			treeDataLogger.error("Error Occured has while moving tree data or entities",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" moving tree data or entities",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
 		}
 		
 	}
@@ -174,14 +220,26 @@ public class TreeDataNodeService {
 			if(RestServiceUtil.getSESSION()!=null) {
 				RestServiceUtil.getInstance().getClient().getEntityApi().copyEntity(entity.getEntityId(), parentEntity.getId());
 				}
-		}catch (Exception e) {
-			// TODO: handle exception
-			e.printStackTrace();
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" pasting tree data or entities",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			treeDataLogger.error("API Error Occured while pasting tree data or entities",ae);
+			RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
+		} catch (Exception e) {
+			treeDataLogger.error("Error Occured has while pasting tree data or entities",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" pasting tree data or entities",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
 		}
 		
 	}
 	
-	public TreeData<TreeNode> searchTreeData(String filter) throws ApiException{
+	public TreeData<TreeNode> searchTreeData(String filter){
 		try {
 			if(RestServiceUtil.getSESSION()!=null) {
 				List<TreeNode> treeNodeChildList = new ArrayList();
@@ -226,8 +284,21 @@ public class TreeDataNodeService {
 		
 			return treeData;
 			}
-		}catch(Exception e) {
-			e.printStackTrace();
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" searching tree data or entities",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			treeDataLogger.error("API Error Occured while searching tree data or entities",ae);
+			RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
+		} catch (Exception e) {
+			treeDataLogger.error("Error Occured has while searching tree data or entities",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" searching tree data or entities",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
 		}
 		return null;
 	}

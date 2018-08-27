@@ -288,7 +288,7 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 							getTree().select(selectedNode);
 							getForm().setEnabled(false);
 							clearAllData();
-						} catch (ApiException e1) {
+						} catch (Exception e1) {
 							if(e1.getMessage().contains("USERNAME INVALID DATA ENTRY")) {
 								Notification.show(NotificationUtil.USER_NAME_CHECK1, Type.ERROR_MESSAGE);
 							}else if(e1.getMessage().contains("EMAIL INVALID DATA ENTRY")) {
@@ -308,7 +308,7 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 							getForm().setEnabled(false);
 							clearAllData();
 								
-						} catch (ApiException e1) {
+						} catch (Exception e1) {
 							if(e1.getMessage().contains("USERNAME INVALID DATA ENTRY")) {
 								Notification.show(NotificationUtil.USER_NAME_CHECK1, Type.ERROR_MESSAGE);
 							}else if(e1.getMessage().contains("EMAIL INVALID DATA ENTRY")) {
@@ -457,7 +457,7 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 		getDelete().setEnabled(userScreenPermission.getDelete());
 		getUpdate().setEnabled(userScreenPermission.getAdd() || userScreenPermission.getEdit());
 		}catch(Exception ex) {
-			
+			userService.logUserScreenErrors(ex);
 		}
 	}
 
@@ -467,7 +467,6 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 
 					public void onClose(ConfirmDialog dialog) {
 						if (dialog.isConfirmed()) {
-							try {
 								boolean delete = false;
 								delete = userService.deleteUser(id, delete);
 								if(delete) {
@@ -480,10 +479,6 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 								}
 								
 								
-							} 
-							catch (ApiException e) {
-								e.printStackTrace();
-							}
 						} else {
 							// User did not confirm
 

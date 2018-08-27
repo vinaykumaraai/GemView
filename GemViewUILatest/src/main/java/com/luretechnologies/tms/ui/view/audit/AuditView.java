@@ -106,7 +106,6 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 	private static final String error = "error";
 	private static final String warn = "warn";
 	private static final String info="info";
-	Logger logger = LoggerFactory.getLogger(AuditView.class);
 
 	@Autowired
 	public AuditView() {
@@ -248,14 +247,10 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		}
 		
 		Permission appStorePermission = roleService.getLoggedInUserRolePermissions().stream().filter(per -> per.getPageName().equals("AUDIT")).findFirst().get();
-		try {
-			disableAllComponents();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		disableAllComponents();
 		allowAccessBasedOnPermission(appStorePermission.getAdd(),appStorePermission.getEdit(),appStorePermission.getDelete());
 	}catch(Exception ex){
-		logger.info(ex.getMessage());
+		auditService.logAuditScreenErrors(ex);
 	}
 }
 	private void disableAllComponents() throws Exception {
@@ -324,15 +319,11 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 	private void configureTreeNodeSearch() {
 		treeNodeSearch.addValueChangeListener(changed -> {
 			String valueInLower = changed.getValue().toLowerCase();
-			try {
 				if(!valueInLower.isEmpty() && valueInLower!=null) {
 					nodeTree.setTreeData(treeDataNodeService.searchTreeData(valueInLower));
 				}else {
 					nodeTree.setTreeData(treeDataNodeService.getTreeData());
 				}
-			} catch (ApiException e) {
-				e.printStackTrace();
-			}
 		});
 		
 		treeNodeSearch.addShortcutListener(new ShortcutListener("Clear",KeyCode.ESCAPE,null) {
@@ -358,7 +349,6 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		            public void onClose(ConfirmDialog dialog) {
 		                if (dialog.isConfirmed()) {
 		                    // Confirmed to continue
-		                	try {
 								auditService.deleteGridData(id);
 								List<Audit> auditListNew = auditService.auditGridData(treeNode.getEntityId());
 								DataProvider data = new ListDataProvider(auditListNew);
@@ -367,10 +357,6 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 			    				debugSearch.clear();
 			    				loadGrid();
 			    				clearCalenderDates();
-							} catch (ApiException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
 		                } else {
 		                    // User did not confirm
 		                    
@@ -448,7 +434,6 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 				endDate = debugEndDateField.getValue().format(dateFormatter1);
 				startDate = debugStartDateField.getValue().format(dateFormatter1);
 			}
-			try {
 				List<AuditUserLog> searchGridData = auditService.searchGridData(filter, startDate, endDate);
 				List<Audit> auditListSearch = new ArrayList<>();
 				for(AuditUserLog auditUserLog: searchGridData) {
@@ -456,11 +441,6 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 					auditListSearch.add(audit);
 				}
 				DataProvider data = new ListDataProvider(auditListSearch);
-				debugGrid.setDataProvider(data);
-			} catch (ApiException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 			}
 			
 			 /*String valueInLower = valueChange.getValue().toLowerCase();
@@ -563,7 +543,6 @@ public class AuditView extends VerticalLayout implements Serializable, View {
         	 			String endDate = debugEndDateField.getValue().format(dateFormatter1);
         	 			String startDate = debugStartDateField.getValue().format(dateFormatter1);
         	 			String filter = debugSearch.getValue();
-						try {
 							List<Audit> auditListFilterBydates = new ArrayList<>();
 	        	 			List<AuditUserLog> auditList;
 							auditList = auditService.searchByDates(filter, startDate, endDate);
@@ -573,20 +552,6 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 	    					}
 	    					DataProvider data = new ListDataProvider(auditListFilterBydates);
 	    					debugGrid.setDataProvider(data);
-						} catch (ApiException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-        	 				/*debugDataProvider.setFilter(filter -> {
-        	 				Date debugDate = filter.getDateOfDebug();
-        	 				try {
-        	 					return debugDate.after(dateFormatter.parse(debugStartDateField.getValue().minusDays(1).toString())) && debugDate.before(dateFormatter.parse(change.getValue().plusDays(1).toString()));
-        	 				} catch (ParseException e) {
-        	 					System.out.println(e.getMessage() + filter.toString());
-						
-        	 					return false;
-        	 				}
-				});*/
 			} else {
 				Notification.show(NotificationUtil.AUDIT_SAMEDATE, Notification.Type.ERROR_MESSAGE);
 	 			debugStartDateField.clear();
@@ -612,14 +577,9 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 				debugSearch.clear();
 				if(nodeTree.getSelectedItems().size()>0) {
 					List<Audit> auditListNew;
-					try {
 						auditListNew = auditService.auditGridData(nodeTree.getSelectedItems().iterator().next().getEntityId());
 						DataProvider data = new ListDataProvider(auditListNew);
 						 debugGrid.setDataProvider(data);
-					} catch (ApiException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
 					
 				}
 			}
@@ -631,16 +591,10 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 					DataProvider data = new ListDataProvider(auditListNew);
 					 debugGrid.setDataProvider(data);
 				} else {
-				try {
-					
 					List<Audit> auditListNew = auditService.auditGridData(selection.getFirstSelectedItem().get().getEntityId());
 						DataProvider data = new ListDataProvider(auditListNew);
 					 debugGrid.setDataProvider(data);
 					
-				} catch (ApiException e) {
-					Notification.show(e.getMessage(), Type.ERROR_MESSAGE);
-					e.printStackTrace();
-				}
 				}
 					debugSearch.clear();
 					clearCalenderDates();

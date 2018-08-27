@@ -36,6 +36,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 
@@ -56,8 +57,6 @@ import com.luretechnologies.tms.ui.components.NotificationUtil;
 import com.luretechnologies.tms.ui.view.deviceodometer.DeviceodometerView;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
-import com.vaadin.external.org.slf4j.Logger;
-import com.vaadin.external.org.slf4j.LoggerFactory;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.server.Page;
@@ -101,7 +100,6 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 	private Button delete;
 	private Button edit;
 	private Button create;
-	Logger logger = LoggerFactory.getLogger(SystemView.class);
 	
 	@Autowired
 	public ConfirmDialogFactory confirmDialogFactory;
@@ -192,7 +190,6 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 						|| type.isEmpty() || type== null || value.isEmpty() || value== null) {
 					Notification.show(NotificationUtil.SAVE, Notification.Type.ERROR_MESSAGE);
 				} else {
-					try {
 						if(systemGrid.getSelectedItems().size()>0) {
 							Systems system = systemGrid.getSelectedItems().iterator().next();
 							List<Systems> systemList = systemService.getAllSystemParam();
@@ -219,10 +216,6 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 								parameterName.focus();
 							}
 						}
-					} catch (ApiException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
 				}
 			}
 		});
@@ -240,12 +233,8 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		getSystemGrid(verticalLayout, systemInfoLayout);
 		
 		Permission appStorePermission = roleService.getLoggedInUserRolePermissions().stream().filter(per -> per.getPageName().equals("SYSTEM")).findFirst().get();
-		try {
+		
 			disableAllComponents();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		allowAccessBasedOnPermission(appStorePermission.getAdd(),appStorePermission.getEdit(),appStorePermission.getDelete());
 		
 		Page.getCurrent().addBrowserWindowResizeListener(r -> {
@@ -270,7 +259,7 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		}
 		
 		}catch(Exception ex) {
-			logger.info(ex.getMessage());
+			systemService.logSystemScreenErrors(ex);
 		}
 	}
 	
@@ -375,20 +364,10 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 	
 	private void getSystemType(FormLayout formLayout, boolean isEditableOnly) {
 		String type = selectedSystem.getType() != null ? selectedSystem.getType(): "";
-//		systemType = new TextField("Type", type);
-//		selectedSystem.setType(systemType.getValue());
-//		systemType.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
-//		systemType.setWidth("48%");
-//		systemType.setStyleName("role-textbox");
-//		systemType.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
-//		systemType.addStyleName("v-grid-cell");
-//		systemType.setEnabled(isEditableOnly);
-//		formLayout.addComponent(systemType);
 		comboBoxType = (ComboBox<String>)ComponentUtil.getFormFieldWithLabel("", FormFieldType.COMBOBOX);
 		comboBoxType.setEnabled(isEditableOnly);
 		comboBoxType.setCaptionAsHtml(true);
 		comboBoxType.setCaption("Type"); 
-		//combobox.addStyleName();
 		comboBoxType.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size","system-TypeAlignment", "small");
 		comboBoxType.setDataProvider(new ListDataProvider<>(Arrays.asList("Text", "Numeric","Boolean")));
 		comboBoxType.setValue(type);
@@ -516,17 +495,13 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		                if (dialog.isConfirmed()) {
 		                    // Confirmed to continue
 		                	systemInfoLayout.removeAllComponents();
-		                	try {
+		                	
 								systemService.deleteSystem(system);
 								DataProvider data = new ListDataProvider(systemService.getAllSystemParam());
 								systemGrid.setDataProvider(data);
 								selectedSystem = new Systems();
 								systemGrid.getDataProvider().refreshAll();
 			                	getAndLoadSystemForm(systemInfoLayout, false);
-							} catch (ApiException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
 		                } else {
 		                    // User did not confirm
 		                    

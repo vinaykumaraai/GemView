@@ -74,6 +74,7 @@ import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewDisplay;
 import com.vaadin.navigator.ViewLeaveAction;
 import com.vaadin.server.Page;
+import com.vaadin.server.VaadinSession;
 import com.vaadin.spring.access.SecuredViewAccessControl;
 import com.vaadin.spring.annotation.SpringViewDisplay;
 import com.vaadin.spring.annotation.UIScope;
@@ -122,7 +123,6 @@ public class MainView extends MainViewDesign implements ViewDisplay {
 		try {
 		List<Permission> loggedInUserPermissionList = null;
 		UserSession session = RestServiceUtil.getSESSION();
-		
 		if(session!=null) {
 			if(session.isRequirePasswordUpdate()) {
 				loggedInUserPermissionList = new ArrayList();

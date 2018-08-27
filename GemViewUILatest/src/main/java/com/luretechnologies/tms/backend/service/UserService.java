@@ -42,6 +42,8 @@ import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -53,13 +55,19 @@ import com.luretechnologies.tms.app.security.BackendAuthenticationProvider;
 import com.luretechnologies.tms.backend.data.entity.Permission;
 import com.luretechnologies.tms.backend.data.entity.Role;
 import com.luretechnologies.tms.backend.data.entity.User;
+import com.luretechnologies.tms.backend.rest.util.RestClient;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
+import com.luretechnologies.tms.ui.components.ComponentUtil;
+import com.luretechnologies.tms.ui.components.NotificationUtil;
 import com.vaadin.data.provider.Query;
 import com.vaadin.spring.annotation.SpringComponent;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 
 @Service
 @SpringComponent
 public class UserService extends CrudService<User>{
+	private final static Logger userLogger = Logger.getLogger(UserService.class);
 	private List<User> users = new ArrayList<User>();
 	private Map<Long,User> userDirectory = new HashMap<Long, User>();
 	
@@ -80,9 +88,21 @@ public class UserService extends CrudService<User>{
 					userDirectory.put(clientUser.getId(), clientUser);
 				}
 				return users;
-			} catch (ApiException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} catch (ApiException ae) {
+				if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+					Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}else {
+					Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  retrieving Users List",Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}
+				userLogger.error("API Error Occured while retrieving Users List",ae);
+				RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
+			} catch (Exception e) {
+				userLogger.error("Error Occured while retrieving Users List",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  retrieving Users List",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
 			}
 			
 		}
@@ -102,9 +122,22 @@ public class UserService extends CrudService<User>{
 					users.add(clientUser);
 				}
 				return users;
-			} catch (ApiException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} catch (ApiException ae) {
+				if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+					Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}else {
+					Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  retrieving Users List",Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}
+				userLogger.error("API Error Occured while retrieving Users List by Entity ID",ae);
+				RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
+			} catch (Exception e) {
+				userLogger.error("Error Occured while retrieving Users List by Entity ID",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  retrieving Users List",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+				
 			}
 			
 		}
@@ -122,10 +155,23 @@ public class UserService extends CrudService<User>{
 					clientUser.setLocked(true);
 					return clientUser;
 					
-			} catch (ApiException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} catch (ApiException ae) {
+				if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+					Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}else {
+					Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  retrieving User by Email ID",Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}
+				userLogger.error("API Error Occured while retrieving User by Email ID",ae);
+				RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
+			} catch (Exception e) {
+				userLogger.error("Error Occured while retrieving User by Email ID",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  retrieving User by Email ID",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
 			}
+			
 			
 		}
 		return clientUser;
@@ -141,10 +187,23 @@ public class UserService extends CrudService<User>{
 					clientUser.setLocked(true);
 					return clientUser;
 					
-			} catch (ApiException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} catch (ApiException ae) {
+				if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+					Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}else {
+					Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  retrieving User by ID",Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}
+				userLogger.error("API Error Occured while retrieving User by ID",ae);
+				RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
+			} catch (Exception e) {
+				userLogger.error("Error Occured while retrieving User by ID",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  retrieving User by ID",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
 			}
+			
 			
 		}
 		return clientUser;
@@ -160,16 +219,29 @@ public class UserService extends CrudService<User>{
 					clientUser.setLocked(true);
 					return clientUser;
 					
-			} catch (ApiException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} catch (ApiException ae) {
+				if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+					Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}else {
+					Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  retrieving User by Username",Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}
+				userLogger.error("API Error Occured while retrieving User by Username",ae);
+				RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
+			} catch (Exception e) {
+				userLogger.error("Error Occured while retrieving User by Username",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  retrieving User by Username",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
 			}
+			
 			
 		}
 		return clientUser;
 	}
 	
-	public void createUser(User user, Long entityId) throws ApiException {
+	public void createUser(User user, Long entityId) {
 		User clientUser = new User();
 		com.luretechnologies.client.restlib.service.model.User userServer = new com.luretechnologies.client.restlib.service.model.User();
 		if(RestServiceUtil.getSESSION() != null) {
@@ -183,7 +255,6 @@ public class UserService extends CrudService<User>{
 				userServer.setEmail(user.getEmail());
 				userServer.setAvailable(user.isActive());
 				userServer.setPasswordFrequency(user.getPasswordFrequency());
-				//userServer.setPassword(user.getPassword());
 				userServer.setEntity(entityServer);
 				
 				if(user.getId()!=null) {
@@ -197,14 +268,27 @@ public class UserService extends CrudService<User>{
 					clientUser.setLocked(true);	
 				}
 					
-			} catch (ApiException e) {
-				throw new ApiException(e);
+			} catch (ApiException ae) {
+				if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+					Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}else {
+					Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  creating user",Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}
+				userLogger.error("API Error Occured while creating user",ae);
+				RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
+			} catch (Exception e) {
+				userLogger.error("Error Occured while creating user",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  creating user",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
 			}
 			
 		}
 	}
 	
-	public boolean deleteUser(Long id, boolean delete) throws ApiException {
+	public boolean deleteUser(Long id, boolean delete) {
 		if(RestServiceUtil.getSESSION() != null) {
 			try {
 				User user = getLoggedInUser();
@@ -217,9 +301,21 @@ public class UserService extends CrudService<User>{
 				return delete;
 				}
 					
-			} catch (ApiException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} catch (ApiException ae) {
+				if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+					Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}else {
+					Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  deleting User",Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}
+				userLogger.error("API Error Occured while deleting User",ae);
+				RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
+			} catch (Exception e) {
+				userLogger.error("Error Occured while deleting User",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  deleting User",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
 			}
 			
 		}
@@ -235,20 +331,6 @@ public class UserService extends CrudService<User>{
 			return null;
 	}
 	
-	public void deleteUser(String emailAddress)
-	{
-		User user = userDirectory.get(emailAddress);
-		users.remove(user);
-		userDirectory.remove(user.getId());
-		try {
-			com.luretechnologies.client.restlib.service.model.User serverUser = RestServiceUtil.getInstance().getClient().getUserApi().getUserByUserName(user.getName());
-			RestServiceUtil.getInstance().getClient().getUserApi().deleteUser(serverUser.getId());
-		} catch (ApiException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
 	public List<User> searchUsers(String filter)
 	{
 		//Get users from Backend
@@ -262,9 +344,21 @@ public class UserService extends CrudService<User>{
 					users.add(clientUser);
 				}
 				return users;
-			} catch (ApiException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} catch (ApiException ae) {
+				if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+					Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}else {
+					Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  searching User",Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}
+				userLogger.error("API Error Occured while searching User",ae);
+				RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
+			} catch (Exception e) {
+				userLogger.error("Error Occured while searching User",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  searching User",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
 			}
 			
 		}
@@ -323,5 +417,9 @@ public class UserService extends CrudService<User>{
 			 user = getUserbyUserName(username);
 		}
 		return user;		
+	}
+	
+	public void logUserScreenErrors(Exception e) {
+		userLogger.error("Error Occured", e);
 	}
 }

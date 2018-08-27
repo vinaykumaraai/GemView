@@ -220,12 +220,8 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 
 		treeLayoutWithButtons.addComponents(treeButtonLayout, treeSearchLayout);
 		nodeTree = new Tree<TreeNode>();
-		try {
 			nodeTree.setTreeData(personalizationService.getTreeData());
 			modifiedTree.setTreeData(personalizationService.getTreeData());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 		nodeTree.setItemIconGenerator(item -> {
 			switch (item.getType()) {
 			case ENTERPRISE:
@@ -352,37 +348,28 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		}
 		
 		configureTreeNodeSearch();
-
-		try {
+		
 			Permission personalizationPermission = roleService.getLoggedInUserRolePermissions().stream().filter(check -> check.getPageName().equals("PERSONALIZATION")).findFirst().get();
 			createEntity.setEnabled(personalizationPermission.getAdd());
 			copyEntity.setEnabled(personalizationPermission.getEdit());
 			editEntity.setEnabled(personalizationPermission.getEdit());
-			//pasteEntity.setEnabled(personalizationPermission.getEdit());
 			deleteEntity.setEnabled(personalizationPermission.getDelete());
 			save.setEnabled(personalizationPermission.getAdd() || personalizationPermission.getEdit());
 			cancel.setEnabled(personalizationPermission.getAdd() || personalizationPermission.getEdit());
 			
-		} catch (ApiException e) {
-			e.printStackTrace();
-		}
 	  }catch(Exception ex){
-		  logger.info(ex.getMessage());
+		  personalizationService.logPersonlizationStoreScreenErrors(ex);
 	  }
 	}
 
 	private void configureTreeNodeSearch() {
 		treeNodeSearch.addValueChangeListener(changed -> {
 			String valueInLower = changed.getValue().toLowerCase();
-			try {
 				if(!valueInLower.isEmpty() && valueInLower!=null) {
 					nodeTree.setTreeData(treeDataNodeService.searchTreeData(valueInLower));
 				}else {
 					nodeTree.setTreeData(treeDataNodeService.getTreeData());
 				}
-			} catch (ApiException e) {
-				e.printStackTrace();
-			}
 
 		});
 
@@ -451,12 +438,8 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 					case ENTERPRISE:
 						if(selectedNodeForCopy.getType().toString().equals("ORGANIZATION")) {
 							
-							try {
 								treeDataNodeService.pasteTreeNode(selectedNodeForCopy, toPasteNode);
 								nodeTree.setTreeData(personalizationService.getTreeData());
-							} catch (ApiException e) {
-								e.printStackTrace();
-							}
 						} else {
 							Notification.show("Cannot Copy "+selectedNodeForCopy.getType().toString()+" entity to this level", Type.ERROR_MESSAGE);
 						}
@@ -464,48 +447,32 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 					case ORGANIZATION:
 						if(selectedNodeForCopy.getType().toString().equals("ORGANIZATION") || 
 								selectedNodeForCopy.getType().toString().equals("REGION")) {
-							try {
 								treeDataNodeService.pasteTreeNode(selectedNodeForCopy, toPasteNode);
 								nodeTree.setTreeData(personalizationService.getTreeData());
-							} catch (ApiException e) {
-								e.printStackTrace();
-							}
 							} else {
 							Notification.show("Cannot Copy "+selectedNodeForCopy.getType().toString()+" entity to this level", Type.ERROR_MESSAGE);
 						}
 						break;
 					case REGION:
 						if(selectedNodeForCopy.getType().toString().equals("MERCHANT")) {
-							try {
 								treeDataNodeService.pasteTreeNode(selectedNodeForCopy, toPasteNode);
 								nodeTree.setTreeData(personalizationService.getTreeData());
-							} catch (ApiException e) {
-								e.printStackTrace();
-							}
 						} else {
 							Notification.show("Cannot Copy "+selectedNodeForCopy.getType().toString()+" entity to this level", Type.ERROR_MESSAGE);
 						}
 						break;
 					case MERCHANT:
 						if(selectedNodeForCopy.getType().toString().equals("TERMINAL")) {
-							try {
 								treeDataNodeService.pasteTreeNode(selectedNodeForCopy, toPasteNode);
 								nodeTree.setTreeData(personalizationService.getTreeData());
-							} catch (ApiException e) {
-								e.printStackTrace();
-							}
 						} else {
 							Notification.show("Cannot Copy "+selectedNodeForCopy.getType().toString()+" entity to this level", Type.ERROR_MESSAGE);
 						}
 						break;
 					case TERMINAL:
 						if(selectedNodeForCopy.getType().toString().equals("DEVICE")) {
-							try {
 								treeDataNodeService.pasteTreeNode(selectedNodeForCopy, toPasteNode);
 								nodeTree.setTreeData(personalizationService.getTreeData());
-							} catch (ApiException e) {
-								e.printStackTrace();
-							}
 						} else {
 							Notification.show("Cannot Copy "+selectedNodeForCopy.getType().toString()+" entity to this level", Type.ERROR_MESSAGE);
 						}
@@ -593,8 +560,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 
 			node.setType(entityType.getValue());
 			node.setLabel(entityName.getValue());
-			if (entityType.getValue()!=null&& entityType.getValue().equals(EntityTypeEnum.TERMINAL)) {
-				node.setDevice(deviceDropDown.getValue());
+			if (entityType.getValue()!=null && entityName.getValue()!=null && entityName.getValue()!="") {
 				node.setHeartBeat(activateHeartbeat.getValue());
 				node.setFrequency(frequencyDropDown.getValue());
 				node.setApp(appDropDown.getValue());
@@ -829,11 +795,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 			DataProvider dataFromEntityForDropDown = new ListDataProvider<>(fileListWithEntityForDropDown);
 			addtnlFilesDropDown.clear();
 			addtnlFilesDropDown.setDataProvider(dataFromEntityForDropDown);
-			try {
-				overRideParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(personalizationService.getAppDefaultParamListWithEntity(selectedProfile.getId(),selectedNode.getId())));
-			} catch (ApiException e) {
-				e.printStackTrace();
-			}
+			overRideParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(personalizationService.getAppDefaultParamListWithEntity(selectedProfile.getId(),selectedNode.getId())));
 			}
 		});
 		entityApplicationSelection.addComponents(appDropDown, selectProfile, profileDropDown, selectFile, addtnlFilesDropDown);
@@ -1059,11 +1021,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		Window openProfileParamGridWindow =  new Window("App Profile Param Grid");
 		
 		Grid<AppDefaultParam> profileParamGrid = new Grid<>(AppDefaultParam.class);
-		try {
 			profileParamGrid.setDataProvider(new ListDataProvider<>(personalizationService.getAppDefaultParamListWithoutEntity(selectedProfile.getId(), selectedNode.getId())));
-		} catch (ApiException e) {
-			e.printStackTrace();
-		}
 		profileParamGrid.setSelectionMode(SelectionMode.MULTI);
 		profileParamGrid.setColumns("parameter", "description", "type", "value");
 		profileParamGrid.getColumn("parameter").setEditorComponent(new TextField());
@@ -1072,13 +1030,9 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		profileParamGrid.getColumn("type").setEditorComponent(parameterType);
 		Button saveNode = new Button("Save", click -> {
 			if (profileParamGrid.getSelectedItems().size() > 0) {
-				try {
 					Set<AppDefaultParam> selectedParamSet = profileParamGrid.getSelectedItems();
 					personalizationService.addProfileParam(selectedProfile.getId(), selectedNode.getId(), selectedParamSet);
 					overRideParamGrid.setDataProvider(new ListDataProvider<>(personalizationService.getAppDefaultParamListWithEntity(selectedProfile.getId(), selectedNode.getId())));
-				} catch (ApiException e) {
-					e.printStackTrace();
-				}
 				openProfileParamGridWindow.close();
 			} else {
 				Notification notification = Notification.show(NotificationUtil.PERSONALIZATION_ADDING_PARAMS,
@@ -1189,14 +1143,9 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		overRideParamGrid.getEditor().setEnabled(true).addSaveListener(save -> {
 			if(selectedProfile.getId()!=null) {
 			AppDefaultParam param = save.getBean();
-			try {
 				AppParamFormat appParamFormat = appStoreService.getAppParamFormatByType(parameterType.getValue());
 				personalizationService.updateParamOfEntity(selectedProfile.getId(), selectedNode.getId(), param, selectedApp.getId());
 				overRideParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(personalizationService.getAppDefaultParamListWithEntity(selectedProfile.getId(),selectedNode.getId())));
-			} catch (ApiException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 			}
 		});
 		
@@ -1327,14 +1276,10 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 						entityWindow.close();
 						 Notification.show("Cannot create "+entityTypeTree.getValue().toString()+" under Organization", Type.ERROR_MESSAGE);
 					}else {
-						try {
 							newNode.setType(entityTypeTree.getValue());
 							personalizationService.createEntity(selectedNode, newNode);
 							nodeTree.setTreeData(personalizationService.getTreeData());
 							entityWindow.close();
-						} catch (ApiException e) {
-							e.printStackTrace();
-						}
 					}
 					break;
 				case MERCHANT:
@@ -1344,14 +1289,10 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 						entityWindow.close();
 						 Notification.show("Cannot create "+entityTypeTree.getValue().toString()+" under Merchant", Type.ERROR_MESSAGE);
 					}else {
-						try {
 							newNode.setType(entityTypeTree.getValue());
 							personalizationService.createEntity(selectedNode, newNode);
 							nodeTree.setTreeData(personalizationService.getTreeData());
 							entityWindow.close();
-						} catch (ApiException e) {
-							e.printStackTrace();
-						}
 					}
 					break;
 				case REGION:
@@ -1361,14 +1302,10 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 						entityWindow.close();
 						 Notification.show("Cannot create "+entityTypeTree.getValue().toString()+" under Region", Type.ERROR_MESSAGE);
 					}else {
-						try {
 							newNode.setType(entityTypeTree.getValue());
 							personalizationService.createEntity(selectedNode, newNode);
 							nodeTree.setTreeData(personalizationService.getTreeData());
 							entityWindow.close();
-						} catch (ApiException e) {
-							e.printStackTrace();
-						}
 					}
 					break;
 				case TERMINAL:
@@ -1378,14 +1315,10 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 						entityWindow.close();
 						 Notification.show("Cannot create "+entityTypeTree.getValue().toString()+" under Terminal", Type.ERROR_MESSAGE);
 					}else {
-						try {
 							newNode.setType(entityTypeTree.getValue());
 							personalizationService.createEntity(selectedNode, newNode);
 							nodeTree.setTreeData(personalizationService.getTreeData());
 							entityWindow.close();
-						} catch (ApiException e) {
-							e.printStackTrace();
-						}
 					}
 					break;
 				case DEVICE:
@@ -1447,12 +1380,8 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 							// Confirmed to continue
 							overRideParamSearch.clear();
 							List<AppDefaultParam> selectedParamList = overRideParamGrid.getSelectedItems().stream().collect(Collectors.toList());
-							try {
 								personalizationService.deleteEntityAppProfileParam(selectedProfile.getId(), selectedParamList, selectedNode.getId());
 								overRideParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(personalizationService.getAppDefaultParamListWithEntity(selectedProfile.getId(),selectedNode.getId())));
-							} catch (ApiException e) {
-								e.printStackTrace();
-							}
 							overRideParamGrid.getDataProvider().refreshAll();
 							overRideParamGrid.deselectAll();
 							// TODO add Grid reload
@@ -1471,13 +1400,8 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 					public void onClose(ConfirmDialog dialog) {
 						if (dialog.isConfirmed()) {
 							if (nodeTree.getSelectedItems().size() == 1) {
-								
-								try {
 									personalizationService.deleteEntity(selectedNode);
 									nodeTree.setTreeData(personalizationService.getTreeData());
-								} catch (ApiException e) {
-									e.printStackTrace();
-								}
 								ClearAllComponents();
 								ClearGrid();
 							}
@@ -1524,13 +1448,9 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 					AppDefaultParam appDefaultParam = new AppDefaultParam(null, parameterName.getValue(),
 							parameterDescription.getValue(), parameterType.getValue(), parameterValue.getValue());
 					
-					try {
 						AppParamFormat appParamFormat = appStoreService.getAppParamFormatByType(parameterType.getValue());
 						appStoreService.saveAppDefaultParam(selectedApp, appDefaultParam, appParamFormat);
 
-					} catch (ApiException e1) {
-						e1.printStackTrace();
-					}
 					
 					TreeNode node;
 					if (nodeTree.getSelectedItems().size() > 0) {

@@ -34,6 +34,8 @@ package com.luretechnologies.tms.ui.view.forgotpassword;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.luretechnologies.client.restlib.common.ApiException;
@@ -41,11 +43,13 @@ import com.luretechnologies.client.restlib.service.model.UserSession;
 import com.luretechnologies.tms.app.Application;
 import com.luretechnologies.tms.app.HasLogger;
 import com.luretechnologies.tms.backend.data.entity.User;
+import com.luretechnologies.tms.backend.rest.util.RestClient;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
 import com.luretechnologies.tms.backend.service.UserService;
 import com.luretechnologies.tms.ui.MainView;
 import com.luretechnologies.tms.ui.navigation.NavigationManager;
 import com.luretechnologies.tms.ui.view.AccessDeniedView;
+import com.luretechnologies.tms.ui.view.twofactor.authentication.TwoFactorAuthenticationUI;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Title;
 import com.vaadin.annotations.Viewport;
@@ -97,6 +101,7 @@ public class UpdatePasswordUI extends UI implements HasLogger, View{
 	private HttpServletResponse response;
 	private MainView mainView;
 	
+	private final static Logger updatePasswordLogger = Logger.getLogger(UpdatePasswordUI.class);
 
 	@Autowired
 	UserService userService;
@@ -212,11 +217,7 @@ public class UpdatePasswordUI extends UI implements HasLogger, View{
 					String password = confirmPassword.getValue();
 					String pattern = "(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#!$%^&+=])(?=\\S+$).{8,}";
 					if(password.matches(pattern)) {
-						try {
-							RestServiceUtil.getInstance().updatePassword(loggedInUserName, tempPassword.getValue(), confirmPassword.getValue());
-						}catch(Exception e) {
-							Notification.show("Entered Temporary Password is Wrong", Type.ERROR_MESSAGE);
-						}
+						RestServiceUtil.getInstance().updatePassword(loggedInUserName, tempPassword.getValue(), confirmPassword.getValue());
 						Notification passUpdateNotify = Notification.show("Passoword is Updated", Type.ERROR_MESSAGE);
 						passUpdateNotify.setPosition(Position.TOP_CENTER);
 						passUpdateNotify.setDelayMsec(5000);
@@ -225,12 +226,6 @@ public class UpdatePasswordUI extends UI implements HasLogger, View{
 							@Override
 							public void notificationClose(CloseEvent e) {
 								Page.getCurrent().setLocation(getAbsoluteUrl(Application.LOGIN_URL));
-								/*try {
-									mainView.logout();
-								} catch (ApiException e1) {
-									// TODO Auto-generated catch block
-									e1.printStackTrace();
-								}*/
 							
 							}
 						});
@@ -261,6 +256,8 @@ public class UpdatePasswordUI extends UI implements HasLogger, View{
 					passwordAuthetication.setPosition(Position.TOP_CENTER);
 					passwordAuthetication.setDelayMsec(3000);
 				}
+				updatePasswordLogger.error("API Error Occured while upading Password",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 				e.printStackTrace();
 			
 			}
@@ -275,7 +272,9 @@ public class UpdatePasswordUI extends UI implements HasLogger, View{
 		setContent(vl);
 	  }
 		else {
-			throw new NullPointerException("Session is null");
+			NullPointerException e = new NullPointerException("Session is null");
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			Notification.show("Login Session is Null", Type.ERROR_MESSAGE);
 			
 		}
 	  
@@ -419,7 +418,9 @@ public class UpdatePasswordUI extends UI implements HasLogger, View{
 				setContent(vl);
 			  }
 				else {
-					throw new NullPointerException("Session is null");
+					NullPointerException e = new NullPointerException("Session is null");
+					RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+					Notification.show("Login Session is Null", Type.ERROR_MESSAGE);
 					
 				}
 	}

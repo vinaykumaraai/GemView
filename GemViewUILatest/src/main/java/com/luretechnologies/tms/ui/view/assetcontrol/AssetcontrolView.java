@@ -102,7 +102,6 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 	private static final String warn = "warn";
 	private static final String info="info";
 	private static Permission assetControlPermission;
-	Logger logger = LoggerFactory.getLogger(AssetcontrolView.class);
 	@Autowired
 	public AssetcontrolView() {
 
@@ -279,7 +278,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		});
 		
 		}catch(Exception ex) {
-			logger.info(ex.getMessage());
+			assetControlService.logAssetControlScreenErrors(ex);
 		}
 	}
 
@@ -415,15 +414,11 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		// Dataprovider.
 		treeNodeSearch.addValueChangeListener(changed -> {
 			String valueInLower = changed.getValue().toLowerCase();
-			try {
 				if(!valueInLower.isEmpty() && valueInLower!=null) {
 					nodeTree.setTreeData(treeDataNodeService.searchTreeData(valueInLower));
 				}else {
 					nodeTree.setTreeData(treeDataNodeService.getTreeData());
 				}
-			} catch (ApiException e) {
-				e.printStackTrace();
-			}
 		});
 		
 		treeNodeSearch.addShortcutListener(new ShortcutListener("Clear",KeyCode.ESCAPE,null) {
@@ -1065,7 +1060,6 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 	        	 			String endDate = deviceDebugEndDateField.getValue().format(dateFormatter1);
 	        	 			String startDate = deviceDebugStartDateField.getValue().format(dateFormatter1);
 	        	 			String filter = deviceDebugGridSearch.getValue();
-	        	 			try {
         	 					List<DebugItems> deviceDebugItemsList = new ArrayList<>();
     	        	 			List<DebugItem> searchList = assetControlService.searchDeviceDebugByDates(nodeTree.getSelectedItems().iterator().next().getEntityId(), filter, startDate, endDate);
     	        	 			if(searchList!=null && !searchList.isEmpty()) {
@@ -1076,9 +1070,6 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
     	        	 			}
     	        	 				DataProvider data = new ListDataProvider(deviceDebugItemsList);
     	        	 				deviceDebugGrid.setDataProvider(data);
-        	 				} catch (ApiException e) {
-        	 					e.printStackTrace();
-        	 				}
 	        	 			
 				} 
 	        		 	}else {

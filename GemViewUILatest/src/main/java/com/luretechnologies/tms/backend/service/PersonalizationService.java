@@ -36,6 +36,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -60,12 +62,18 @@ import com.luretechnologies.tms.backend.data.entity.Devices;
 import com.luretechnologies.tms.backend.data.entity.Profile;
 import com.luretechnologies.tms.backend.data.entity.TerminalClient;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
+import com.luretechnologies.tms.backend.rest.util.RestClient;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
+import com.luretechnologies.tms.ui.components.ComponentUtil;
+import com.luretechnologies.tms.ui.components.NotificationUtil;
 import com.vaadin.data.TreeData;
 import com.vaadin.data.provider.ListDataProvider;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 
 @Service
 public class PersonalizationService {
+	private final static Logger personlizationServiceLogger = Logger.getLogger(PersonalizationService.class);
 
 	@Autowired
 	TreeDataNodeService treeDataNodeService;
@@ -74,14 +82,17 @@ public class PersonalizationService {
 	Region regionForPersonalizationView;
 	Organization organizationForPersonalizationView;
 
-	public TreeData<TreeNode> getTreeData() throws ApiException {
+	public TreeData<TreeNode> getTreeData() {
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
 				TreeData<TreeNode> treeData = treeDataNodeService.getTreeData();
 				return treeData;
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			personlizationServiceLogger.error("Error Occured while retrieving Personlization Tree data",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving Personlization Tree data",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
 		}
 		return null;
 	}
@@ -164,9 +175,23 @@ public class PersonalizationService {
 				}
 			}
 
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (ApiException e) {
+			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" creating an Entity in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			personlizationServiceLogger.error("API Error has occured while creating an Entity in the Personlization Screen",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
+			catch (Exception e) {
+				personlizationServiceLogger.error("Error occured while creating an Entity in the Personlization Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" creating an Entity in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
 
 	}
 
@@ -223,6 +248,7 @@ public class PersonalizationService {
 					device.setName(node.getLabel());
 					device.setType(node.getType());
 					device.setEntityId(node.getEntityId());
+					device.setSerialNumber(node.getSerialNum());
 					RestServiceUtil.getInstance().getClient().getDeviceApi().updateDevice(device.getEntityId(), device);
 					break;
 				default:
@@ -230,8 +256,23 @@ public class PersonalizationService {
 				}
 			}
 			
-		}catch (Exception e) {
+		}catch (ApiException e) {
+			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" updating an Entity in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			personlizationServiceLogger.error("API Error has occured while updating an Entity in the Personlization Screen",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
+			catch (Exception e) {
+				personlizationServiceLogger.error("Error occured while updating an Entity in the Personlization Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" updating an Entity in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
 	}
 
 	public void deleteEntity(TreeNode node) {
@@ -258,9 +299,23 @@ public class PersonalizationService {
 			}
 			}
 			
-		}catch (Exception e) {
-			e.printStackTrace();
+		}catch (ApiException e) {
+			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" deleting an Entity in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			personlizationServiceLogger.error("API Error has occured while deleting an Entity in the Personlization Screen",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
+			catch (Exception e) {
+				personlizationServiceLogger.error("Error occured while deleting an Entity in the Personlization Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" deleting an Entity in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
 	}
 	
 	public Devices getDevicesByEntityId(String entityId) {
@@ -272,8 +327,11 @@ public class PersonalizationService {
 						deviceForPersonalizationView.getAvailable());
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-		}
+				personlizationServiceLogger.error("Error occured while retrieving devices by Entity ID in the Personlization Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving devices by Entity ID in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
 		return null;
 	}
 
@@ -290,15 +348,36 @@ public class PersonalizationService {
 					return "";
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-		}
+				personlizationServiceLogger.error("Error occured while retrieving device Serial Number by Entity ID in the Personlization Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving device Serial Number by Entity ID in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
 		return null;
 
 	}
 
-	private Device getDeviceByEntityId(String entityId) throws ApiException {
+	private Device getDeviceByEntityId(String entityId) {
 		if (deviceForPersonalizationView == null)
-			deviceForPersonalizationView = RestServiceUtil.getInstance().getClient().getDeviceApi().getDevice(entityId);
+			try {
+				deviceForPersonalizationView = RestServiceUtil.getInstance().getClient().getDeviceApi().getDevice(entityId);
+			} catch (ApiException e) {
+				if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+					Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}else {
+					Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving Device by Entity ID in the Personlization Screen",Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}
+				personlizationServiceLogger.error("API Error has occured while retrieving Device by Entity ID in the Personlization Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			}
+				catch (Exception e) {
+					personlizationServiceLogger.error("Error occured while retrieving Device by Entity ID in the Personlization Screen",e);
+					RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+					Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving Device by Entity ID in the Personlization Screen",Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}
 		return deviceForPersonalizationView;
 	}
 
@@ -314,9 +393,23 @@ public class PersonalizationService {
 				}
 			}
 
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (ApiException e) {
+			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving All Devices in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			personlizationServiceLogger.error("API Error has occured while retrieving All Devices in the Personlization Screen",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
+			catch (Exception e) {
+				personlizationServiceLogger.error("Error occured while retrieving All Devices in the Personlization Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving All Devices in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
 		return new ListDataProvider<Devices>(allDevices);
 	}
 	
@@ -329,9 +422,23 @@ public class PersonalizationService {
 				}
 			}
 
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (ApiException e) {
+			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving profile list without entity in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			personlizationServiceLogger.error("API Error has occured while retrieving profile list without entity in the Personlization Screen",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
+			catch (Exception e) {
+				personlizationServiceLogger.error("Error occured while retrieving profile list without entity in the Personlization Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving profile list without entity in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
 
 		return profileList;
 	}
@@ -345,9 +452,23 @@ public class PersonalizationService {
 				}
 			}
 
-		} catch (Exception e) {
-			e.printStackTrace();
+		}catch (ApiException e) {
+			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving profile list with entity in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			personlizationServiceLogger.error("API Error has occured while retrieving profile list with entity in the Personlization Screen",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
+			catch (Exception e) {
+				personlizationServiceLogger.error("Error occured while retrieving profile list with entity in the Personlization Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving profile list with entity in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
 
 		return profileList;
 	}
@@ -361,9 +482,23 @@ public class PersonalizationService {
 						appParamServer.getDefaultValue()));
 				}
 
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (ApiException e) {
+			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving file list with entity in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			personlizationServiceLogger.error("API Error has occured while retrieving file list with entity in the Personlization Screen",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
+			catch (Exception e) {
+				personlizationServiceLogger.error("Error occured while retrieving file list with entity in the Personlization Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving file list with entity in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
 
 		return fileList;
 	}
@@ -378,9 +513,23 @@ public class PersonalizationService {
 						appParamServer.getDefaultValue()));
 				}
 
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (ApiException e) {
+			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving file list without entity in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			personlizationServiceLogger.error("API Error has occured while retrieving file list without entity in the Personlization Screen",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
+			catch (Exception e) {
+				personlizationServiceLogger.error("Error occured while retrieving file list without entity in the Personlization Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving file list without entity in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
 
 		return fileList;
 	}
@@ -395,8 +544,11 @@ public class PersonalizationService {
 					return "";
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-		}
+				personlizationServiceLogger.error("Error occured while retrieving Terminal Serial Number by Entity ID in the Personlization Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving Terminal Serial Number by Entity ID in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
 		return null;
 	}
 
@@ -410,8 +562,11 @@ public class PersonalizationService {
 					return null;
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-		}
+				personlizationServiceLogger.error("Error occured while retrieving frequency by Entity ID in the Personlization Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving frequency by Entity ID in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
 		return null;
 	}
 
@@ -425,8 +580,11 @@ public class PersonalizationService {
 					return null;
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-		}
+				personlizationServiceLogger.error("Error occured while retrieving Heartbeat by Entity ID in the Personlization Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving Heartbeat by Entity ID in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
 		return null;
 	}
 
@@ -441,9 +599,23 @@ public class PersonalizationService {
 						getApplicationFileList(app.getAppfileCollection())));
 			}
 		}
-	}catch (Exception e) {
-		e.printStackTrace();
+	}catch (ApiException e) {
+		if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+			Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
+		}else {
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving App list by logged in user in the Personlization Screen",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
+		}
+		personlizationServiceLogger.error("API Error has occured while retrieving App list by logged in user in the Personlization Screen",e);
+		RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 	}
+		catch (Exception e) {
+			personlizationServiceLogger.error("Error occured while retrieving App list by logged in user in the Personlization Screen",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving App list by logged in user in the Personlization Screen",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
+		}
 	return allAppList;
 }
 	public void addProfileParam(Long appProfileId,Long entityId,Set<AppDefaultParam> paramSet) {
@@ -453,10 +625,23 @@ public class PersonalizationService {
 			RestServiceUtil.getInstance().getClient().getAppProfileApi().addEntityAppProfileParam(appProfileId, entityId, param.getId());
 			}
 		}
-		}catch (Exception e) {
-			// TODO: handle exception
-			e.printStackTrace();
+		}catch (ApiException e) {
+			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" adding the profile param in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			personlizationServiceLogger.error("API Error has occured while adding the profile param in the Personlization Screen",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
+			catch (Exception e) {
+				personlizationServiceLogger.error("Error occured while adding the profile param in the Personlization Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" adding the profile param in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
 }
 
 public void updateOverRideParam(AppClient app, AppDefaultParam param) {
@@ -469,19 +654,53 @@ public void updateOverRideParam(AppClient app, AppDefaultParam param) {
 			appParam.setDefaultValue(param.getValue());
 			RestServiceUtil.getInstance().getClient().getAppApi().updateAppParam(app.getId(), appParam);
 		}
-	}catch (Exception e) {
-		e.printStackTrace();
+	}catch (ApiException e) {
+		if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+			Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
+		}else {
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" updating the override param in the Personlization Screen",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
+		}
+		personlizationServiceLogger.error("API Error has occured while updating the override param in the Personlization Screen",e);
+		RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 	}
+		catch (Exception e) {
+			personlizationServiceLogger.error("Error occured while updating the override param in the Personlization Screen",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" updating the override param in the Personlization Screen",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
+		}
 }
 
-	private TerminalClient getTerminalByEntityId(String entityId) throws ApiException {
+	private TerminalClient getTerminalByEntityId(String entityId) {
+		try {
 			terminalForPV = RestServiceUtil.getInstance().getClient().getTerminalApi()
 					.getTerminal(entityId);
 			TerminalClient terminal = new TerminalClient(terminalForPV.getId(), terminalForPV.getType().name(), terminalForPV.getName(), terminalForPV.getDescription(),
 					terminalForPV.getSerialNumber(), terminalForPV.getAvailable(),terminalForPV.getDebugActive(),
 					terminalForPV.getFrequency(), terminalForPV.getLastContact().toString(), terminalForPV.getEntityId());
+			return terminal;
+		}catch (ApiException e) {
+			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" updating the override param in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			personlizationServiceLogger.error("API Error has occured while retrieving Terminal by Entity ID in the Personlization Screen",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+		}
+			catch (Exception e) {
+				personlizationServiceLogger.error("Error occured while retrieving Terminal by Entity ID in the Personlization Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" updating the override param in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+				
+			}
 
-		return terminal;
+		return null;
 	}
 	private TreeNode getOwner(Long id) {
 		TreeNode owner = null;
@@ -491,9 +710,23 @@ public void updateOverRideParam(AppClient app, AppDefaultParam param) {
 				owner = new TreeNode(entity.getName(), entity.getId(), entity.getType(), entity.getEntityId(), entity.getDescription()
 						,true);
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (ApiException e) {
+			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving owner in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			personlizationServiceLogger.error("API Error has occured while retrieving owner in the Personlization Screen",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
+			catch (Exception e) {
+				personlizationServiceLogger.error("Error occured while retrieving owner in the Personlization Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving owner in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
 		return owner;
 	}
 	private List<AppDefaultParam> getAppDefaultParamList(List<AppParam> appParamList) {
@@ -509,8 +742,9 @@ public void updateOverRideParam(AppClient app, AppDefaultParam param) {
 		return appDefaultParamList;
 	}
 	
-	public List<AppDefaultParam> getAppDefaultParamListWithoutEntity(Long appProfileId, Long entityId) throws ApiException {
+	public List<AppDefaultParam> getAppDefaultParamListWithoutEntity(Long appProfileId, Long entityId) {
 		List<AppDefaultParam> appDefaultParamList = new ArrayList<>();
+		try {
 		if (RestServiceUtil.getSESSION() != null) {
 		List<AppParam> appParamService = RestServiceUtil.getInstance().getClient().getAppProfileApi().getAppParamListWithoutEntity(appProfileId, entityId);
 			for (AppParam appParam : appParamService) {
@@ -520,11 +754,29 @@ public void updateOverRideParam(AppClient app, AppDefaultParam param) {
 		}
 		
 		}
+		} catch (ApiException e) {
+			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving default param list without entity in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			personlizationServiceLogger.error("API Error has occured while retrieving default param list without entity in the Personlization Screen",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+		}
+			catch (Exception e) {
+				personlizationServiceLogger.error("Error occured while retrieving default param list without entity in the Personlization Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving default param list without entity in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
 		return appDefaultParamList;
 	}
 	
-	public List<AppDefaultParam> getAppDefaultParamListWithEntity(Long appProfileId, Long entityId) throws ApiException {
+	public List<AppDefaultParam> getAppDefaultParamListWithEntity(Long appProfileId, Long entityId) {
 		List<AppDefaultParam> appDefaultParamList = new ArrayList<>();
+		try {
 		if (RestServiceUtil.getSESSION() != null) {
 		List<AppParam> appParamService = RestServiceUtil.getInstance().getClient().getAppProfileApi().getAppParamListByEntity(appProfileId, entityId);
 			for (AppParam appParam : appParamService) {
@@ -534,6 +786,23 @@ public void updateOverRideParam(AppClient app, AppDefaultParam param) {
 		}
 		
 		}
+		}catch (ApiException e) {
+			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving App  default param list with entity in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			personlizationServiceLogger.error("API Error has occured while retrieving App  default param list with entity in the Personlization Screen",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+		}
+			catch (Exception e) {
+				personlizationServiceLogger.error("Error occured while retrieving default App param list with entity in the Personlization Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving App  default param list with entity in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
 		return appDefaultParamList;
 	}
 
@@ -571,9 +840,23 @@ public void updateOverRideParam(AppClient app, AppDefaultParam param) {
 				}
 			}
 
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (ApiException e) {
+			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving profile for Entity Data Provider in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			personlizationServiceLogger.error("API Error has occured while retrieving profile for Entity Data Provider in the Personlization Screen",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
+			catch (Exception e) {
+				personlizationServiceLogger.error("Error occured while retrieving profile for Entity Data Provider in the Personlization Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving profile for Entity Data Provider in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
 
 		return new ListDataProvider<>(profileList);
 	}
@@ -596,9 +879,23 @@ public void updateOverRideParam(AppClient app, AppDefaultParam param) {
 				}
 			}
 
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (ApiException e) {
+			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" saving profile for entity in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			personlizationServiceLogger.error("API Error has occured while saving profile for entity  in the Personlization Screen",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
+			catch (Exception e) {
+				personlizationServiceLogger.error("Error occured while saving profile for entity in the Personlization Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" saving profile for entity in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
 
 	}
 	
@@ -610,9 +907,23 @@ public void updateOverRideParam(AppClient app, AppDefaultParam param) {
 				}
 			}
 
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (ApiException e) {
+			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" saving file for entity in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			personlizationServiceLogger.error("API Error has occured while saving file for entity in the Personlization Screen",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
+			catch (Exception e) {
+				personlizationServiceLogger.error("Error occured while saving file for entity in the Personlization Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" saving file for entity in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
 
 	}
 	
@@ -642,9 +953,23 @@ public void updateOverRideParam(AppClient app, AppDefaultParam param) {
 					}
 				 }
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
+		}catch (ApiException e) {
+			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" updating param of entity in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			personlizationServiceLogger.error("API Error has occured while updating param of entity in the Personlization Screen",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
+			catch (Exception e) {
+				personlizationServiceLogger.error("Error occured while updating param of entity in the Personlization Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" updating param of entity in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
 	}
 	
 	public void deleteProfileForEntity(List<Profile> profileList,Long entityId) {
@@ -655,9 +980,23 @@ public void updateOverRideParam(AppClient app, AppDefaultParam param) {
 				}
 			}
 
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (ApiException e) {
+			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" deleting profile for entity in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			personlizationServiceLogger.error("API Error has occured while deleting profile for entity in the Personlization Screen",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
+			catch (Exception e) {
+				personlizationServiceLogger.error("Error occured while deleting profile for entity in the Personlization Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" deleting profile for entity in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
 
 	}
 	
@@ -669,9 +1008,23 @@ public void updateOverRideParam(AppClient app, AppDefaultParam param) {
 				}
 			}
 
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (ApiException e) {
+			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" deleting file for entityy in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			personlizationServiceLogger.error("API Error has occured while deleting file for entity in the Personlization Screen",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
+			catch (Exception e) {
+				personlizationServiceLogger.error("Error occured while deleting file for entity in the Personlization Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" deleting file for entityy in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
 
 	}
 	
@@ -683,10 +1036,27 @@ public void updateOverRideParam(AppClient app, AppDefaultParam param) {
 				}
 			}
 
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (ApiException e) {
+			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" deleting App Profile Param in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			personlizationServiceLogger.error("API Error has occured while deleting App Profile Param in the Personlization Screen",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
+			catch (Exception e) {
+				personlizationServiceLogger.error("Error occured while deleting App Profile Param in the Personlization Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" deleting App Profile Param in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
 
 	}
 
+	public void logPersonlizationStoreScreenErrors(Exception e) {
+		personlizationServiceLogger.error("Error Occured", e);
+	}
 }

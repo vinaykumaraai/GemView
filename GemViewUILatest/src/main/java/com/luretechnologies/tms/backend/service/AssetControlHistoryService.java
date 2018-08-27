@@ -34,6 +34,7 @@ package com.luretechnologies.tms.backend.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -44,8 +45,10 @@ import com.luretechnologies.client.restlib.service.model.HeartbeatAudit;
 import com.luretechnologies.tms.backend.data.entity.AssetHistory;
 import com.luretechnologies.tms.backend.data.entity.Audit;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
+import com.luretechnologies.tms.backend.rest.util.RestClient;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
-import com.luretechnologies.tms.ui.NotificationUtil;
+import com.luretechnologies.tms.ui.components.ComponentUtil;
+import com.luretechnologies.tms.ui.components.NotificationUtil;
 import com.vaadin.data.TreeData;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
@@ -61,13 +64,11 @@ private static final Logger assetControlHistoryLogger = Logger.getLogger(AssetCo
 			TreeData<TreeNode> treeData = treeDataNodeService.getTreeData();
 			return treeData;
 			}
-		}catch (ApiException ae) {
-			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
-			}
-			assetControlHistoryLogger.error("API Error Occured ",ae);
 		} catch (Exception e) {
-			assetControlHistoryLogger.error("Error Occured ",e);
+			assetControlHistoryLogger.error("Error Occured while retrieving tree Data",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  retrieving tree Data for Asset Control Screens",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
 		}
 		return null;
 	}
@@ -88,10 +89,17 @@ private static final Logger assetControlHistoryLogger = Logger.getLogger(AssetCo
 		}catch (ApiException ae) {
 			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
 				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  retrieving Histroy Grid Data for Asset Control Screens",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
 			}
-			assetControlHistoryLogger.error("API Error Occured ",ae);
+			assetControlHistoryLogger.error("API Error Occured while retrieving Histroy Grid Data",ae);
+			RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
 		} catch (Exception e) {
-			assetControlHistoryLogger.error("Error Occured ",e);
+			assetControlHistoryLogger.error("Error Occured while retrieving Histroy Grid Data",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  retrieving Histroy Grid Data for Asset Control Screens",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
 		}
 		return assetHistoryListNew;
 	}

@@ -34,6 +34,8 @@ package com.luretechnologies.tms.backend.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import com.luretechnologies.client.restlib.common.ApiException;
@@ -41,15 +43,21 @@ import com.luretechnologies.client.restlib.service.model.AuditUserLog;
 import com.luretechnologies.client.restlib.service.model.SystemParam;
 import com.luretechnologies.tms.backend.data.entity.Systems;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
+import com.luretechnologies.tms.backend.rest.util.RestClient;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
+import com.luretechnologies.tms.ui.components.ComponentUtil;
+import com.luretechnologies.tms.ui.components.NotificationUtil;
 import com.vaadin.spring.annotation.SpringComponent;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Tree.ItemClick;
 
 @SpringComponent
 @Service
 public class SystemService {
+	private final static Logger systemLogger = Logger.getLogger(SystemService.class);
 
-	public Systems createSystemParam(String name, String description, String value, String systemParamType) throws ApiException{
+	public Systems createSystemParam(String name, String description, String value, String systemParamType){
 		try {
 			if(RestServiceUtil.getSESSION()!=null) {
 	
@@ -59,13 +67,26 @@ public class SystemService {
 						 systemParam.getSystemParamType().getName(), systemParam.getValue());
 				return selectedSystem;
 			}
-		}catch(Exception e) {
-			e.printStackTrace();
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  creating System Params",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			systemLogger.error("API Error Occured while creating System Params",ae);
+			RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
+		} catch (Exception e) {
+			systemLogger.error("Error Occured while creating System Params ",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  creating System Params",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
 		}
 		return null;
 	}
 	
-	public List<Systems> getAllSystemParam() throws ApiException{
+	public List<Systems> getAllSystemParam(){
 		try {
 			if(RestServiceUtil.getSESSION()!=null) {
 				
@@ -79,13 +100,26 @@ public class SystemService {
 				}
 				return systemsList;
 			}
-		}catch(Exception e) {
-			e.printStackTrace();
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  getting the System Params",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			systemLogger.error("API Error Occured while getting the System Params ",ae);
+			RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
+		} catch (Exception e) {
+			systemLogger.error("Error Occured while getting the System Params",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  getting the System Params",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
 		}
 		return null;
 	}
 	
-	public Systems updateSystem(Systems system, String description, String paramName, String type, String value) throws ApiException{
+	public Systems updateSystem(Systems system, String description, String paramName, String type, String value){
 		try {
 			if(RestServiceUtil.getSESSION()!=null) {
 				
@@ -100,20 +134,50 @@ public class SystemService {
 						systemParam.getSystemParamType().getName(), systemParam.getValue());
 				return system;
 			}
-		}catch(Exception e) {
-			e.printStackTrace();
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  updating the System Params",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			systemLogger.error("API Error Occured while updating the System Params",ae);
+			RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
+		} catch (Exception e) {
+			systemLogger.error("Error Occured while updating the System Params",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  updating the System Params",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
 		}
 		return system;
 	}
 	
-	public void deleteSystem(Systems system) throws ApiException{
+	public void deleteSystem(Systems system) {
 		try {
 			if(RestServiceUtil.getSESSION()!=null) {
 				
 				RestServiceUtil.getInstance().getClient().getSystemParamsApi().delete(system.getId());
 			}
-		}catch(Exception e) {
-			e.printStackTrace();
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  deleting the System",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			systemLogger.error("API Error Occured while deleting the System",ae);
+			RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
+		} catch (Exception e) {
+			systemLogger.error("Error Occured  while deleting the System",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  deleting the System",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
 		}
+	}
+	
+	public void logSystemScreenErrors(Exception e) {
+		systemLogger.error("Error Occured", e);
 	}
 }

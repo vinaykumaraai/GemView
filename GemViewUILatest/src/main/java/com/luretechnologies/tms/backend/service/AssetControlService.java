@@ -60,7 +60,8 @@ import com.luretechnologies.tms.backend.data.entity.TerminalClient;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
 import com.luretechnologies.tms.backend.rest.util.RestClient;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
-import com.luretechnologies.tms.ui.NotificationUtil;
+import com.luretechnologies.tms.ui.components.ComponentUtil;
+import com.luretechnologies.tms.ui.components.NotificationUtil;
 import com.vaadin.data.TreeData;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
@@ -71,20 +72,17 @@ public class AssetControlService {
 	@Autowired
 	public TreeDataNodeService treeDataNodeService;
 	
-	public TreeData<TreeNode> getTreeData() throws ApiException{
+	public TreeData<TreeNode> getTreeData(){
 		try {
 			if(RestServiceUtil.getSESSION()!=null) {
 			TreeData<TreeNode> treeData = treeDataNodeService.getTreeData();
 			return treeData;
 			}
-		}catch (ApiException ae) {
-			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
-			}
-			assetControlLogger.error("API Error Occured ",ae);
-		} catch (Exception e) {
-			assetControlLogger.error("Error Occured ",e);
+		}catch (Exception e) {
+			assetControlLogger.error("Error Occured while retrieving the Tree data for Asset Control Screens",e);
 			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving the Tree data for Asset Control Screens",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
 		}
 		return null;
 	}
@@ -97,21 +95,26 @@ public class AssetControlService {
 				if(historyList!=null && !historyList.isEmpty()) {
 					for(HeartbeatAudit heartbeatAudit: historyList) {
 						AssetHistory history = new AssetHistory(heartbeatAudit.getId(), heartbeatAudit.getComponent(), heartbeatAudit.getDescription());
-						assetHistoryListNew.add(history);
-						//RestServiceUtil.getInstance().getClient().getAppProfileApi().		
+						assetHistoryListNew.add(history);	
 						}
 				}
 				return assetHistoryListNew;
 			}
 		}catch (ApiException ae) {
 			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving the History Data for Asset Control Screens",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
 			}
-			assetControlLogger.error("API Error Occured ",ae);
+			assetControlLogger.error("API Error Occured while retrieving the History Data",ae);
+			RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
 		} catch (Exception e) {
-			assetControlLogger.error("Error Occured ",e);
+			assetControlLogger.error("Error Occured while retrieving the History Data",e);
 			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
-			
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving the History Data for Asset Control Screens",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
 		}
 		return assetHistoryListNew;
 	}
@@ -124,12 +127,19 @@ public class AssetControlService {
 			}
 		}catch (ApiException ae) {
 			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" deleting the History Data for Asset Control Screens",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
 			}
-			assetControlLogger.error("API Error Occured ",ae);
+			assetControlLogger.error("API Error Occured while deleting the History Data",ae);
+			RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
 		} catch (Exception e) {
-			assetControlLogger.error("Error Occured ",e);
+			assetControlLogger.error("Error Occured while deleting the History Data",e);
 			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" deleting the History Data for Asset Control Screens",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
 		}
 	}
 	
@@ -150,34 +160,21 @@ public class AssetControlService {
 			}
 		}catch (ApiException ae) {
 			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" searching the History Data for Asset Control Screens",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
 			}
-			assetControlLogger.error("API Error Occured ",ae);
+			assetControlLogger.error("API Error Occured while searching the History Data",ae);
+			RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
 		} catch (Exception e) {
-			assetControlLogger.error("Error Occured ",e);
+			assetControlLogger.error("Error Occured while searching the History Data",e);
 			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" searching the History Data for Asset Control Screens",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
 		}
 		return historyListSearch;
-	}
-	
-	public List<HeartbeatAudit> searchTreeData(String filter){
-		try {
-			if(RestServiceUtil.getSESSION()!=null) {
-			
-				List<HeartbeatAudit> odometerList = null;/*RestServiceUtil.getInstance().getClient().getAuditUserLogApi().searchLogs(null, null, filter, 
-						null, null, 1, 20);*/
-				//RestServiceUtil.getInstance().getClient().getAuditUserLogApi().searchLogs(userId, entityId, filter, dateFrom, dateTo, pageNumber, rowsPerPage)
-				return odometerList;
-			}
-//		}catch (ApiException ae) {
-//			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-//				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
-//			}
-//			assetControlLogger.error("API Error Occured ",ae);
-		} catch (Exception e) {
-			assetControlLogger.error("Error Occured ",e);
-		}
-		return null;
 	}
 	
 	public List<HeartbeatAudit> searchHistoryByDates(String entityId, String filter, String startDate, String endDate){
@@ -196,12 +193,18 @@ public class AssetControlService {
 			}
 		}catch (ApiException ae) {
 			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" searching the History Data by Dates for Asset Control Screens",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
 			}
-			assetControlLogger.error("API Error Occured ",ae);
+			assetControlLogger.error("API Error Occured while searching the History Data by Dates",ae);
 		} catch (Exception e) {
-			assetControlLogger.error("Error Occured ",e);
+			assetControlLogger.error("Error Occured while searching the History Data by Dates",e);
 			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" searching the History Data by Dates for Asset Control Screens",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
 		}
 		return null;
 	}
@@ -220,12 +223,19 @@ public class AssetControlService {
 				return assetAlertListNew;
 		}catch (ApiException ae) {
 			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving the Alert Data for Asset Control Screens",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
 			}
-			assetControlLogger.error("API Error Occured ",ae);
+			assetControlLogger.error("API Error Occured while retrieving the Alert Data",ae);
+			RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
 		} catch (Exception e) {
-			assetControlLogger.error("Error Occured ",e);
+			assetControlLogger.error("Error Occured while retrieving the Alert Data",e);
 			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving the Alert Data for Asset Control Screens",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
 		}
 		return assetAlertListNew;
 	}
@@ -243,12 +253,19 @@ public class AssetControlService {
 				return newAlert;
 		}catch (ApiException ae) {
 			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" creating the Alert Data for Asset Control Screens",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
 			}
-			assetControlLogger.error("API Error Occured ",ae);
+			assetControlLogger.error("API Error Occured while creating the Alert Data",ae);
+			RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
 		} catch (Exception e) {
-			assetControlLogger.error("Error Occured ",e);
+			assetControlLogger.error("Error Occured while creating the Alert Data",e);
 			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" creating the Alert Data for Asset Control Screens",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
 		}
 		return newAlert;
 	}
@@ -266,12 +283,19 @@ public class AssetControlService {
 				return newAlert;
 		}catch (ApiException ae) {
 			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" creating the Alert Data for Asset Control Screens",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
 			}
-			assetControlLogger.error("API Error Occured ",ae);
+			assetControlLogger.error("API Error Occured while updating the Alert Data",ae);
+			RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
 		} catch (Exception e) {
-			assetControlLogger.error("Error Occured ",e);
+			assetControlLogger.error("Error Occured while updating the Alert Data",e);
 			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" creating the Alert Data for Asset Control Screens",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
 		}
 		return newAlert;
 	}
@@ -284,12 +308,19 @@ public class AssetControlService {
 				
 		}catch (ApiException ae) {
 			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" deleting the Alert Data for Asset Control Screens",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
 			}
-			assetControlLogger.error("API Error Occured ",ae);
+			assetControlLogger.error("API Error Occured while deleting the Alert Data",ae);
+			RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
 		} catch (Exception e) {
-			assetControlLogger.error("Error Occured ",e);
+			assetControlLogger.error("Error Occured while deleting the Alert Data",e);
 			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" deleting the Alert Data for Asset Control Screens",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
 		}
 	}
 	
@@ -309,12 +340,19 @@ public class AssetControlService {
 				
 		}catch (ApiException ae) {
 			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  retrieving the Device Debug List for Asset Control Screens",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
 			}
-			assetControlLogger.error("API Error Occured ",ae);
+			assetControlLogger.error("API Error Occured while retrieving the Device Debug List",ae);
+			RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
 		} catch (Exception e) {
-			assetControlLogger.error("Error Occured ",e);
+			assetControlLogger.error("Error Occured while retrieving the Device Debug List",e);
 			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving the Device Debug List for Asset Control Screens",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
 		}
 		return debugItemsList;
 	}
@@ -345,17 +383,24 @@ public class AssetControlService {
 				}
 		}catch (ApiException ae) {
 			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  searching the Device Debug List for Asset Control Screens",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
 			}
-			assetControlLogger.error("API Error Occured ",ae);
+			assetControlLogger.error("API Error Occured while searching the Device Debug List",ae);
+			RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
 		} catch (Exception e) {
-			assetControlLogger.error("Error Occured ",e);
+			assetControlLogger.error("Error Occured while searching the Device Debug List",e);
 			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  searching the Device Debug List for Asset Control Screens",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
 		}
 		return debugItemsList;
 	}
 	
-	public List<DebugItem> searchDeviceDebugByDates(String entityId, String filter, String startDate, String endDate) throws ApiException{
+	public List<DebugItem> searchDeviceDebugByDates(String entityId, String filter, String startDate, String endDate){
 		try {
 			if(RestServiceUtil.getSESSION()!=null) {
 			if(filter!=null && !filter.isEmpty()) {
@@ -371,11 +416,19 @@ public class AssetControlService {
 			}
 		}catch (ApiException ae) {
 			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  searching the Device Debug List by Dates for Asset Control Screens",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
 			}
-			assetControlLogger.error("API Error Occured ",ae);
+			assetControlLogger.error("API Error Occured while searching the Device Debug List by Dates",ae);
+			RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
 		} catch (Exception e) {
-			assetControlLogger.error("Error Occured ",e);
+			assetControlLogger.error("Error Occured while searching the Device Debug List by Dates",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  searching the Device Debug List by Dates for Asset Control Screens",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
 		}
 		return null;
 	}
@@ -388,12 +441,19 @@ public class AssetControlService {
 				
 		}catch (ApiException ae) {
 			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  deleting the Device Debug List for Asset Control Screens",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
 			}
-			assetControlLogger.error("API Error Occured ",ae);
+			assetControlLogger.error("API Error Occured while deleting the Device Debug List",ae);
+			RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
 		} catch (Exception e) {
-			assetControlLogger.error("Error Occured ",e);
+			assetControlLogger.error("Error Occured while deleting the Device Debug List",e);
 			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  deleting the Device Debug List for Asset Control Screens",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
 		}
 	}
 	
@@ -411,12 +471,19 @@ public class AssetControlService {
 				
 		}catch (ApiException ae) {
 			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  saving the Device Debug and Duration for Asset Control Screens",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
 			}
-			assetControlLogger.error("API Error Occured ",ae);
+			assetControlLogger.error("API Error Occured while saving the Device Debug and Duration",ae);
+			RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
 		} catch (Exception e) {
-			assetControlLogger.error("Error Occured ",e);
+			assetControlLogger.error("Error Occured while saving the Device Debug and Duration",e);
 			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  saving the Device Debug and Duration for Asset Control Screens",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
 		}
 	}
 	
@@ -433,13 +500,23 @@ public class AssetControlService {
 				
 		}catch (ApiException ae) {
 			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  retrieving the Terminals for Asset Control Screens",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
 			}
-			assetControlLogger.error("API Error Occured ",ae);
+			assetControlLogger.error("API Error Occured while retrieving the Terminals",ae);
+			RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
 		} catch (Exception e) {
-			assetControlLogger.error("Error Occured ",e);
+			assetControlLogger.error("Error Occured while retrieving the Terminals",e);
 			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  retrieving the Terminals for Asset Control Screens",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
 		}
 		return null;
+	}
+	public void logAssetControlScreenErrors(Exception e) {
+		assetControlLogger.error("Error Occured", e);
 	}
 }

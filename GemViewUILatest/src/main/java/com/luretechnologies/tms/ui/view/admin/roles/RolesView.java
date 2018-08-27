@@ -204,8 +204,8 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 		layout.setComponentAlignment(layout2, Alignment.MIDDLE_RIGHT);
 		layout.addStyleName("grid-AuditOdometerAlignment");
 		getAndLoadRolesGrid(verticalLayout, dynamicVerticalLayout);
-		} catch (ApiException e) {
-			logger.info(e.getMessage());
+		} catch( Exception e) {
+			rolesService.logRoleScreenErrors(e);
 		}
 	}
 	

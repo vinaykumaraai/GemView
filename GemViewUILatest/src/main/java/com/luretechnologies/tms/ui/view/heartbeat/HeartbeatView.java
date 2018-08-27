@@ -119,7 +119,6 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 	private static VerticalLayout deleteLayoutVertical;
 	private static VerticalLayout searchAndDeleteLayoutVerticalPhomeMode, verticalDeviceFormLayout,secondPanelLayout;;
 	private List<Button> terminalButtonList;
-	Logger logger = LoggerFactory.getLogger(HeartbeatView.class);
 	
 	@Autowired
 	private HeartbeatService heartBeatService;
@@ -245,14 +244,10 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 		
 
 		Permission appStorePermission = roleService.getLoggedInUserRolePermissions().stream().filter(per -> per.getPageName().equals("SYSTEM")).findFirst().get();
-		try {
 			disableAllComponents();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 		allowAccessBasedOnPermission(appStorePermission.getAdd(),appStorePermission.getEdit(),appStorePermission.getDelete());
 	  }catch(Exception ex) {
-		  logger.info(ex.getMessage());
+		 heartBeatService.logHeartbeatScreenErrors(ex);
 	  }
 	
 	}
@@ -415,15 +410,11 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 		deviceSearch.setPlaceholder("Search");
 		deviceSearch.addValueChangeListener(changed -> {
 			String valueInLower = changed.getValue().toLowerCase();
-			try {
 				List<TerminalClient> terminalList = new LinkedList<TerminalClient>();
 				deviceSearch.setWidth("100%");
 				terminalList= heartBeatService.searchTerminal(valueInLower);
 				List<Button> searchTerminalList = getTerminals(verticalDeviceFormLayout,terminalList);
 				differentModesLoad(secondPanelLayout, searchTerminalList);
-			} catch (ApiException e) {
-				e.printStackTrace();
-			}
 			
 		});
 		
@@ -491,16 +482,12 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 		            public void onClose(ConfirmDialog dialog) {
 		                if (dialog.isConfirmed()) {
 		                    // Confirmed to continue
-		                	try {
-		                		List<Heartbeat> heartbeatHistortListServer = heartBeatService.deleteHeartbeat(hbHistoryGrid.getSelectedItems().iterator().next().getId());
-								DataProvider data = new ListDataProvider(heartbeatHistortListServer);
-								hbHistoryGrid.setDataProvider(data);	
+		                		//List<Heartbeat> heartbeatHistortListServer = heartBeatService.deleteHeartbeat(hbHistoryGrid.getSelectedItems().iterator().next().getId());
+								//DataProvider data = new ListDataProvider(heartbeatHistortListServer);
+								//hbHistoryGrid.setDataProvider(data);	
 								search.clear();
 			                	hbHistoryGrid.getDataProvider().refreshAll();
 			    				clearCalenderDates();
-							} catch (ApiException e) {
-								e.printStackTrace();
-							}
 		    				
 		                } else {
 		                    // User did not confirm
@@ -540,7 +527,6 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 		});
 		search.addValueChangeListener(valueChange -> {
 			
-			try {
 				String valueInLower = valueChange.getValue().toLowerCase();
 				String endDate =null;
 				String startDate=null;
@@ -551,9 +537,6 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 				List<Heartbeat> heartbeatHistortListServer = heartBeatService.searchHBHistoryByText(selectedTerminal.getEntityId(), valueInLower, startDate, endDate);
 				DataProvider data  = new ListDataProvider<>( heartbeatHistortListServer);
 				hbHistoryGrid.setDataProvider(data);
-			} catch (ApiException e) {
-				e.printStackTrace();
-			}
 			//Logic for search on grid in UI.
 			
 			/*ListDataProvider<HeartBeatHistory> debugDataProvider = (ListDataProvider<Heartbeat>) hbHistoryGrid.getDataProvider();
@@ -634,13 +617,9 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 	        	 			String endDate = endDateField.getValue().format(dateFormatter1);
 	        	 			String startDate = startDateField.getValue().format(dateFormatter1);
 	        	 			String filter = search.getValue();
-	        	 			try {
 	        					List<Heartbeat> heartbeatHistortListServer = heartBeatService.searchHBHistoryByDate(selectedTerminal.getEntityId(), filter, startDate, endDate);
 	        					DataProvider data  = new ListDataProvider<>( heartbeatHistortListServer);
 	        					hbHistoryGrid.setDataProvider(data);
-	        				} catch (ApiException e) {
-	        					e.printStackTrace();
-	        				}
 	        	 			
 	        	 				ListDataProvider<Heartbeat> hbHistoryDataProvider = (ListDataProvider<Heartbeat>) hbHistoryGrid.getDataProvider();
 				} else {
@@ -655,11 +634,7 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 	        	clearCalenderDates();
 	        }
 		}else {
-			try {
 				loadGridData(selectedTerminal.getEntityId());
-			} catch (ApiException e) {
-				e.printStackTrace();
-			}
 		}
 		});
 		
@@ -668,11 +643,7 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 				endDateField.clear();
 				endDateField.setRangeStart(change.getValue().plusDays(1));
 			}else {
-				try {
 					loadGridData(selectedTerminal.getEntityId());
-				} catch (ApiException e) {
-					e.printStackTrace();
-				}
 			}
 	});
 	}
@@ -698,7 +669,7 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 		layout.addComponent(VL);
 	}
 	
-	private void loadGridData(String entityId) throws ApiException {
+	private void loadGridData(String entityId) {
 		DataProvider data = new ListDataProvider<>(heartBeatService.getHeartbeatHistory(entityId));
 		hbHistoryGrid.setDataProvider(data);
 	}
@@ -736,11 +707,7 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 								verticalDeviceFormLayout.removeAllComponents();
 								getDeviceFromLayout(verticalDeviceFormLayout, terminal, false);
 								selectedTerminal=terminal;
-									try {
-										loadGridData(terminal.getEntityId());
-									} catch (ApiException e) {
-										e.printStackTrace();
-									}
+								loadGridData(terminal.getEntityId());
 							}
 						});
 					terminalButton.setPrimaryStyleName("v-heartbeat-Button");
@@ -761,11 +728,7 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 								verticalDeviceFormLayout.removeAllComponents();
 								getDeviceFromLayout(verticalDeviceFormLayout, terminal, false);
 								selectedTerminal=terminal;
-								try {
-									loadGridData(terminal.getEntityId());
-								} catch (ApiException e) {
-									e.printStackTrace();
-								}
+								loadGridData(terminal.getEntityId());
 							}
 						});
 					terminalButton1.setPrimaryStyleName("v-heartbeat-Button");

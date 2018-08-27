@@ -41,7 +41,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.http.util.EntityUtils;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -53,10 +55,16 @@ import com.luretechnologies.tms.app.security.BackendAuthenticationProvider;
 import com.luretechnologies.tms.backend.data.entity.Permission;
 import com.luretechnologies.tms.backend.data.entity.Role;
 import com.luretechnologies.tms.backend.data.entity.User;
+import com.luretechnologies.tms.backend.rest.util.RestClient;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
+import com.luretechnologies.tms.ui.components.ComponentUtil;
+import com.luretechnologies.tms.ui.components.NotificationUtil;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 
 @Service
 public class RolesService {
+	private final static Logger rolesLogger = Logger.getLogger(RolesService.class);
 	private List<String> screen = Arrays.asList("DASHBOARD", "APPSTORE", "PERSONALIZATION", "HEARTBEAT",
 			"ASSET", "ODOMETER", "AUDIT", "USER", "ROLE", "SYSTEM");
 	private static final String CREATE ="CREATE";
@@ -84,9 +92,21 @@ public class RolesService {
 					roleClientList.add(roleClient);
 					}
 				return roleClientList;
-			} catch (ApiException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} catch (ApiException ae) {
+				if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+					Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}else {
+					Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  retrieving the Roles",Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}
+				rolesLogger.error("API Error Occured while retrieving the Roles",ae);
+				RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
+			} catch (Exception e) {
+				rolesLogger.error("Error Occured while retrieving the Roles",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  retrieving the Roles",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
 			}
 			
 		}
@@ -204,9 +224,21 @@ public class RolesService {
 					roleNameList.add(role.getName());
 					}
 				return roleNameList;
-			} catch (ApiException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} catch (ApiException ae) {
+				if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+					Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}else {
+					Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  retrieving the Role Name",Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}
+				rolesLogger.error("API Error Occured while retrieving the Role Name",ae);
+				RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
+			} catch (Exception e) {
+				rolesLogger.error("Error Occured while retrieving the Role Name",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  retrieving the Role Name",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
 			}
 			
 		}
@@ -280,9 +312,21 @@ public class RolesService {
 				}
 				
 				
-			} catch (ApiException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} catch (ApiException ae) {
+				if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+					Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}else {
+					Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  creating/updating the Roles",Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}
+				rolesLogger.error("API Error Occured while creating/updating the Roles",ae);
+				RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
+			} catch (Exception e) {
+				rolesLogger.error("Error Occured while creating/updating the Roles",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  creating/updating the Roles",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
 			}
 			
 		}
@@ -323,9 +367,21 @@ public class RolesService {
 			try {
 				RestServiceUtil.getInstance().getClient().getRoleApi().deleteRole(id);
 			
-			} catch (ApiException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} catch (ApiException ae) {
+				if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+					Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}else {
+					Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  deleting the Roles",Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}
+				rolesLogger.error("API Error Occured while deleting the Roles",ae);
+				RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
+			} catch (Exception e) {
+				rolesLogger.error("Error Occured while deleting the Roles",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  deleting the Roles",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
 			}
 			
 		}
@@ -436,23 +492,30 @@ public class RolesService {
 		}
 	}
 	
-	public Role getRoleByName(String roleName) throws ApiException {
-		Role role = new Role();
-		if(RestServiceUtil.getSESSION() != null) {
-			com.luretechnologies.client.restlib.service.model.Role roleServer = 
-					RestServiceUtil.getInstance().getClient().getRoleApi().getRolebyName(roleName);
-			role = getClientRole(roleServer);
-			
-		}
-		return role;
-		
-	}
-	
-	public List<Permission> getLoggedInUserRolePermissions() throws ApiException {
+	public List<Permission> getLoggedInUserRolePermissions(){
 		List<Permission> permissionList = new ArrayList<>();
+		try {
 		List<PermissionEnum> permissionListServer = RestServiceUtil.getSESSION().getPermissions();
 		permissionList = getPermissionList(permissionListServer);
-		return permissionList;
+		
+		}catch (Exception e) {
+			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+		}else {
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  retrieving the Role Permissions",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
+		}
+			rolesLogger.error("Error Occured while retrieving the Role Permissions",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  retrieving the Role Permissions",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
+		
 
+	}
+		return permissionList;
+}
+	public void logRoleScreenErrors(Exception e) {
+		rolesLogger.error("Error Occured", e);
 	}
 }

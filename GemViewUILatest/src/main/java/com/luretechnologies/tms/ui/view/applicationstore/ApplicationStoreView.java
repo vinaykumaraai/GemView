@@ -143,7 +143,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 	private TextField description, packageVersion;
 	private HorizontalLayout activeBoxLayout;
 	private HorizontalLayout fileButtonLayout;
-	Logger logger = LoggerFactory.getLogger(ApplicationStoreView.class);
+	
 	
 	@Autowired
 	public ApplicationStoreView() {
@@ -182,20 +182,20 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 				try {
 					phoneAndTabMode();
 				} catch (ApiException e) {
-					e.printStackTrace();
+					appStoreService.logApplicationStoreScreenErrors(e);
 				}
 				
 			} else if (r.getWidth() <= 699 && r.getWidth() > 0) {
 				try {
 					phoneAndTabMode();
 				} catch (ApiException e) {
-					e.printStackTrace();
+					appStoreService.logApplicationStoreScreenErrors(e);
 				}
 			} else {
 				try {
 					desktopMode();
 				} catch (ApiException e) {
-					e.printStackTrace();
+					appStoreService.logApplicationStoreScreenErrors(e);
 				}
 
 			}
@@ -225,12 +225,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		});
 		differentModesLoad();
 		Permission appStorePermission = roleService.getLoggedInUserRolePermissions().stream().filter(per -> per.getPageName().equals("APPSTORE")).findFirst().get();
-		try {
 			disableAllComponents();
-		} catch (Exception e) {
-			e.printStackTrace();
-			
-		}
 		access = appStorePermission.getAccess();
 		add = appStorePermission.getAdd();
 		edit = appStorePermission.getEdit();
@@ -238,7 +233,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		
 		allowAccessBasedOnPermission(access, add, edit, delete);
 		}catch(Exception ex) {
-			logger.info(ex.getMessage());
+			appStoreService.logApplicationStoreScreenErrors(ex);
 		}
 	}
 
@@ -616,7 +611,7 @@ private void disableAllComponents() throws Exception {
 			try {
 				fileListWindow = getSmallListWindow(true, profileField);
 			} catch (ApiException e) {
-				e.printStackTrace();
+				appStoreService.logApplicationStoreScreenErrors(e);
 			}
 			if (fileListWindow.getParent() == null)
 				UI.getCurrent().addWindow(fileListWindow);
@@ -760,12 +755,8 @@ private void disableAllComponents() throws Exception {
 		
 		appDefaultParamGrid.getEditor().addSaveListener(save -> {
 			if(selectedProfile.getId()!=null) {
-				try {
 					AppParamFormat appParamFormat = appStoreService.getAppParamFormatByType(parameterType.getValue());
 					appStoreService.updateAppParamOfAppProfile(selectedProfile,  save.getBean(), appParamFormat);
-				} catch (ApiException e) {
-					e.printStackTrace();
-				}
 			}
 
 		});
@@ -826,7 +817,7 @@ private void disableAllComponents() throws Exception {
 				}
 			} catch (ApiException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				appStoreService.logApplicationStoreScreenErrors(e);
 			}
 
 		});
@@ -876,7 +867,7 @@ private void disableAllComponents() throws Exception {
 						Notification.show(NotificationUtil.APPLICATIONSTORE_PROFILE_DROPDOWN_CHECK, Type.ERROR_MESSAGE);
 					}
 			} catch (ApiException e) {
-				e.printStackTrace();
+				appStoreService.logApplicationStoreScreenErrors(e);
 			}
 			
 		});
@@ -947,12 +938,8 @@ private void disableAllComponents() throws Exception {
 						if (dialog.isConfirmed()) {
 							// Confirmed to continue
 							 
-							 try {
 								 appStoreService.removeAPPParam(appId, appParamId);
 								appDefaultParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(appStoreService.getAppDefaultParamListByAppId(appId)));
-							} catch (ApiException e) {
-								e.printStackTrace();
-							}
 							 appParamSearch.clear();
 						} else {
 							// User did not confirm
@@ -970,12 +957,8 @@ private void disableAllComponents() throws Exception {
 						if (dialog.isConfirmed()) {
 							// Confirmed to continue
 							 
-							 try {
 								 appStoreService.removeAppProfileParam(appProfileId, appParamId);
 								appDefaultParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(appStoreService.getAppParamListByAppProfileId(appProfileId)));
-							} catch (ApiException e) {
-								e.printStackTrace();
-							}
 							 appParamSearch.clear();
 						} else {
 							// User did not confirm
@@ -1166,9 +1149,7 @@ private void disableAllComponents() throws Exception {
 					 AppParamFormat appParamFormat = appStoreService.getAppParamFormatByType(parameterType.getValue());
 					appStoreService.saveAppDefaultParam(selectedApp, appDefaultParam, appParamFormat);
 				} catch (NumberFormatException e1) {
-					e1.printStackTrace();
-				} catch (ApiException e1) {
-					e1.printStackTrace();
+					appStoreService.logApplicationStoreScreenErrors(e1);
 				}
 				 if(selectedProfile!=null) {
 						appDefaultParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(appStoreService.getAppParamListByAppProfileId(selectedProfile.getId())));
@@ -1382,6 +1363,7 @@ private void disableAllComponents() throws Exception {
 							Thread.sleep(100);
 						} catch (final InterruptedException e) {
 							e.printStackTrace();
+							
 						}
 					}
 

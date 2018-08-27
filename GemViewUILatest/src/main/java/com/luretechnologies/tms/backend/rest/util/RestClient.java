@@ -49,7 +49,6 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.luretechnologies.tms.backend.data.entity.User;
 
 @PropertySource("classpath:application.properties")
 public class RestClient {
@@ -120,23 +119,16 @@ public class RestClient {
 			headers.set("Authorization", "Basic "+Base64.getEncoder().encodeToString((restServer.getUser()+":"+restServer.getPassword()).getBytes()));
 			HttpEntity<String> entity = new HttpEntity<String>(restServer.getContent(),headers);
 			String uri = new String(restServer.getHost());
-			
-			/*User u = new User();
-			u.setName("Johnathan M Smith");
-
-			User returns = rt.postForObject(uri, u, User.class, argumentsMap);*/
 			String answer = rt.postForObject(uri, entity, String.class);
-			System.out.println(answer);
 		} catch (HttpClientErrorException e) {
 			/**
 			 *
 			 * If we get a HTTP Exception display the error message
 			 */
-
-			System.out.println(e.getResponseBodyAsString());
-
+			restClientLogger.error("Http Client Error while sending content via url ",e);
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			restClientLogger.error("Error while sending content via url ",e);
+			
 		}
 	}
 }
