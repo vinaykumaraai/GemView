@@ -219,24 +219,20 @@ public class PersonalizationService {
 					RestServiceUtil.getInstance().getClient().getRegionApi().updateRegion(region.getEntityId(), region);
 					break;
 				case MERCHANT:
-					Merchant merchant = new Merchant();
+					Merchant merchant = RestServiceUtil.getInstance().getClient().getMerchantApi().getMerchant(node.getEntityId());
 					merchant.setAvailable(node.isActive());
 					merchant.setDescription(node.getDescription());
 					merchant.setName(node.getLabel());
-					merchant.setType(node.getType());
-					merchant.setEntityId(node.getEntityId());
 					RestServiceUtil.getInstance().getClient().getMerchantApi().updateMerchant(merchant.getEntityId(), merchant);
 					break;
 				case TERMINAL:
-					Terminal terminal = new Terminal();
+					Terminal terminal = RestServiceUtil.getInstance().getClient().getTerminalApi().getTerminal(node.getEntityId());
 					terminal.setAvailable(node.isActive());
 					terminal.setDescription(node.getDescription());
 					terminal.setName(node.getLabel());
-					terminal.setType(node.getType());
 					terminal.setFrequency(Long.parseLong(node.getFrequency()));
 					terminal.setHeartbeat(node.isHeartBeat());
 					terminal.setSerialNumber(node.getSerialNum());
-					terminal.setEntityId(node.getEntityId());
 					
 					RestServiceUtil.getInstance().getClient().getTerminalApi().updateTerminal(terminal.getEntityId(), terminal);
 					break;

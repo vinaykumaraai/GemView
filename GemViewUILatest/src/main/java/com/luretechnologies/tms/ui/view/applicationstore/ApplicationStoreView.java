@@ -70,6 +70,7 @@ import com.vaadin.external.org.slf4j.LoggerFactory;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.server.Page;
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -392,6 +393,7 @@ private void disableAllComponents() throws Exception {
 		});
 		createAppGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		createAppGridRow.setResponsive(true);
+		createAppGridRow.setDescription("Create App");
 		Button editAppGridRow = new Button(VaadinIcons.EDIT, click -> {
 			if (appGrid.getSelectedItems().isEmpty()) {
 				Notification.show(NotificationUtil.APPLICATIONSTORE_EDIT, Notification.Type.ERROR_MESSAGE);
@@ -407,6 +409,7 @@ private void disableAllComponents() throws Exception {
 		});
 		editAppGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		editAppGridRow.setResponsive(true);
+		editAppGridRow.setDescription("Edit App");
 
 		Button deleteAppGridRow = new Button(VaadinIcons.TRASH, clicked -> {
 			if (appGrid.getSelectedItems().isEmpty()) {
@@ -418,6 +421,7 @@ private void disableAllComponents() throws Exception {
 		});
 		deleteAppGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		deleteAppGridRow.setResponsive(true);
+		deleteAppGridRow.setDescription("Delete APP");
 		appSearchLayout = new HorizontalLayout(applicationSearch);
 		appSearchLayout.setWidth("100%");
 		appButtonsLayout = new HorizontalLayout(createAppGridRow, editAppGridRow, deleteAppGridRow);
@@ -603,6 +607,7 @@ private void disableAllComponents() throws Exception {
 		fileButton = new Button("Files", VaadinIcons.UPLOAD);
 		fileButton.addStyleNames("v-button-customstyle", ValoTheme.BUTTON_FRIENDLY);
 		fileButton.setEnabled(false);
+		fileButton.setDescription("Upload Files");
 		fileButton.addClickListener(click -> {
 			if(appGrid.getSelectedItems().size()==0) {
 				Notification.show(NotificationUtil.APPLICATIONSTORE_ADD_FILES, Type.ERROR_MESSAGE);
@@ -824,6 +829,7 @@ private void disableAllComponents() throws Exception {
 		createAppDefaultParamGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		createAppDefaultParamGridRow.setResponsive(true);
 		createAppDefaultParamGridRow.setEnabled(false);
+		createAppDefaultParamGridRow.setDescription("Create Parameters");
 
 			deleteAppDefaultParamGridRow = new Button(VaadinIcons.TRASH, clicked -> {
 			if(appGrid.getSelectedItems().size()==0) {
@@ -841,6 +847,7 @@ private void disableAllComponents() throws Exception {
 		deleteAppDefaultParamGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		deleteAppDefaultParamGridRow.setResponsive(true);
 		deleteAppDefaultParamGridRow.setEnabled(delete);
+		deleteAppDefaultParamGridRow.setDescription("Delete Parameters");
 		clearAllParams = new Button("Clear All", click -> {
 				if(appGrid.getSelectedItems().size()>0) {
 					appStoreService.removeAPPParamAll(selectedApp.getId());
@@ -856,6 +863,7 @@ private void disableAllComponents() throws Exception {
 		profileDropDown.addStyleNames("v-button-customstyle", ValoTheme.BUTTON_FRIENDLY);
 		profileField.addStyleNames("role-textbox", "v-textfield-font", ValoTheme.TEXTFIELD_BORDERLESS);
 		profileField.setEnabled(false);
+		profileDropDown.setDescription("Add Profile");
 		profileDropDown.addClickListener(click -> {
 			try {
 				if (appGrid.getSelectedItems().size() > 0) {
@@ -1099,6 +1107,8 @@ private void disableAllComponents() throws Exception {
 				
 					optionList.setDataProvider(new ListDataProvider<>(appStoreService.getAppProfileListByAppId(selectedApp.getId())));
 				profileWindow.close();
+			}else {
+				Notification.show(NotificationUtil.SAVE, Type.ERROR_MESSAGE);
 			}
 		});
 		saveProfile.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
@@ -1128,7 +1138,7 @@ private void disableAllComponents() throws Exception {
 		parameterType.setCaptionAsHtml(true);
 		parameterType.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", 
 				"asset-debugComboBox", "small");
-		TextField parameterActive = new TextField("Active");
+		TextField parameterActive = new TextField("Value");
 		parameterActive.addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS, "role-textbox","v-textfield-font", "v-grid-cell");
 		
 		//Clear Previously Entered Values
@@ -1158,6 +1168,8 @@ private void disableAllComponents() throws Exception {
 			}
 				 appDefaultWindow.close();
 				 parameterType.setParent(null);
+			}else {
+				Notification.show(NotificationUtil.SAVE, Type.ERROR_MESSAGE);
 			}
 		});
 		saveParameter.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");

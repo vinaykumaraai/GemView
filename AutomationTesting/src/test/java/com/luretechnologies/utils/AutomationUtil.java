@@ -37,14 +37,17 @@ import static org.junit.Assert.assertSame;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 import org.apache.log4j.Logger;
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-
-import com.luretechnologies.tms.automationtesting.LoginTest;
+import org.openqa.selenium.support.ui.FluentWait;
+import org.openqa.selenium.support.ui.Wait;
 
 public class AutomationUtil {
 	
@@ -72,6 +75,11 @@ public class AutomationUtil {
 		
 	}
 	
+	public static WebElement findElementById(WebDriver chromeDriver, String id) {
+		WebElement element = chromeDriver.findElement(By.id(id));
+		return element;
+	}
+	
 	public static WebElement findElementByName(WebDriver chromeDriver, String name) {
 		WebElement element = chromeDriver.findElement(By.name(name));
 		return element;
@@ -85,5 +93,18 @@ public class AutomationUtil {
 	public static int validateCredentials(WebDriver chromeDriver) {
 		int error = chromeDriver.getCurrentUrl().indexOf("error");
 		return error;
+	}
+	
+	public static void waitTillElementLoads(final WebDriver chromeDriver, final String xpath) {
+		Wait<WebDriver> wait = new FluentWait<WebDriver>(chromeDriver)
+				 .withTimeout(30, TimeUnit.SECONDS)
+		            .pollingEvery(5, TimeUnit.SECONDS)
+		            .ignoring(NoSuchElementException.class);
+
+		 WebElement foo = wait.until(new Function<WebDriver, WebElement>() {
+		        public WebElement apply(WebDriver driver) {
+		            return AutomationUtil.findElementByXpath(chromeDriver, xpath);
+		        }
+	});
 	}
 }

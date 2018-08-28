@@ -45,6 +45,7 @@ import com.vaadin.data.ValueContext;
 import com.vaadin.server.Page;
 import com.vaadin.server.UserError;
 import com.vaadin.shared.Position;
+import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.spring.navigator.SpringViewProvider;
 import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.CheckBox;
@@ -63,6 +64,7 @@ import com.vaadin.ui.themes.ValoTheme;
  * @author Vinay
  *
  */
+@SpringComponent
 public class ComponentUtil {
 	
 	@Autowired

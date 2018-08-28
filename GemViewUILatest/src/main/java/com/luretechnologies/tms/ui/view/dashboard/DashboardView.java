@@ -146,8 +146,8 @@ public class DashboardView extends DashboardViewDesign implements View {
 		grid.setCaption("<h2 style=margin-bottom:10px;margin-left:695px;color:#197DE1;font-weight:400;>CURRENT DOWNLOADS"
 				+ "</h2>");
 		
-		Row row = board.addRow(new BoardBox(currentConnectionsLabel),new BoardBox(successfulDownloadsLabel),
-				new BoardBox(requestPerSecondLabel), downloadFailuresBox);
+		Row row = board.addRow(new BoardBox(currentConnectionsLabel),
+				new BoardBox(requestPerSecondLabel), new BoardBox(successfulDownloadsLabel),downloadFailuresBox);
 		row.addStyleName("board-row-group");
 		
 		row = board.addRow();

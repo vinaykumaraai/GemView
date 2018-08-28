@@ -31,11 +31,14 @@
  */
 package com.luretechnologies.tms.ui.components;
 
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
+
 public class NotificationUtil {
 
 	public static final String TOKEN_EXPIRED = "EXPIRED HEADER TOKEN RECEIVED";
 	
-	public static final String SAVE = "Please fill all the details to SAVE";
+	public static final String SAVE = "Please complete all required fields to SAVE";
 	
 	public static final String SYSTEM_EDIT = "Please select any parameter to EDIT";
 	
@@ -151,7 +154,7 @@ public class NotificationUtil {
 	
 	public static final String APPLICATIONSTORE_PROFILE_DROPDOWN_CHECK = "Save the app/ select any app from app list";
 	
-	public static final String SESSION_EXPIRED = "!!!Session has Expired!!!";
+	public static final String SESSION_EXPIRED = "Session has Expired";
 	
 	public static final String SERVER_EXCEPTION = "Server Exception while";
 	

@@ -175,6 +175,7 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		save.addStyleName(ValoTheme.BUTTON_FRIENDLY);
 		save.addStyleName("v-button-customstyle");
 		save.setResponsive(true);
+		save.setId("systemSave");
 		save.addClickListener(new ClickListener() {
 			/**
 			 * 
@@ -346,6 +347,7 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		parameterName.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
 		parameterName.addStyleNames("v-textfield-font", "v-grid-cell");
 		parameterName.setEnabled(isEditableOnly);
+		parameterName.setId("systemParamName");
 		formLayout.addComponent(parameterName);
 	}
 	
@@ -359,6 +361,7 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		systemDescription.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
 		systemDescription.addStyleName("v-grid-cell");
 		systemDescription.setEnabled(isEditableOnly);
+		systemDescription.setId("systemParamDescription");
 		formLayout.addComponent(systemDescription);
 	}
 	
@@ -371,6 +374,7 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		comboBoxType.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size","system-TypeAlignment", "small");
 		comboBoxType.setDataProvider(new ListDataProvider<>(Arrays.asList("Text", "Numeric","Boolean")));
 		comboBoxType.setValue(type);
+		comboBoxType.setId("systemParamType");
 		formLayout.addComponent(comboBoxType);
 	}
 	
@@ -384,6 +388,7 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		systemValue.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
 		systemValue.addStyleName("v-grid-cell");
 		systemValue.setEnabled(isEditableOnly);
+		systemValue.setId("systemParamValue");
 		formLayout.addComponent(systemValue);
 	}
 	
@@ -453,6 +458,7 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		systemGrid.setCaptionAsHtml(true);
 		systemGrid.addStyleName("v-grid-cell-fontSize");
 		systemGrid.setHeightByRows(12);
+		systemGrid.setId("systemGrid");
 		systemGrid.addColumn(Systems::getParameterName).setCaption("Parameter Name");
 		systemGrid.addColumn(Systems::getDescription).setCaption("Description");
 		systemGrid.addColumn(Systems::getType).setCaption("Type");

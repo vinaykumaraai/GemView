@@ -636,6 +636,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 						EntityTypeEnum.TERMINAL, EntityTypeEnum.DEVICE, EntityTypeEnum.ORGANIZATION)));
 		entityType.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size",
 				"personlization-formAlignment", "small");
+		entityType.setEnabled(false);
 
 		entityFormLayout.addComponent(entityType);
 	}
@@ -759,7 +760,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		selectProfile.setDescription("Select Profiles");
 		selectFile = new Button("", VaadinIcons.TWIN_COL_SELECT);
 		selectFile.addStyleNames("v-button-customstyle", ValoTheme.BUTTON_FRIENDLY, "personlization-plusButtons");
-		selectFile.setDescription("Add Files");
+		selectFile.setDescription("Select Files");
 		
 		selectProfile.addClickListener(click ->{
 			if(selectedApp != null)
