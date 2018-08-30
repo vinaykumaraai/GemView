@@ -899,7 +899,7 @@ private void disableAllComponents() throws Exception {
 		appParamHeaderButtonLayout.setEnabled(true);
 		HorizontalLayout appParamSearchLayout = new HorizontalLayout(appDefaultParamSearch);
 		appParamSearchLayout.setWidth("100%");
-		HorizontalLayout appParamButtonsLayout = new HorizontalLayout(createAppDefaultParamGridRow,
+		HorizontalLayout appParamButtonsLayout = new HorizontalLayout(clearDefaultParamSearch,createAppDefaultParamGridRow,
 				deleteAppDefaultParamGridRow);
 		HorizontalLayout appParamGridMenuLayout = new HorizontalLayout(appParamSearchLayout, appParamButtonsLayout);
 		appParamGridMenuLayout.setWidth("100%");
