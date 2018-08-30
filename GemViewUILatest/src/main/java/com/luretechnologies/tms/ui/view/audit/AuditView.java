@@ -92,7 +92,7 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 	private static Grid<Audit> debugGrid;
 	private static Tree<TreeNode> nodeTree;
 	private static Button deleteGridRow;
-	private static Button search;
+	private static Button search,clearSearch;
 	private static TextField treeNodeSearch, debugSearch;
 	private static HorizontalSplitPanel splitScreen;
 	private static DateField debugStartDateField, debugEndDateField;
@@ -174,14 +174,15 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		treeNodeSearch.setStyleName("small inline-icon search");
 		treeNodeSearch.addStyleName("v-textfield-font");
 		treeNodeSearch.setPlaceholder("Search");
+		clearSearch = new Button(VaadinIcons.ERASER);
+		clearSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"v-button-customstyle");
 		configureTreeNodeSearch();
 		
 		Panel panel = getAndLoadAuditPanel();
 		VerticalLayout verticalPanelLayout = new VerticalLayout();
 		verticalPanelLayout.setHeight("100%");
 		verticalPanelLayout.setStyleName("split-height");
-		VerticalLayout treeSearchPanelLayout = new VerticalLayout();
-		treeSearchPanelLayout.addComponent(treeNodeSearch);
+		VerticalLayout treeSearchPanelLayout = new VerticalLayout(treeNodeSearch,clearSearch);
 		nodeTree = new Tree<TreeNode>();
 		nodeTree.setTreeData(auditService.auditTreeData());
 		nodeTree.setItemIconGenerator(item -> {
@@ -335,6 +336,7 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 				}
 			}
 		});
+		clearSearch.addClickListener(click ->treeNodeSearch.clear());
 	}
 	
 	private void clearCalenderDates() {

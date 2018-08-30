@@ -108,7 +108,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 	private static Devices emptyDevice;
 	private static HorizontalSplitPanel splitScreen;
 	private static Button createEntity, copyEntity, editEntity, deleteEntity, pasteEntity, addParam, editParam,
-			deleteParam, save, cancel, selectProfile, selectFile;
+			deleteParam, save, cancel, selectProfile, selectFile,clearSearch;
 	private static TextField entityName, entityDescription;
 	private static TextField entitySerialNum = new TextField("Serial Number");
 	private static ComboBox<Devices> deviceDropDown;
@@ -207,6 +207,8 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		treeNodeSearch.setVisible(true);
 		treeNodeSearch.setHeight(37, Unit.PIXELS);
 		treeNodeSearch.setWidth("100%");
+		clearSearch = new Button(VaadinIcons.ERASER);
+		clearSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"v-button-customstyle");
 		configureTreeNodeSearch();
 
 		Panel panel = getAndLoadPersonlizationPanel();
@@ -383,6 +385,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 				}
 			}
 		});
+		clearSearch.addClickListener(click ->treeNodeSearch.clear());
 	}
 
 	public Panel getAndLoadPersonlizationPanel() {
@@ -513,7 +516,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		deleteEntity.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		deleteEntity.setDescription("Delete Entities", ContentMode.HTML);
 
-		treeButtonLayout.addComponents(treeNodeSearch);
+		treeButtonLayout.addComponents(treeNodeSearch,clearSearch);
 		treeSearchLayout.addComponents(createEntity, copyEntity, pasteEntity, editEntity, deleteEntity);
 	}
 

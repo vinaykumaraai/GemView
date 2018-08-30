@@ -121,7 +121,7 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 	public static final String CAPTION_UPDATE = "Save";
 	public static final String CAPTION_ADD = "Save";
 	public PasswordEncoder passwordEncoder;
-	public static Button addTreeNode, deleteTreeNode;
+	public static Button addTreeNode, deleteTreeNode,clearSearch;
 	public static TextField treeNodeInputLabel;
 	public static TextField treeNodeSearch;
 	Logger logger = LoggerFactory.getLogger(AbstractCrudView.class);
@@ -213,8 +213,11 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 		treeNodeSearch.setStyleName("small inline-icon search");
 		treeNodeSearch.addStyleName("v-textfield-font");
 		treeNodeSearch.setPlaceholder("Search");
+		clearSearch = new Button(VaadinIcons.ERASER);
+		clearSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		configureTreeNodeSearch();
 		treePanelLayout.addComponentAsFirst(treeNodeSearch);
+		treePanelLayout.addComponent(clearSearch);
 		Tree<TreeNode> treeComponent = getUserTree(treeDataService.getTreeData());
 		treePanelLayout.addComponent(treeComponent);
 		treePanelLayout.setComponentAlignment(treeComponent, Alignment.BOTTOM_LEFT);
@@ -525,15 +528,11 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 	private void configureTreeNodeSearch() {
 		treeNodeSearch.addValueChangeListener(changed -> {
 			String valueInLower = changed.getValue().toLowerCase();
-			
-			//Search logic on UI side. Maybe useful in future.
-			
-//			getTree().setTreeData(treeDataService.getFilteredTreeByNodeName(treeDataService.getTreeDataForUser(), valueInLower));
-			//FIXME: only works for root node labels
-//			TreeDataProvider<Node> nodeDataProvider = (TreeDataProvider<Node>) nodeTree.getDataProvider();
-//			nodeDataProvider.setFilter(filter -> {
-//				return filter.getLabel().toLowerCase().contains(valueInLower);
-//			});
+			if(!valueInLower.isEmpty() && valueInLower!=null) {
+				getTree().setTreeData(treeDataService.searchTreeData(valueInLower));
+			}else {
+				getTree().setTreeData(treeDataService.getTreeData());
+			}
 		});
 		
 		treeNodeSearch.addShortcutListener(new ShortcutListener("Clear",KeyCode.ESCAPE,null) {
@@ -545,6 +544,7 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 				}
 			}
 		});
+		clearSearch.addClickListener(click->treeNodeSearch.clear());
 	}
 
 	protected abstract AbstractCrudPresenter<T, ?, ? extends AbstractCrudView<T>> getPresenter();

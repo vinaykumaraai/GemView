@@ -440,6 +440,7 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 		clearSearch = new Button(VaadinIcons.ERASER,click->{
 			deviceSearch.clear();
 		});
+		clearSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		searchLayout.addComponents(deviceSearch,clearSearch);
 		VL.addComponent(searchLayout);
 		

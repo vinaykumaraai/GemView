@@ -125,7 +125,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 	private Button  saveForm;
 	private Button cancelForm;
 	private Button fileButton;
-	private TextField applicationSearch, appDefaultParamSearch;
+	private TextField applicationSearch, appDefaultParamSearch; //TODO add the clear search button for both
 	private HorizontalLayout appGridMenuHorizontalLayout;
 	private VerticalLayout appGridMenuVerticalLayout;
 	private VerticalLayout applicationListLayout;
@@ -139,7 +139,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 	private Button clearAllParams;
 	private Button profileDropDown;
 	private Button clearProfile;
-	private Button createAppDefaultParamGridRow, deleteAppDefaultParamGridRow;
+	private Button createAppDefaultParamGridRow, deleteAppDefaultParamGridRow,clearApplicationSearch,clearDefaultParamSearch;
 	private boolean access=false, add=false, edit=false, delete=false;
 	private TextField description, packageVersion;
 	private HorizontalLayout activeBoxLayout;
@@ -382,6 +382,8 @@ private void disableAllComponents() throws Exception {
 						|| fileInLower.contains(valueInLower);
 			});*/
 		});
+		clearApplicationSearch = new Button(VaadinIcons.ERASER, click->applicationSearch.clear());
+		clearApplicationSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		Button createAppGridRow = new Button(VaadinIcons.FOLDER_ADD, click -> {			
 			setApplicationFormComponentsEnable(access, add, edit, delete);
 			appGrid.deselectAll();
@@ -424,7 +426,7 @@ private void disableAllComponents() throws Exception {
 		deleteAppGridRow.setDescription("Delete APP");
 		appSearchLayout = new HorizontalLayout(applicationSearch);
 		appSearchLayout.setWidth("100%");
-		appButtonsLayout = new HorizontalLayout(createAppGridRow, editAppGridRow, deleteAppGridRow);
+		appButtonsLayout = new HorizontalLayout(clearApplicationSearch,createAppGridRow, editAppGridRow, deleteAppGridRow);
 		appGridMenuHorizontalLayout = new HorizontalLayout(appSearchLayout, appButtonsLayout);
 		appGridMenuHorizontalLayout.setWidth("100%");
 		applicationListLayout = new VerticalLayout(appGridMenuHorizontalLayout, appGrid);
@@ -810,6 +812,7 @@ private void disableAllComponents() throws Exception {
 			DataProvider data = new ListDataProvider(appDefaultParamList);
 			appDefaultParamGrid.setDataProvider(data);
 		});
+		clearDefaultParamSearch = new Button(VaadinIcons.ERASER, click->appDefaultParamSearch.clear());
 		createAppDefaultParamGridRow = new Button(VaadinIcons.FOLDER_ADD, click -> {
 			try {
 				Window createParamGridWindow = openAppDefaultParamWindow(appDefaultParamGrid);

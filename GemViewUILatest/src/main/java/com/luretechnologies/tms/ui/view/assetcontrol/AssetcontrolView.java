@@ -75,7 +75,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 	private static Grid<AssetHistory> debugGrid;
 	private static Grid<DebugItems> deviceDebugGrid;
 	private static Grid<Alert> alertGrid =new Grid<>(Alert.class);
-	private static Button deleteHistoryGridRow, deleteAlertGridRow, editAlertGridRow, createAlertGridRow,saveAlertForm,cancelAlertForm,deleteDeviceDebugGridRow, saveDeviceDebug;
+	private static Button deleteHistoryGridRow, deleteAlertGridRow, editAlertGridRow, createAlertGridRow,saveAlertForm,cancelAlertForm,deleteDeviceDebugGridRow, saveDeviceDebug,clearSearch;
 	private static Tree<TreeNode> nodeTree;
 	private static TextField treeNodeSearch, historySearch,deviceDebugGridSearch;
 	private static HorizontalSplitPanel splitScreen;
@@ -183,14 +183,15 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		treeNodeSearch.setStyleName("small inline-icon search");
 		treeNodeSearch.addStyleName("v-textfield-font");
 		treeNodeSearch.setPlaceholder("Search");		
+		clearSearch = new Button(VaadinIcons.ERASER);
+		clearSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		configureTreeNodeSearch();
 
 		Panel panel = getAndLoadAssetControlPanel();
 		VerticalLayout verticalPanelLayout = new VerticalLayout();
 		verticalPanelLayout.setHeight("100%");
 		verticalPanelLayout.setStyleName("split-height");
-		VerticalLayout treeSearchPanelLayout = new VerticalLayout();
-		treeSearchPanelLayout.addComponentAsFirst(treeNodeSearch);
+		VerticalLayout treeSearchPanelLayout = new VerticalLayout(treeNodeSearch,clearSearch);
 		nodeTree = new Tree<TreeNode>();
 		nodeTree.setTreeData(assetControlService.getTreeData());
 		nodeTree.setItemIconGenerator(item -> {
@@ -430,6 +431,8 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 				}
 			}
 		});
+		
+		clearSearch.addClickListener(click->treeNodeSearch.clear());
 	}
 
 	private TabSheet getTabSheet() throws ApiException {
