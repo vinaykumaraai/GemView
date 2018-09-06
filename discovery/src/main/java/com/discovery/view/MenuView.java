@@ -7,7 +7,10 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.discovery.ui.dialog.DialogManager;
 import com.discovery.ui.navigation.NavigationManager;
+import com.discovery.view.dialog.AssetControl;
+import com.discovery.view.dialog.User;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewLeaveAction;
 import com.vaadin.spring.annotation.SpringViewDisplay;
@@ -16,19 +19,23 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
 
 @SuppressWarnings("serial")
 @SpringViewDisplay
 @UIScope
 public class MenuView extends VerticalLayout implements View {
 private Button userView,assetControlView,logout;
-private final Map<Class<? extends View>, Button> navigationButtons = new HashMap<>();
+private final Map<Window, Button> dialogButtons = new HashMap<>();
 private GridLayout menuLayout;
 private final NavigationManager navigationManager;
+private final DialogManager dialogManager;
+
 
 @Autowired
-public MenuView(NavigationManager navigationManager) {
+public MenuView(NavigationManager navigationManager,DialogManager dialogManager) {
 	this.navigationManager = navigationManager;
+	this.dialogManager = dialogManager;
 }
 
 @PostConstruct
@@ -36,12 +43,11 @@ public void init() {
 	userView = new Button("User");
 	assetControlView = new Button("AssetControl");
 	logout = new Button("Logout");
-	menuLayout = new GridLayout();
-	menuLayout.addComponents(userView, assetControlView, logout);
+	menuLayout = new GridLayout(2,2,userView, assetControlView, logout);
 	addComponent(menuLayout);
 	
-	attachNavigation(userView, UserView.class);
-	attachNavigation(assetControlView, AssetControlView.class);
+	attachDialogs(userView, new User());
+	attachDialogs(assetControlView, new AssetControl());
 	logout.addClickListener(e -> {
 		try {
 			logout();
@@ -58,14 +64,14 @@ public void init() {
  * <p>
  * If the user does not have access to the view, hides the button.
  *
- * @param navigationButton
- *            the button to use for navigatio
+ * @param dialogButtons
+ *            the button to use for navigation
  * @param targetView
  *            the view to navigate to when the user clicks the button
  */
-private void attachNavigation(Button navigationButton, Class<? extends View> targetView) {
-		navigationButtons.put(targetView, navigationButton);
-		navigationButton.addClickListener(e -> navigationManager.navigateTo(targetView));
+private void attachDialogs(Button dialogButton, Window dialog) {
+		dialogButtons.put(dialog, dialogButton);
+		dialogButton.addClickListener(e -> dialogManager.open(dialog));
 }
 public void logout() {
 	ViewLeaveAction doLogout = () -> {
