@@ -107,12 +107,48 @@
 		</dependency>
 
 	</dependencies>
-	<build>
-		<sourceDirectory>src/main/java</sourceDirectory>
+		<build>
+		<finalName>discovery</finalName>
 		<plugins>
+			<plugin>
+				<groupId>com.vaadin</groupId>
+				<artifactId>vaadin-maven-plugin</artifactId>
+				<version>8.3.2</version>
+				<dependencies>
+					<!-- For Travis -->
+					<dependency>
+						<groupId>xml-apis</groupId>
+						<artifactId>xml-apis</artifactId>
+						<version>1.4.01</version>
+					</dependency>
+				</dependencies>
+				<configuration>
+					<extraJvmArgs>-Xmx2G</extraJvmArgs>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>update-theme</goal>
+							<goal>update-widgetset</goal>
+							<goal>compile</goal>
+							<goal>compile-theme</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-enforcer-plugin</artifactId>
+				<executions>
+					<!-- <execution> <id>enforce-no-snapshots</id> <goals> <goal>enforce</goal> 
+						</goals> <configuration> <rules> <requireReleaseDeps> <message>No Snapshots 
+						Allowed!</message> </requireReleaseDeps> </rules> <fail>true</fail> </configuration> 
+						</execution> -->
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

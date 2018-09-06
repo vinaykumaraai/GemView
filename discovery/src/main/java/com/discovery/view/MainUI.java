@@ -14,11 +14,11 @@ import com.vaadin.spring.navigator.SpringViewProvider;
 import com.vaadin.ui.UI;
 
 @Theme("apptheme")
-@SpringUI(path=MainView.HOME_VIEW)
+@SpringUI(path=MainUI.HOME_VIEW)
 @Title("Discovery")
-public class MainView extends UI {
+public class MainUI extends UI {
 	
-	public static final Logger mainViewLogger = Logger.getLogger(MainView.class);
+	public static final Logger mainViewLogger = Logger.getLogger(MainUI.class);
 	/**
 	 * 
 	 */
@@ -33,7 +33,7 @@ public class MainView extends UI {
 	private final MenuView menuView;
 
 	@Autowired
-	public MainView(SpringViewProvider viewProvider, NavigationManager navigationManager, MenuView menuView) {
+	public MainUI(SpringViewProvider viewProvider, NavigationManager navigationManager, MenuView menuView) {
 		this.viewProvider = viewProvider;
 		this.navigationManager = navigationManager;
 		this.menuView = menuView;
