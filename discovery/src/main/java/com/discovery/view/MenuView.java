@@ -17,6 +17,7 @@ import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
+@SuppressWarnings("serial")
 @SpringViewDisplay
 @UIScope
 public class MenuView extends VerticalLayout implements View {
@@ -24,6 +25,7 @@ private Button userView,assetControlView,logout;
 private final Map<Class<? extends View>, Button> navigationButtons = new HashMap<>();
 private GridLayout menuLayout;
 private final NavigationManager navigationManager;
+
 @Autowired
 public MenuView(NavigationManager navigationManager) {
 	this.navigationManager = navigationManager;
@@ -31,6 +33,13 @@ public MenuView(NavigationManager navigationManager) {
 
 @PostConstruct
 public void init() {
+	userView = new Button("User");
+	assetControlView = new Button("AssetControl");
+	logout = new Button("Logout");
+	menuLayout = new GridLayout();
+	menuLayout.addComponents(userView, assetControlView, logout);
+	addComponent(menuLayout);
+	
 	attachNavigation(userView, UserView.class);
 	attachNavigation(assetControlView, AssetControlView.class);
 	logout.addClickListener(e -> {
@@ -66,8 +75,6 @@ public void logout() {
 	};
 
 	navigationManager.runAfterLeaveConfirmation(doLogout);
-	
-	//RestServiceUtil.getInstance().getClient().getAuthApi().logout();
 }
 
 }

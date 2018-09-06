@@ -96,13 +96,16 @@ public class SystemTest {
 		try {
 			WebElement systemButton = AutomationUtil.findElementByXpath(chromeDriver, "//*[@id=\"system\"]/span/span[2]");
 			systemButton.click();
-			Thread.sleep(2000);
+			Thread.sleep(3000);
 			systemLog.info("Clicked on System Screen Button");
 		}catch(Exception e){
 			systemLog.error("Error while clicking on System Screen Button", e);
 		}
 		
 		try {
+			List<String> data = Arrays.asList("Payment011", "This is Description for Payment001","Text",
+					"Value 1 for Payment 001");
+			
 			WebElement create = AutomationUtil.findElementByXpath(chromeDriver, "//*[@id=\"content\"]/div/div/div/div/div/div/div[2]/div/div[3]/div/div[1]/div/div[1]");
 			create.click();
 			Thread.sleep(2000);
@@ -110,7 +113,7 @@ public class SystemTest {
 			
 			WebElement paramName = AutomationUtil.findElementById(chromeDriver, "systemParamName");
 			paramName.click();
-			paramName.sendKeys("Payment004");
+			paramName.sendKeys("Payment011");
 			Thread.sleep(500);
 			systemLog.info("Entered Data in Parameter Name");
 			
@@ -137,9 +140,7 @@ public class SystemTest {
 			WebElement save = AutomationUtil.findElementById(chromeDriver, "systemSave");
 			save.click();
 			systemLog.info("Clicked on Save Button");
-			
-			List<String> data = Arrays.asList("Payment004", "This is Description for Payment001","Text",
-					"Value 1 for Payment 001");
+			Thread.sleep(500);
 			
 			WebElement grid = AutomationUtil.findElementById(chromeDriver, "systemGrid");
 			List<WebElement> allRows = grid.findElements(By.tagName("tr"));
