@@ -5,22 +5,17 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
-import com.luretechnologies.client.restlib.common.ApiException;
-import com.luretechnologies.tms.ui.navigation.NavigationManager;
-import com.luretechnologies.tms.ui.view.admin.roles.RolesView;
-import com.luretechnologies.tms.ui.view.admin.user.UserAdminView;
-import com.luretechnologies.tms.ui.view.applicationstore.ApplicationStoreView;
-import com.luretechnologies.tms.ui.view.assetcontrol.AssetcontrolView;
-import com.luretechnologies.tms.ui.view.audit.AuditView;
-import com.luretechnologies.tms.ui.view.dashboard.DashboardView;
-import com.luretechnologies.tms.ui.view.deviceodometer.DeviceodometerView;
-import com.luretechnologies.tms.ui.view.heartbeat.HeartbeatView;
-import com.luretechnologies.tms.ui.view.personalization.PersonalizationView;
-import com.luretechnologies.tms.ui.view.system.SystemView;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.discovery.ui.navigation.NavigationManager;
 import com.vaadin.navigator.View;
+import com.vaadin.navigator.ViewLeaveAction;
 import com.vaadin.spring.annotation.SpringViewDisplay;
 import com.vaadin.spring.annotation.UIScope;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.GridLayout;
+import com.vaadin.ui.UI;
+import com.vaadin.ui.VerticalLayout;
 
 @SpringViewDisplay
 @UIScope
@@ -37,11 +32,11 @@ public MenuView(NavigationManager navigationManager) {
 @PostConstruct
 public void init() {
 	attachNavigation(userView, UserView.class);
-	attachNavigation(assetControlView, AssertControlView.class);
+	attachNavigation(assetControlView, AssetControlView.class);
 	logout.addClickListener(e -> {
 		try {
 			logout();
-		} catch (ApiException e1) {
+		} catch (Exception e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
@@ -62,6 +57,17 @@ public void init() {
 private void attachNavigation(Button navigationButton, Class<? extends View> targetView) {
 		navigationButtons.put(targetView, navigationButton);
 		navigationButton.addClickListener(e -> navigationManager.navigateTo(targetView));
+}
+public void logout() {
+	ViewLeaveAction doLogout = () -> {
+		UI ui = getUI();
+		ui.getSession().getSession().invalidate();
+		ui.getPage().reload();
+	};
+
+	navigationManager.runAfterLeaveConfirmation(doLogout);
+	
+	//RestServiceUtil.getInstance().getClient().getAuthApi().logout();
 }
 
 }
