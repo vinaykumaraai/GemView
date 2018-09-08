@@ -9,9 +9,18 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
 public class User extends DialogWindow{
+	VerticalLayout verticalPanelLayout = new VerticalLayout();
 	public User() {
 		super();
-		this.setCaption("User");
+		this.setCaption("Users");
+		
 	}
+
+	@Override
+	public Component getContent() {
+		// TODO Auto-generated method stub
+		return verticalPanelLayout;
+	}
+	
 
 }
