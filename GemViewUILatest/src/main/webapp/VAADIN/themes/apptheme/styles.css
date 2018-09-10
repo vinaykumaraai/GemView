@@ -141,6 +141,14 @@
 	overflow: auto !important;
 }
 
+.odometer-OdometerSearchClearPhone {
+	font-size: 12px !important;
+	height: 28px !important;
+	padding: 0px 8px !important;
+	font-weight: 400 !important;
+	margin-top: 1px !important;
+}
+
 .save-cancelButtonsAlignment {
 	padding-right: 19px !important;
 }
@@ -273,6 +281,10 @@
 	background-image: url(terminalGood.png);
 	background-size: contain;
 	background-repeat: no-repeat;
+}
+
+.heartbeat-TerminalImage-Align {
+	text-align: left !important;
 }
 
 .heartbeat-SearchLayout {
@@ -501,6 +513,21 @@
 	margin-left: 4px;
 }
 
+.app-shell[width-range~="1001px-1400px"] .v-button-customstyle {
+	height: 37px !important;
+	padding: 0px 16px !important;
+	font-weight: 400 !important;
+	margin-top: 1px;
+}
+
+.app-shell[width-range~="600px-700px"] .v-button-customstyle {
+	font-size: 14px !important;
+	height: 32px !important;
+	padding: 0px 10px !important;
+	font-weight: 400 !important;
+	margin-top: 1px !important;
+}
+
 .app-shell[width-range~="601px-1000px"] .v-panel-caption {
 	font-size: 24px !important;
 	color: #216C2A !important;
@@ -519,6 +546,7 @@
 	height: 32px !important;
 	padding: 0px 10px !important;
 	font-weight: 400 !important;
+	margin-top: 1px;
 }
 
 .app-shell[width-range~="601px-1000px"] .v-grid-cell {
@@ -652,6 +680,7 @@
 	height: 28px !important;
 	padding: 0px 8px !important;
 	font-weight: 400 !important;
+	margin-top: 2px !important;
 }
 
 .app-shell[width-range~="-600px"] .v-grid-cell {
@@ -840,6 +869,21 @@
 
 .audit-scroll {
 	overflow: visible !important;
+}
+
+.audit-AuditSearchClearDesktop {
+	height: 37px !important;
+	padding: 0px 16px !important;
+	font-weight: 400 !important;
+	margin-top: 1px !important;
+}
+
+.audit-AuditSearchClearPhone {
+	font-size: 12px !important;
+	height: 28px !important;
+	padding: 0px 8px !important;
+	font-weight: 400 !important;
+	margin-top: 0px !important;
 }
 
 .grid-AuditOdometerAlignment {

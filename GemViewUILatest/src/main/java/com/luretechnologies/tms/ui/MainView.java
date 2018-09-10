@@ -135,48 +135,56 @@ public class MainView extends MainViewDesign implements ViewDisplay {
 			case "DASHBOARD":
 				if(permission.getAccess()) {
 					dashboard.setVisible(true);
+					dashboard.setDisableOnClick(true);
 					attachNavigation(dashboard, DashboardView.class);
 				}
 				break;
 			case "APPSTORE":
 				if(permission.getAccess()) {
 				applicationstore.setVisible(true);
+				applicationstore.setDisableOnClick(true);
 				attachNavigation(applicationstore, ApplicationStoreView.class);
 				}
 				break;
 			case "PERSONALIZATION":
 				if(permission.getAccess()) {
 				personalization.setVisible(true);
+				personalization.setDisableOnClick(true);
 				attachNavigation(personalization, PersonalizationView.class);
 				}
 				break;
 			case "HEARTBEAT":
 				if(permission.getAccess()) {
 				heartbeat.setVisible(true);
+				heartbeat.setDisableOnClick(true);
 				attachNavigation(heartbeat, HeartbeatView.class);
 				}
 				break;
 			case "ASSET":
 				if(permission.getAccess()) {
 				assetcontrol.setVisible(true);
+				assetcontrol.setDisableOnClick(true);
 				attachNavigation(assetcontrol, AssetcontrolView.class);
 				}
 				break;
 			case "ODOMETER":
 				if(permission.getAccess()) {
 				deviceodometer.setVisible(true);
+				deviceodometer.setDisableOnClick(true);
 				attachNavigation(deviceodometer, DeviceodometerView.class);
 				}
 				break;
 			case "AUDIT":
 				if(permission.getAccess()) {
 				audit.setVisible(true);
+				audit.setDisableOnClick(true);
 				attachNavigation(audit, AuditView.class);
 				}
 				break;
 			case "USER":
 				if(permission.getAccess()) {
 				users.setVisible(true);
+				users.setDisableOnClick(true);
 				administrationButton.setVisible(true);
 				attachNavigation(users, UserAdminView.class);
 				}
@@ -184,6 +192,7 @@ public class MainView extends MainViewDesign implements ViewDisplay {
 			case "ROLE":
 				if(permission.getAccess()) {
 				roles.setVisible(true);
+				roles.setDisableOnClick(true);
 				administrationButton.setVisible(true);
 				attachNavigation(roles, RolesView.class);
 				}
@@ -191,6 +200,7 @@ public class MainView extends MainViewDesign implements ViewDisplay {
 			case "SYSTEM":
 				if(permission.getAccess()) {
 				system.setVisible(true);
+				system.setDisableOnClick(true);
 				administrationButton.setVisible(true);
 				attachNavigation(system, SystemView.class);
 				}
@@ -295,6 +305,47 @@ public class MainView extends MainViewDesign implements ViewDisplay {
 	
 	public Label getTitle(){
 		return gemViewTitle;
+	}
+	
+	public Button getDashboard() {
+		return dashboard;
+	}
+	
+	
+	public Button getApplicationStore() {
+		return applicationstore;
+	}
+	
+	public Button getPersonlization() {
+		return personalization;
+	}
+	
+	public Button getHeartbeat() {
+		return heartbeat;
+	}
+	
+	public Button getAssetControl() {
+		return assetcontrol;
+	}
+	
+	public Button getDeviceOdometer() {
+		return deviceodometer;
+	}
+	
+	public Button getAudit() {
+		return audit;
+	}
+	
+	public Button getUsers() {
+		return users;
+	}
+	
+	public Button getRoles() {
+		return roles;
+	}
+	
+	public Button getSystem() {
+		return system;
 	}
 	
 	private String getAbsoluteUrl(String url) {

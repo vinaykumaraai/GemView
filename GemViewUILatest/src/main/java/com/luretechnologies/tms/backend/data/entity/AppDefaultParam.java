@@ -18,10 +18,10 @@ public class AppDefaultParam extends AbstractEntity {
 	}
 
 	public AppDefaultParam(Long id, String parameter, String description, String type, String value) {
-		Objects.requireNonNull(parameter);
+		/*Objects.requireNonNull(parameter);
 		Objects.requireNonNull(description);
 		Objects.requireNonNull(type);
-		Objects.requireNonNull(value);
+		Objects.requireNonNull(value);*/
 		this.parameter = parameter;
 		this.description = description;
 		this.type = type;

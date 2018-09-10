@@ -5,6 +5,7 @@ import com.vaadin.annotations.DesignRoot;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.HorizontalLayout;
@@ -57,6 +58,7 @@ public class UserAdminViewDesign extends Panel {
 	protected TextField password;
 	protected HorizontalLayout buttonsLayout;
 	protected HorizontalLayout searchBarLayout;
+	protected CssLayout userSearchLayout;
 	protected TextField search;
 	protected Button add;
 	protected Button edit;

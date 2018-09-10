@@ -59,6 +59,7 @@ import com.luretechnologies.tms.backend.service.ApplicationStoreService;
 import com.luretechnologies.tms.backend.service.RolesService;
 import com.luretechnologies.tms.backend.service.UserService;
 import com.luretechnologies.tms.ui.MainView;
+import com.luretechnologies.tms.ui.components.ComponentUtil;
 import com.luretechnologies.tms.ui.components.NotificationUtil;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
@@ -77,6 +78,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Grid.SelectionMode;
@@ -124,8 +126,8 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 	private TextField packageName;
 	private Button  saveForm;
 	private Button cancelForm;
-	private Button fileButton;
-	private TextField applicationSearch, appDefaultParamSearch; //TODO add the clear search button for both
+	private Button fileButton, clearAppSearch, clearParamSearch;
+	private TextField applicationSearch, appDefaultParamSearch;
 	private HorizontalLayout appGridMenuHorizontalLayout;
 	private VerticalLayout appGridMenuVerticalLayout;
 	private VerticalLayout applicationListLayout;
@@ -139,11 +141,12 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 	private Button clearAllParams;
 	private Button profileDropDown;
 	private Button clearProfile;
-	private Button createAppDefaultParamGridRow, deleteAppDefaultParamGridRow,clearApplicationSearch,clearDefaultParamSearch;
+	private Button createAppDefaultParamGridRow, deleteAppDefaultParamGridRow;
 	private boolean access=false, add=false, edit=false, delete=false;
 	private TextField description, packageVersion;
 	private HorizontalLayout activeBoxLayout;
 	private HorizontalLayout fileButtonLayout;
+	private HorizontalLayout appParamSearchLayout;
 	
 	
 	@Autowired
@@ -204,14 +207,29 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			if(r.getWidth()<=600) {
 				applicationSearch.setHeight("28px");
 				appDefaultParamSearch.setHeight("28px");
+				appParamSearchLayout.setWidth("100%");
+				clearAppSearch.removeStyleNames("v-button-customstyle", "audit-AuditSearchClearDesktop");
+				clearAppSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"odometer-OdometerSearchClearPhone");
+				clearParamSearch.removeStyleNames("v-button-customstyle", "audit-AuditSearchClearDesktop");
+				clearParamSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"odometer-OdometerSearchClearPhone");
 				mainView.getTitle().setValue(userService.getLoggedInUserName());
 			} else if(r.getWidth()>600 && r.getWidth()<=1000){
 				applicationSearch.setHeight("32px");
 				appDefaultParamSearch.setHeight("32px");
+				appParamSearchLayout.setWidth("100%");
+				clearAppSearch.removeStyleNames("audit-AuditSearchClearDesktop", "odometer-OdometerSearchClearPhone");
+				clearAppSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"v-button-customstyle");
+				clearParamSearch.removeStyleNames("audit-AuditSearchClearDesktop", "odometer-OdometerSearchClearPhone");
+				clearParamSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"v-button-customstyle");
 				mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
 			}else {
 				applicationSearch.setHeight(37, Unit.PIXELS);
 				appDefaultParamSearch.setHeight("37px");
+				appParamSearchLayout.setWidth("98%");
+				clearAppSearch.removeStyleNames("audit-AuditSearchClearPhone", "v-button-customstyle");
+				clearAppSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearDesktop");
+				clearParamSearch.removeStyleNames("audit-AuditSearchClearPhone", "v-button-customstyle");
+				clearParamSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearDesktop");
 				mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
 			}
 			
@@ -236,6 +254,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		}catch(Exception ex) {
 			appStoreService.logApplicationStoreScreenErrors(ex);
 		}
+			mainView.getApplicationStore().setEnabled(true);
 	}
 
 	private void allowAccessBasedOnPermission(Boolean access, Boolean add, Boolean edit, Boolean delete) {
@@ -264,14 +283,29 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		if(width<=600) {
 			applicationSearch.setHeight("28px");
 			appDefaultParamSearch.setHeight("28px");
+			appParamSearchLayout.setWidth("100%");
+			clearAppSearch.removeStyleNames("v-button-customstyle", "audit-AuditSearchClearDesktop");
+			clearAppSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"odometer-OdometerSearchClearPhone");
+			clearParamSearch.removeStyleNames("v-button-customstyle", "audit-AuditSearchClearDesktop");
+			clearParamSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"odometer-OdometerSearchClearPhone");
 			mainView.getTitle().setValue(userService.getLoggedInUserName());
 		} else if(width>600 && width<=1000){
 			applicationSearch.setHeight("32px");
 			appDefaultParamSearch.setHeight("32px");
+			appParamSearchLayout.setWidth("100%");
+			clearAppSearch.removeStyleNames("audit-AuditSearchClearDesktop", "odometer-OdometerSearchClearPhone");
+			clearAppSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"v-button-customstyle");
+			clearParamSearch.removeStyleNames("audit-AuditSearchClearDesktop", "odometer-OdometerSearchClearPhone");
+			clearParamSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"v-button-customstyle");
 			mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
 		}else {
 			applicationSearch.setHeight(37, Unit.PIXELS);
 			appDefaultParamSearch.setHeight("37px");
+			appParamSearchLayout.setWidth("98%");
+			clearAppSearch.removeStyleNames("audit-AuditSearchClearPhone", "v-button-customstyle");
+			clearAppSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearDesktop");
+			clearParamSearch.removeStyleNames("audit-AuditSearchClearPhone", "v-button-customstyle");
+			clearParamSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearDesktop");
 			mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
 		}
 		
@@ -350,6 +384,7 @@ private void disableAllComponents() throws Exception {
 		
 		applicationSearch = new TextField();
 		applicationSearch.setWidth("100%");
+		applicationSearch.setMaxLength(50);
 		applicationSearch.setIcon(VaadinIcons.SEARCH);
 		applicationSearch.setStyleName("small inline-icon search");
 		applicationSearch.addStyleNames("v-textfield-font");
@@ -367,10 +402,20 @@ private void disableAllComponents() throws Exception {
 			}
 		});
 		applicationSearch.addValueChangeListener(valueChange -> {
-			String valueInLower = valueChange.getValue().toLowerCase();
-			List<AppClient> appClientList = appStoreService.searchApps(valueInLower);
-			DataProvider data = new ListDataProvider(appClientList);
-			appGrid.setDataProvider(data);
+			if(valueChange.getValue().length()==50) {
+				Notification search = Notification.show(NotificationUtil.TEXTFIELD_LIMIT, Type.ERROR_MESSAGE);
+				search.addCloseListener(listener->{
+					String valueInLower = valueChange.getValue().toLowerCase();
+					List<AppClient> appClientList = appStoreService.searchApps(valueInLower);
+					DataProvider data = new ListDataProvider(appClientList);
+					appGrid.setDataProvider(data);
+				});
+			}else {
+				String valueInLower = valueChange.getValue().toLowerCase();
+				List<AppClient> appClientList = appStoreService.searchApps(valueInLower);
+				DataProvider data = new ListDataProvider(appClientList);
+				appGrid.setDataProvider(data);
+			}
 			//Searching on grid on UI Side. May be useful in future
 			
 			/*ListDataProvider<AppClient> appDataProvider = (ListDataProvider<AppClient>) appGrid.getDataProvider();
@@ -382,8 +427,17 @@ private void disableAllComponents() throws Exception {
 						|| fileInLower.contains(valueInLower);
 			});*/
 		});
-		clearApplicationSearch = new Button(VaadinIcons.ERASER, click->applicationSearch.clear());
-		clearApplicationSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
+		
+		CssLayout applicationSearchCSSLayout = new CssLayout();
+		applicationSearchCSSLayout.addStyleName(ValoTheme.LAYOUT_COMPONENT_GROUP);
+		applicationSearchCSSLayout.setWidth("90%");
+		
+		clearAppSearch = new Button(VaadinIcons.CLOSE);
+		clearAppSearch.addClickListener(listener->{
+			applicationSearch.clear();
+		});
+		applicationSearchCSSLayout.addComponents(applicationSearch, clearAppSearch);
+		
 		Button createAppGridRow = new Button(VaadinIcons.FOLDER_ADD, click -> {			
 			setApplicationFormComponentsEnable(access, add, edit, delete);
 			appGrid.deselectAll();
@@ -424,9 +478,9 @@ private void disableAllComponents() throws Exception {
 		deleteAppGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		deleteAppGridRow.setResponsive(true);
 		deleteAppGridRow.setDescription("Delete APP");
-		appSearchLayout = new HorizontalLayout(applicationSearch);
-		appSearchLayout.setWidth("100%");
-		appButtonsLayout = new HorizontalLayout(clearApplicationSearch,createAppGridRow, editAppGridRow, deleteAppGridRow);
+		appSearchLayout = new HorizontalLayout(applicationSearchCSSLayout);
+		appSearchLayout.setWidth("98%");
+		appButtonsLayout = new HorizontalLayout(createAppGridRow, editAppGridRow, deleteAppGridRow);
 		appGridMenuHorizontalLayout = new HorizontalLayout(appSearchLayout, appButtonsLayout);
 		appGridMenuHorizontalLayout.setWidth("100%");
 		applicationListLayout = new VerticalLayout(appGridMenuHorizontalLayout, appGrid);
@@ -596,15 +650,28 @@ private void disableAllComponents() throws Exception {
 		packageName = new TextField("Application Package Name");
 		packageName.addStyleNames("role-textbox", "v-textfield-font", ValoTheme.TEXTFIELD_BORDERLESS, 
 				"asset-debugComboBox", "v-textfield-lineHeight");
+		packageName.setMaxLength(50);
 		packageName.setCaptionAsHtml(true);
 		packageName.setEnabled(false);
 		packageName.setWidth("96%");
+		packageName.addValueChangeListener(listener->{
+			if(listener.getValue().length()==50) {
+				Notification.show(NotificationUtil.TEXTFIELD_LIMIT, Type.ERROR_MESSAGE);
+			}
+		});
+		
 		description = new TextField("Description");
 		description.addStyleNames("role-textbox", "v-textfield-font", ValoTheme.TEXTFIELD_BORDERLESS,
 				"asset-debugComboBox", "v-textfield-lineHeight");
 		description.setEnabled(false);
 		description.setId(DESCRIPTION);
 		description.setWidth("96%");
+		description.setMaxLength(50);
+		description.addValueChangeListener(listener->{
+			if(listener.getValue().length()==50) {
+				Notification.show(NotificationUtil.TEXTFIELD_LIMIT, Type.ERROR_MESSAGE);
+			}
+		});
 		
 		fileButton = new Button("Files", VaadinIcons.UPLOAD);
 		fileButton.addStyleNames("v-button-customstyle", ValoTheme.BUTTON_FRIENDLY);
@@ -629,6 +696,12 @@ private void disableAllComponents() throws Exception {
 				"asset-debugComboBox", "v-textfield-lineHeight");
 		packageVersion.setEnabled(false);
 		packageVersion.setWidth("96%");
+		packageVersion.setMaxLength(50);
+		packageVersion.addValueChangeListener(listener->{
+			if(listener.getValue().length()==50) {
+				Notification.show(NotificationUtil.TEXTFIELD_LIMIT, Type.ERROR_MESSAGE);
+			}
+		});
 		applicationOwner = new ComboBox<TreeNode>("Application Owner");
 		applicationOwner.setEnabled(false);
 		applicationOwner.setCaptionAsHtml(true);
@@ -652,8 +725,9 @@ private void disableAllComponents() throws Exception {
 		activeBoxLayout.addStyleNames("applicationStore-activeCheckBox", "asset-debugComboBox");
 		saveForm = new Button("Save");
 		saveForm.addClickListener(click -> {
-			if(applicationOwner.getValue()==null) {
-				Notification.show(NotificationUtil.SAVE, Type.ERROR_MESSAGE);
+			if(!(ComponentUtil.validatorTextField(packageName) && ComponentUtil.validatorTextField(description) && 
+					ComponentUtil.validatorTextField(packageVersion) && ComponentUtil.validatorComboBox(applicationOwner))) {
+				//Notification.show(NotificationUtil.SAVE, Type.ERROR_MESSAGE);
 			}
 			else {
 				AppClient app;
@@ -688,12 +762,13 @@ private void disableAllComponents() throws Exception {
 				appGrid.getDataProvider().refreshAll();
 				appGrid.deselectAll();
 			}
-
-			}
 			setApplicationFormComponentsEnable(access, false, false, false);
 			fileButton.setEnabled(true);
 			profileDropDown.setEnabled(true);
+
+			}
 		});
+		saveForm.setDescription("Save");
 		saveForm.setEnabled(true );
 		saveForm.addStyleNames("v-button-customstyle", ValoTheme.BUTTON_FRIENDLY);
 		cancelForm = new Button("Cancel", click -> {
@@ -714,6 +789,7 @@ private void disableAllComponents() throws Exception {
 			appGrid.deselectAll();
 
 		});
+		cancelForm.setDescription("Cancel");
 		cancelForm.setEnabled(true);
 		cancelForm.addStyleNames("v-button-customstyle", ValoTheme.BUTTON_FRIENDLY);
 		HorizontalLayout appDetailsSaveCancleAndLabelLayout = new HorizontalLayout();
@@ -784,6 +860,7 @@ private void disableAllComponents() throws Exception {
 		appDefaultParamSearch.setHeight("37px");
 		appDefaultParamSearch.setPlaceholder("Search");
 		appDefaultParamSearch.setResponsive(true);
+		appDefaultParamSearch.setMaxLength(50);
 		appDefaultParamSearch.addShortcutListener(new ShortcutListener("Clear", KeyCode.ESCAPE, null) {
 
 			@Override
@@ -794,7 +871,17 @@ private void disableAllComponents() throws Exception {
 
 			}
 		});
+		
 		appDefaultParamSearch.addValueChangeListener(valueChange -> {
+			if(valueChange.getValue().length()==50) {
+				Notification search = Notification.show(NotificationUtil.TEXTFIELD_LIMIT, Type.ERROR_MESSAGE);
+				search.addCloseListener(listener->{
+					String valueInLower = valueChange.getValue().toLowerCase();
+					List<AppDefaultParam> appDefaultParamList = appStoreService.searchParams(selectedApp.getId(), valueInLower);
+					DataProvider data = new ListDataProvider(appDefaultParamList);
+					appDefaultParamGrid.setDataProvider(data);
+				});
+			}else {
 			/*String valueInLower = valueChange.getValue().toLowerCase();
 			ListDataProvider<AppDefaultParam> appDataProvider = (ListDataProvider<AppDefaultParam>) appDefaultParamGrid
 					.getDataProvider();
@@ -811,8 +898,19 @@ private void disableAllComponents() throws Exception {
 			List<AppDefaultParam> appDefaultParamList = appStoreService.searchParams(selectedApp.getId(), valueInLower);
 			DataProvider data = new ListDataProvider(appDefaultParamList);
 			appDefaultParamGrid.setDataProvider(data);
+			}
 		});
-		clearDefaultParamSearch = new Button(VaadinIcons.ERASER, click->appDefaultParamSearch.clear());
+		
+		CssLayout parameterSearchCSSLayout = new CssLayout();
+		parameterSearchCSSLayout.addStyleName(ValoTheme.LAYOUT_COMPONENT_GROUP);
+		parameterSearchCSSLayout.setWidth("90%");
+		
+		clearParamSearch = new Button(VaadinIcons.CLOSE);
+		clearParamSearch.addClickListener(listener->{
+			appDefaultParamSearch.clear();
+		});
+		parameterSearchCSSLayout.addComponents(appDefaultParamSearch, clearParamSearch);
+		
 		createAppDefaultParamGridRow = new Button(VaadinIcons.FOLDER_ADD, click -> {
 			try {
 				Window createParamGridWindow = openAppDefaultParamWindow(appDefaultParamGrid);
@@ -862,8 +960,10 @@ private void disableAllComponents() throws Exception {
 		});
 		clearAllParams.addStyleNames("v-button-customstyle", ValoTheme.BUTTON_FRIENDLY);
 		clearAllParams.setEnabled(delete);
+		clearAllParams.setDescription("Clear All");
 		profileDropDown = new Button("Profile", VaadinIcons.PLUS_CIRCLE);
 		profileDropDown.addStyleNames("v-button-customstyle", ValoTheme.BUTTON_FRIENDLY);
+		profileDropDown.setDescription("Add Profile");
 		profileField.addStyleNames("role-textbox", "v-textfield-font", ValoTheme.TEXTFIELD_BORDERLESS);
 		profileField.setEnabled(false);
 		profileDropDown.setDescription("Add Profile");
@@ -892,14 +992,14 @@ private void disableAllComponents() throws Exception {
 				clearAllParams.setEnabled(delete);
 				appDefaultParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(appStoreService.getAppDefaultParamListByAppId(selectedApp.getId())));
 		});
+		clearProfile.setDescription("Clear Profile");
 
 		HorizontalLayout appParamHeaderButtonLayout = new HorizontalLayout(clearAllParams, profileDropDown,
 				profileField, clearProfile);
 		appParamHeaderButtonLayout.addStyleName("applicationStore-horizontalAlignment");
 		appParamHeaderButtonLayout.setEnabled(true);
-		HorizontalLayout appParamSearchLayout = new HorizontalLayout(appDefaultParamSearch);
-		appParamSearchLayout.setWidth("100%");
-		HorizontalLayout appParamButtonsLayout = new HorizontalLayout(clearDefaultParamSearch,createAppDefaultParamGridRow,
+		appParamSearchLayout = new HorizontalLayout(parameterSearchCSSLayout);
+		HorizontalLayout appParamButtonsLayout = new HorizontalLayout(createAppDefaultParamGridRow,
 				deleteAppDefaultParamGridRow);
 		HorizontalLayout appParamGridMenuLayout = new HorizontalLayout(appParamSearchLayout, appParamButtonsLayout);
 		appParamGridMenuLayout.setWidth("100%");
@@ -1008,6 +1108,7 @@ private void disableAllComponents() throws Exception {
 					fileUpload.close();
 				}
 			});
+			addNewButton.setDescription("Add New File");
 			
 			if(add) {
 				addNewButton.setEnabled(add);
@@ -1028,6 +1129,7 @@ private void disableAllComponents() throws Exception {
 					}
 				}
 			});
+			deleteButton.setDescription("Delete File");
 			if(delete) {
 				deleteButton.setEnabled(delete);
 			}else {
@@ -1063,6 +1165,7 @@ private void disableAllComponents() throws Exception {
 					UI.getCurrent().addWindow(createProfileWindow);
 
 			});
+			addNewButton.setDescription("Add New Profile");
 			if(add) {
 				addNewButton.setEnabled(add);
 			}else {
@@ -1077,6 +1180,7 @@ private void disableAllComponents() throws Exception {
 
 				}
 			});
+			deleteButton.setDescription("Delete Profile");;
 			if(delete) {
 				deleteButton.setEnabled(delete);
 			}else {
@@ -1111,13 +1215,15 @@ private void disableAllComponents() throws Exception {
 					optionList.setDataProvider(new ListDataProvider<>(appStoreService.getAppProfileListByAppId(selectedApp.getId())));
 				profileWindow.close();
 			}else {
-				Notification.show(NotificationUtil.SAVE, Type.ERROR_MESSAGE);
+				Notification.show(NotificationUtil.PROFILE_SAVE, Type.ERROR_MESSAGE);
 			}
 		});
+		saveProfile.setDescription("Save");
 		saveProfile.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		Button cancelProfile = new Button("Reset", click -> {
 			profileName.clear();
 		});
+		cancelProfile.setDescription("Reset");
 		cancelProfile.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		HorizontalLayout buttonLayout = new HorizontalLayout(saveProfile, cancelProfile);
 		FormLayout profileFormLayout = new FormLayout(profileName);
@@ -1135,46 +1241,83 @@ private void disableAllComponents() throws Exception {
 		Window appDefaultWindow = new Window("Add Default Parameter");
 		parameterName.setEnabled(true);
 		parameterName.addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS, "role-textbox","v-textfield-font", "v-grid-cell");
+		parameterName.setWidth("95%");
+		parameterName.setMaxLength(50);
+		parameterName.addValueChangeListener(listener->{
+			if(listener.getValue().length()==50) {
+				Notification.show(NotificationUtil.TEXTFIELD_LIMIT, Type.ERROR_MESSAGE);
+			}
+		});
+		
 		parameterDescription.setEnabled(true);
 		parameterDescription.addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS, "role-textbox","v-textfield-font", "v-grid-cell");
+		parameterDescription.setWidth("95%");
+		parameterDescription.setMaxLength(50);
+		parameterDescription.addValueChangeListener(listener->{
+			if(listener.getValue().length()==50) {
+				Notification.show(NotificationUtil.TEXTFIELD_LIMIT, Type.ERROR_MESSAGE);
+			}
+		});
+		
+		
 		parameterType.setEnabled(true);
 		parameterType.setCaptionAsHtml(true);
 		parameterType.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", 
 				"asset-debugComboBox", "small");
+		parameterType.setWidth("95%");
+		
+		
 		TextField parameterActive = new TextField("Value");
 		parameterActive.addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS, "role-textbox","v-textfield-font", "v-grid-cell");
+		parameterActive.setWidth("95%");
+		parameterActive.setMaxLength(50);
+		parameterActive.addValueChangeListener(listener->{
+			if(listener.getValue().length()==50) {
+				Notification.show(NotificationUtil.TEXTFIELD_LIMIT, Type.ERROR_MESSAGE);
+			}
+		});
+		
+		ComboBox<String> parameterValue = new ComboBox<String>("Value");
+		parameterValue.setEnabled(true);
+		parameterValue.setCaptionAsHtml(true);
+		parameterValue.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", 
+				"asset-debugComboBox", "small");
+		parameterValue.setDataProvider(new ListDataProvider<>(Arrays.asList("True", "False")));
+		parameterValue.setWidth("95%");
 		
 		//Clear Previously Entered Values
 		parameterName.clear();
-		parameterActive.clear();
 		parameterDescription.clear();
 		parameterType.clear();
 		
 		Button saveParameter = new Button("Save", click -> {
-			if (StringUtils.isNotEmpty(parameterType.getValue())
-					&& StringUtils.isNotEmpty(parameterName.getValue()) &&
-					StringUtils.isNotEmpty(parameterDescription.getValue()) &&
-					StringUtils.isNotEmpty(parameterActive.getValue())) {
-				AppDefaultParam appDefaultParam = new AppDefaultParam(null, parameterName.getValue(),
-						parameterDescription.getValue(), parameterType.getValue(), parameterActive.getValue());
-				
-				 try {
-					 AppParamFormat appParamFormat = appStoreService.getAppParamFormatByType(parameterType.getValue());
-					appStoreService.saveAppDefaultParam(selectedApp, appDefaultParam, appParamFormat);
-				} catch (NumberFormatException e1) {
-					appStoreService.logApplicationStoreScreenErrors(e1);
+			if (ComponentUtil.validatorTextField(parameterName)
+					&& ComponentUtil.validatorTextField(parameterDescription)
+					&& ComponentUtil.validatorComboBox(parameterType)) {
+				boolean textValue = parameterActive.getValue()!=null ? true : false;
+				boolean comboValue = parameterValue.getValue()!=null ? true : false;
+					AppDefaultParam appDefaultParam = new AppDefaultParam(null, parameterName.getValue(),
+							parameterDescription.getValue(), parameterType.getValue(), parameterActive.getValue());
+
+					try {
+						AppParamFormat appParamFormat = appStoreService
+								.getAppParamFormatByType(parameterType.getValue());
+						appStoreService.saveAppDefaultParam(selectedApp, appDefaultParam, appParamFormat);
+					} catch (NumberFormatException e1) {
+						appStoreService.logApplicationStoreScreenErrors(e1);
+					}
+					if (selectedProfile != null) {
+						appDefaultParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(
+								appStoreService.getAppParamListByAppProfileId(selectedProfile.getId())));
+					} else {
+						appDefaultParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(
+								appStoreService.getAppDefaultParamListByAppId(selectedApp.getId())));
+					}
+					appDefaultWindow.close();
+					parameterType.setParent(null);
 				}
-				 if(selectedProfile!=null) {
-						appDefaultParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(appStoreService.getAppParamListByAppProfileId(selectedProfile.getId())));
-					}else {
-							appDefaultParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(appStoreService.getAppDefaultParamListByAppId(selectedApp.getId())));
-			}
-				 appDefaultWindow.close();
-				 parameterType.setParent(null);
-			}else {
-				Notification.show(NotificationUtil.SAVE, Type.ERROR_MESSAGE);
-			}
 		});
+		saveParameter.setDescription("Save");
 		saveParameter.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		Button cancelParameter = new Button("Reset", click -> {
 			parameterName.clear();
@@ -1182,10 +1325,24 @@ private void disableAllComponents() throws Exception {
 			parameterDescription.clear();
 			parameterType.clear();
 		});
+		cancelParameter.setDescription("Reset");
 		cancelParameter.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		HorizontalLayout buttonLayout = new HorizontalLayout(saveParameter, cancelParameter);
-		FormLayout profileFormLayout = new FormLayout(parameterName, parameterDescription,parameterType,
-				parameterActive);
+		FormLayout profileFormLayout = new FormLayout(parameterName, parameterDescription,parameterType);
+		
+		parameterType.addSelectionListener(listener->{
+			if(listener.getValue().equalsIgnoreCase("boolean")) {
+				parameterActive.clear();
+				profileFormLayout.removeComponent(parameterActive);
+				parameterValue.clear();
+				profileFormLayout.addComponent(parameterValue);
+			}else {
+				parameterValue.clear();
+				profileFormLayout.removeComponent(parameterValue);
+				parameterActive.clear();
+				profileFormLayout.addComponent(parameterActive);
+			}
+		});
 
 		// Window Setup
 		appDefaultWindow.setContent(new VerticalLayout(profileFormLayout, buttonLayout));
@@ -1205,8 +1362,9 @@ private void disableAllComponents() throws Exception {
 		Upload uploadFile = new Upload("Upload File here", lineBreakCounter);
 		uploadFile.setImmediateMode(false);
 		uploadFile.setButtonCaption("Upload File");
-		uploadFile.addStyleName("applicationStore-UploadButton");
+		uploadFile.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle", "applicationStore-UploadButton");
 		uploadFile.setReceiver(fileUploadReceiver);
+		uploadFile.setDescription("Upload File");
 
 		Window fileUploadWindow = new Window("File Upload", uploadFile);
 		UploadInfoWindow uploadInfoWindow = new UploadInfoWindow(uploadFile, lineBreakCounter, fileUploadReceiver,

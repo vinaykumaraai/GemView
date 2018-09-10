@@ -18,6 +18,7 @@ import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.client.restlib.service.model.DebugItem;
 import com.luretechnologies.client.restlib.service.model.HeartbeatAudit;
 import com.luretechnologies.tms.backend.data.entity.Alert;
+import com.luretechnologies.tms.backend.data.entity.AppClient;
 import com.luretechnologies.tms.backend.data.entity.AssetHistory;
 import com.luretechnologies.tms.backend.data.entity.DebugItems;
 import com.luretechnologies.tms.backend.data.entity.Permission;
@@ -45,10 +46,12 @@ import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.DateField;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Grid.SelectionMode;
+import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
@@ -75,7 +78,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 	private static Grid<AssetHistory> debugGrid;
 	private static Grid<DebugItems> deviceDebugGrid;
 	private static Grid<Alert> alertGrid =new Grid<>(Alert.class);
-	private static Button deleteHistoryGridRow, deleteAlertGridRow, editAlertGridRow, createAlertGridRow,saveAlertForm,cancelAlertForm,deleteDeviceDebugGridRow, saveDeviceDebug,clearSearch;
+	private static Button deleteHistoryGridRow, deleteAlertGridRow, editAlertGridRow, createAlertGridRow,saveAlertForm,cancelAlertForm,deleteDeviceDebugGridRow, saveDeviceDebug,clearSearch, clearHistorySeach, clearDebugSearch;
 	private static Tree<TreeNode> nodeTree;
 	private static TextField treeNodeSearch, historySearch,deviceDebugGridSearch;
 	private static HorizontalSplitPanel splitScreen;
@@ -102,6 +105,9 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 	private static final String warn = "warn";
 	private static final String info="info";
 	private static Permission assetControlPermission;
+	private static CssLayout assetControlHistorySearchLayout;
+	private static CssLayout assetControlDebugSearchLayout;
+	
 	@Autowired
 	public AssetcontrolView() {
 
@@ -149,6 +155,10 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 				deviceDebugStartDateField.setHeight("28px");
 				deviceDebugEndDateField.setHeight("28px");
 				deviceDebugDuration.setHeight("28px");
+				clearHistorySeach.removeStyleNames("v-button-customstyle", "audit-AuditSearchClearDesktop");
+				clearHistorySeach.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearPhone");
+				clearDebugSearch.removeStyleNames("v-button-customstyle", "audit-AuditSearchClearDesktop");
+				clearDebugSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearPhone");
 				mainView.getTitle().setValue(userService.getLoggedInUserName());
 			} else if(r.getWidth()>600 && r.getWidth()<=1000){
 				treeNodeSearch.setHeight(32, Unit.PIXELS);
@@ -159,6 +169,10 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 				deviceDebugStartDateField.setHeight("32px");
 				deviceDebugEndDateField.setHeight("32px");
 				deviceDebugDuration.setHeight("32px");
+				clearHistorySeach.removeStyleNames("audit-AuditSearchClearDesktop", "audit-AuditSearchClearPhone");
+				clearHistorySeach.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"v-button-customstyle");
+				clearDebugSearch.removeStyleNames("audit-AuditSearchClearDesktop", "audit-AuditSearchClearPhone");
+				clearDebugSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"v-button-customstyle");
 				mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
 			}else {
 				treeNodeSearch.setHeight(37, Unit.PIXELS);
@@ -169,6 +183,10 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 				deviceDebugStartDateField.setHeight("37px");
 				deviceDebugEndDateField.setHeight("37px");
 				deviceDebugDuration.setHeight("37px");
+				clearHistorySeach.removeStyleNames("audit-AuditSearchClearPhone", "v-button-customstyle");
+				clearHistorySeach.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearDesktop");
+				clearDebugSearch.removeStyleNames("audit-AuditSearchClearPhone", "v-button-customstyle");
+				clearDebugSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearDesktop");
 				mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
 			}
 		});
@@ -182,8 +200,9 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		treeNodeSearch.setIcon(VaadinIcons.SEARCH);
 		treeNodeSearch.setStyleName("small inline-icon search");
 		treeNodeSearch.addStyleName("v-textfield-font");
-		treeNodeSearch.setPlaceholder("Search");		
-		clearSearch = new Button(VaadinIcons.ERASER);
+		treeNodeSearch.setPlaceholder("Search");	
+		treeNodeSearch.setMaxLength(50);
+		clearSearch = new Button(VaadinIcons.CLOSE);
 		clearSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		configureTreeNodeSearch();
 
@@ -191,7 +210,11 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		VerticalLayout verticalPanelLayout = new VerticalLayout();
 		verticalPanelLayout.setHeight("100%");
 		verticalPanelLayout.setStyleName("split-height");
-		VerticalLayout treeSearchPanelLayout = new VerticalLayout(treeNodeSearch,clearSearch);
+		CssLayout searchLayout = new CssLayout();
+		searchLayout.addStyleName(ValoTheme.LAYOUT_COMPONENT_GROUP);
+		searchLayout.addComponents(treeNodeSearch,clearSearch);
+		searchLayout.setWidth("85%");
+		VerticalLayout treeSearchPanelLayout = new VerticalLayout(searchLayout);
 		nodeTree = new Tree<TreeNode>();
 		nodeTree.setTreeData(assetControlService.getTreeData());
 		nodeTree.setItemIconGenerator(item -> {
@@ -245,6 +268,10 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 			debugEndDateField.setHeight("28px");
 			deviceDebugStartDateField.setHeight("28px");
 			deviceDebugEndDateField.setHeight("28px");
+			clearHistorySeach.removeStyleNames("v-button-customstyle", "audit-AuditSearchClearDesktop");
+			clearHistorySeach.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearPhone");
+			clearDebugSearch.removeStyleNames("v-button-customstyle", "audit-AuditSearchClearDesktop");
+			clearDebugSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearPhone");
 			mainView.getTitle().setValue(userService.getLoggedInUserName());
 		} else if(width>600 && width<=1000){
 			treeNodeSearch.setHeight(32, Unit.PIXELS);
@@ -254,6 +281,10 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 			debugEndDateField.setHeight("32px");
 			deviceDebugStartDateField.setHeight("32px");
 			deviceDebugEndDateField.setHeight("32px");
+			clearHistorySeach.removeStyleNames("audit-AuditSearchClearDesktop", "audit-AuditSearchClearPhone");
+			clearHistorySeach.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"v-button-customstyle");
+			clearDebugSearch.removeStyleNames("audit-AuditSearchClearDesktop", "audit-AuditSearchClearPhone");
+			clearDebugSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"v-button-customstyle");
 			mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
 		}else {
 			treeNodeSearch.setHeight(37, Unit.PIXELS);
@@ -263,6 +294,10 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 			debugEndDateField.setHeight("37px");
 			deviceDebugStartDateField.setHeight("37px");
 			deviceDebugEndDateField.setHeight("37px");
+			clearHistorySeach.removeStyleNames("audit-AuditSearchClearPhone", "v-button-customstyle");
+			clearHistorySeach.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearDesktop");
+			clearDebugSearch.removeStyleNames("audit-AuditSearchClearPhone", "v-button-customstyle");
+			clearDebugSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearDesktop");
 			mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
 		}
 		
@@ -281,6 +316,8 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		}catch(Exception ex) {
 			assetControlService.logAssetControlScreenErrors(ex);
 		}
+		
+		mainView.getAssetControl().setEnabled(true);
 	}
 
 	private void clearGridData() {
@@ -414,12 +451,24 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		// FIXME Not able to put Tree Search since its using a Hierarchical
 		// Dataprovider.
 		treeNodeSearch.addValueChangeListener(changed -> {
+			if(changed.getValue().length()==50) {
+				Notification search = Notification.show(NotificationUtil.TEXTFIELD_LIMIT, Type.ERROR_MESSAGE);
+				search.addCloseListener(listener->{
+					String valueInLower = changed.getValue().toLowerCase();
+					if(!valueInLower.isEmpty() && valueInLower!=null) {
+						nodeTree.setTreeData(treeDataNodeService.searchTreeData(valueInLower));
+					}else {
+						nodeTree.setTreeData(treeDataNodeService.getTreeData());
+					}
+				});
+			}else {
 			String valueInLower = changed.getValue().toLowerCase();
 				if(!valueInLower.isEmpty() && valueInLower!=null) {
 					nodeTree.setTreeData(treeDataNodeService.searchTreeData(valueInLower));
 				}else {
 					nodeTree.setTreeData(treeDataNodeService.getTreeData());
 				}
+			}
 		});
 		
 		treeNodeSearch.addShortcutListener(new ShortcutListener("Clear",KeyCode.ESCAPE,null) {
@@ -557,6 +606,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		historySearch.setStyleName("small inline-icon search");
 		historySearch.setPlaceholder("Search");
 		historySearch.setResponsive(true);
+		historySearch.setMaxLength(50);
 		historySearch.addShortcutListener(new ShortcutListener("Clear", KeyCode.ESCAPE, null) {
 
 			@Override
@@ -568,6 +618,21 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 			}
 		});
 		historySearch.addValueChangeListener(valueChange -> {
+			if(valueChange.getValue().length()==50) {
+				Notification search = Notification.show(NotificationUtil.TEXTFIELD_LIMIT, Type.ERROR_MESSAGE);
+				search.addCloseListener(listener->{
+					String filter = valueChange.getValue().toLowerCase();
+					String endDate =null;
+					String startDate=null;
+					if(debugEndDateField.getValue()!=null && debugStartDateField!=null) {
+					endDate = debugEndDateField.getValue().format(dateFormatter1);
+		 			startDate = debugStartDateField.getValue().format(dateFormatter1);
+					}
+						List<AssetHistory> searchGridData = assetControlService.searchHistoryGridDataByText(nodeTree.getSelectedItems().iterator().next().getEntityId(),filter, startDate, endDate);
+						DataProvider data = new ListDataProvider(searchGridData);
+						debugGrid.setDataProvider(data);
+				});
+			}else {
 			String filter = valueChange.getValue().toLowerCase();
 			String endDate =null;
 			String startDate=null;
@@ -584,8 +649,19 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 				String typeInLower = filter.getType().name().toLowerCase();
 				return typeInLower.equals(valueInLower) || descriptionInLower.contains(valueInLower);
 			});*/
+			}
 		});
-
+		
+		assetControlHistorySearchLayout = new CssLayout();
+		assetControlHistorySearchLayout.addStyleName(ValoTheme.LAYOUT_COMPONENT_GROUP);
+		assetControlHistorySearchLayout.setWidth("90%");
+		
+		clearHistorySeach = new Button(VaadinIcons.CLOSE);
+		clearHistorySeach.addClickListener(listener->{
+			historySearch.clear();
+		});
+		assetControlHistorySearchLayout.addComponents(historySearch, clearHistorySeach);
+		
 		deleteHistoryGridRow = new Button(VaadinIcons.TRASH);
 		deleteHistoryGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		deleteHistoryGridRow.setResponsive(true);
@@ -606,8 +682,8 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 
 		historySearchLayout = new HorizontalLayout();
 		historySearchLayout.setWidth("100%");
-		historySearchLayout.addComponent(historySearch);
-		historySearchLayout.setComponentAlignment(historySearch, Alignment.TOP_LEFT);
+		historySearchLayout.addComponent(assetControlHistorySearchLayout);
+		historySearchLayout.setComponentAlignment(assetControlHistorySearchLayout, Alignment.TOP_LEFT);
 
 		debugStartDateField = new DateField();
 		debugStartDateField.setWidth("100%");
@@ -931,6 +1007,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		deviceDebugGridSearch.setStyleName("small inline-icon search");
 		deviceDebugGridSearch.setPlaceholder("Search");
 		deviceDebugGridSearch.setResponsive(true);
+		deviceDebugGridSearch.setMaxLength(50);
 		deviceDebugGridSearch.addShortcutListener(new ShortcutListener("Clear", KeyCode.ESCAPE, null) {
 
 			@Override
@@ -942,22 +1019,50 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 			}
 		});
 		deviceDebugGridSearch.addValueChangeListener(valueChange -> {
-			String filter = valueChange.getValue().toLowerCase();
-			String endDate =null;
-			String startDate=null;
-			if(deviceDebugEndDateField.getValue()!=null && deviceDebugStartDateField!=null) {
-			endDate = deviceDebugEndDateField.getValue().format(dateFormatter1);
- 			startDate = deviceDebugStartDateField.getValue().format(dateFormatter1);
+			if (valueChange.getValue().length() == 50) {
+				Notification search = Notification.show(NotificationUtil.TEXTFIELD_LIMIT, Type.ERROR_MESSAGE);
+				search.addCloseListener(listener->{
+					String filter = valueChange.getValue().toLowerCase();
+					String endDate = null;
+					String startDate = null;
+					if (deviceDebugEndDateField.getValue() != null && deviceDebugStartDateField != null) {
+						endDate = deviceDebugEndDateField.getValue().format(dateFormatter1);
+						startDate = deviceDebugStartDateField.getValue().format(dateFormatter1);
+					}
+					List<DebugItems> searchGridData = assetControlService.getDeviceDebugBySearch(
+							nodeTree.getSelectedItems().iterator().next().getEntityId(), filter, startDate, endDate);
+					DataProvider data = new ListDataProvider(searchGridData);
+					deviceDebugGrid.setDataProvider(data);
+				});
+			} else {
+				String filter = valueChange.getValue().toLowerCase();
+				String endDate = null;
+				String startDate = null;
+				if (deviceDebugEndDateField.getValue() != null && deviceDebugStartDateField != null) {
+					endDate = deviceDebugEndDateField.getValue().format(dateFormatter1);
+					startDate = deviceDebugStartDateField.getValue().format(dateFormatter1);
+				}
+				List<DebugItems> searchGridData = assetControlService.getDeviceDebugBySearch(
+						nodeTree.getSelectedItems().iterator().next().getEntityId(), filter, startDate, endDate);
+				DataProvider data = new ListDataProvider(searchGridData);
+				deviceDebugGrid.setDataProvider(data);
 			}
-			List<DebugItems> searchGridData = assetControlService.getDeviceDebugBySearch(nodeTree.getSelectedItems().iterator().next().getEntityId(),filter, startDate, endDate);
-			DataProvider data = new ListDataProvider(searchGridData);
-			deviceDebugGrid.setDataProvider(data);
 		});
+		
+		assetControlDebugSearchLayout = new CssLayout();
+		assetControlDebugSearchLayout.addStyleName(ValoTheme.LAYOUT_COMPONENT_GROUP);
+		assetControlDebugSearchLayout.setWidth("90%");
+		
+		clearDebugSearch = new Button(VaadinIcons.CLOSE);
+		clearDebugSearch.addClickListener(listener->{
+			deviceDebugGridSearch.clear();
+		});
+		assetControlDebugSearchLayout.addComponents(deviceDebugGridSearch, clearDebugSearch);
 		
 		debugSearchLayout = new HorizontalLayout();
 		debugSearchLayout.setWidth("100%");
-		debugSearchLayout.addComponent(deviceDebugGridSearch);
-		debugSearchLayout.setComponentAlignment(deviceDebugGridSearch, Alignment.TOP_LEFT);
+		debugSearchLayout.addComponent(assetControlDebugSearchLayout);
+		debugSearchLayout.setComponentAlignment(assetControlDebugSearchLayout, Alignment.TOP_LEFT);
 		
 		deviceDebugStartDateField = new DateField();
 		deviceDebugStartDateField.setHeight("37px");

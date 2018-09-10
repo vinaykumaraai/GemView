@@ -719,8 +719,8 @@ public class ApplicationStoreService {
 		if (RestServiceUtil.getSESSION() != null) {
 			List<AppParamFormat> appParamServiceList = RestServiceUtil.getInstance().getClient().getAppParamFormatApi().getAppParamFormatList();
 				for (AppParamFormat appParamFormat : appParamServiceList) {
-					String value = appParamFormat.getValue();
-					if(!value.equals("file")) {
+					String value = appParamFormat.getValue().toUpperCase();
+					if(!value.equalsIgnoreCase("file")) {
 						appParamTypeList.add(value);
 					}
 			}
@@ -752,7 +752,7 @@ public class ApplicationStoreService {
 		if (RestServiceUtil.getSESSION() != null) {
 			List<AppParamFormat> appParamServiceList = RestServiceUtil.getInstance().getClient().getAppParamFormatApi().getAppParamFormatList();
 				for (AppParamFormat appParamFormat : appParamServiceList) {
-					if(type.equals(appParamFormat.getValue())){
+					if(type.equalsIgnoreCase(appParamFormat.getValue())){
 						return appParamFormat;
 					}	
 				}

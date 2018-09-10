@@ -47,6 +47,8 @@ import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.tms.backend.data.entity.Permission;
 import com.luretechnologies.tms.backend.data.entity.Role;
 import com.luretechnologies.tms.backend.service.RolesService;
+import com.luretechnologies.tms.ui.MainView;
+import com.luretechnologies.tms.ui.components.ComponentUtil;
 import com.luretechnologies.tms.ui.components.ConfirmDialogFactory;
 import com.luretechnologies.tms.ui.components.NotificationUtil;
 import com.luretechnologies.tms.ui.view.system.SystemView;
@@ -63,6 +65,7 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Grid;
@@ -106,6 +109,9 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 	public RolesView() {
 		selectedRole = new Role();
 	}
+	
+	@Autowired
+	private MainView mainView;
 
 	@PostConstruct
 	private void init() {
@@ -141,6 +147,7 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 		Button cancel = new Button("Cancel");
 		cancel.addStyleName(ValoTheme.BUTTON_FRIENDLY);
 		cancel.addStyleName("v-button-customstyle");
+		cancel.setDescription("Cancel");
 		cancel.addClickListener(new ClickListener() {
 			public void buttonClick(ClickEvent event) {	
 				dynamicVerticalLayout.removeAllComponents();
@@ -159,6 +166,7 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 		Button save = new Button("Save");
 		save.addStyleName(ValoTheme.BUTTON_FRIENDLY);
 		save.addStyleName("v-button-customstyle");
+		save.setDescription("Save");
 		save.addClickListener(new ClickListener() {
 			/**
 			 * 
@@ -172,8 +180,8 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 				selectedRole.setDescription(description);
 				selectedRole.setName(rolename);
 				selectedRole.setAvailable(activeValue);
-				if(description.isEmpty() || description== null|| rolename.isEmpty() || rolename== null) {
-					Notification.show(NotificationUtil.SAVE, Notification.Type.ERROR_MESSAGE);
+				if(!(ComponentUtil.validatorTextField(roleName) && ComponentUtil.validatorTextField(descriptions) &&
+						ComponentUtil.validatorCheckBox(activeBox))) {
 				} else {
 				rolesRepo.put(selectedRole.getId(), selectedRole);
 				if(roleGrid.getSelectedItems().size()<=0) {
@@ -207,6 +215,8 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 		} catch( Exception e) {
 			rolesService.logRoleScreenErrors(e);
 		}
+		
+		mainView.getRoles().setEnabled(true);
 	}
 	
 	public Panel getAndLoadRolesPanel() {
@@ -233,6 +243,13 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 		roleName.setStyleName("role-textbox");
 		roleName.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
 		roleName.addStyleNames("v-textfield-font", "v-textfield-lineHeight");
+		roleName.setMaxLength(50);
+		roleName.addValueChangeListener(listener->{
+			if(listener.getValue().length()==50) {
+				Notification search = Notification.show(NotificationUtil.TEXTFIELD_LIMIT, Type.ERROR_MESSAGE);
+			}
+		});
+		
 		selectedRole.setName(roleName.getValue());
 		roleName.setEnabled(isEditableOnly);
 		boolean active = selectedRole.isAvailable();
@@ -277,6 +294,12 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 		descriptions.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
 		descriptions.addStyleNames("v-textfield-font", "v-textfield-lineHeight");
 		descriptions.setEnabled(isEditableOnly);
+		descriptions.setMaxLength(50);
+		descriptions.addValueChangeListener(listener->{
+			if(listener.getValue().length()==50) {
+				Notification search = Notification.show(NotificationUtil.TEXTFIELD_LIMIT, Type.ERROR_MESSAGE);
+			}
+		});
 		formLayout.addComponent(descriptions);
 		formLayout.addComponent(activeCheck);
 		formLayout.setStyleName("role-description-layout");
@@ -365,6 +388,7 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 			}
 		});
 		addNewRole.setEnabled(rolesViewPermission.getAdd());
+		addNewRole.setDescription("Create Role");
 		Button editRole = new Button(VaadinIcons.EDIT);
 		editRole.addStyleName(ValoTheme.BUTTON_FRIENDLY);
 		editRole.addStyleName("v-button-customstyle");
@@ -381,6 +405,7 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 			}
 		});
 		editRole.setEnabled(rolesViewPermission.getEdit());
+		editRole.setDescription("Edit Role");
 		Button deleteRole = new Button(VaadinIcons.TRASH);
 		deleteRole.addStyleName(ValoTheme.BUTTON_FRIENDLY);
 		deleteRole.addStyleName("v-button-customstyle");
@@ -398,6 +423,7 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 			}
 		});
 		deleteRole.setEnabled(rolesViewPermission.getDelete());
+		deleteRole.setDescription("Delete Role");
 		HorizontalLayout buttonGroup =  new HorizontalLayout();
 		buttonGroup.addStyleName("role-createdeleteButtonLayout");
 		buttonGroup.setDefaultComponentAlignment(Alignment.MIDDLE_RIGHT);

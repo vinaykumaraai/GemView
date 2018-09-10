@@ -112,7 +112,9 @@ public class AlertTab {
 		alertCommandLabel.addComponent(alertCommands);
 		
 		saveAlertForm = new Button("Save");
+		saveAlertForm.setDescription("Save");
 		cancelAlertForm = new Button("Cancel");
+		cancelAlertForm.setDescription("Cancel");
 		saveCancelLayout.setDefaultComponentAlignment(Alignment.MIDDLE_RIGHT);
 		saveCancelLayout.addComponents( cancelAlertForm,saveAlertForm);
 		saveCancelLayout.setResponsive(true);
@@ -233,6 +235,7 @@ public class AlertTab {
 			cancelAlertForm.setEnabled(true);
 			alertGrid.deselectAll();
 		});
+		createAlertGridRow.setDescription("Create Alert");
 		createAlertGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY);
 		createAlertGridRow.addStyleName("v-button-customstyle");
 		editAlertGridRow = new Button(VaadinIcons.EDIT, click -> {
@@ -254,6 +257,7 @@ public class AlertTab {
 			}
 
 		});
+		editAlertGridRow.setDescription("Edit Alert");
 		editAlertGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY);
 		editAlertGridRow.addStyleName("v-button-customstyle");
 		editAlertGridRow.setEnabled(true);
@@ -277,6 +281,7 @@ public class AlertTab {
 		}
 
 		});
+		deleteAlertGridRow.setDescription("Delete Alert");
 		deleteAlertGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		deleteAlertGridRow.addStyleName("v-button-customstyle");
 		deleteAlertGridRow.setEnabled(true);
@@ -285,16 +290,11 @@ public class AlertTab {
 				HorizontalLayout HL= (HorizontalLayout)componentArray[3];
 				if (nodeTree.getSelectedItems().size() <= 0) {
 					Notification.show(NotificationUtil.ASSET_ALERT_SAVETONODE, Notification.Type.ERROR_MESSAGE);
-				} else if(((TextField) componentArray[0]).getValue()==null ||
-						((TextField) componentArray[0]).getValue().isEmpty() || 
-						((TextField) componentArray[1]).getValue()==null ||
-						((TextField) componentArray[1]).getValue().isEmpty() ||
-						((TextField) componentArray[2]).getValue()==null ||
-						((TextField) componentArray[2]).getValue().isEmpty() ||
-						((CheckBox) HL.getComponent(1)).getValue() == null ||
-						((TextField) componentArray[4]).getValue()==null ||
-						((TextField) componentArray[4]).getValue().isEmpty()) {
-					Notification.show(NotificationUtil.SAVE, Notification.Type.ERROR_MESSAGE);
+				} else if(!(ComponentUtil.validatorTextField((TextField) componentArray[0]) &&
+						ComponentUtil.validatorTextField((TextField) componentArray[1]) &&
+						ComponentUtil.validatorTextField((TextField) componentArray[2])  &&
+						ComponentUtil.validatorCheckBox((CheckBox) HL.getComponent(1)) &&
+						ComponentUtil.validatorTextField((TextField) componentArray[4]))) {
 				}else {
 			for (Component component : componentArray) {
 				if (component.isEnabled())

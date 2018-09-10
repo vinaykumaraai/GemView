@@ -176,6 +176,7 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		save.addStyleName("v-button-customstyle");
 		save.setResponsive(true);
 		save.setId("systemSave");
+		save.setDescription("Save");
 		save.addClickListener(new ClickListener() {
 			/**
 			 * 
@@ -187,9 +188,9 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 				String parametername = parameterName.getValue();
 				String type = comboBoxType.getValue();
 				String value = systemValue.getValue();
-				if(description.isEmpty() || description== null|| parametername.isEmpty() || parametername== null 
-						|| type.isEmpty() || type== null || value.isEmpty() || value== null) {
-					Notification.show(NotificationUtil.SAVE, Notification.Type.ERROR_MESSAGE);
+				if(!(ComponentUtil.validatorTextField(parameterName) && ComponentUtil.validatorTextField(systemDescription) &&
+						ComponentUtil.validatorComboBox(comboBoxType) && ComponentUtil.validatorTextField(systemValue))) {
+					
 				} else {
 						if(systemGrid.getSelectedItems().size()>0) {
 							Systems system = systemGrid.getSelectedItems().iterator().next();
@@ -262,6 +263,8 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		}catch(Exception ex) {
 			systemService.logSystemScreenErrors(ex);
 		}
+		
+		mainView.getSystem().setEnabled(true);
 	}
 	
 	private void disableAllComponents() throws Exception {
@@ -348,6 +351,12 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		parameterName.addStyleNames("v-textfield-font", "v-grid-cell");
 		parameterName.setEnabled(isEditableOnly);
 		parameterName.setId("systemParamName");
+		parameterName.setMaxLength(50);
+		parameterName.addValueChangeListener(listener->{
+			if(listener.getValue().length()==50) {
+				Notification.show(NotificationUtil.TEXTFIELD_LIMIT, Type.ERROR_MESSAGE);
+			}
+		});
 		formLayout.addComponent(parameterName);
 	}
 	
@@ -362,6 +371,13 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		systemDescription.addStyleName("v-grid-cell");
 		systemDescription.setEnabled(isEditableOnly);
 		systemDescription.setId("systemParamDescription");
+		systemDescription.setMaxLength(50);
+		systemDescription.addValueChangeListener(listener->{
+			if(listener.getValue().length()==50) {
+				Notification.show(NotificationUtil.TEXTFIELD_LIMIT, Type.ERROR_MESSAGE);
+			}
+		});
+		
 		formLayout.addComponent(systemDescription);
 	}
 	
@@ -389,6 +405,12 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		systemValue.addStyleName("v-grid-cell");
 		systemValue.setEnabled(isEditableOnly);
 		systemValue.setId("systemParamValue");
+		systemValue.setMaxLength(50);
+		systemValue.addValueChangeListener(listener->{
+			if(listener.getValue().length()==50) {
+				Notification.show(NotificationUtil.TEXTFIELD_LIMIT, Type.ERROR_MESSAGE);
+			}
+		});
 		formLayout.addComponent(systemValue);
 	}
 	
@@ -400,6 +422,7 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		create = new Button(VaadinIcons.FOLDER_ADD);
 		create.addStyleName(ValoTheme.BUTTON_FRIENDLY);
 		create.addStyleName("v-button-customstyle");
+		create.setDescription("Create System Parameter");
 		create.addClickListener(new ClickListener() {
 			public void buttonClick(ClickEvent event) {
 				systemGrid.deselectAll();
@@ -413,6 +436,7 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		edit = new Button(VaadinIcons.EDIT);
 		edit.addStyleName(ValoTheme.BUTTON_FRIENDLY);
 		edit.addStyleName("v-button-customstyle");
+		edit.setDescription("Edit System Parameter");
 		edit.addClickListener(new ClickListener() {
 			public void buttonClick(ClickEvent event) {
 				//parameterName.focus();
@@ -432,6 +456,7 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		delete = new Button(VaadinIcons.TRASH);
 		delete.addStyleName(ValoTheme.BUTTON_FRIENDLY);
 		delete.addStyleName("v-button-customstyle");
+		delete.setDescription("Delete System Parameter");
 		delete.addClickListener(new ClickListener() {
 			
 			@Override

@@ -40,6 +40,8 @@ public class NotificationUtil {
 	
 	public static final String SAVE = "Please complete all required fields to SAVE";
 	
+	public static final String PROFILE_SAVE = "Enter Profile name to SAVE";
+	
 	public static final String SYSTEM_EDIT = "Please select any parameter to EDIT";
 	
 	public static final String SYSTEM_DELETE = "Please select any parameter to DELETE";
@@ -56,7 +58,7 @@ public class NotificationUtil {
 	
 	public static final String ROLES_DELETE = "Please select any role to DELETE";
 	
-	public static final String USER_CREATE = "Please select any entity to create user";
+	public static final String USER_CREATE = "Please select any Entity to create user";
 	
 	public static final String USER_NAME_CHECK1 = "Spaces not allowd in Username";
 	
@@ -70,13 +72,13 @@ public class NotificationUtil {
 	
 	public static final String AUDIT_STARTDATE = "Please select start date to filter the data";
 	
-	public static final String AUDIT_SELECTNODE = "Please select any entity to filter the data";
+	public static final String AUDIT_SELECTNODE = "Please select any Entity to filter the data";
 	
 	public static final String AUDIT_DELETE = "Please select any debug type to DELETE";
 	
 	public static final String ODOMETER_STARTDATE = "Please select start date to filter the data";
 	
-	public static final String ODOMETER_SELECTNODE = "Please select any entity to filter the data";
+	public static final String ODOMETER_SELECTNODE = "Please select any Entity to filter the data";
 	
 	public static final String ODOMETER_DELETE = "Please select any status type to DELETE";
 	
@@ -84,7 +86,7 @@ public class NotificationUtil {
 	
 	public static final String ASSET_HISTORY_STARTDATE = "Please select start date to filter the data";
 	
-	public static final String ASSET_HISTORY_SELECTNODE = "Please select any entity to filter the data";
+	public static final String ASSET_HISTORY_SELECTNODE = "Please select any Entity to filter the data";
 	
 	public static final String ASSET_ALERT_SAVETONODE = "Please select any node to SAVE";
 	
@@ -96,7 +98,7 @@ public class NotificationUtil {
 	
 	public static final String ASSET_DEBUG_STARTDATE = "Please select start date to filter the data";
 	
-	public static final String ASSET_DEBUG_SELECTNODE = "Please select any entity to filter the data";
+	public static final String ASSET_DEBUG_SELECTNODE = "Please select any Entity to filter the data";
 	
 	public static final String HEARTBEAT_DELETE = "Please select any heartbeat history to DELETE";
 	
@@ -108,23 +110,23 @@ public class NotificationUtil {
 	
 	public static final String USER_EDIT = "Please select any User to EDIT";
 	
-	public static final String PERSONALIZATION_CREATE_ENTITY = "Please select any entity to create new entity under it";
+	public static final String PERSONALIZATION_CREATE_ENTITY = "Select any Entity to create new Entity";
 	
-	public static final String PERSONALIZATION_CREATE_ENTITY_UNDER_DEVICE = "Cannot create entity under device level";
+	public static final String PERSONALIZATION_CREATE_ENTITY_UNDER_DEVICE = "Cannot create Entity under device level";
 	
 	public static final String PERSONALIZATION_NEW_ENTITY_NAME = "Entity name cannot be empty";
 	
-	public static final String PERSONALIZATION_COPTY_ENTITY = "Select any entity to COPY";
+	public static final String PERSONALIZATION_COPTY_ENTITY = "Select any Entity to COPY";
 	
-	public static final String PERSONALIZATION_ENTERPRISE_COPY = "This entity can't be copied";
+	public static final String PERSONALIZATION_ENTERPRISE_COPY = "This Entity can't be copied";
 	
-	public static final String PERSONALIZATION_PASTE = "This entity can't be copied to the same level";
+	public static final String PERSONALIZATION_PASTE = "This Entity can't be copied to the same level";
 	
-	public static final String PERSONALIZATION_EDIT = "Select any entity to EDIT";
+	public static final String PERSONALIZATION_EDIT = "Select any Entity to EDIT";
 	
-	public static final String PERSONALIZATION_DELETE = "Select any entity to DELETE";
+	public static final String PERSONALIZATION_DELETE = "Select any Entity to DELETE";
 	
-	public static final String PERSONALIZATION_CREATE_PARAM = "Please select any entity to create new parameter";
+	public static final String PERSONALIZATION_CREATE_PARAM = "Please select any Entity to create new parameter";
 	
 	public static final String PERSONALIZATION_EDIT_ENTITY_NAME = "Empty name cannot be saved";
 	
@@ -163,4 +165,6 @@ public class NotificationUtil {
 	public static final String TWO_FACTOR_RESEND_CODE_ERROR = "Server Exception while sending the Verification code again.";
 	
 	public static final String TWO_FACTOR_VERIFICATION_ERROR = "Server Exception while Verifying the code";
+	
+	public static final String TEXTFIELD_LIMIT = "Character Limited Reached";
 }

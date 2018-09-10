@@ -85,7 +85,7 @@ import com.vaadin.ui.Grid.SelectionMode;
 public class DashboardView extends DashboardViewDesign implements View {
 
 	
-	private static final DateTimeFormatter  dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+	private static final DateTimeFormatter  dateFormatter = DateTimeFormatter.ofPattern("MM-dd-yyyy");
 	private final NavigationManager navigationManager;
 	private ListSeries[] callsPerPeriod;
 	
@@ -145,7 +145,7 @@ public class DashboardView extends DashboardViewDesign implements View {
 		grid.setCaptionAsHtml(true);
 		grid.setCaption("<h2 style=margin-bottom:10px;margin-left:695px;color:#197DE1;font-weight:400;>CURRENT DOWNLOADS"
 				+ "</h2>");
-		
+		grid.setHeaderVisible(true);
 		Row row = board.addRow(new BoardBox(currentConnectionsLabel),
 				new BoardBox(requestPerSecondLabel), new BoardBox(successfulDownloadsLabel),downloadFailuresBox);
 		row.addStyleName("board-row-group");
@@ -171,17 +171,27 @@ public class DashboardView extends DashboardViewDesign implements View {
 		int width = Page.getCurrent().getBrowserWindowWidth();
 		if(width<=600) {
 			mainView.getTitle().setValue(userService.getLoggedInUserName());
+			grid.setHeight("88%");
+		}else if(width>600 && width <=1000) {
+			grid.setHeight("86%");
 		}else {
 			mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
+			grid.setHeight("85%");
 		}
 		
 		Page.getCurrent().addBrowserWindowResizeListener(resizeListener->{
 			if(resizeListener.getWidth()<=600) {
 				mainView.getTitle().setValue(userService.getLoggedInUserName());
+				grid.setHeight("88%");
+			}else if(width>600 && width <=1000) {
+				grid.setHeight("86%");
 			}else {
 				mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
+				grid.setHeight("85%");
 			}
 		});
+		
+			mainView.getDashboard().setEnabled(true);
 	}
 	
 	private void initIncomingCallsGraphsPie() {

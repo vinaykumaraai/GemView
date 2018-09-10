@@ -63,6 +63,7 @@ import com.vaadin.external.org.slf4j.Logger;
 import com.vaadin.external.org.slf4j.LoggerFactory;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
+import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Page;
 import com.vaadin.server.ThemeResource;
 import com.vaadin.shared.ui.ContentMode;
@@ -70,6 +71,7 @@ import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.DateField;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Grid;
@@ -83,6 +85,7 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Grid.SelectionMode;
+import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.themes.ValoTheme;
 
 @SpringView(name = HeartbeatView.VIEW_NAME)
@@ -106,7 +109,7 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 	private static TerminalClient selectedTerminal;
 	private static TextField search, deviceSearch;
 	private static DateField startDateField, endDateField;
-	private static Button delete,clearSearch;
+	private static Button delete,clearSearch, clearHistorySearch;;
 	private static Grid<Heartbeat> hbHistoryGrid;
 	private static HorizontalSplitPanel horizontalPanel;
 	private static VerticalLayout HL = new VerticalLayout();
@@ -119,6 +122,7 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 	private static VerticalLayout deleteLayoutVertical;
 	private static VerticalLayout searchAndDeleteLayoutVerticalPhomeMode, verticalDeviceFormLayout,secondPanelLayout;;
 	private List<Button> terminalButtonList;
+	private static CssLayout heartbeatHistorySearchLayout;
 	
 	@Autowired
 	private HeartbeatService heartBeatService;
@@ -161,6 +165,7 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 		deviceSearch.setStyleName("small inline-icon search");
 		deviceSearch.addStyleName("v-textfield-font");
 		deviceSearch.setPlaceholder("Search");
+		deviceSearch.setMaxLength(50);
 		clearSearch = new Button(VaadinIcons.ERASER);
 		
 		addDeviceLabel(secondPanelLayout);
@@ -206,18 +211,24 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 				search.setHeight("28px");
 				startDateField.setHeight("28px");
 				endDateField.setHeight("28px");
+				clearHistorySearch.removeStyleNames("v-button-customstyle", "audit-AuditSearchClearDesktop");
+				clearHistorySearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"odometer-OdometerSearchClearPhone");
 				mainView.getTitle().setValue(userService.getLoggedInUserName());
 			} else if(r.getWidth()>600 && r.getWidth()<=1000) {
 				deviceSearch.setHeight(32, Unit.PIXELS);
 				search.setHeight("32px");
 				startDateField.setHeight("32px");
 				endDateField.setHeight("32px");
+				clearHistorySearch.removeStyleNames("audit-AuditSearchClearDesktop", "odometer-OdometerSearchClearPhone");
+				clearHistorySearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"v-button-customstyle");
 				mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
 			}else {
 				deviceSearch.setHeight(37, Unit.PIXELS);
 				search.setHeight("37px");
 				startDateField.setHeight("37px");
 				endDateField.setHeight("37px");
+				clearHistorySearch.removeStyleNames("audit-AuditSearchClearPhone", "v-button-customstyle");
+				clearHistorySearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearDesktop");
 				mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
 			}
 		});
@@ -250,7 +261,7 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 	  }catch(Exception ex) {
 		 heartBeatService.logHeartbeatScreenErrors(ex);
 	  }
-	
+	  mainView.getHeartbeat().setEnabled(true);
 	}
 	
 	private void disableAllComponents() throws Exception {
@@ -378,18 +389,24 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 			search.setHeight("28px");
 			startDateField.setHeight("28px");
 			endDateField.setHeight("28px");
+			clearHistorySearch.removeStyleNames("v-button-customstyle", "audit-AuditSearchClearDesktop");
+			clearHistorySearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"odometer-OdometerSearchClearPhone");
 			mainView.getTitle().setValue(userService.getLoggedInUserName());
 		} else if(width>600 && width<=1000){
 			deviceSearch.setHeight(32, Unit.PIXELS);
 			search.setHeight("32px");
 			startDateField.setHeight("32px");
 			endDateField.setHeight("32px");
+			clearHistorySearch.removeStyleNames("audit-AuditSearchClearDesktop", "odometer-OdometerSearchClearPhone");
+			clearHistorySearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"v-button-customstyle");
 			mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
 		}else {
 			deviceSearch.setHeight(37, Unit.PIXELS);
 			search.setHeight("37px");
 			startDateField.setHeight("37px");
 			endDateField.setHeight("37px");
+			clearHistorySearch.removeStyleNames("audit-AuditSearchClearPhone", "v-button-customstyle");
+			clearHistorySearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearDesktop");
 			mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
 		}
 	}
@@ -400,8 +417,9 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 		VL = new VerticalLayout();
 		VL.setWidth("100%");
 		VL.addStyleName("heartbeat-SearchLayout");
-		HorizontalLayout searchLayout = new HorizontalLayout();
-		searchLayout.setWidth("100%");
+		CssLayout searchLayout = new CssLayout();
+		searchLayout.setWidth("90%");
+		searchLayout.addStyleName(ValoTheme.LAYOUT_COMPONENT_GROUP);
 		String oldSearchText = deviceSearch.getValue();
 		deviceSearch = new TextField();
 		if(isSearchMode)
@@ -413,12 +431,24 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 		deviceSearch.addStyleName("v-textfield-font");
 		deviceSearch.setPlaceholder("Search");
 		deviceSearch.addValueChangeListener(changed -> {
-			String valueInLower = changed.getValue().toLowerCase();
+			if(changed.getValue().length()==50) {
+				Notification search = Notification.show(NotificationUtil.TEXTFIELD_LIMIT, Type.ERROR_MESSAGE);
+				search.addCloseListener(listener->{
+					String valueInLower = changed.getValue().toLowerCase();
+					List<TerminalClient> terminalList = new LinkedList<TerminalClient>();
+					deviceSearch.setWidth("100%");
+					terminalList= heartBeatService.searchTerminal(valueInLower);
+					List<Button> searchTerminalList = getTerminals(verticalDeviceFormLayout,terminalList);
+					differentModesLoad(secondPanelLayout, searchTerminalList,true);
+				});
+			}else {
+				String valueInLower = changed.getValue().toLowerCase();
 				List<TerminalClient> terminalList = new LinkedList<TerminalClient>();
 				deviceSearch.setWidth("100%");
 				terminalList= heartBeatService.searchTerminal(valueInLower);
 				List<Button> searchTerminalList = getTerminals(verticalDeviceFormLayout,terminalList);
 				differentModesLoad(secondPanelLayout, searchTerminalList,true);
+			}
 			
 		});
 		
@@ -437,7 +467,7 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 			}
 		});
 		
-		clearSearch = new Button(VaadinIcons.ERASER,click->{
+		clearSearch = new Button(VaadinIcons.CLOSE,click->{
 			deviceSearch.clear();
 		});
 		clearSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
@@ -523,6 +553,7 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 		search.setPlaceholder("Search");
 		search.setResponsive(true);
 		search.addStyleName("v-textfield-font");
+		search.setMaxLength(50);
 		search.addShortcutListener(new ShortcutListener("Clear",KeyCode.ESCAPE,null) {
 			
 			@Override
@@ -534,7 +565,21 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 			}
 		});
 		search.addValueChangeListener(valueChange -> {
-			
+			if(valueChange.getValue().length()==50) {
+				Notification search = Notification.show(NotificationUtil.TEXTFIELD_LIMIT, Type.ERROR_MESSAGE);
+				search.addCloseListener(listener->{
+					String valueInLower = valueChange.getValue().toLowerCase();
+					String endDate =null;
+					String startDate=null;
+					if(endDateField.getValue()!=null && startDateField.getValue()!=null) {
+						endDate = endDateField.getValue().format(dateFormatter1);
+						startDate = startDateField.getValue().format(dateFormatter1);
+					}
+					List<Heartbeat> heartbeatHistortListServer = heartBeatService.searchHBHistoryByText(selectedTerminal.getEntityId(), valueInLower, startDate, endDate);
+					DataProvider data  = new ListDataProvider<>( heartbeatHistortListServer);
+					hbHistoryGrid.setDataProvider(data);
+				});
+			}else {
 				String valueInLower = valueChange.getValue().toLowerCase();
 				String endDate =null;
 				String startDate=null;
@@ -557,8 +602,19 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 				return dateTime.contains(valueInLower) || IP.contains(valueInLower) || status.contains(valueInLower) || process.contains(valueInLower);
 			});
 			}*/
+			}
 		});
-		searchLayout.addComponent(search);
+		
+		heartbeatHistorySearchLayout = new CssLayout();
+		heartbeatHistorySearchLayout.addStyleName(ValoTheme.LAYOUT_COMPONENT_GROUP);
+		heartbeatHistorySearchLayout.setWidth("90%");
+		
+		clearHistorySearch = new Button(VaadinIcons.CLOSE);
+		clearHistorySearch.addClickListener(listener->{
+			search.clear();
+		});
+		heartbeatHistorySearchLayout.addComponents(search, clearHistorySearch);
+		searchLayout.addComponent(heartbeatHistorySearchLayout);
 		
 		startDateField = new DateField();
 		startDateField.setWidth("100%");
@@ -701,11 +757,12 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 		for(TerminalClient terminal:terminalList) {
 				if(terminal.isActive()==true) {
 					Button terminalButton = new Button();
+					terminalButton.addStyleName("heartbeat-TerminalImage-Align");
 					int length = terminal.getLabel().length();
-					if(length<15) {
+					if(length<14) {
 						terminalButton.setCaption(terminal.getLabel());
 					}else {
-						terminalButton.setCaption(terminal.getLabel().substring(0, 15));
+						terminalButton.setCaption(terminal.getLabel().substring(0, 14));
 					}
 					terminalButton.setDescription(terminal.getLabel());
 						terminalButton.setIcon(new ThemeResource("terminalGood1.png"));
@@ -722,6 +779,7 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 					buttons.add(terminalButton);
 				} else {
 					Button terminalButton1 = new Button();
+					terminalButton1.addStyleName("heartbeat-TerminalImage-Align");
 					int length = terminal.getLabel().length();
 					if(length<15) {
 						terminalButton1.setCaption(terminal.getLabel());

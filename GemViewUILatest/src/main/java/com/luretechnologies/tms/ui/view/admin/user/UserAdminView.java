@@ -53,6 +53,7 @@ import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Component.Focusable;
+import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.HorizontalLayout;
@@ -193,6 +194,7 @@ public class UserAdminView extends AbstractCrudView<User> {
 
 	@Override
 	protected TextField getSearch() {
+		getViewComponent().search.setMaxLength(50);
 		return getViewComponent().search;
 	}
 
@@ -203,6 +205,7 @@ public class UserAdminView extends AbstractCrudView<User> {
 
 	@Override
 	protected TextField getUserName() {
+		getViewComponent().name.setMaxLength(50);
 		return getViewComponent().name;
 	}
 
@@ -240,21 +243,25 @@ public class UserAdminView extends AbstractCrudView<User> {
 	
 	@Override
 	protected TextField getLastName() {
+		getViewComponent().lastname.setMaxLength(50);
 		return getViewComponent().lastname;
 	}
 	
 	@Override
 	protected TextField getFirstName() {
+		getViewComponent().firstname.setMaxLength(50);
 		return getViewComponent().firstname;
 	}
 	
 	@Override
 	protected TextField getEmail() {
+		getViewComponent().email.setMaxLength(50);
 		return getViewComponent().email;
 	}
 	
 	@Override
 	protected TextField getIP() {
+		getViewComponent().ipField.setMaxLength(50);
 		return getViewComponent().ipField;
 	}
 	
@@ -270,6 +277,7 @@ public class UserAdminView extends AbstractCrudView<User> {
 	
 	@Override
 	protected ComboBox<Integer> getPassFreqncy() {
+		getViewComponent().passwordFrequency.setId("Password Frequency");
 		return getViewComponent().passwordFrequency;
 	}
 	
@@ -326,6 +334,11 @@ public class UserAdminView extends AbstractCrudView<User> {
 	@Override
 	protected Label getAuthenticationLabel() {
 		return getViewComponent().authenticationLabel;
+	}
+	
+	@Override
+	protected CssLayout getUserSearchLayout() {
+		return getViewComponent().userSearchLayout;
 	}
 	
 	@SuppressWarnings("unchecked")

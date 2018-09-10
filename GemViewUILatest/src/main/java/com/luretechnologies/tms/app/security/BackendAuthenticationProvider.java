@@ -51,7 +51,7 @@ public class BackendAuthenticationProvider implements AuthenticationProvider {
 				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
 			}
 			backendAuthenicationLogger.error("Error in Authentication",e);
-			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			//RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 			e.printStackTrace();
 			return null;
 		}

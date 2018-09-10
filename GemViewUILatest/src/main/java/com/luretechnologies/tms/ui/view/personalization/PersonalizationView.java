@@ -59,8 +59,10 @@ import com.luretechnologies.tms.backend.service.RolesService;
 import com.luretechnologies.tms.backend.service.TreeDataNodeService;
 import com.luretechnologies.tms.backend.service.UserService;
 import com.luretechnologies.tms.ui.MainView;
+import com.luretechnologies.tms.ui.components.ComponentUtil;
 import com.luretechnologies.tms.ui.components.NotificationUtil;
 import com.luretechnologies.tms.ui.view.applicationstore.ApplicationStoreView;
+import com.vaadin.data.TreeData;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.data.provider.Query;
@@ -78,6 +80,7 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Grid.SelectionMode;
@@ -108,7 +111,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 	private static Devices emptyDevice;
 	private static HorizontalSplitPanel splitScreen;
 	private static Button createEntity, copyEntity, editEntity, deleteEntity, pasteEntity, addParam, editParam,
-			deleteParam, save, cancel, selectProfile, selectFile,clearSearch;
+			deleteParam, save, cancel, selectProfile, selectFile,clearSearch, clearParamSearch;
 	private static TextField entityName, entityDescription;
 	private static TextField entitySerialNum = new TextField("Serial Number");
 	private static ComboBox<Devices> deviceDropDown;
@@ -141,6 +144,8 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 	private List<Profile> existingAppProfileList;
 	private List<AppDefaultParam> existingProfileFileEntityList;
 	private List<AppDefaultParam> existingProfileFileList;
+	private CssLayout treeClearSearchLayout;
+	private CssLayout overrideParamSearchCSSLayout;
 	Logger logger = LoggerFactory.getLogger(PersonalizationView.class);
 
 	@Autowired
@@ -183,14 +188,20 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 			if (r.getWidth() <= 600) {
 				treeNodeSearch.setHeight(28, Unit.PIXELS);
 				overRideParamSearch.setHeight(28, Unit.PIXELS);
+				clearParamSearch.removeStyleNames("v-button-customstyle", "audit-AuditSearchClearDesktop");
+				clearParamSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"odometer-OdometerSearchClearPhone");
 				mainView.getTitle().setValue(userService.getLoggedInUserName());
 			} else if (r.getWidth() > 600 && r.getWidth() <= 1000) {
 				treeNodeSearch.setHeight(32, Unit.PIXELS);
 				overRideParamSearch.setHeight(32, Unit.PIXELS);
+				clearParamSearch.removeStyleNames("audit-AuditSearchClearDesktop", "odometer-OdometerSearchClearPhone");
+				clearParamSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"v-button-customstyle");
 				mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
 			} else {
 				treeNodeSearch.setHeight(37, Unit.PIXELS);
 				overRideParamSearch.setHeight(37, Unit.PIXELS);
+				clearParamSearch.removeStyleNames("audit-AuditSearchClearPhone", "v-button-customstyle");
+				clearParamSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearDesktop");
 				mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
 			}
 		});
@@ -207,7 +218,8 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		treeNodeSearch.setVisible(true);
 		treeNodeSearch.setHeight(37, Unit.PIXELS);
 		treeNodeSearch.setWidth("100%");
-		clearSearch = new Button(VaadinIcons.ERASER);
+		treeNodeSearch.setMaxLength(50);
+		clearSearch = new Button(VaadinIcons.CLOSE);
 		clearSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"v-button-customstyle");
 		configureTreeNodeSearch();
 
@@ -301,12 +313,12 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		});
 		
 		nodeTree.addContextClickListener(event -> {
-			if (!(event instanceof TreeContextClickEvent)) {
+			/*if (!(event instanceof TreeContextClickEvent)) {
 				return;
 			}
 			TreeContextClickEvent treeContextEvent = (TreeContextClickEvent) event;
 			TreeNode contextNode = (TreeNode) treeContextEvent.getItem();
-			UI.getCurrent().addWindow(openTreeNodeEditWindow(contextNode));
+			UI.getCurrent().addWindow(openTreeNodeEditWindow(contextNode));*/
 
 		});
 		treeLayoutWithButtons.addComponent(nodeTree);
@@ -338,14 +350,20 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		if (width <= 600) {
 			treeNodeSearch.setHeight(28, Unit.PIXELS);
 			overRideParamSearch.setHeight(28, Unit.PIXELS);
+			clearParamSearch.removeStyleNames("v-button-customstyle", "audit-AuditSearchClearDesktop");
+			clearParamSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"odometer-OdometerSearchClearPhone");
 			mainView.getTitle().setValue(userService.getLoggedInUserName());
 		} else if (width > 600 && width <= 1000) {
 			treeNodeSearch.setHeight(32, Unit.PIXELS);
 			overRideParamSearch.setHeight(32, Unit.PIXELS);
+			clearParamSearch.removeStyleNames("audit-AuditSearchClearDesktop", "odometer-OdometerSearchClearPhone");
+			clearParamSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"v-button-customstyle");
 			mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
 		} else {
 			treeNodeSearch.setHeight(37, Unit.PIXELS);
 			overRideParamSearch.setHeight(37, Unit.PIXELS);
+			clearParamSearch.removeStyleNames("audit-AuditSearchClearPhone", "v-button-customstyle");
+			clearParamSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearDesktop");
 			mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
 		}
 		
@@ -362,16 +380,30 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 	  }catch(Exception ex){
 		  personalizationService.logPersonlizationStoreScreenErrors(ex);
 	  }
+	  
+	  mainView.getPersonlization().setEnabled(true);
 	}
 
 	private void configureTreeNodeSearch() {
 		treeNodeSearch.addValueChangeListener(changed -> {
-			String valueInLower = changed.getValue().toLowerCase();
-				if(!valueInLower.isEmpty() && valueInLower!=null) {
+			if (changed.getValue().length() == 50) {
+				Notification search = Notification.show(NotificationUtil.TEXTFIELD_LIMIT, Type.ERROR_MESSAGE);
+				search.addCloseListener(listener->{
+					String valueInLower = changed.getValue().toLowerCase();
+					if (!valueInLower.isEmpty() && valueInLower != null) {
+						nodeTree.setTreeData(treeDataNodeService.searchTreeData(valueInLower));
+					} else {
+						nodeTree.setTreeData(treeDataNodeService.getTreeData());
+					}
+				});
+			} else {
+				String valueInLower = changed.getValue().toLowerCase();
+				if (!valueInLower.isEmpty() && valueInLower != null) {
 					nodeTree.setTreeData(treeDataNodeService.searchTreeData(valueInLower));
-				}else {
+				} else {
 					nodeTree.setTreeData(treeDataNodeService.getTreeData());
 				}
+			}
 
 		});
 
@@ -429,7 +461,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 			}
 		});
 		copyEntity.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
-		copyEntity.setDescription("Copy Entities", ContentMode.HTML);
+		copyEntity.setDescription("Copy Entity", ContentMode.HTML);
 
 		pasteEntity = new Button(VaadinIcons.PASTE, click -> {
 			//  Paste new entity
@@ -493,7 +525,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		});
 		pasteEntity.setEnabled(false);
 		pasteEntity.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
-		pasteEntity.setDescription("Paste Entities", ContentMode.HTML);
+		pasteEntity.setDescription("Paste Entity", ContentMode.HTML);
 
 		editEntity = new Button(VaadinIcons.EDIT, click -> {
 			if (nodeTree.getSelectedItems().size() == 0) {
@@ -504,7 +536,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 			}
 		});
 		editEntity.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
-		editEntity.setDescription("Edit Entities", ContentMode.HTML);
+		editEntity.setDescription("Edit Entity", ContentMode.HTML);
 
 		deleteEntity = new Button(VaadinIcons.TRASH, click -> {
 			if (nodeTree.getSelectedItems().size() == 0) {
@@ -514,9 +546,14 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 			}
 		});
 		deleteEntity.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
-		deleteEntity.setDescription("Delete Entities", ContentMode.HTML);
-
-		treeButtonLayout.addComponents(treeNodeSearch,clearSearch);
+		deleteEntity.setDescription("Delete Entity", ContentMode.HTML);
+		
+		treeClearSearchLayout = new CssLayout();
+		treeClearSearchLayout.addStyleName(ValoTheme.LAYOUT_COMPONENT_GROUP);
+		treeClearSearchLayout.addComponents(treeNodeSearch,clearSearch);
+		treeClearSearchLayout.setWidth("85%");
+		
+		treeButtonLayout.addComponents(treeClearSearchLayout);
 		treeSearchLayout.addComponents(createEntity, copyEntity, pasteEntity, editEntity, deleteEntity);
 	}
 
@@ -560,33 +597,36 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 			} else {
 				node = new TreeNode();
 			}
-
-			node.setType(entityType.getValue());
-			node.setLabel(entityName.getValue());
-			if (entityType.getValue()!=null && entityName.getValue()!=null && entityName.getValue()!="") {
+			
+			if (ComponentUtil.validatorComboBox(entityType) && ComponentUtil.validatorTextField(entityName) && 
+					ComponentUtil.validatorTextField(entityDescription)) {
+				if(nodeTree.getSelectedItems().iterator().next().getType().toString().equals("TERMINAL") || 
+					nodeTree.getSelectedItems().iterator().next().getType().toString().equals("DEVICE")) {
+					if(ComponentUtil.validatorTextField(entitySerialNum)){
+						
+					}
+				}
+				node.setType(entityType.getValue());
+				node.setLabel(entityName.getValue());
 				node.setHeartBeat(activateHeartbeat.getValue());
 				node.setFrequency(frequencyDropDown.getValue());
 				node.setApp(appDropDown.getValue());
 				node.setAdditionaFile(addtnlFilesDropDown.getValue());
 				node.setProfile(profileDropDown.getValue());
-			} else {
-				Notification.show(NotificationUtil.SAVE, Type.ERROR_MESSAGE);
-			}
-
-			node.setDescription(entityDescription.getValue());
-			node.setActive(activeCheckbox.getValue());
-			node.setSerialNum(entitySerialNum.getValue());
-			node.setOverRideParamList(
-					overRideParamGrid.getDataProvider().fetch(new Query<>()).collect(Collectors.toList()));
-			overRideParamGrid.setDataProvider(new ListDataProvider<>(node.getOverRideParamList()));
-			overRideParamGrid.getDataProvider().refreshAll();
-			overRideParamGrid.deselectAll();
-			
-			// Calling the service
-			personalizationService.updateEntity(node);
-			entityFormLayout.setEnabled(false);
-			overRideParamGrid.setEnabled(false);
-
+				node.setDescription(entityDescription.getValue());
+				node.setActive(activeCheckbox.getValue());
+				node.setSerialNum(entitySerialNum.getValue());
+				node.setOverRideParamList(
+						overRideParamGrid.getDataProvider().fetch(new Query<>()).collect(Collectors.toList()));
+				overRideParamGrid.setDataProvider(new ListDataProvider<>(node.getOverRideParamList()));
+				overRideParamGrid.getDataProvider().refreshAll();
+				overRideParamGrid.deselectAll();
+				
+				// Calling the service
+				personalizationService.updateEntity(node);
+				entityFormLayout.setEnabled(false);
+				overRideParamGrid.setEnabled(false);
+			} 
 		});
 		save.addStyleName(ValoTheme.BUTTON_FRIENDLY);
 		save.addStyleName("v-button-customstyle");
@@ -652,6 +692,12 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		entityName.setStyleName("role-textbox");
 		entityName.addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS, "personlization-formAlignment",
 				"v-textfield-lineHeight");
+		entityName.setMaxLength(50);
+		entityName.addValueChangeListener(listener->{
+			if(listener.getValue().length()==50) {
+			Notification.show(NotificationUtil.TEXTFIELD_LIMIT, Type.ERROR_MESSAGE);
+			}
+		});
 		entityFormLayout.addComponent(entityName);
 	}
 
@@ -673,6 +719,12 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		entityDescription.setStyleName("role-textbox");
 		entityDescription.addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS, "personlization-formAlignment",
 				"v-textfield-lineHeight");
+		entityDescription.setMaxLength(50);
+		entityDescription.addValueChangeListener(listener->{
+			if(listener.getValue().length()==50) {
+				Notification.show(NotificationUtil.TEXTFIELD_LIMIT, Type.ERROR_MESSAGE);
+			}
+		});
 
 		entityFormLayout.addComponent(entityDescription);
 	}
@@ -701,6 +753,12 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		entitySerialNum.setStyleName("role-textbox");
 		entitySerialNum.addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS, "v-textfield-font",
 				"personlization-formAlignment", "v-textfield-lineHeight");
+		entitySerialNum.setMaxLength(50);
+		entitySerialNum.addValueChangeListener(listener->{
+			if(listener.getValue().length()==50) {
+				Notification.show(NotificationUtil.TEXTFIELD_LIMIT, Type.ERROR_MESSAGE);
+			}
+		});
 
 		entityFormLayout.addComponent(entitySerialNum);
 	}
@@ -1105,7 +1163,20 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		overRideParamSearch.addStyleName("v-textfield-font");
 		overRideParamSearch.setPlaceholder("Search");
 		overRideParamSearch.setVisible(true);
-		overRideParamSearchLayout.addComponent(overRideParamSearch);
+		overRideParamSearch.setMaxLength(50);
+		
+		overrideParamSearchCSSLayout = new CssLayout();
+		overrideParamSearchCSSLayout.addStyleName(ValoTheme.LAYOUT_COMPONENT_GROUP);
+		overrideParamSearchCSSLayout.setWidth("90%");
+		
+		clearParamSearch = new Button(VaadinIcons.CLOSE);
+		clearParamSearch.addClickListener(listener->{
+			overRideParamSearch.clear();
+		});
+		overrideParamSearchCSSLayout.addComponents(overRideParamSearch, clearParamSearch);
+		
+		
+		overRideParamSearchLayout.addComponent(overrideParamSearchCSSLayout);
 		
 		addParam = new Button("", VaadinIcons.GRID);
 		addParam.addStyleNames("v-button-customstyle", ValoTheme.BUTTON_FRIENDLY);
@@ -1163,8 +1234,26 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		
 
 		overRideParamSearch.addValueChangeListener(valueChange -> {
-			String valueInLower = valueChange.getValue().toLowerCase();
-			ListDataProvider<AppDefaultParam> paramDataProvider = (ListDataProvider<AppDefaultParam>) overRideParamGrid
+			if(valueChange.getValue().length()==50) {
+				Notification search = Notification.show(NotificationUtil.TEXTFIELD_LIMIT, Type.ERROR_MESSAGE);
+				search.addCloseListener(listener->{
+					if(selectedApp!=null) {
+						String valueInLower = valueChange.getValue().toLowerCase();
+						List<AppDefaultParam> appDefaultParamList = appStoreService.searchParams(selectedApp.getId(), valueInLower);
+						DataProvider data = new ListDataProvider(appDefaultParamList);
+						overRideParamGrid.setDataProvider(data);
+					}
+				});
+			}else {
+				if(selectedApp!=null) {
+					String valueInLower = valueChange.getValue().toLowerCase();
+					List<AppDefaultParam> appDefaultParamList = appStoreService.searchParams(selectedApp.getId(), valueInLower);
+					DataProvider data = new ListDataProvider(appDefaultParamList);
+					overRideParamGrid.setDataProvider(data);
+				}
+			}
+			
+			/*ListDataProvider<AppDefaultParam> paramDataProvider = (ListDataProvider<AppDefaultParam>) overRideParamGrid
 					.getDataProvider();
 			paramDataProvider.setFilter(filter -> {
 				String parameterInLower = filter.getParameter().toLowerCase();
@@ -1173,7 +1262,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 				String value = filter.getValue().toLowerCase();
 				return descriptionInLower.equals(valueInLower) || parameterInLower.contains(valueInLower)
 						|| typeLower.contains(valueInLower) || value.contains(valueInLower);
-			});
+			});*/
 		});
 
 		entityInformationLayout.addComponents(overRideParamLabelLayout, overRideParamSearchButtonLayout,
@@ -1247,94 +1336,117 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		entityTypeTree.addSelectionListener(selected -> {
 			if(entityTypeTree.getValue().toString().equals("TERMINAL") || entityTypeTree.getValue().toString().equals("DEVICE")) {
 				serialNumber.setEnabled(true);
+			}else {
+				serialNumber.setId("ignore");
 			}
 		});
 
 		Button saveProfile = new Button("Save", click -> {
-			if (StringUtils.isNotEmpty(entityName.getValue()) && nodeTree.getSelectedItems().size() == 1) {
-				TreeNode selectedNode = nodeTree.getSelectedItems().iterator().next();
-				TreeNode newNode = new TreeNode();
-				newNode.setLabel(entityName.getValue().isEmpty() ? "Child Node" : entityName.getValue());// Pick name
-				newNode.setDescription(entityDescription.getValue()); // textfield
-				if(!serialNumber.isEmpty() && serialNumber!=null) {
-					newNode.setSerialNum(serialNumber.getValue());
+			if (nodeTree.getSelectedItems().size() == 1) {
+				if (ComponentUtil.validatorComboBox(entityTypeTree) && ComponentUtil.validatorTextField(entityName)
+						&& ComponentUtil.validatorTextField(entityDescription) &&
+						ComponentUtil.validatorTextField(serialNumber)) {
+					TreeNode selectedNode = nodeTree.getSelectedItems().iterator().next();
+					TreeNode newNode = new TreeNode();
+					newNode.setLabel(entityName.getValue().isEmpty() ? "Child Node" : entityName.getValue());// Pick
+																												// name
+					newNode.setDescription(entityDescription.getValue()); // textfield
+					if (serialNumber != null && !serialNumber.isEmpty()) {
+						newNode.setSerialNum(serialNumber.getValue());
+					}
+					// REST code for adding new entity
+					if (selectedNode.getType() == EntityTypeEnum.ORGANIZATION)
+
+						if (selectedNode.getType() == EntityTypeEnum.REGION)
+
+							if (selectedNode.getType() == EntityTypeEnum.MERCHANT)
+
+								if (selectedNode.getType() == EntityTypeEnum.TERMINAL)
+
+									if (selectedNode.getType() == EntityTypeEnum.DEVICE) {
+
+										return;
+									}
+
+					switch (selectedNode.getType()) {
+					case ORGANIZATION:
+						if (entityTypeTree.getValue().toString().equals("ENTERPRISE")
+								|| entityTypeTree.getValue().toString().equals("TERMINAL")
+								|| entityTypeTree.getValue().toString().equals("DEVICE")
+								|| entityTypeTree.getValue().toString().equals("MERCHANT")) {
+							entityWindow.close();
+							Notification.show(
+									"Cannot create " + entityTypeTree.getValue().toString() + " under Organization",
+									Type.ERROR_MESSAGE);
+						} else {
+							newNode.setType(entityTypeTree.getValue());
+							personalizationService.createEntity(selectedNode, newNode);
+							nodeTree.setTreeData(personalizationService.getTreeData());
+							entityWindow.close();
+							TreeNode node = treeDataNodeService.findEntityData(selectedNode);
+							nodeTree.expand(node);
+						}
+						break;
+					case MERCHANT:
+						if (entityTypeTree.getValue().toString().equals("ENTERPRISE")
+								|| entityTypeTree.getValue().toString().equals("REGION")
+								|| entityTypeTree.getValue().toString().equals("MERCHANT")
+								|| entityTypeTree.getValue().toString().equals("ORGANIZARION")
+								|| entityTypeTree.getValue().toString().equals("DEVICE")) {
+							entityWindow.close();
+							Notification.show(
+									"Cannot create " + entityTypeTree.getValue().toString() + " under Merchant",
+									Type.ERROR_MESSAGE);
+						} else {
+							newNode.setType(entityTypeTree.getValue());
+							personalizationService.createEntity(selectedNode, newNode);
+							nodeTree.setTreeData(personalizationService.getTreeData());
+							entityWindow.close();
+						}
+						break;
+					case REGION:
+						if (entityTypeTree.getValue().toString().equals("ENTERPRISE")
+								|| entityTypeTree.getValue().toString().equals("REGION")
+								|| entityTypeTree.getValue().toString().equals("ORGANIZARION")
+								|| entityTypeTree.getValue().toString().equals("DEVICE")
+								|| entityTypeTree.getValue().toString().equals("TERMINAL")) {
+							entityWindow.close();
+							Notification.show("Cannot create " + entityTypeTree.getValue().toString() + " under Region",
+									Type.ERROR_MESSAGE);
+						} else {
+							newNode.setType(entityTypeTree.getValue());
+							personalizationService.createEntity(selectedNode, newNode);
+							nodeTree.setTreeData(personalizationService.getTreeData());
+							entityWindow.close();
+						}
+						break;
+					case TERMINAL:
+						if (entityTypeTree.getValue().toString().equals("ENTERPRISE")
+								|| entityTypeTree.getValue().toString().equals("REGION")
+								|| entityTypeTree.getValue().toString().equals("MERCHANT")
+								|| entityTypeTree.getValue().toString().equals("ORGANIZARION")
+								|| entityTypeTree.getValue().toString().equals("TERMINAL")) {
+							entityWindow.close();
+							Notification.show(
+									"Cannot create " + entityTypeTree.getValue().toString() + " under Terminal",
+									Type.ERROR_MESSAGE);
+						} else {
+							newNode.setType(entityTypeTree.getValue());
+							personalizationService.createEntity(selectedNode, newNode);
+							nodeTree.setTreeData(personalizationService.getTreeData());
+							entityWindow.close();
+						}
+						break;
+					case DEVICE:
+						entityWindow.close();
+						Notification.show(NotificationUtil.PERSONALIZATION_CREATE_ENTITY_UNDER_DEVICE,
+								Type.ERROR_MESSAGE);
+						return;
+					default:
+						break;
+					}
+
 				}
-				//REST code for adding new entity
-				if (selectedNode.getType() == EntityTypeEnum.ORGANIZATION)
-
-					if (selectedNode.getType() == EntityTypeEnum.REGION)
-
-						if (selectedNode.getType() == EntityTypeEnum.MERCHANT)
-
-							if (selectedNode.getType() == EntityTypeEnum.TERMINAL)
-
-								if (selectedNode.getType() == EntityTypeEnum.DEVICE) {
-
-									return;
-								}
-
-				switch (selectedNode.getType()) {
-				case ORGANIZATION:
-					if(entityTypeTree.getValue().toString().equals("ENTERPRISE") || entityTypeTree.getValue().toString().equals("TERMINAL") ||
-							entityTypeTree.getValue().toString().equals("DEVICE") ||entityTypeTree.getValue().toString().equals("MERCHANT")) {
-						entityWindow.close();
-						 Notification.show("Cannot create "+entityTypeTree.getValue().toString()+" under Organization", Type.ERROR_MESSAGE);
-					}else {
-							newNode.setType(entityTypeTree.getValue());
-							personalizationService.createEntity(selectedNode, newNode);
-							nodeTree.setTreeData(personalizationService.getTreeData());
-							entityWindow.close();
-					}
-					break;
-				case MERCHANT:
-					if(entityTypeTree.getValue().toString().equals("ENTERPRISE") || entityTypeTree.getValue().toString().equals("REGION") ||
-							entityTypeTree.getValue().toString().equals("MERCHANT") || entityTypeTree.getValue().toString().equals("ORGANIZARION")||
-							entityTypeTree.getValue().toString().equals("DEVICE")) {
-						entityWindow.close();
-						 Notification.show("Cannot create "+entityTypeTree.getValue().toString()+" under Merchant", Type.ERROR_MESSAGE);
-					}else {
-							newNode.setType(entityTypeTree.getValue());
-							personalizationService.createEntity(selectedNode, newNode);
-							nodeTree.setTreeData(personalizationService.getTreeData());
-							entityWindow.close();
-					}
-					break;
-				case REGION:
-					if(entityTypeTree.getValue().toString().equals("ENTERPRISE") || entityTypeTree.getValue().toString().equals("REGION") ||
-							entityTypeTree.getValue().toString().equals("ORGANIZARION")|| entityTypeTree.getValue().toString().equals("DEVICE") ||
-							entityTypeTree.getValue().toString().equals("TERMINAL")) {
-						entityWindow.close();
-						 Notification.show("Cannot create "+entityTypeTree.getValue().toString()+" under Region", Type.ERROR_MESSAGE);
-					}else {
-							newNode.setType(entityTypeTree.getValue());
-							personalizationService.createEntity(selectedNode, newNode);
-							nodeTree.setTreeData(personalizationService.getTreeData());
-							entityWindow.close();
-					}
-					break;
-				case TERMINAL:
-					if(entityTypeTree.getValue().toString().equals("ENTERPRISE") || entityTypeTree.getValue().toString().equals("REGION") ||
-							entityTypeTree.getValue().toString().equals("MERCHANT") || entityTypeTree.getValue().toString().equals("ORGANIZARION")||
-							entityTypeTree.getValue().toString().equals("TERMINAL")) {
-						entityWindow.close();
-						 Notification.show("Cannot create "+entityTypeTree.getValue().toString()+" under Terminal", Type.ERROR_MESSAGE);
-					}else {
-							newNode.setType(entityTypeTree.getValue());
-							personalizationService.createEntity(selectedNode, newNode);
-							nodeTree.setTreeData(personalizationService.getTreeData());
-							entityWindow.close();
-					}
-					break;
-				case DEVICE:
-					entityWindow.close();
-					Notification.show(NotificationUtil.PERSONALIZATION_CREATE_ENTITY_UNDER_DEVICE, Type.ERROR_MESSAGE);
-					return;
-				default:
-					break;
-				}
-
-			} else {
-				Notification.show(NotificationUtil.PERSONALIZATION_NEW_ENTITY_NAME, Type.ERROR_MESSAGE);
 			}
 		});
 
@@ -1434,17 +1546,35 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 			parameterName.setStyleName("role-textbox");
 			parameterName.addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS, "v-textfield-font", "v-grid-cell");
 			parameterName.focus();
+			parameterName.setMaxLength(50);
+			parameterName.addValueChangeListener(valueChange -> {
+				if(valueChange.getValue().length()==50) {
+					Notification.show(NotificationUtil.TEXTFIELD_LIMIT, Type.ERROR_MESSAGE);
+				}
+			});
 
 			parameterDescription = new TextField("Description");
 			parameterDescription.setStyleName("role-textbox");
 			parameterDescription.addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS, "v-textfield-font", "v-grid-cell");
-
+			parameterDescription.setMaxLength(50);
+			parameterDescription.addValueChangeListener(valueChange -> {
+				if(valueChange.getValue().length()==50) {
+					Notification.show(NotificationUtil.TEXTFIELD_LIMIT, Type.ERROR_MESSAGE);
+				}
+			});
+			
 			parameterType.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", "small");
 
 			parameterValue = new TextField("Value");
 			parameterValue.setStyleName("role-textbox");
 			parameterValue.addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS, "v-textfield-font", "v-grid-cell");
-
+			parameterValue.setMaxLength(50);
+			parameterValue.addValueChangeListener(valueChange -> {
+				if(valueChange.getValue().length()==50) {
+					Notification.show(NotificationUtil.TEXTFIELD_LIMIT, Type.ERROR_MESSAGE);
+				}
+			});
+			
 			Button saveParameter = new Button("Save", click -> {
 				if (parameterType.getValue() != null && StringUtils.isNotEmpty(parameterName.getValue())
 						&& StringUtils.isNotEmpty(parameterValue.getValue())

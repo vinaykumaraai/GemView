@@ -88,16 +88,17 @@ public class SystemService {
 	
 	public List<Systems> getAllSystemParam(){
 		try {
-			if(RestServiceUtil.getSESSION()!=null) {
-				
-				List<SystemParam> systemParamList = RestServiceUtil.getInstance().getClient().getSystemParamsApi().
-						search(null, null, null);
+			if (RestServiceUtil.getSESSION() != null) {
+
+				List<SystemParam> systemParamList = RestServiceUtil.getInstance().getClient().getSystemParamsApi()
+						.search(null, null, null);
 				List<Systems> systemsList = new ArrayList<>();
-				for(SystemParam systemParam : systemParamList) {
-					Systems selectedSystem = new Systems(systemParam.getId(), systemParam.getName().toUpperCase(), systemParam.getDescription(),
-							systemParam.getSystemParamType().getName(), systemParam.getValue());
-					systemsList.add(selectedSystem);
-				}
+				for (SystemParam systemParam : systemParamList) {
+						Systems selectedSystem = new Systems(systemParam.getId(), systemParam.getName().toUpperCase(),
+								systemParam.getDescription(), systemParam.getSystemParamType().getName(),
+								systemParam.getValue());
+						systemsList.add(selectedSystem);
+					}
 				return systemsList;
 			}
 		}catch (ApiException ae) {

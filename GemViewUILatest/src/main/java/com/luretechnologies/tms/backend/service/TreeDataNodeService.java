@@ -302,4 +302,72 @@ public class TreeDataNodeService {
 		}
 		return null;
 	}
+	public TreeNode findEntityData(TreeNode newNode){
+		List<TreeNode> nodeList = new ArrayList();
+		TreeNode foundNode = null;
+		try {
+			if(RestServiceUtil.getSESSION()!=null) {
+				Entity entity = RestServiceUtil.getInstance().getClient().getEntityApi().getEntityHierarchy();
+				List<Entity> entityList = RestServiceUtil.getInstance().getClient().getEntityApi().getEntityChildren(entity.getId());
+				TreeNode node = new TreeNode(entity.getName(), entity.getId(), entity.getType(), entity.getEntityId(), entity.getDescription()
+						, true);
+				List<TreeNode> treeNodeChildList = getChildNodes(entityList);		
+				
+				nodeList.add(node);
+				nodeList.addAll(treeNodeChildList);
+				treeNodeRecursive(treeNodeChildList, nodeList);
+				
+				for(TreeNode dataNode : nodeList) {
+					if(dataNode.getId().equals(newNode.getId()))
+						return dataNode;
+				}
+			return foundNode;
+			}
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving Tree data or entities",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			treeDataLogger.error("API Error Occured while retrieving Tree data or entities",ae);
+			RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
+		} catch (Exception e) {
+			treeDataLogger.error("Error Occured has while retrieving Tree data or entities",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving Tree data or entities",Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
+		}
+		return null;
+	}
+	
+	private void treeNodeRecursive(List<TreeNode> entityList, List<TreeNode> mainList) {
+		for(TreeNode entity : entityList) {
+			List<Entity> entityListSub;
+			try {
+				entityListSub = RestServiceUtil.getInstance().getClient().getEntityApi().getEntityChildren(entity.getId());
+				if(entityListSub!=null && !entityListSub.isEmpty()) {
+					List<TreeNode> subChildList = getChildNodes(entityListSub);
+					mainList.addAll(subChildList);
+					treeNodeRecursive(subChildList, mainList);
+				}
+			} catch (ApiException ae) {
+				if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+					Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}else {
+					Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" doing tree data recursion",Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}
+				treeDataLogger.error("API Error Occured while doing tree data recursion",ae);
+				RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
+			} catch (Exception e) {
+				treeDataLogger.error("Error Occured has while doing tree data recursion",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" doing tree data recursion",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+		}
+	}
 }

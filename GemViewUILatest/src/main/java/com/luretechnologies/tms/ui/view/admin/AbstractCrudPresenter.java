@@ -230,7 +230,6 @@ public abstract class AbstractCrudPresenter<T extends AbstractEntity, S extends 
 		}
 
 		getBinder().readBean(editItem);
-		getView().editItem(isNew);
 	}
 
 	/*public void addNewClicked() {

@@ -44,6 +44,7 @@ import org.vaadin.dialogs.ConfirmDialog;
 import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.tms.app.HasLogger;
 import com.luretechnologies.tms.backend.data.entity.AbstractEntity;
+import com.luretechnologies.tms.backend.data.entity.AppClient;
 import com.luretechnologies.tms.backend.data.entity.Permission;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
 import com.luretechnologies.tms.backend.data.entity.User;
@@ -51,6 +52,7 @@ import com.luretechnologies.tms.backend.service.RolesService;
 import com.luretechnologies.tms.backend.service.TreeDataNodeService;
 import com.luretechnologies.tms.backend.service.UserService;
 import com.luretechnologies.tms.ui.MainView;
+import com.luretechnologies.tms.ui.components.ComponentUtil;
 import com.luretechnologies.tms.ui.components.NotificationUtil;
 import com.vaadin.data.BeanValidationBinder;
 import com.vaadin.data.HasValue;
@@ -71,6 +73,7 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
@@ -121,7 +124,7 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 	public static final String CAPTION_UPDATE = "Save";
 	public static final String CAPTION_ADD = "Save";
 	public PasswordEncoder passwordEncoder;
-	public static Button addTreeNode, deleteTreeNode,clearSearch;
+	public static Button addTreeNode, deleteTreeNode,clearSearch, clearUserSearch;
 	public static TextField treeNodeInputLabel;
 	public static TextField treeNodeSearch;
 	Logger logger = LoggerFactory.getLogger(AbstractCrudView.class);
@@ -188,14 +191,26 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 			if(r.getWidth()<=600) {
 				treeNodeSearch.setHeight(28, Unit.PIXELS);
 				getSearch().setHeight(28, Unit.PIXELS);
+				clearSearch.removeStyleNames("v-button-customstyle", "audit-AuditSearchClearDesktop");
+				clearSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearPhone");
+				clearUserSearch.removeStyleNames("v-button-customstyle", "audit-AuditSearchClearDesktop");
+				clearUserSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearPhone");
 				mainView.getTitle().setValue(userService.getLoggedInUserName());
 			} else if(r.getWidth()>600 && r.getWidth()<=1000){
 				treeNodeSearch.setHeight(32, Unit.PIXELS);
 				getSearch().setHeight(32, Unit.PIXELS);
+				clearSearch.removeStyleNames("audit-AuditSearchClearDesktop", "audit-AuditSearchClearPhone");
+				clearSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"v-button-customstyle");
+				clearUserSearch.removeStyleNames("audit-AuditSearchClearDesktop", "audit-AuditSearchClearPhone");
+				clearUserSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"v-button-customstyle");
 				mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
 			}else {
 				treeNodeSearch.setHeight(37, Unit.PIXELS);
 				getSearch().setHeight(37, Unit.PIXELS);
+				clearSearch.removeStyleNames("audit-AuditSearchClearPhone", "v-button-customstyle");
+				clearSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearDesktop");
+				clearUserSearch.removeStyleNames("audit-AuditSearchClearPhone", "v-button-customstyle");
+				clearUserSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearDesktop");
 				mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
 			}
 		});
@@ -213,11 +228,15 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 		treeNodeSearch.setStyleName("small inline-icon search");
 		treeNodeSearch.addStyleName("v-textfield-font");
 		treeNodeSearch.setPlaceholder("Search");
-		clearSearch = new Button(VaadinIcons.ERASER);
+		treeNodeSearch.setMaxLength(50);
+		clearSearch = new Button(VaadinIcons.CLOSE);
 		clearSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
+		CssLayout searchLayout = new CssLayout();
+		searchLayout.addStyleName(ValoTheme.LAYOUT_COMPONENT_GROUP);
+		searchLayout.addComponents(treeNodeSearch,clearSearch);
+		searchLayout.setWidth("85%");
 		configureTreeNodeSearch();
-		treePanelLayout.addComponentAsFirst(treeNodeSearch);
-		treePanelLayout.addComponent(clearSearch);
+		treePanelLayout.addComponentAsFirst(searchLayout);
 		Tree<TreeNode> treeComponent = getUserTree(treeDataService.getTreeData());
 		treePanelLayout.addComponent(treeComponent);
 		treePanelLayout.setComponentAlignment(treeComponent, Alignment.BOTTOM_LEFT);
@@ -272,10 +291,13 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 			if(getTree().getSelectedItems().isEmpty()) {
 				Notification.show(NotificationUtil.USER_CREATE, Notification.Type.ERROR_MESSAGE);
 			}else {
-				if(getUserName().getValue()==null || getUserName().getValue().isEmpty() ||
-					getFirstName().getValue()==null || getFirstName().isEmpty() ||
-					getLastName().getValue()==null || getLastName().getValue().isEmpty()) {
-				Notification.show(NotificationUtil.SAVE, Notification.Type.ERROR_MESSAGE);
+				if(!(ComponentUtil.validatorTextField(getUserName()) && 
+						ComponentUtil.validatorComboBox(getRole()) &&
+						ComponentUtil.validatorTextField(getFirstName()) &&
+						ComponentUtil.validatorTextField(getLastName()) &&
+						ComponentUtil.validatorTextField(getEmail()) &&
+						ComponentUtil.validatorCheckBox(getActiveBox()) && 
+						ComponentUtil.validatorComboBox(getPassFreqncy()))) {
 				}else {
 					User existingUserCheck = new User();
 					if(!getGrid().getSelectedItems().isEmpty() && getGrid().getSelectedItems().iterator().next().getId()!=null) {
@@ -360,12 +382,39 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 		});
 
 		// Search functionality
-		getSearch().addValueChangeListener(event -> {
-			String filter = event.getValue().toLowerCase();
-			List<User> searchList = userService.searchUsers(filter);
-			DataProvider data = new ListDataProvider(searchList);
-			getGrid().setDataProvider(data);
+			getSearch().addValueChangeListener(event -> {
+				if (event.getValue().length() == 50) {
+					if (getTree().getSelectedItems().size() > 0) {
+						Notification search = Notification.show(NotificationUtil.TEXTFIELD_LIMIT, Type.ERROR_MESSAGE);
+						search.addCloseListener(listener -> {
+							String filter = event.getValue().toLowerCase();
+							List<User> searchList = userService.searchUsers(filter);
+							DataProvider data = new ListDataProvider(searchList);
+							getGrid().setDataProvider(data);
+						});
+					} else {
+						Notification.show("Select any Entity to search users", Type.ERROR_MESSAGE);
+					}
+				} else {
+					if (getTree().getSelectedItems().size() > 0) {
+						String filter = event.getValue().toLowerCase();
+						List<User> searchList = userService.searchUsers(filter);
+						DataProvider data = new ListDataProvider(searchList);
+						getGrid().setDataProvider(data);
+					} else {
+						Notification.show("Select any Entity to search users", Type.ERROR_MESSAGE);
+					}
+				}
+			});
+		
+		getUserSearchLayout().addStyleName(ValoTheme.LAYOUT_COMPONENT_GROUP);
+		getUserSearchLayout().setWidth("96%");
+		
+		clearUserSearch = new Button(VaadinIcons.CLOSE);
+		clearUserSearch.addClickListener(listener->{
+			getSearch().clear();
 		});
+		getUserSearchLayout().addComponent(clearUserSearch);
 		
 		getButtonsLayout().addStyleName("user-buttonsLayout");
 		getSearchlayout().addStyleName("user-searchLayout");
@@ -373,22 +422,47 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 		getUserName().setStyleName("role-textbox");
 		getUserName().addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS,
 				"v-grid-cell", "v-textfield-lineHeight");
+		getUserName().addValueChangeListener(listener->{
+			if(listener.getValue().length()==50) {
+				Notification.show(NotificationUtil.TEXTFIELD_LIMIT, Type.ERROR_MESSAGE);
+			}
+		});
 		
 		getFirstName().setStyleName("role-textbox");
 		getFirstName().addStyleNames( ValoTheme.TEXTFIELD_BORDERLESS,
 				"v-grid-cell", "v-textfield-lineHeight");
+		getFirstName().addValueChangeListener(listener->{
+			if(listener.getValue().length()==50) {
+				Notification.show(NotificationUtil.TEXTFIELD_LIMIT, Type.ERROR_MESSAGE);
+			}
+		});
 		
 		getLastName().setStyleName("role-textbox");
 		getLastName().addStyleNames( ValoTheme.TEXTFIELD_BORDERLESS,
 				"v-grid-cell", "v-textfield-lineHeight");
+		getLastName().addValueChangeListener(listener->{
+			if(listener.getValue().length()==50) {
+				Notification.show(NotificationUtil.TEXTFIELD_LIMIT, Type.ERROR_MESSAGE);
+			}
+		});
 		
 		getEmail().setStyleName("role-textbox");
 		getEmail().addStyleNames( ValoTheme.TEXTFIELD_BORDERLESS,
 				"v-grid-cell", "v-textfield-lineHeight");
+		getEmail().addValueChangeListener(listener->{
+			if(listener.getValue().length()==50) {
+				Notification.show(NotificationUtil.TEXTFIELD_LIMIT, Type.ERROR_MESSAGE);
+			}
+		});
 		
 		getIP().setStyleName("role-textbox");
 		getIP().addStyleNames( ValoTheme.TEXTFIELD_BORDERLESS,
 				"v-grid-cell", "v-textfield-lineHeight");
+		getIP().addValueChangeListener(listener->{
+			if(listener.getValue().length()==50) {
+				Notification.show(NotificationUtil.TEXTFIELD_LIMIT, Type.ERROR_MESSAGE);
+			}
+		});
 		
 		getForm().addStyleNames("system-LabelAlignment", "user-formLayout");
 		
@@ -443,13 +517,25 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 			treeNodeSearch.setHeight(28, Unit.PIXELS);
 			getSearch().setHeight(28, Unit.PIXELS);
 			mainView.getTitle().setValue(userService.getLoggedInUserName());
+			clearSearch.removeStyleNames("v-button-customstyle", "audit-AuditSearchClearDesktop");
+			clearSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearPhone");
+			clearUserSearch.removeStyleNames("v-button-customstyle", "audit-AuditSearchClearDesktop");
+			clearUserSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearPhone");
 		} else if(width>600 && width<=1000){
 			treeNodeSearch.setHeight(32, Unit.PIXELS);
 			getSearch().setHeight(32, Unit.PIXELS);
+			clearSearch.removeStyleNames("audit-AuditSearchClearDesktop", "audit-AuditSearchClearPhone");
+			clearSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"v-button-customstyle");
+			clearUserSearch.removeStyleNames("audit-AuditSearchClearDesktop", "audit-AuditSearchClearPhone");
+			clearUserSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"v-button-customstyle");
 			mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
 		}else {
 			treeNodeSearch.setHeight(37, Unit.PIXELS);
 			getSearch().setHeight(37, Unit.PIXELS);
+			clearSearch.removeStyleNames("audit-AuditSearchClearPhone", "v-button-customstyle");
+			clearSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearDesktop");
+			clearUserSearch.removeStyleNames("audit-AuditSearchClearPhone", "v-button-customstyle");
+			clearUserSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearDesktop");
 			mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
 		}
 		
@@ -462,6 +548,8 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 		}catch(Exception ex) {
 			userService.logUserScreenErrors(ex);
 		}
+		
+		mainView.getUsers().setEnabled(true);
 	}
 
 	public void confirmDialog(Long id) {
@@ -527,16 +615,28 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 	
 	private void configureTreeNodeSearch() {
 		treeNodeSearch.addValueChangeListener(changed -> {
-			String valueInLower = changed.getValue().toLowerCase();
-			if(!valueInLower.isEmpty() && valueInLower!=null) {
-				getTree().setTreeData(treeDataService.searchTreeData(valueInLower));
-			}else {
-				getTree().setTreeData(treeDataService.getTreeData());
+			if (changed.getValue().length() == 50) {
+				Notification search = Notification.show(NotificationUtil.TEXTFIELD_LIMIT, Type.ERROR_MESSAGE);
+				search.addCloseListener(listener -> {
+					String valueInLower = changed.getValue().toLowerCase();
+					if (!valueInLower.isEmpty() && valueInLower != null) {
+						getTree().setTreeData(treeDataService.searchTreeData(valueInLower));
+					} else {
+						getTree().setTreeData(treeDataService.getTreeData());
+					}
+				});
+			} else {
+				String valueInLower = changed.getValue().toLowerCase();
+				if (!valueInLower.isEmpty() && valueInLower != null) {
+					getTree().setTreeData(treeDataService.searchTreeData(valueInLower));
+				} else {
+					getTree().setTreeData(treeDataService.getTreeData());
+				}
 			}
 		});
-		
-		treeNodeSearch.addShortcutListener(new ShortcutListener("Clear",KeyCode.ESCAPE,null) {
-			
+
+		treeNodeSearch.addShortcutListener(new ShortcutListener("Clear", KeyCode.ESCAPE, null) {
+
 			@Override
 			public void handleAction(Object sender, Object target) {
 				if (target == treeNodeSearch) {
@@ -544,7 +644,7 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 				}
 			}
 		});
-		clearSearch.addClickListener(click->treeNodeSearch.clear());
+		clearSearch.addClickListener(click -> treeNodeSearch.clear());
 	}
 
 	protected abstract AbstractCrudPresenter<T, ?, ? extends AbstractCrudView<T>> getPresenter();
@@ -620,5 +720,7 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 	protected abstract HorizontalLayout getAuthenticationLayout();
 	
 	protected abstract Label getAuthenticationLabel();
+
+	protected abstract CssLayout getUserSearchLayout();
 
 }

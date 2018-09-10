@@ -63,7 +63,9 @@
      </vaadin-form-layout>
      <vaadin-horizontal-layout style-name="top-bar" width-full height="50px" _id="buttonsLayout">
       <vaadin-horizontal-layout spacing="false" width-full _id="searchBarLayout" :middle :expand>
-       <vaadin-text-field icon="fonticon://Vaadin-Icons/e805" style-name="small inline-icon search" value-change-timeout="0" id="search" placeholder="Search" width-full _id="search"></vaadin-text-field>
+       <vaadin-css-layout width-full _id="userSearchLayout">
+        <vaadin-text-field icon="fonticon://Vaadin-Icons/e805" style-name="small inline-icon search" value-change-timeout="0" id="search" placeholder="Search" width-full _id="search"></vaadin-text-field>
+       </vaadin-css-layout>
       </vaadin-horizontal-layout>
       <vaadin-button icon="fonticon://Vaadin-Icons/e92e" style-name="friendly" id="add" plain-text _id="add" :middle :right></vaadin-button>
       <vaadin-button icon="fonticon://Vaadin-Icons/e771" style-name="friendly" id="edit" plain-text _id="edit" :middle :right></vaadin-button>

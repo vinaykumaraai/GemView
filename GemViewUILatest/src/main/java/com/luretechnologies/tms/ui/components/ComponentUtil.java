@@ -88,11 +88,17 @@ public class ComponentUtil {
 					ValoTheme.TEXTFIELD_BORDERLESS, "v-textfield-lineHeight");
 			textField.setResponsive(true);
 			textField.setEnabled(false);
+			textField.setMaxLength(50);
 			component = textField;
 			if(labelName.equals("Debug Duration")) {
 				textField.setPlaceholder("MM/DD/YYYY");
 				textField.setEnabled(true);
 			}
+			textField.addValueChangeListener(listener->{
+				if(listener.getValue().length()==50) {
+					Notification.show(NotificationUtil.TEXTFIELD_LIMIT, Type.ERROR_MESSAGE);
+				}
+			});
 			break;
 		case HORIZONTALLAYOUT:
 			HorizontalLayout activeBoxLayout = new HorizontalLayout();
@@ -176,6 +182,53 @@ public class ComponentUtil {
 			
 			}
 		});
+	}
+	
+	public static boolean validatorTextField(TextField component) {
+		if (component != null) {
+			if (component.getValue() == null || component.getValue().trim().isEmpty()) {
+				if(component.getId() == "ignore"){
+					return true;
+				}else {
+				Notification.show("Enter " + component.getCaption() + " field", Type.ERROR_MESSAGE);
+				return false;
+				}
+			} 
+		}else {
+			return true;
+		}
+		return true;	
+	}
+	
+	public static boolean validatorComboBox(ComboBox component) {
+		if (component != null) {
+			if (component.getValue() == null || component.getValue().toString().trim().isEmpty()) {
+				if(component.getId() == "Password Frequency") {
+					Notification.show("Select Password field", Type.ERROR_MESSAGE);
+					return false;
+				}else {
+					Notification.show("Enter " + component.getCaption() + " field", Type.ERROR_MESSAGE);
+				return false;
+				}
+			} else {
+				return true;
+			}
+		} else {
+			return true;
+		}
+	}
+	
+	public static boolean validatorCheckBox(CheckBox component) {
+		if (component != null) {
+			if (component.getValue() == null || component.getValue() == false) {
+				Notification.show("Check Active checkbox", Type.ERROR_MESSAGE);
+				return false;
+			} else {
+				return true;
+			}
+		} else {
+			return true;
+		}
 	}
 	
 	private static String getAbsoluteUrl(String url) {
