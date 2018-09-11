@@ -27,6 +27,25 @@ Vaadin-Refresh: context://login.html
       }
     }
     
+    function myFunction() {
+        document.getElementById("myDropdown").classList.toggle("show");
+    }
+
+    // Close the dropdown if the user clicks outside of it
+    window.onclick = function(event) {
+      if (!event.target.matches('.test')) {
+
+        var dropdowns = document.getElementsByClassName("dropdown-content");
+        var i;
+        for (i = 0; i < dropdowns.length; i++) {
+          var openDropdown = dropdowns[i];
+          if (openDropdown.classList.contains('show')) {
+            openDropdown.classList.remove('show');
+          }
+        }
+      }
+    }
+    
   </script>
 <style>
 @font-face {
@@ -46,18 +65,18 @@ Vaadin-Refresh: context://login.html
 	font-style: normal;
 }
 
-html {
+/* html {
 	background: linear-gradient(#fff, #fff);
-}
+} */
 
-@media ( min-width : 1000px) {
+/* @media ( min-width : 1000px) { */
 	/* load on wide screens */
 	body {
 		background-color: #f2f2f2;
 		/* background-image: url(VAADIN/themes/apptheme/logo1.PNG); */
 		background-size: cover;
 	}
-}
+/* } */
 
 button {
 	background-color: #fffff;
@@ -103,7 +122,7 @@ html, body {
 #form {
 	height: 395px;
 	display: flex;
-	background-color: #216C2A;
+	background-color: #FFFF;
 	justify-content: center;
 }
 
@@ -115,16 +134,16 @@ html, body {
 	border: 3px solid #73AD21;
 }
 /* Responsive behaviour */
-@media ( max-width : 1000px) {
+/* @media ( max-width : 1000px) { */
 
 	#fixedbutton {
     position: relative;
     bottom: -136px !important;
     right: -186px !important; 
-}
+/* } */
 
 #info {
-        background-color: #ffffff;
+        background-color: #f2f2f2;
         }
 
 .error form1::after{
@@ -155,7 +174,7 @@ html, body {
 	
 }
 
-@media ( min-width : 1001px) {
+/* @media ( min-width : 1001px) { */
 	body {
 		display: flex;
 		align-items: center;
@@ -185,7 +204,7 @@ html, body {
 		justify-content: center;
 	}
 	#form {
-		width: 400px;
+		width: 370px;
 		padding: 10px;
 		border-radius: 0 5px 5px 0;
 	}
@@ -194,7 +213,8 @@ html, body {
     bottom: -126px;
     right:335px;
 }
-}
+
+/* } */
 
 /* Elements / components theme */
 h1 {
@@ -222,7 +242,7 @@ label {
 	color: #fffff;
 	padding: 13px 0 13px 8px;
 	display: inline-block;
-	/* font-weight:bold; */
+	font-weight:600;
 }
 
 label1 {
@@ -230,36 +250,40 @@ label1 {
 	color: #fffff;
 	padding: 13px 0 13px 12px;
 	display: inline-block;
-	/* font-weight:bold; */
+	font-weight:600;
+	margin-top:10px;
 }
 
 input[type='text' ], input[type='password'] {
-	width: 70%;
-	-webkit-appearance: none;
+	width: 100%;
+	/* -webkit-appearance: none;
 	-moz-appearance: none;
 	-ms-appearance: none;
-	-o-appearance: none;
+	-o-appearance: none; */
 	appearance: none;
-	font: inherit;
+	font: menu;
 	font-size: 16px;
-	color: white;
-	height: 30px;
-	border-radius: 2px;
-	padding: 24px 9px 15px;
-	border: 0;
-  	outline: 0;
+	color: black;
+	height: 39px;
+	border-radius: 6px;
+	padding: 20px 9px 15px 5px;
+	/* border: 0;
+  	outline: 0; */
   	background: transparent;
-  	border-bottom: 1.4px solid lightslategrey;
-  	float :right;
-  	-webkit-box-shadow: 255px 255px 255px 255px #216C2A inset;
-  	-webkit-text-fill-color: white !important;
-  	caret-color:#ffff;
+  	/* border-bottom: 1.4px solid lightslategrey; */
+  	/* float :right; */
+  	/* -webkit-box-shadow: 255px 255px 255px 255px rgba(255,255,255,0.5) inset;
+  	-webkit-text-fill-color: black !important; */
+  	caret-color:black;
+  	outline-width:0px;
+  	border-bottom:2px solid rgba(0, 0, 0, .5);
+  	border-right:2px solid rgba(0, 0, 0, .5);
 }
 
 button {
-	width: 50%;
+	width: 35%;
 	float: right;
-	margin-top: 65px;
+	margin-top: 50px;
 	height: 37px;
 	border: 1px solid #666;
 	border-radius: 4px;
@@ -269,9 +293,10 @@ button {
 		rgba(0, 0, 0, 0.2), 0 2px 3px rgba(0, 0, 0, 0.05); */
 	outline: none;
 	cursor: pointer;
-	color: #000;
+	color: #ffff;
 	text-align: center;
 	position: relative;
+	background:#216c2a;
 	/* font: inherit;
 	font-weight: 600; */
 }
@@ -324,8 +349,8 @@ button {
 	content: "*";
 	display: block;
 	color:red;
-    margin-top: -56px;
-    margin-left:270px;
+    margin-top: -80px;
+    margin-left:272px;
 }
 
 .error form:after {
@@ -336,33 +361,110 @@ button {
 /*			width: 100%;
 			margin-top: -3px;
 			font-size: 14px;*/
-                        color:white;
-			padding: 32px;
-                        margin-top: 35px;
-                        margin-left:-15px;
+                        color:black;
+			padding: 48px;
+                        margin-top:41px;
+                        margin-left:-28px;
 		}
+		
+.dropbtn {
+    background-color: transparent;
+    color: black;
+    padding: 16px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    margin-top:-113px;
+    content: '\2807';
+  font-size: 10px;
+}
+
+.dropbtn:hover, .dropbtn:focus {
+    background-color: lightgrey;;
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #ffff;
+    min-width: 170px;
+    overflow: auto;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    margin-left:300px;
+    border-radius:12px;
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown a:hover {background-color: #ddd;}
+
+.show {display: block;}
+
+.test:after {
+  content: '\2807';
+  font-size: 2em;
+  color: #2e2e2e;
+  background-color: transparent;
+    color: black;
+    border: none;
+    cursor: pointer;
+    margin-top:-113px;
+  }
+@media ( max-width : 650px) { 
+  	.dropdown-content {
+    position: absolute;
+    background-color: #ffff;
+    min-width: 170px;
+    overflow: auto;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    margin-left:137px;
+    border-radius:12px;
+    }
+}
+  	
+  } 
 
 
 </style>
 </head>
 <body onload="init()">
-	<div id="info" align="center">
-		<div id="logo"></div>
-		<!-- <h1>Your Company Logo</h1> -->
-	</div>
-	<div id="form">
+<!-- 	<div id="info" align="center"> -->
+<!-- 		<div id="logo"></div> -->
+<!-- 		<!-- <h1>Your Company Logo</h1> -->
+<!-- 	</div> -->
+	<div id="form" class="dropdown">
 	<form1>
 		<form method="post" action="login" id="theform">
-			<h1 style="color:#ffff; border-bottom:1px solid">Welcome</h1>
-			<h3 style="color:#ffff">Please Sign In</h3>
+			<h1 style="color:#000000; text-align:center; font-weight:bold;" >Welcome</h1>
 			
-			<label id="login-label" for="login" style="background-color:#216C2A" href="*"><font color="white">Username</font></label>
-			<input type="text" autocomplete="off" spellcheck="false" id="login" name="username" aria-labelledby="login-label" autofocus maxlength="50">
-			<label1 id="password-label" for="password" href="*"><font color="white">Password</font></label1>
-			<input type="password" id="password" name="password" aria-labelledby="password-label" maxlength="50">
+			 <div style="margin-top:-110px; margin-left:310px;">
+			 <button1 onclick="myFunction()" class="test"></button1>
+			 </div>
+			  
+			<div id="myDropdown" class="dropdown-content">
+   			 	<a href="forgotPassword.html" style="color:#666666" target="_blank">Forgot Password?</a>
+				<a href="forgotUsername.html" style="color:#666666" target="_blank">Forgot Username?</a>
+ 		 	</div>
+			<!-- <h3 style="color:#ffff">Please Sign In</h3> -->
+			
+			<label id="login-label" for="login" style="margin-top:64px;" href="*"><font color="#00000; font-weight:600;">Username</font></label>
+			<input type="text" autocomplete="off" spellcheck="false" id="login" name="username" aria-labelledby="login-label" autofocus maxlength="50" placeholder="Enter Username..." required>
+			<label1 id="password-label" for="password" style= "margin-left:-4px;" href="*"><font color="#00000; font-weight:600;">Password</font></label1>
+			<input type="password" id="password" name="password" aria-labelledby="password-label" maxlength="50" placeholder="Enter Password..." required>
 			<button id="button-submit" type="submit">Sign In</button>
-		<a id="fixedbutton" href="forgotPassword.html" style="color:#666666" target="_blank">Forgot Password ?</a>
-		<a id="forgotUsername" href="forgotUsername.html" style="color:#666666" target="_blank">Forgot Username ?</a>
+		
 		</form>
 		</form1>
 	</div>

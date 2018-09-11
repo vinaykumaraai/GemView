@@ -56,6 +56,8 @@ import com.luretechnologies.tms.ui.view.AccessDeniedView;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Title;
 import com.vaadin.annotations.Viewport;
+import com.vaadin.event.ShortcutListener;
+import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.navigator.View;
 import com.vaadin.server.DefaultErrorHandler;
 import com.vaadin.server.Page;
@@ -222,30 +224,43 @@ public class TwoFactorAuthenticationUI extends UI implements HasLogger, View{
 		authenticate.addStyleName("twofactor-buttons");
 		authenticate.addClickListener(click -> {
 			try {
-				RestServiceUtil.getInstance().getClient().getAuthApi().verifyCode(verificationCode.getValue());
-				Page.getCurrent().setLocation(getAbsoluteUrl(Application.APP_URL+"home"));
+				if(verificationCode.getValue()!=null && !verificationCode.getValue().isEmpty()) {
+					RestServiceUtil.getInstance().getClient().getAuthApi().verifyCode(verificationCode.getValue());
+					Page.getCurrent().setLocation(getAbsoluteUrl(Application.APP_URL+"home"));
+				}else {
+					Notification codeNotification = Notification.show("Entered code is empty, please check again", Type.ERROR_MESSAGE);
+					codeNotification.setPosition(Position.TOP_CENTER);
+				}
 			} catch (ApiException e) {
 				if(e.getMessage().equals("INVALID VERIFICATION CODE")) {
 				Notification codeNotification = Notification.show("Entered Code is Wrong, Please check again", Type.ERROR_MESSAGE);
 				codeNotification.setPosition(Position.TOP_CENTER);
-				codeNotification.setDelayMsec(3000);
 				}else if(e.getMessage().equals("EXPIRED VERIFICATION CODE RECEIVED")) {
 					Notification codeNotification = Notification.show("Entered Code is Expired, Please try again with new code", Type.ERROR_MESSAGE);
 					codeNotification.setPosition(Position.TOP_CENTER);
-					codeNotification.setDelayMsec(3000);
 				}if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
 					Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
 					ComponentUtil.sessionExpired(notification);
 				}
-				twoFactorLogger.error("Server Exception while Verifying the code", e);
+				/*twoFactorLogger.error("Server Exception while Verifying the code", e);
 				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 				Notification somethingWrong = Notification.show(NotificationUtil.TWO_FACTOR_VERIFICATION_ERROR, Type.ERROR_MESSAGE);
-				ComponentUtil.sessionExpired(somethingWrong);
+				ComponentUtil.sessionExpired(somethingWrong);*/
 			}catch (Exception e) {
 				twoFactorLogger.error("Server Exception while Verifying the code", e);
 				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 				Notification somethingWrong = Notification.show(NotificationUtil.TWO_FACTOR_VERIFICATION_ERROR, Type.ERROR_MESSAGE);
 				ComponentUtil.sessionExpired(somethingWrong);
+			}
+		});
+		
+		verificationCode.addShortcutListener(new ShortcutListener("Clear", KeyCode.ENTER, null) {
+
+			@Override
+			public void handleAction(Object sender, Object target) {
+				if (target == verificationCode) {
+					authenticate.click();
+				}
 			}
 		});
 	
@@ -357,31 +372,44 @@ public class TwoFactorAuthenticationUI extends UI implements HasLogger, View{
 					//FIXME: Add Two Factor Code Check
 //					navigationManager.navigateToDefaultView();
 					try {
-						RestServiceUtil.getInstance().getClient().getAuthApi().verifyCode(verificationCode.getValue());
-						Page.getCurrent().setLocation(getAbsoluteUrl(Application.APP_URL+"home"));
+						if(verificationCode.getValue()!=null && !verificationCode.getValue().isEmpty()) {
+							RestServiceUtil.getInstance().getClient().getAuthApi().verifyCode(verificationCode.getValue());
+							Page.getCurrent().setLocation(getAbsoluteUrl(Application.APP_URL+"home"));
+						}else {
+							Notification codeNotification = Notification.show("Entered code is empty, please check again", Type.ERROR_MESSAGE);
+							codeNotification.setPosition(Position.TOP_CENTER);
+						}
 					} catch (ApiException e) {
 						if(e.getMessage().equals("INVALID VERIFICATION CODE")) {
 							Notification codeNotification = Notification.show("Entered Code is Wrong, Please check again", Type.ERROR_MESSAGE);
 							codeNotification.setPosition(Position.TOP_CENTER);
-							codeNotification.setDelayMsec(3000);
 							}else if(e.getMessage().equals("EXPIRED VERIFICATION CODE RECEIVED")) {
 								Notification codeNotification = Notification.show("Entered Code is Expired, Please try again with new code", Type.ERROR_MESSAGE);
 								codeNotification.setPosition(Position.TOP_CENTER);
-								codeNotification.setDelayMsec(3000);
 							}if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
 								Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
 								ComponentUtil.sessionExpired(notification);
 							}
-							twoFactorLogger.error("Server Exception while Verifying the code", e);
+							/*twoFactorLogger.error("Server Exception while Verifying the code", e);
 							RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 							Notification somethingWrong = Notification.show(NotificationUtil.TWO_FACTOR_VERIFICATION_ERROR, Type.ERROR_MESSAGE);
-							ComponentUtil.sessionExpired(somethingWrong);
+							ComponentUtil.sessionExpired(somethingWrong);*/
 						}catch (Exception e) {
 							twoFactorLogger.error("Server Exception while Verifying the code", e);
 							RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 							Notification somethingWrong = Notification.show(NotificationUtil.TWO_FACTOR_VERIFICATION_ERROR, Type.ERROR_MESSAGE);
 							ComponentUtil.sessionExpired(somethingWrong);
 						}
+				});
+				
+				verificationCode.addShortcutListener(new ShortcutListener("Clear", KeyCode.ENTER, null) {
+
+					@Override
+					public void handleAction(Object sender, Object target) {
+						if (target == verificationCode) {
+							authenticate.click();
+						}
+					}
 				});
 			
 				buttonlayout.addComponents(resendEmail, authenticate);

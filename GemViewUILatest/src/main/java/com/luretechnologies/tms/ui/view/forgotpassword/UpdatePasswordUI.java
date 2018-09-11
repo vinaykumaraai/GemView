@@ -53,6 +53,8 @@ import com.luretechnologies.tms.ui.view.twofactor.authentication.TwoFactorAuthen
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Title;
 import com.vaadin.annotations.Viewport;
+import com.vaadin.event.ShortcutListener;
+import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.server.DefaultErrorHandler;
@@ -218,9 +220,8 @@ public class UpdatePasswordUI extends UI implements HasLogger, View{
 					String pattern = "(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#!$%^&+=])(?=\\S+$).{8,}";
 					if(password.matches(pattern)) {
 						RestServiceUtil.getInstance().updatePassword(loggedInUserName, tempPassword.getValue(), confirmPassword.getValue());
-						Notification passUpdateNotify = Notification.show("Passoword is Updated", Type.ERROR_MESSAGE);
+						Notification passUpdateNotify = Notification.show("Your Password has been updated.", Type.ERROR_MESSAGE);
 						passUpdateNotify.setPosition(Position.TOP_CENTER);
-						passUpdateNotify.setDelayMsec(5000);
 						passUpdateNotify.addCloseListener(new CloseListener() {
 						
 							@Override
@@ -241,25 +242,32 @@ public class UpdatePasswordUI extends UI implements HasLogger, View{
 						passNotMetCreteria.setPosition(Position.TOP_CENTER);
 					}
 				}else {
-					Notification passNotMatch = Notification.show("New Password and Confirm Password Doesn't match", Type.ERROR_MESSAGE);
+					Notification passNotMatch = Notification.show("New Password and Confirm Password Don't match", Type.ERROR_MESSAGE);
 					passNotMatch.setPosition(Position.TOP_CENTER);
-					passNotMatch.setDelayMsec(5000);
 				}
 			} else {
 				Notification emptyFields = Notification.show("Please fill all fields", Type.ERROR_MESSAGE);
 				emptyFields.setPosition(Position.TOP_CENTER);
-				emptyFields.setDelayMsec(5000);
 			}
 			} catch (Exception e) {
 				if(e.getMessage().equals("Failed to authenticate")) {
 					Notification passwordAuthetication = Notification.show("Given Temporary Password is wrong", Type.ERROR_MESSAGE);
 					passwordAuthetication.setPosition(Position.TOP_CENTER);
-					passwordAuthetication.setDelayMsec(3000);
 				}
 				updatePasswordLogger.error("API Error Occured while upading Password",e);
 				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 				e.printStackTrace();
 			
+			}
+		});
+		
+		confirmPassword.addShortcutListener(new ShortcutListener("Clear", KeyCode.ENTER, null) {
+
+			@Override
+			public void handleAction(Object sender, Object target) {
+				if (target == confirmPassword) {
+					updatePassword.click();
+				}
 			}
 		});
 	
@@ -365,9 +373,8 @@ public class UpdatePasswordUI extends UI implements HasLogger, View{
 								}catch(Exception e) {
 									Notification.show("Entered Temporary Password is Wrong", Type.ERROR_MESSAGE);
 								}
-								Notification passUpdateNotify = Notification.show("Passoword is Updated", Type.ERROR_MESSAGE);
+								Notification passUpdateNotify = Notification.show("Your Password has been updated.", Type.ERROR_MESSAGE);
 								passUpdateNotify.setPosition(Position.TOP_CENTER);
-								passUpdateNotify.setDelayMsec(5000);
 								passUpdateNotify.addCloseListener(new CloseListener() {
 								
 									@Override
@@ -388,26 +395,32 @@ public class UpdatePasswordUI extends UI implements HasLogger, View{
 								passNotMetCreteria.setPosition(Position.TOP_CENTER);
 							}
 						}else {
-							Notification passNotMatch = Notification.show("New Password and Confirm Password Doesn't match", Type.ERROR_MESSAGE);
+							Notification passNotMatch = Notification.show("New Password and Confirm Password Don't match", Type.ERROR_MESSAGE);
 							passNotMatch.setPosition(Position.TOP_CENTER);
-							passNotMatch.setDelayMsec(5000);
 						}
 					} else {
 						Notification emptyFields = Notification.show("Please fill all fields", Type.ERROR_MESSAGE);
 						emptyFields.setPosition(Position.TOP_CENTER);
-						emptyFields.setDelayMsec(5000);
 					}
 					} catch (Exception e) {
 						if(e.getMessage().equals("Failed to authenticate")) {
 							Notification passwordAuthetication = Notification.show("Given Temporary Password is wrong", Type.ERROR_MESSAGE);
 							passwordAuthetication.setPosition(Position.TOP_CENTER);
-							passwordAuthetication.setDelayMsec(3000);
 						}
 						e.printStackTrace();
 					
 					}
 				});
 			
+				confirmPassword.addShortcutListener(new ShortcutListener("Clear", KeyCode.ENTER, null) {
+
+					@Override
+					public void handleAction(Object sender, Object target) {
+						if (target == confirmPassword) {
+							updatePassword.click();
+						}
+					}
+				});
 			
 				buttonlayout.addComponents(updatePassword);
 				buttonlayout.setComponentAlignment(updatePassword, Alignment.MIDDLE_RIGHT);

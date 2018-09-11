@@ -29,6 +29,12 @@ Vaadin-Refresh: context://login.html
       }
     }
     
+    function captureEnter() {
+    	 if (window.event.keyCode == 13) {
+    	    document.getElementById("button-submit").click();
+    	}
+    }
+    
   	function myTempFunction() {
     		var temporaryPass=document.getElementById("tempPassword");
     		var icon=document.getElementById("TEMPEYE");
@@ -97,7 +103,7 @@ Vaadin-Refresh: context://login.html
 		  var text = xhr.responseText;
 		  /* response.innerHTML = "Temporary Password has sent to your Email ID";
 		  response.style = 'color:white' */
-		  alert("Username has sent to your Email ID");
+		  alert("Username has sbeen ent to your Email");
 		  navigateToLogin();
 		  /* setTimeout(navigateToLogin,5000); */
 	  };
@@ -137,10 +143,11 @@ Vaadin-Refresh: context://login.html
 	}
 	
 	function checkEnterFunction(e){
-		if(e.key == "Enter" && e.code = "Enter"){
+		if(e.key === "Enter" && (e.code === "Enter" || e.code === "NumpadEnter")){
 			forgotusername();
 		}
 	}
+	
   </script>
 <style>
 @font-face {
@@ -233,7 +240,7 @@ html, body {
 
 .error form1::after {
 	content:
-		"Email ID was not found";
+		"Email was not found";
 	display:block !important;
 	/* border: 1px solid red;
 	border-radius: 4px;
@@ -252,7 +259,7 @@ html, body {
 .error label1::after {
 	content:" "attr(href)"  ";
 	color:red;
-	margin-left:237px;
+	margin-left:217px;
 }		
 
 .error label::after {
@@ -311,7 +318,7 @@ html, body {
 	
 	.error:after {
 	content:
-		"Email ID was not found";
+		"Email was not found";
 	display: block;
 	/* border: 1px solid red;
 	border-radius: 4px;
@@ -331,7 +338,7 @@ html, body {
 	display: block;
 	color:red;
     /* margin-top: -56px; */
-    margin-left:250px;
+    margin-left:230px;
 }
 
 .error input {
@@ -486,17 +493,17 @@ button1:hover{
 		<div id="fgtpaswrd" >
 		
 			<h1 style="color:#ffff;border-bottom:1px solid;margin-top:5px">Welcome</h1>
-			<h4 style="color:#ffff;font-weight:100;margin-top:-12px">Enter Email ID associated to your account to receive your Username</h4>
+			<h4 style="color:#ffff;font-weight:100;margin-top:-12px">Enter the Email associated to your account to receive your Username</h4>
 			<!-- <h4 style="color:#ffff;font-weight:100;margin-top:-12px"> Enter the information to update your password</h4> -->
 			<label id="login-label" for="login" style="color:#ffff;margin-top:121px;" href="*">Email ID</label>
 			<input href="*" type="text" id="emailId" name="useremailId"
-				aria-labelledby="login-label" autofocus style="color:#ffff" autocomplete="off" spellcheck="false" onclick="removeError()" /> 
+				aria-labelledby="login-label" autofocus style="color:#ffff" autocomplete="off" spellcheck="false" onclick="removeError()" onkeyup = "checkEnterFunction(event)"/> 
 				<!-- <button1  onclick="myTempFunction()"><img src="VAADIN/themes/apptheme/newEye.png" style="width:28px;height:28px;"id="TEMPEYE"></button1>
 				<label id="password-label" for="password" style="color:#ffff;margin-right:-8px;">New Password</label> 
 				<input type="password" id="newPassword" name="password" aria-labelledby="password-label" style="color:#ffff"/>
 				<button1  onclick="myNewFunction()"><img src="VAADIN/themes/apptheme/newEye.png" style="width:28px;height:28px;" id="NEWEYE"></button1>
 				<label id="password-label" for="password" style="color:#ffff;margin-right:-8px;">Confirm Password</label> 
-				<input type="password" id="confirmPassword" name="password" aria-labelledby="password-label"  onkeydown = "checkEnterFunction(event)" style="color:#ffff"/>
+				<input type="password" id="confirmPassword" name="password" aria-labelledby="password-label" style="color:#ffff"/>
 				<button1  onclick="myConfirmFunction()"><img src="VAADIN/themes/apptheme/newEye.png" style="width:28px;height:28px;" id="CONFIRMEYE"></button1> -->
 			<button id="button-submit" onclick="forgotusername()">Continue</button>
 			<p id="response"></p>
