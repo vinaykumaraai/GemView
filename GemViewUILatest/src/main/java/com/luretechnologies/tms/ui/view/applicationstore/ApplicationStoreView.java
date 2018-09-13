@@ -61,6 +61,7 @@ import com.luretechnologies.tms.backend.service.UserService;
 import com.luretechnologies.tms.ui.MainView;
 import com.luretechnologies.tms.ui.components.ComponentUtil;
 import com.luretechnologies.tms.ui.components.NotificationUtil;
+import com.luretechnologies.tms.ui.view.Header;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.data.provider.Query;
@@ -339,11 +340,12 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 	private Panel getAndLoadApplicationStorePanel() {
 		Panel panel = new Panel();
 		panel.setHeight("100%");
-		panel.addStyleName(ValoTheme.PANEL_WELL);
+//		panel.addStyleName(ValoTheme.PANEL_WELL);
 		panel.setCaptionAsHtml(true);
-		panel.setCaption("Application Store");
+//		panel.setCaption("Application Store");
 		panel.setResponsive(true);
 		panel.setSizeFull();
+		addComponent(new Header("Application Store", new Label()));
 		addComponent(panel);
 		return panel;
 	}

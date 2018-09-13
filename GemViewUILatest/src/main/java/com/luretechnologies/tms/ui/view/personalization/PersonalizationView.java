@@ -61,6 +61,7 @@ import com.luretechnologies.tms.backend.service.UserService;
 import com.luretechnologies.tms.ui.MainView;
 import com.luretechnologies.tms.ui.components.ComponentUtil;
 import com.luretechnologies.tms.ui.components.NotificationUtil;
+import com.luretechnologies.tms.ui.view.ContextMenuWindow;
 import com.luretechnologies.tms.ui.view.applicationstore.ApplicationStoreView;
 import com.vaadin.data.TreeData;
 import com.vaadin.data.provider.DataProvider;
@@ -256,6 +257,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		});
 
 		nodeTree.addSelectionListener(selection -> {
+			UI.getCurrent().getWindows().forEach(Window::close);
 			addParam.setEnabled(false);
 			deleteParam.setEnabled(false);
 			appDropDown.clear();
@@ -315,10 +317,17 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		nodeTree.addContextClickListener(event -> {
 			/*if (!(event instanceof TreeContextClickEvent)) {
 				return;
-			}
+			}*/
+			UI.getCurrent().getWindows().forEach(Window::close);
 			TreeContextClickEvent treeContextEvent = (TreeContextClickEvent) event;
 			TreeNode contextNode = (TreeNode) treeContextEvent.getItem();
-			UI.getCurrent().addWindow(openTreeNodeEditWindow(contextNode));*/
+			ContextMenuWindow treeContextMenuWindow = new ContextMenuWindow();
+			treeContextMenuWindow.setPosition(event.getClientX(), event.getClientY());
+			Button editNode = new Button("Edit",click->{Notification.show("edit Clicked "+contextNode.getLabel()); UI.getCurrent().getWindows().forEach(Window::close);});
+			Button deleteNode = new Button("Edit",click->Notification.show("delete Clicked "+contextNode.getLabel()));
+			treeContextMenuWindow.addMenuItems(editNode,deleteNode);
+			UI.getCurrent().addWindow(treeContextMenuWindow);
+			
 
 		});
 		treeLayoutWithButtons.addComponent(nodeTree);
