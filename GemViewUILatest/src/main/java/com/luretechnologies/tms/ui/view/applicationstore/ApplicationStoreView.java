@@ -345,7 +345,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 //		panel.setCaption("Application Store");
 		panel.setResponsive(true);
 		panel.setSizeFull();
-		addComponent(new Header("Application Store", new Label()));
+		addComponent(new Header(userService,"Application Store", new Label()));
 		addComponent(panel);
 		return panel;
 	}
