@@ -122,7 +122,7 @@ html, body {
 #form {
 	height: 395px;
 	display: flex;
-	background-color: #FFFF;
+	background-color: rgba(255, 255, 255, 0.2);
 	justify-content: center;
 }
 
@@ -270,14 +270,14 @@ input[type='text' ], input[type='password'] {
 	/* border: 0;
   	outline: 0; */
   	background: transparent;
-  	/* border-bottom: 1.4px solid lightslategrey; */
+  	border: 1px solid rgba(0, 0, 0, 0.32);
   	/* float :right; */
   	/* -webkit-box-shadow: 255px 255px 255px 255px rgba(255,255,255,0.5) inset;
   	-webkit-text-fill-color: black !important; */
   	caret-color:black;
   	outline-width:0px;
-  	border-bottom:2px solid rgba(0, 0, 0, .5);
-  	border-right:2px solid rgba(0, 0, 0, .5);
+  	/* border-bottom:2px solid rgba(0, 0, 0, .5);
+  	border-right:2px solid rgba(0, 0, 0, .5); */
 }
 
 button {
@@ -299,6 +299,8 @@ button {
 	background:#216c2a;
 	/* font: inherit;
 	font-weight: 600; */
+	font:menu;
+	font-size:13px;
 }
 
 #button-submit:focus:after {
@@ -350,7 +352,7 @@ button {
 	display: block;
 	color:red;
     margin-top: -80px;
-    margin-left:272px;
+    margin-left:264px;
 }
 
 .error form:after {
@@ -365,6 +367,8 @@ button {
 			padding: 48px;
                         margin-top:41px;
                         margin-left:-28px;
+                        font:menu;
+                        font-size:16px;
 		}
 		
 .dropbtn {
@@ -423,6 +427,7 @@ button {
   }
 @media ( max-width : 650px) { 
   	.dropdown-content {
+  	
     position: absolute;
     background-color: #ffff;
     min-width: 170px;
@@ -454,15 +459,15 @@ button {
 			 </div>
 			  
 			<div id="myDropdown" class="dropdown-content">
-   			 	<a href="forgotPassword.html" style="color:#666666" target="_blank">Forgot Password?</a>
-				<a href="forgotUsername.html" style="color:#666666" target="_blank">Forgot Username?</a>
+				<a href="forgotUsername.html" style="color:#666666; font:menu; font-size:16px;" target="_blank">Forgot Username?</a>
+				<a href="forgotPassword.html" style="color:#666666; font:menu; font-size:16px;" target="_blank;">Forgot Password?</a>
  		 	</div>
 			<!-- <h3 style="color:#ffff">Please Sign In</h3> -->
 			
 			<label id="login-label" for="login" style="margin-top:64px;" href="*"><font color="#00000; font-weight:600;">Username</font></label>
-			<input type="text" autocomplete="off" spellcheck="false" id="login" name="username" aria-labelledby="login-label" autofocus maxlength="50" placeholder="Enter Username..." required>
+			<input type="text" autocomplete="off" style="margin-top:-6px;" spellcheck="false" id="login" name="username" aria-labelledby="login-label" autofocus maxlength="50" placeholder="Enter Username..." required>
 			<label1 id="password-label" for="password" style= "margin-left:-4px;" href="*"><font color="#00000; font-weight:600;">Password</font></label1>
-			<input type="password" id="password" name="password" aria-labelledby="password-label" maxlength="50" placeholder="Enter Password..." required>
+			<input type="password" id="password" name="password" aria-labelledby="password-label" style="margin-top:-6px;" maxlength="50" placeholder="Enter Password..." required>
 			<button id="button-submit" type="submit">Sign In</button>
 		
 		</form>

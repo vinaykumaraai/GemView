@@ -72,6 +72,7 @@ import com.vaadin.external.org.slf4j.LoggerFactory;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.server.Page;
+import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Alignment;
@@ -91,6 +92,7 @@ import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.ProgressBar;
+import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Upload;
@@ -148,6 +150,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 	private HorizontalLayout activeBoxLayout;
 	private HorizontalLayout fileButtonLayout;
 	private HorizontalLayout appParamSearchLayout;
+	private TabSheet applicfatiopnStoreTabSheet;
 	
 	
 	@Autowired
@@ -169,7 +172,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 	@PostConstruct
 	private void init() {
 		try {
-		setHeight("100%");
+		//setHeight("100%");
 		setSpacing(false);
 		setMargin(false);
 		setResponsive(true);
@@ -340,14 +343,29 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 	private Panel getAndLoadApplicationStorePanel() {
 		Panel panel = new Panel();
 		panel.setHeight("100%");
-//		panel.addStyleName(ValoTheme.PANEL_WELL);
+		panel.addStyleName(ValoTheme.PANEL_WELL);
 		panel.setCaptionAsHtml(true);
-//		panel.setCaption("Application Store");
+		//panel.setCaption("Application Store");
 		panel.setResponsive(true);
 		panel.setSizeFull();
-		addComponent(new Header(userService,"Application Store", new Label()));
+		addComponent(new Header(userService,mainView, "Application Store", new Label()));
 		addComponent(panel);
 		return panel;
+	}
+	
+	private TabSheet getTabSheet() throws ApiException {
+
+		// debugLayout.setSizeUndefined();
+		applicfatiopnStoreTabSheet = new TabSheet();
+		applicfatiopnStoreTabSheet.setHeight(100.0f, Unit.PERCENTAGE);
+		applicfatiopnStoreTabSheet.setSizeFull();
+		applicfatiopnStoreTabSheet.addStyleNames(ValoTheme.TABSHEET_EQUAL_WIDTH_TABS, ValoTheme.TABSHEET_CENTERED_TABS,
+				ValoTheme.TABSHEET_ICONS_ON_TOP, ValoTheme.TABSHEET_COMPACT_TABBAR, ValoTheme.TABSHEET_PADDED_TABBAR);
+		applicfatiopnStoreTabSheet.addTab(getAppicationDetailsLayout(), "Details");
+		//applicfatiopnStoreTabSheet.addTab(getAlert(), "Alert");
+		//applicfatiopnStoreTabSheet.addTab(getDebug(), "Debug");
+		
+		return applicfatiopnStoreTabSheet;
 	}
 
 	private Component[] getAppStoreComponents() throws ApiException {

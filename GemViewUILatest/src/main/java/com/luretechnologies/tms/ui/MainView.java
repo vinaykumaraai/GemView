@@ -259,7 +259,7 @@ public class MainView extends MainViewDesign implements ViewDisplay {
 	 * @param targetView
 	 *            the view to navigate to when the user clicks the button
 	 */
-	private void attachNavigation(Button navigationButton, Class<? extends View> targetView) {
+	public void attachNavigation(Button navigationButton, Class<? extends View> targetView) {
 		boolean hasAccessToView = viewAccessControl.isAccessGranted(targetView);
 		navigationButton.setVisible(hasAccessToView);
 

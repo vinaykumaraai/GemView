@@ -13,7 +13,7 @@
 }
 
 .apptheme .app-shell[width-range~="601px-"] .navigation-bar {
-	background-color: #216C2A !important;
+	background-color: white !important;
 	overflow-y: auto;
 	overflow-x: hidden;
 }
@@ -33,7 +33,7 @@
 }
 
 .app-shell .navigation-bar {
-	background: #216C2A !important;
+	background: white !important;
 	z-index: 10000 !important;
 }
 
@@ -44,26 +44,34 @@
 }
 
 .app-shell .navigation {
-	background: #216C2A !important;
+	background: white !important;
 }
 
 .apptheme .v-grid-row-selected > td {
-	background: #216C2A !important;
+	background: #216c2a !important;
 }
 
 .app-shell .navigation .v-button {
 	text-align: left;
 	font-size: 14.4px;
 	text-overflow: ellipsis;
-	color: white !important;
+	color: black !important;
 }
 
 .app-shell .navigation .v-icon {
-	color: #fff !important;
+	color: black !important;
 }
 
 .apptheme .v-caption-inline-icon.v-caption-small span.v-icon {
 	line-height: 36px !important;
+}
+
+.apptheme .app-shell[width-range~="1001px-"] .navigation .v-button.borderless-disabled:hover {
+	background: lightgray !important;
+}
+
+.apptheme .app-shell .navigation-bar .selected .v-icon, .apptheme .app-shell .navigation-bar .selected .v-button-caption {
+	color: white !important;
 }
 
 .search-Height {
@@ -1206,6 +1214,43 @@
 
 .updatepassword-formLayoutVertical {
 	margin-top: -40px;
+}
+
+.header-label {
+	margin-left: 25px;
+	Font-size: 36px;
+	font-weight: bold;
+	margin-top: -55px;
+}
+
+.header-UserNameLayout {
+	margin-top: -18px;
+	text-align: right !important;
+}
+
+.header-UserName {
+	font-size: 20px;
+	margin-left: -10px;
+}
+
+.header-UserRole {
+	margin-top: -15px;
+	font-size: 14px;
+}
+
+.header-menuButton {
+	margin-top: 18px;
+	margin-left: -45px;
+}
+
+.header-menuWindow {
+	margin-top: 46px !important;
+	margin-left: -155px !important;
+}
+
+.apptheme .v-button:focus:after {
+	-webkit-box-shadow: none !important;
+	box-shadow: none !important;
 }
 
 .apptheme .error {
@@ -16658,6 +16703,10 @@ div.v-layout.v-horizontal.v-widget {
 	float: left;
 }
 
+.apptheme .app-shell[width-range~="-600px"] .navigation-bar {
+	background: #216c2a !important;
+}
+
 .apptheme .app-shell[width-range~="601px-"] .activeViewName {
 	display: none;
 }
@@ -16715,6 +16764,7 @@ div.v-layout.v-horizontal.v-widget {
 	margin-bottom: 10px !important;
 	color: white !important;
 	font-family: "Open Sans", sans-serif !important;
+	background: #216c2a !important;
 }
 
 .apptheme .v-errorindicator {

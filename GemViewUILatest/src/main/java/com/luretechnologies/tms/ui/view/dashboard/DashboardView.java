@@ -31,6 +31,7 @@
  */
 package com.luretechnologies.tms.ui.view.dashboard;
 
+import java.sql.Array;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.Year;
@@ -52,6 +53,7 @@ import com.luretechnologies.tms.backend.service.DashboardService;
 import com.luretechnologies.tms.backend.service.UserService;
 import com.luretechnologies.tms.ui.MainView;
 import com.luretechnologies.tms.ui.navigation.NavigationManager;
+import com.luretechnologies.tms.ui.view.Header;
 import com.vaadin.addon.charts.Chart;
 import com.vaadin.addon.charts.model.ChartType;
 import com.vaadin.addon.charts.model.Configuration;
@@ -108,6 +110,7 @@ public class DashboardView extends DashboardViewDesign implements View {
 	private DataSeries heartBeatServicesPerWeek;
 	private DataSeries downloadServicesPerWeek;
 	private List<Number> list = new ArrayList<Number>();
+	private List<Row> rowList = null;
 
 
 	@Autowired
@@ -146,20 +149,18 @@ public class DashboardView extends DashboardViewDesign implements View {
 		grid.setCaption("<h2 style=margin-bottom:10px;margin-left:695px;color:#197DE1;font-weight:400;>CURRENT DOWNLOADS"
 				+ "</h2>");
 		grid.setHeaderVisible(true);
-		Row row = board.addRow(new BoardBox(currentConnectionsLabel),
-				new BoardBox(requestPerSecondLabel), new BoardBox(successfulDownloadsLabel),downloadFailuresBox);
-		row.addStyleName("board-row-group");
 		
-		row = board.addRow();
-		row.addStyleName("board-row-panels");
+		Row row = new Row();
+		row.setCaption("first row");
 		
-		row = board.addRow(new BoardBox(incomingRequestCallsPerWeek), new BoardBox(incomingServiceCallsArea));
-		row.addStyleName("board-row-panels");
+		Row row1 = new Row();
+		row1.setCaption("second row");
 		
-		row = board.addRow(new BoardBox(grid, "due-grid"));
-		row.addStyleName("board-row-panels");
-
-
+		Row row2 = new Row();
+		row2.setCaption("third row");
+		
+		Row row3 = new Row();
+		row3.setCaption("fourth row");
 		
 		initIncomingCallsGraphs();
 		initIncomingCallsGraphsArea();
@@ -172,26 +173,64 @@ public class DashboardView extends DashboardViewDesign implements View {
 		if(width<=600) {
 			mainView.getTitle().setValue(userService.getLoggedInUserName());
 			grid.setHeight("88%");
+			board.removeRow(row);
 		}else if(width>600 && width <=1000) {
 			grid.setHeight("86%");
+			rowList = Arrays.asList(row, row1, row2, row3);
+			getRows(rowList);
 		}else {
-			mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
-			grid.setHeight("85%");
+			mainView.getTitle().setValue("gemView");/*  "+ userService.getLoggedInUserName());
+*/			grid.setHeight("85%");
+			rowList = Arrays.asList(row, row1, row2, row3);
+			getRows(rowList);
 		}
 		
 		Page.getCurrent().addBrowserWindowResizeListener(resizeListener->{
 			if(resizeListener.getWidth()<=600) {
 				mainView.getTitle().setValue(userService.getLoggedInUserName());
 				grid.setHeight("88%");
+				board.removeRow(row);
 			}else if(width>600 && width <=1000) {
 				grid.setHeight("86%");
+				rowList = Arrays.asList(row);
+				getRows(rowList);
 			}else {
-				mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
-				grid.setHeight("85%");
+				mainView.getTitle().setValue("gemView");/*  "+ userService.getLoggedInUserName());
+*/				grid.setHeight("85%");
+				rowList = Arrays.asList(row, row1, row2, row3);
+				getRows(rowList);
 			}
 		});
 		
 			mainView.getDashboard().setEnabled(true);
+	}
+	
+	private void getRows(List<Row> rowList) {
+		for(Row row: rowList) {
+			board.removeRow(row);
+			switch(row.getCaption().toString()) {
+			case "first row":
+				Header header = new Header(userService,mainView, "Dashboard", new Label());
+				Row row5 = board.addRow(header);
+				row5.addStyleName("board-row-group");
+				break;
+			case "second row":
+				Row row1 = board.addRow(new BoardBox(currentConnectionsLabel),
+						new BoardBox(requestPerSecondLabel), new BoardBox(successfulDownloadsLabel),downloadFailuresBox);
+				row1.addStyleName("board-row-group");
+				break;
+			case "third row":
+				Row row2 = board.addRow(new BoardBox(incomingRequestCallsPerWeek), new BoardBox(incomingServiceCallsArea));
+				row2.addStyleName("board-row-panels");
+				break;
+			case "fourth row":
+				Row row3 = board.addRow(new BoardBox(grid, "due-grid"));
+				row3.addStyleName("board-row-panels");
+				break;
+			default:
+				break;
+			}
+		}
 	}
 	
 	private void initIncomingCallsGraphsPie() {
