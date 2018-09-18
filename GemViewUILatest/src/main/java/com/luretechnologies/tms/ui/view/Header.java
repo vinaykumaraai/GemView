@@ -5,7 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.luretechnologies.tms.backend.service.UserService;
 import com.luretechnologies.tms.ui.MainView;
 import com.luretechnologies.tms.ui.navigation.NavigationManager;
+import com.luretechnologies.tms.ui.view.admin.roles.RolesView;
 import com.luretechnologies.tms.ui.view.admin.user.UserAdminView;
+import com.luretechnologies.tms.ui.view.system.SystemView;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -21,16 +23,12 @@ import com.vaadin.ui.themes.ValoTheme;
 public class Header extends HorizontalLayout {
 
 	UserService userService;
-//	MainView mainView;
 	NavigationManager navigationManager;
 	
 	public Header(UserService userService,NavigationManager navigationManager, String caption,Component...components) {
-//		this.setStyleName(ValoTheme.PANEL_WELL);
-//		this.setCaption(caption);
 		this.setWidth("100%");
 		this.setHeight("90px");
 		this.userService = userService;
-//		this.mainView = mainView;
 		this.navigationManager = navigationManager;
 		Label headerCaption = new Label(caption);
 		headerCaption.addStyleName("header-label");
@@ -50,20 +48,20 @@ public class Header extends HorizontalLayout {
 		logOut.addStyleName(ValoTheme.BUTTON_BORDERLESS);
 		logOut.setIcon(VaadinIcons.SIGN_OUT);
 		Button Users = new Button("Users",click -> {
-//			Button us = mainView.getUsers();
-//			mainView.attachNavigation(us, UserAdminView.class);
 			userMenuWindow.close();
 			navigationManager.navigateTo(UserAdminView.class);
 		});
 		Users.addStyleName(ValoTheme.BUTTON_BORDERLESS);
 		Users.setIcon(VaadinIcons.USERS);
 		Button Roles = new Button("Roles",click -> {
-			
+			userMenuWindow.close();
+			navigationManager.navigateTo(RolesView.class);
 		});
 		Roles.addStyleName(ValoTheme.BUTTON_BORDERLESS);
 		Roles.setIcon(VaadinIcons.USER);
 		Button System = new Button("System Parameters",click -> {
-			
+			userMenuWindow.close();
+			navigationManager.navigateTo(SystemView.class);
 		});
 		System.addStyleName(ValoTheme.BUTTON_BORDERLESS);
 		System.setIcon(VaadinIcons.DESKTOP);
