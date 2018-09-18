@@ -210,7 +210,7 @@ public class DashboardView extends DashboardViewDesign implements View {
 			board.removeRow(row);
 			switch(row.getCaption().toString()) {
 			case "first row":
-				Header header = new Header(userService,mainView, "Dashboard", new Label());
+				Header header = new Header(userService,navigationManager, "Dashboard", new Label());
 				Row row5 = board.addRow(header);
 				row5.addStyleName("board-row-group");
 				break;

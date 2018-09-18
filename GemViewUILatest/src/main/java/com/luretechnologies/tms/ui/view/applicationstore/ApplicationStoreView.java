@@ -61,6 +61,7 @@ import com.luretechnologies.tms.backend.service.UserService;
 import com.luretechnologies.tms.ui.MainView;
 import com.luretechnologies.tms.ui.components.ComponentUtil;
 import com.luretechnologies.tms.ui.components.NotificationUtil;
+import com.luretechnologies.tms.ui.navigation.NavigationManager;
 import com.luretechnologies.tms.ui.view.Header;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
@@ -151,10 +152,11 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 	private HorizontalLayout fileButtonLayout;
 	private HorizontalLayout appParamSearchLayout;
 	private TabSheet applicfatiopnStoreTabSheet;
-	
+	private final NavigationManager navigationManager;
 	
 	@Autowired
-	public ApplicationStoreView() {
+	public ApplicationStoreView(NavigationManager navigationManager) {
+		this.navigationManager = navigationManager;
 	}
 	
 	@Autowired
@@ -348,7 +350,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		//panel.setCaption("Application Store");
 		panel.setResponsive(true);
 		panel.setSizeFull();
-		addComponent(new Header(userService,mainView, "Application Store", new Label()));
+		addComponent(new Header(userService,navigationManager, "Application Store", new Label()));
 		addComponent(panel);
 		return panel;
 	}
