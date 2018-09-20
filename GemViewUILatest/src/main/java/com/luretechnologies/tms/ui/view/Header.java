@@ -26,13 +26,12 @@ public class Header extends HorizontalLayout {
 	NavigationManager navigationManager;
 	
 	public Header(UserService userService,NavigationManager navigationManager, String caption,Component...components) {
-		this.setWidth("100%");
+		this.setWidth("99%");
 		this.setHeight("90px");
 		this.userService = userService;
 		this.navigationManager = navigationManager;
 		Label headerCaption = new Label(caption);
 		headerCaption.addStyleName("header-label");
-		//headerCaption.setStyleName(ValoTheme.LABEL_LARGE);
 		Label userName = new Label(userService.getLoggedInUserName());
 		userName.addStyleName("header-UserName");
 		Label userRole = new Label(userService.getLoggedInUser().getRole());
@@ -78,12 +77,16 @@ public class Header extends HorizontalLayout {
 		userMenuButton.addStyleNames(ValoTheme.BUTTON_BORDERLESS, "header-menuButton");
 		GridLayout rightSideLayout = new GridLayout(2, 1);
 		rightSideLayout.addComponents(userLayout,userMenuButton);
+		rightSideLayout.addStyleName("header-GridLayout");
 		HorizontalLayout leftSideLayout = new HorizontalLayout(headerCaption);
 		this.addComponent(leftSideLayout);
 		this.addComponents(components);
 		this.addComponent(rightSideLayout);
 		this.setComponentAlignment(leftSideLayout, Alignment.BOTTOM_LEFT);
 		this.setComponentAlignment(rightSideLayout, Alignment.BOTTOM_RIGHT);
+		for(Component comp: components) {
+			this.setComponentAlignment(comp, Alignment.BOTTOM_RIGHT);
+		}
 		this.addLayoutClickListener(click ->{
 			
 			if(click.getClickedComponent() == null || !click.getClickedComponent().equals(userMenuButton)) {

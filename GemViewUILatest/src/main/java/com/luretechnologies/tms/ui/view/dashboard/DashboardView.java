@@ -71,10 +71,14 @@ import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.Page;
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.spring.annotation.SpringView;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.Grid.SelectionMode;
+import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * The dashboard view showing statistics about sales and deliveries.
@@ -110,7 +114,7 @@ public class DashboardView extends DashboardViewDesign implements View {
 	private DataSeries heartBeatServicesPerWeek;
 	private DataSeries downloadServicesPerWeek;
 	private List<Number> list = new ArrayList<Number>();
-	private List<Row> rowList = null;
+	private Row row;
 
 
 	@Autowired
@@ -130,10 +134,22 @@ public class DashboardView extends DashboardViewDesign implements View {
 	@SuppressWarnings("unchecked")
 	@PostConstruct
 	public void init() {
+		ComboBox refresh = new ComboBox();
+		refresh.setItems("Refresh 30 secs","Refresh 1 min","Refresh 5 mins","Refresh 30 mins","Refresh 1 hr");
+		refresh.setPlaceholder("Select Time");
+		refresh.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", "header-Components");
+		
+		ComboBox downloads = new ComboBox();
+		downloads.setItems("Downloads 1","Downloads 2","Downloads 3","Downloads 4","Downloads 5");
+		downloads.setPlaceholder("Select Option");
+		downloads.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", 
+				"header-Components");
+		
+		Header header = new Header(userService,navigationManager, "Dashboard", new Label(), refresh, downloads);
+		header.setId("header");
 		setResponsive(true);
 		grid = new Grid<>(Downloads.class);
 		grid.setWidth("100%");
-		grid.setHeight("100%");
 		grid.setResponsive(true);
 		grid.setSelectionMode(SelectionMode.SINGLE);
 		grid.setColumns("serialNumber", "organizationName", "OS", "incomingIP", "device", "completion");
@@ -150,17 +166,27 @@ public class DashboardView extends DashboardViewDesign implements View {
 				+ "</h2>");
 		grid.setHeaderVisible(true);
 		
-		Row row = new Row();
-		row.setCaption("first row");
+		/*Header header = new Header(userService,navigationManager, "Dashboard", new Label());
+		row = board.addRow(header);
+		row.addStyleName("board-row-group");*/
+		board.addStyleName("board-top");
+		Row row1 = board.addRow(new BoardBox(currentConnectionsLabel),new BoardBox(successfulDownloadsLabel),
+				new BoardBox(requestPerSecondLabel), downloadFailuresBox);
+		row1.addStyleName("board-row-group");
 		
-		Row row1 = new Row();
-		row1.setCaption("second row");
 		
-		Row row2 = new Row();
-		row2.setCaption("third row");
+		/*row = board.addRow(new BoardBox(incomingServiceCalls));
+		row.addStyleName("board-row-panels");*/
 		
-		Row row3 = new Row();
-		row3.setCaption("fourth row");
+		row = board.addRow();
+		row.addStyleName("board-row-panels");
+		
+		Row row2 = board.addRow(new BoardBox(incomingRequestCallsPerWeek), new BoardBox(incomingServiceCallsArea));
+		row2.addStyleName("board-row-panels");
+		
+		Row row3 = board.addRow(new BoardBox(grid, "due-grid"));
+		row3.addStyleName("board-row-panels");
+
 		
 		initIncomingCallsGraphs();
 		initIncomingCallsGraphsArea();
@@ -173,64 +199,59 @@ public class DashboardView extends DashboardViewDesign implements View {
 		if(width<=600) {
 			mainView.getTitle().setValue(userService.getLoggedInUserName());
 			grid.setHeight("88%");
-			board.removeRow(row);
+			removeComponent(header);
+			board.removeStyleName("board-top");
 		}else if(width>600 && width <=1000) {
 			grid.setHeight("86%");
-			rowList = Arrays.asList(row, row1, row2, row3);
-			getRows(rowList);
+			if((getComponent(0).getId()!=null || getComponent(0).getId()!="") &&
+					getComponent(0).getId().equals("header")) {
+				
+			} else {
+				addComponentAsFirst(header);
+				board.addStyleName("board-top");
+			}
 		}else {
 			mainView.getTitle().setValue("gemView");/*  "+ userService.getLoggedInUserName());
 */			grid.setHeight("85%");
-			rowList = Arrays.asList(row, row1, row2, row3);
-			getRows(rowList);
+			if((getComponent(0).getId()!=null || getComponent(0).getId()!="") &&
+					getComponent(0).getId().equals("header")) {
+	
+			} else {
+				addComponentAsFirst(header);
+				board.addStyleName("board-top");
+			}
 		}
 		
 		Page.getCurrent().addBrowserWindowResizeListener(resizeListener->{
 			if(resizeListener.getWidth()<=600) {
 				mainView.getTitle().setValue(userService.getLoggedInUserName());
 				grid.setHeight("88%");
-				board.removeRow(row);
-			}else if(width>600 && width <=1000) {
+				removeComponent(header);
+				board.removeStyleName("board-top");
+			}else if(resizeListener.getWidth()>600 && resizeListener.getWidth() <=1000) {
 				grid.setHeight("86%");
-				rowList = Arrays.asList(row);
-				getRows(rowList);
+				if((getComponent(0).getId()!=null || getComponent(0).getId()!="") &&
+						getComponent(0).getId().equals("header")) {
+
+				} else {
+					addComponentAsFirst(header);
+					board.addStyleName("board-top");
+				}
+				
 			}else {
 				mainView.getTitle().setValue("gemView");/*  "+ userService.getLoggedInUserName());
 */				grid.setHeight("85%");
-				rowList = Arrays.asList(row, row1, row2, row3);
-				getRows(rowList);
+				if((getComponent(0).getId()!=null || getComponent(0).getId()!="") &&
+						getComponent(0).getId().equals("header")) {
+
+				} else {
+					addComponentAsFirst(header);
+					board.addStyleName("board-top");
+				}
 			}
 		});
 		
 			mainView.getDashboard().setEnabled(true);
-	}
-	
-	private void getRows(List<Row> rowList) {
-		for(Row row: rowList) {
-			board.removeRow(row);
-			switch(row.getCaption().toString()) {
-			case "first row":
-				Header header = new Header(userService,navigationManager, "Dashboard", new Label());
-				Row row5 = board.addRow(header);
-				row5.addStyleName("board-row-group");
-				break;
-			case "second row":
-				Row row1 = board.addRow(new BoardBox(currentConnectionsLabel),
-						new BoardBox(requestPerSecondLabel), new BoardBox(successfulDownloadsLabel),downloadFailuresBox);
-				row1.addStyleName("board-row-group");
-				break;
-			case "third row":
-				Row row2 = board.addRow(new BoardBox(incomingRequestCallsPerWeek), new BoardBox(incomingServiceCallsArea));
-				row2.addStyleName("board-row-panels");
-				break;
-			case "fourth row":
-				Row row3 = board.addRow(new BoardBox(grid, "due-grid"));
-				row3.addStyleName("board-row-panels");
-				break;
-			default:
-				break;
-			}
-		}
 	}
 	
 	private void initIncomingCallsGraphsPie() {
@@ -328,9 +349,12 @@ public class DashboardView extends DashboardViewDesign implements View {
 
 		incomingRequestCallsPerWeek.setId("Request Calls Per Week");
 		incomingRequestCallsPerWeek.setSizeFull();
-
+		
+		Label availableSystem = new Label("INCOMING REQUEST CALLS PER WEEK", ContentMode.HTML);
+		availableSystem.addStyleName("label-chartStyle");
+		
 		Configuration Conf = incomingRequestCallsPerWeek.getConfiguration();
-		Conf.setTitle("INCOMING REQUEST CALLS PER WEEK");
+		Conf.setTitle(availableSystem.getValue());
 		//today.ge
 		XAxis x = new XAxis();
 		

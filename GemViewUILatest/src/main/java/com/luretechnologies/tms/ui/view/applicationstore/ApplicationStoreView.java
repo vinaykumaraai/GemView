@@ -175,7 +175,6 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 	@PostConstruct
 	private void init() {
 		try {
-		//setHeight("100%");
 		setSpacing(false);
 		setMargin(false);
 		setResponsive(true);
@@ -228,7 +227,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 				clearAppSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"v-button-customstyle");
 				clearParamSearch.removeStyleNames("audit-AuditSearchClearDesktop", "odometer-OdometerSearchClearPhone");
 				clearParamSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"v-button-customstyle");
-				mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
+				mainView.getTitle().setValue("gemView"/*+ userService.getLoggedInUserName()*/);
 			}else {
 				applicationSearch.setHeight(37, Unit.PIXELS);
 				appDefaultParamSearch.setHeight("37px");
@@ -237,7 +236,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 				clearAppSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearDesktop");
 				clearParamSearch.removeStyleNames("audit-AuditSearchClearPhone", "v-button-customstyle");
 				clearParamSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearDesktop");
-				mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
+				mainView.getTitle().setValue("gemView"/*+ userService.getLoggedInUserName()*/);
 			}
 			
 			if(r.getWidth()<=730) {
@@ -304,7 +303,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			clearAppSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"v-button-customstyle");
 			clearParamSearch.removeStyleNames("audit-AuditSearchClearDesktop", "odometer-OdometerSearchClearPhone");
 			clearParamSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"v-button-customstyle");
-			mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
+			mainView.getTitle().setValue("gemView"/*+ userService.getLoggedInUserName()*/);
 		}else {
 			applicationSearch.setHeight(37, Unit.PIXELS);
 			appDefaultParamSearch.setHeight("37px");
@@ -313,7 +312,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			clearAppSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearDesktop");
 			clearParamSearch.removeStyleNames("audit-AuditSearchClearPhone", "v-button-customstyle");
 			clearParamSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearDesktop");
-			mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
+			mainView.getTitle().setValue("gemView"/*+ userService.getLoggedInUserName()*/);
 		}
 		
 		if(width<=730) {
@@ -340,7 +339,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		appStoreGridLayout.setColumns(2);
 		appStoreGridLayout.setRows(2);
 		appStoreGridLayout.addComponents(getAppStoreComponents());
-		appStoreGridLayout.getComponent(0, 1).addStyleName("applicationStore-gridLayoutHeight");
+		//appStoreGridLayout.getComponent(0, 1).addStyleName("applicationStore-gridLayoutHeight");
 	}
 
 	private Panel getAndLoadApplicationStorePanel() {
@@ -348,7 +347,6 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		panel.setHeight("100%");
 		panel.addStyleName(ValoTheme.PANEL_WELL);
 		panel.setCaptionAsHtml(true);
-		//panel.setCaption("Application Store");
 		panel.setResponsive(true);
 		panel.setSizeFull();
 		addComponent(new Header(userService,navigationManager, "Application Store", new Label()));
@@ -357,11 +355,9 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 	}
 	
 	private TabSheet getTabSheet() throws ApiException {
-
-		// debugLayout.setSizeUndefined();
 		applicationStoreTabSheet = new TabSheet();
-		applicationStoreTabSheet.setHeight(100.0f, Unit.PERCENTAGE);
-		applicationStoreTabSheet.setSizeFull();
+		applicationStoreTabSheet.setHeight("100%");
+		applicationStoreTabSheet.addStyleName("applicationStore-TabLayout");
 		applicationStoreTabSheet.addStyleNames(ValoTheme.TABSHEET_EQUAL_WIDTH_TABS, ValoTheme.TABSHEET_CENTERED_TABS,
 				ValoTheme.TABSHEET_ICONS_ON_TOP, ValoTheme.TABSHEET_COMPACT_TABBAR, ValoTheme.TABSHEET_PADDED_TABBAR);
 		applicationStoreTabSheet.addTab(getAppicationDetailsLayout(), "Details");
@@ -461,7 +457,7 @@ private void disableAllComponents() throws Exception {
 			applicationSearch.clear();
 		});
 		applicationSearchCSSLayout.addComponents(applicationSearch, clearAppSearch);
-		Button createAppGridRowMenu = new Button("Add",click->{
+		Button createAppGridRowMenu = new Button("Create Application",click->{
 			UI.getCurrent().getWindows().forEach(Window::close);
 			setApplicationFormComponentsEnable(access, add, edit, delete);
 			appGrid.deselectAll();
@@ -471,7 +467,8 @@ private void disableAllComponents() throws Exception {
 			clearAllParams.setEnabled(false);
 			applicationDetailsForm.setEnabled(true);
 		});
-		Button editAppGridRowMenu = new Button("Edit",click->{
+		createAppGridRowMenu.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+		Button editAppGridRowMenu = new Button("Edit Application",click->{
 			UI.getCurrent().getWindows().forEach(Window::close);
 			if (appGrid.getSelectedItems().isEmpty()) {
 				Notification.show(NotificationUtil.APPLICATIONSTORE_EDIT, Notification.Type.ERROR_MESSAGE);
@@ -481,10 +478,12 @@ private void disableAllComponents() throws Exception {
 				for (int i = 0; i < defaultParamCount; i++) {
 					Component component = ((VerticalLayout) appDefaultParamGrid.getParent()).getComponent(i);
 					component.setEnabled(true);
+					packageName.focus();
 				}
 			}
 		});
-		Button deleteAppGridRowMenu = new Button("Delete", clicked -> {
+		editAppGridRowMenu.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+		Button deleteAppGridRowMenu = new Button("Delete Application", clicked -> {
 			UI.getCurrent().getWindows().forEach(Window::close);
 			if (appGrid.getSelectedItems().isEmpty()) {
 				Notification.show(NotificationUtil.APPLICATIONSTORE_DELETE, Notification.Type.ERROR_MESSAGE);
@@ -493,6 +492,7 @@ private void disableAllComponents() throws Exception {
 			}
 
 		});
+		deleteAppGridRowMenu.addStyleName(ValoTheme.BUTTON_BORDERLESS);
 		Button createAppGridRow = new Button(VaadinIcons.FOLDER_ADD, click -> {			
 			setApplicationFormComponentsEnable(access, add, edit, delete);
 			appGrid.deselectAll();
@@ -589,7 +589,7 @@ private void disableAllComponents() throws Exception {
 		
 			fileButtonLayout.setEnabled(access);
 			profileDropDown.setEnabled(access);
-			applicationDetailsForm.getComponent(5).setEnabled(access);
+			applicationDetailsForm.getComponent(4).setEnabled(access);
 		
 			if(add) {
 			createAppDefaultParamGridRow.setEnabled(true);
@@ -654,7 +654,7 @@ private void disableAllComponents() throws Exception {
 		
 			fileButtonLayout.setEnabled(access);
 			profileDropDown.setEnabled(access);
-			applicationDetailsForm.getComponent(5).setEnabled(access);
+			applicationDetailsForm.getComponent(4).setEnabled(access);
 			appDefaultParamGrid.setEnabled(false);
 		
 			if(add) {

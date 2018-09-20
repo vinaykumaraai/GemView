@@ -227,7 +227,7 @@ public class MainView extends MainViewDesign implements ViewDisplay {
 		
 		gemViewTitle.setCaptionAsHtml(true);
 		gemViewTitle.addStyleNames("v-caption-logo");
-		gemViewTitle.setValue("gemView   " + userService.getLoggedInUserName());
+		gemViewTitle.setValue("gemView");
 		
 		
 		logout.addClickListener(e -> {

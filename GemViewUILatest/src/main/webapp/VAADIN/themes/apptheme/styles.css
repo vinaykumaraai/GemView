@@ -175,6 +175,11 @@
 	background-color: #fff;
 }
 
+.applicationStore-TabLayout {
+	margin-top: 63px;
+	background: #f2f2f2;
+}
+
 .applicationStore-activeCheckBox {
 	padding-top: 12px;
 	margin-left: -23px;
@@ -277,6 +282,10 @@
 	border: 1px solid #d5d5d5;
 	-webkit-box-shadow: 0 2px 3px rgba(0, 0, 0, 0.05);
 	box-shadow: 0 2px 3px rgba(0, 0, 0, 0.05);
+}
+
+.heartbeat-secondComponent {
+	background: white;
 }
 
 .heartbeat-bad-terminal {
@@ -670,6 +679,50 @@
 	line-height: 32px !important;
 }
 
+.app-shell[width-range~="601px-1000px"] .header-label {
+	margin-left: 25px;
+	Font-size: 24px;
+	font-weight: bold;
+	margin-top: -40px;
+}
+
+.app-shell[width-range~="601px-1000px"] .header-UserName {
+	font-size: 17px;
+	margin-left: -10px;
+}
+
+.app-shell[width-range~="601px-1000px"] .header-UserRole {
+	margin-top: -15px;
+	font-size: 12px;
+}
+
+.app-shell[width-range~="601px-1000px"] .header-GridLayout {
+	margin-top: 5px;
+}
+
+.app-shell[width-range~="601px-700px"] .header-label {
+	margin-left: 25px;
+	Font-size: 24px;
+	font-weight: bold;
+	margin-top: -60px;
+}
+
+.app-shell[width-range~="601px-700px"] .header-UserName {
+	font-size: 17px;
+	margin-left: -10px;
+	margin-top: -20px;
+}
+
+.app-shell[width-range~="601px-700px"] .header-UserRole {
+	margin-top: -35px;
+	font-size: 12px;
+}
+
+.app-shell[width-range~="601px-700px"] .header-menuButton {
+	margin-top: -4px;
+	margin-left: -45px;
+}
+
 .app-shell[width-range~="-600px"] .v-panel-caption {
 	font-size: 18px !important;
 	color: #216C2A !important;
@@ -802,6 +855,28 @@
 	margin-bottom: -6px !important;
 	margin-top: 20px !important;
 	margin-left: -102px !important;
+}
+
+.app-shell[width-range~="-600px"] .header-label {
+	margin-left: 25px;
+	Font-size: 18px;
+	font-weight: bold;
+	margin-top: -35px;
+}
+
+.app-shell[width-range~="-600px"] .header-UserName {
+	font-size: 14px;
+	margin-left: -10px;
+}
+
+.app-shell[width-range~="-600px"] .header-UserRole {
+	margin-top: -15px;
+	font-size: 13px;
+}
+
+.app-shell[width-range~="-600px"] .header-GridLayout {
+	margin-top: 7px;
+	margin-left: -45px;
 }
 
 .app-shell[width-range~="-1000px"] .v-heartbeat-Button {
@@ -1246,6 +1321,34 @@
 .header-menuWindow {
 	margin-top: 46px !important;
 	margin-left: -155px !important;
+}
+
+.header-GridLayout {
+	margin-left: -45px !important;
+}
+
+.header-Components {
+	margin-bottom: 30px !important;
+}
+
+.app-shell[width-range~="1000px-1150px"] .header-Components {
+	margin-bottom: 30px !important;
+	width: 130px;
+	height: 26px;
+}
+
+.app-shell[width-range~="600px-800px"] .header-Components {
+	margin-bottom: 30px !important;
+	width: 110px;
+	height: 23px;
+}
+
+.board-top {
+	margin-top: -55px;
+}
+
+.label-chartStyle {
+	font-size: 36px !important;
 }
 
 .apptheme .v-button:focus:after {
@@ -16760,10 +16863,10 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .apptheme .app-shell[width-range~="1001px-"] .logo, .apptheme .app-shell[width-range~="1001px-"]  .v-caption-logo {
-	font-size: 18px !important;
+	font-size: 24px !important;
 	margin-bottom: 10px !important;
 	color: white !important;
-	font-family: "Open Sans", sans-serif !important;
+	font: menu;
 	background: #216c2a !important;
 }
 

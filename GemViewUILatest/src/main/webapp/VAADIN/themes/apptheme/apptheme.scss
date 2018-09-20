@@ -207,6 +207,11 @@ $app-background-color: #145A32;
 	background-color: #fff;
 }
 
+.applicationStore-TabLayout{
+	margin-top:63px;
+	background:#f2f2f2;
+}
+
 .applicationStore-activeCheckBox{
 	padding-top:12px;
 	margin-left:-23px;
@@ -317,6 +322,10 @@ $app-background-color: #145A32;
 	-webkit-box-shadow: 0 2px 3px rgba(0, 0, 0, 0.05);
 	box-shadow: 0 2px 3px rgba(0, 0, 0, 0.05);
 	//overflow: visible !important;
+}
+
+.heartbeat-secondComponent{
+		background:white;
 }
 
 .heartbeat-bad-terminal{
@@ -543,6 +552,7 @@ $app-background-color: #145A32;
  		padding-left:12px !important;
 	}
 
+
 	.v-button-customstyle{
 		height:37px !important;
 		padding: 0px 16px !important;
@@ -724,13 +734,51 @@ $app-background-color: #145A32;
 	.v-caption-small span.v-icon{
 		line-height:32px !important;
 	}
+
+	.header-label{
+		margin-left: 25px;
+    	Font-size: 24px;
+    	font-weight: bold;
+    	margin-top: -40px;
+	}
+
+	.header-UserName{
+   		font-size:17px;
+   		margin-left:-10px;
+	}
+
+	.header-UserRole{
+  		 margin-top:-15px;
+   		font-size:12px;
+	}
+
+	.header-GridLayout{
+  		margin-top:5px;
+	}
 }
 
-// .app-shell[width-range~="601px-700px"]{
-// 	.v-caption-small span.v-icon{
-// 		line-height:26px !important;
-// 	}
-// }
+.app-shell[width-range~="601px-700px"]{
+ 	.header-label{
+	margin-left: 25px;
+    Font-size: 24px;
+    font-weight: bold;
+    margin-top: -60px;
+}
+
+.header-UserName{
+   		font-size:17px;
+   		margin-left:-10px;
+   		margin-top:-20px;
+	}
+.header-UserRole{
+   margin-top:-35px;
+   font-size:12px;
+}
+.header-menuButton{
+   margin-top: -4px;
+   margin-left:-45px;
+}
+ }
 
 .app-shell[width-range~="-600px"]{
 	.v-panel-caption{
@@ -747,6 +795,7 @@ $app-background-color: #145A32;
  		font-weight:bold !important;
  		padding-left:12px !important;
 	}
+
 .v-button-customstyle{
 	font-size:12px !important;
 		height:28px !important;
@@ -854,6 +903,25 @@ $app-background-color: #145A32;
 		margin-bottom:-6px !important;
 		margin-top: 20px !important;
 		margin-left: -102px !important;
+	}
+
+	.header-label{
+		margin-left: 25px;
+    	Font-size: 18px;
+    	font-weight: bold;
+    	margin-top: -35px;
+	}
+	.header-UserName{
+   		font-size:14px;
+   		margin-left:-10px;
+	}
+	.header-UserRole{
+  		 margin-top:-15px;
+   		font-size:13px;
+	}
+	.header-GridLayout{
+  		margin-top:7px;
+  		margin-left:-45px;
 	}
 }
 
@@ -1319,6 +1387,40 @@ $app-background-color: #145A32;
    margin-top: 46px !important;
    margin-left:-155px !important;
 }
+
+.header-GridLayout{
+  		margin-left:-45px !important;
+	}
+
+.header-Components{
+  		margin-bottom:30px !important;
+}
+
+.app-shell[width-range~="1000px-1150px"]{
+	.header-Components{
+  		margin-bottom:30px !important;
+  		width:130px;
+		height:26px;
+  		
+	}
+}
+
+.app-shell[width-range~="600px-800px"]{
+	.header-Components{
+  		margin-bottom:30px !important;
+  		width:110px;
+		height:23px;
+  		
+	}
+}
+
+.board-top{
+	margin-top:-55px;
+}
+
+.label-chartStyle{
+		font-size: 36px !important;
+	}
 
 .apptheme .v-button:focus:after{
 	-webkit-box-shadow:none !important;
