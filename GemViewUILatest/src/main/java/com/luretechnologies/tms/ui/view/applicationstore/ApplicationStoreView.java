@@ -152,7 +152,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 	private HorizontalLayout activeBoxLayout;
 	private HorizontalLayout fileButtonLayout;
 	private HorizontalLayout appParamSearchLayout;
-	private TabSheet applicfatiopnStoreTabSheet;
+	private TabSheet applicationStoreTabSheet;
 	private final NavigationManager navigationManager;
 	
 	@Autowired
@@ -180,7 +180,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		setMargin(false);
 		setResponsive(true);
 		Panel panel = getAndLoadApplicationStorePanel();
-		appStoreGridLayout = new GridLayout(2, 2, getAppStoreComponents());
+		appStoreGridLayout = new GridLayout(2, 1, getAppStoreComponents());
 		appStoreGridLayout.setWidth("100%");
 		appStoreGridLayout.setHeight("100%");
 		appStoreGridLayout.setMargin(true);
@@ -359,25 +359,26 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 	private TabSheet getTabSheet() throws ApiException {
 
 		// debugLayout.setSizeUndefined();
-		applicfatiopnStoreTabSheet = new TabSheet();
-		applicfatiopnStoreTabSheet.setHeight(100.0f, Unit.PERCENTAGE);
-		applicfatiopnStoreTabSheet.setSizeFull();
-		applicfatiopnStoreTabSheet.addStyleNames(ValoTheme.TABSHEET_EQUAL_WIDTH_TABS, ValoTheme.TABSHEET_CENTERED_TABS,
+		applicationStoreTabSheet = new TabSheet();
+		applicationStoreTabSheet.setHeight(100.0f, Unit.PERCENTAGE);
+		applicationStoreTabSheet.setSizeFull();
+		applicationStoreTabSheet.addStyleNames(ValoTheme.TABSHEET_EQUAL_WIDTH_TABS, ValoTheme.TABSHEET_CENTERED_TABS,
 				ValoTheme.TABSHEET_ICONS_ON_TOP, ValoTheme.TABSHEET_COMPACT_TABBAR, ValoTheme.TABSHEET_PADDED_TABBAR);
-		applicfatiopnStoreTabSheet.addTab(getAppicationDetailsLayout(), "Details");
-		//applicfatiopnStoreTabSheet.addTab(getAlert(), "Alert");
-		//applicfatiopnStoreTabSheet.addTab(getDebug(), "Debug");
+		applicationStoreTabSheet.addTab(getAppicationDetailsLayout(), "Details");
+		applicationStoreTabSheet.addTab(getApplicationProfileLayout(),"Profile");
+		applicationStoreTabSheet.addTab(getApplicationDefaulParametersLayout(), "Parameters");
+		applicationStoreTabSheet.addTab(getApplicationFileLayout(), "Files");
 		
-		return applicfatiopnStoreTabSheet;
+		return applicationStoreTabSheet;
 	}
 
 	private Component[] getAppStoreComponents() throws ApiException {
-		Component[] components = { getApplicationListLayout(), getApplicationDefaulParametersLayout(), getAppicationDetailsLayout() };
+		Component[] components = { getApplicationListLayout(), getTabSheet()};
 		return components;
 	}
 	
 	private Component[] getAppStoreComponentsPhoneAndTabMode() throws ApiException {
-		Component[] components = { getApplicationListLayout(), getAppicationDetailsLayout() , getApplicationDefaulParametersLayout()};
+		Component[] components = { getApplicationListLayout(), getTabSheet()};
 		return components;
 	}
 
@@ -735,24 +736,6 @@ private void disableAllComponents() throws Exception {
 			}
 		});
 		
-		fileButton = new Button("Files", VaadinIcons.UPLOAD);
-		fileButton.addStyleNames("v-button-customstyle", ValoTheme.BUTTON_FRIENDLY);
-		fileButton.setEnabled(false);
-		fileButton.setDescription("Upload Files");
-		fileButton.addClickListener(click -> {
-			if(appGrid.getSelectedItems().size()==0) {
-				Notification.show(NotificationUtil.APPLICATIONSTORE_ADD_FILES, Type.ERROR_MESSAGE);
-			}else {
-			Window fileListWindow = null;
-			try {
-				fileListWindow = getSmallListWindow(true, profileField);
-			} catch (ApiException e) {
-				appStoreService.logApplicationStoreScreenErrors(e);
-			}
-			if (fileListWindow.getParent() == null)
-				UI.getCurrent().addWindow(fileListWindow);
-		}
-		});
 		packageVersion = new TextField("Version");
 		packageVersion.addStyleNames("role-textbox", "v-textfield-font", ValoTheme.TEXTFIELD_BORDERLESS,
 				"asset-debugComboBox", "v-textfield-lineHeight");
@@ -856,13 +839,9 @@ private void disableAllComponents() throws Exception {
 		cancelForm.addStyleNames("v-button-customstyle", ValoTheme.BUTTON_FRIENDLY);
 		HorizontalLayout appDetailsSaveCancleAndLabelLayout = new HorizontalLayout();
 		appDetailsSaveCancleAndLabelLayout.addStyleName("applicationStore-cancelsaveApplicationLabelLayout");
-		fileButtonLayout = new HorizontalLayout();
-		fileButtonLayout.setCaption("Upload Files");
-		fileButtonLayout.addStyleName("asset-debugComboBox");
-		fileButtonLayout.addComponent(fileButton);
 		appDetailsSaveCancleAndLabelLayout.setWidth("100%");
 		applicationDetailsForm = new FormLayout(packageName, description, packageVersion, applicationOwner,
-				 activeBoxLayout, fileButtonLayout);
+				 activeBoxLayout);//fileButtonLayout);
 		applicationDetailsForm.addStyleNames("applicationStore-FormLayout", "system-LabelAlignment");
 		applicationDetailsForm.setCaptionAsHtml(true);
 		applicationDetailsLabel = new HorizontalLayout();
@@ -883,6 +862,34 @@ private void disableAllComponents() throws Exception {
 		applicationDetailsLayout.addStyleName("applicationStore-ApplicationDetailsLayout");
 		applicationDetailsLayout.setComponentAlignment(appDetailsSaveCancleAndLabelLayout, Alignment.TOP_RIGHT);
 		return applicationDetailsLayout;
+	}
+	
+	private HorizontalLayout getApplicationFileLayout() {
+		
+		fileButton = new Button("Files", VaadinIcons.UPLOAD);
+		fileButton.addStyleNames("v-button-customstyle", ValoTheme.BUTTON_FRIENDLY);
+		fileButton.setEnabled(false);
+		fileButton.setDescription("Upload Files");
+		fileButton.addClickListener(click -> {
+			if(appGrid.getSelectedItems().size()==0) {
+				Notification.show(NotificationUtil.APPLICATIONSTORE_ADD_FILES, Type.ERROR_MESSAGE);
+			}else {
+			Window fileListWindow = null;
+			try {
+				fileListWindow = getSmallListWindow(true, profileField);
+			} catch (ApiException e) {
+				appStoreService.logApplicationStoreScreenErrors(e);
+			}
+			if (fileListWindow.getParent() == null)
+				UI.getCurrent().addWindow(fileListWindow);
+		}
+		});
+		fileButtonLayout = new HorizontalLayout();
+		fileButtonLayout.setCaption("Upload Files");
+		fileButtonLayout.addStyleName("asset-debugComboBox");
+		fileButtonLayout.addComponent(fileButton);
+		
+		return fileButtonLayout;
 	}
 
 	private VerticalLayout getApplicationDefaulParametersLayout() throws ApiException {
@@ -1023,41 +1030,9 @@ private void disableAllComponents() throws Exception {
 		clearAllParams.addStyleNames("v-button-customstyle", ValoTheme.BUTTON_FRIENDLY);
 		clearAllParams.setEnabled(delete);
 		clearAllParams.setDescription("Clear All");
-		profileDropDown = new Button("Profile", VaadinIcons.PLUS_CIRCLE);
-		profileDropDown.addStyleNames("v-button-customstyle", ValoTheme.BUTTON_FRIENDLY);
-		profileDropDown.setDescription("Add Profile");
-		profileField.addStyleNames("role-textbox", "v-textfield-font", ValoTheme.TEXTFIELD_BORDERLESS);
-		profileField.setEnabled(false);
-		profileDropDown.setDescription("Add Profile");
-		profileDropDown.addClickListener(click -> {
-			try {
-				if (appGrid.getSelectedItems().size() > 0) {
-					Window openProfileWindow = getSmallListWindow(false, profileField);
-					if (openProfileWindow.getParent() == null) {
-						UI.getCurrent().addWindow(openProfileWindow);
-					}
-					}else {
-						Notification.show(NotificationUtil.APPLICATIONSTORE_PROFILE_DROPDOWN_CHECK, Type.ERROR_MESSAGE);
-					}
-			} catch (ApiException e) {
-				appStoreService.logApplicationStoreScreenErrors(e);
-			}
-			
-		});
-		clearProfile = new Button("Clear Profile");
-		clearProfile.addStyleNames("v-button-customstyle", ValoTheme.BUTTON_FRIENDLY);
-		clearProfile.setEnabled(false);
-		clearProfile.addClickListener(listener->{
-			profileField.clear();
-			clearProfile.setEnabled(false);
-			selectedProfile=null;
-				clearAllParams.setEnabled(delete);
-				appDefaultParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(appStoreService.getAppDefaultParamListByAppId(selectedApp.getId())));
-		});
-		clearProfile.setDescription("Clear Profile");
+		
 
-		HorizontalLayout appParamHeaderButtonLayout = new HorizontalLayout(clearAllParams, profileDropDown,
-				profileField, clearProfile);
+		HorizontalLayout appParamHeaderButtonLayout = new HorizontalLayout(clearAllParams);//profileDropDown,profileField, clearProfile);
 		appParamHeaderButtonLayout.addStyleName("applicationStore-horizontalAlignment");
 		appParamHeaderButtonLayout.setEnabled(true);
 		appParamSearchLayout = new HorizontalLayout(parameterSearchCSSLayout);
@@ -1081,7 +1056,42 @@ private void disableAllComponents() throws Exception {
 		applicationDefaultParametersLayout.addStyleName("applicationStore-VerticalLayout");
 		return applicationDefaultParametersLayout;
 	}
-
+private HorizontalLayout getApplicationProfileLayout() {
+	profileDropDown = new Button("Profile", VaadinIcons.PLUS_CIRCLE);
+	profileDropDown.addStyleNames("v-button-customstyle", ValoTheme.BUTTON_FRIENDLY);
+	profileDropDown.setDescription("Add Profile");
+	profileField.addStyleNames("role-textbox", "v-textfield-font", ValoTheme.TEXTFIELD_BORDERLESS);
+	profileField.setEnabled(false);
+	profileDropDown.setDescription("Add Profile");
+	profileDropDown.addClickListener(click -> {
+		try {
+			if (appGrid.getSelectedItems().size() > 0) {
+				Window openProfileWindow = getSmallListWindow(false, profileField);
+				if (openProfileWindow.getParent() == null) {
+					UI.getCurrent().addWindow(openProfileWindow);
+				}
+				}else {
+					Notification.show(NotificationUtil.APPLICATIONSTORE_PROFILE_DROPDOWN_CHECK, Type.ERROR_MESSAGE);
+				}
+		} catch (ApiException e) {
+			appStoreService.logApplicationStoreScreenErrors(e);
+		}
+		
+	});
+	clearProfile = new Button("Clear Profile");
+	clearProfile.addStyleNames("v-button-customstyle", ValoTheme.BUTTON_FRIENDLY);
+	clearProfile.setEnabled(false);
+	clearProfile.addClickListener(listener->{
+		profileField.clear();
+		clearProfile.setEnabled(false);
+		selectedProfile=null;
+			clearAllParams.setEnabled(delete);
+			appDefaultParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(appStoreService.getAppDefaultParamListByAppId(selectedApp.getId())));
+	});
+	clearProfile.setDescription("Clear Profile");
+	
+	return new HorizontalLayout(profileDropDown,profileField, clearProfile);
+}
 	private void confirmDeleteApp(TextField appSearch) {
 		ConfirmDialog.show(this.getUI(), "Please Confirm:", "Are you sure you want to delete?", "Ok", "Cancel",
 				new ConfirmDialog.Listener() {
