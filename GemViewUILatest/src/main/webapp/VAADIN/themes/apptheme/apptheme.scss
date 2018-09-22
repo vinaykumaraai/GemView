@@ -209,7 +209,7 @@ $app-background-color: #145A32;
 
 .applicationStore-TabLayout{
 	margin-top:63px;
-	background:#f2f2f2;
+	background:#f2f2f2 !important;
 }
 
 .applicationStore-activeCheckBox{
@@ -328,6 +328,11 @@ $app-background-color: #145A32;
 		background:white;
 }
 
+.heartbeat-gridSearchLayout{
+		background:white;
+		margin-top:10px;
+}
+
 .heartbeat-bad-terminal{
 		background-image:url(terminalBad.png);
  		background-size: contain;
@@ -358,6 +363,10 @@ $app-background-color: #145A32;
 
 .heartbeat-verticalFormLayout{
 	padding: 0px 37px 0px 37px !important;
+}
+
+.heartbeat-verticalDetailLayout{
+	padding: 37px 37px 37px 0px !important;
 }
 
 .heartbeat-checkbox{
@@ -576,6 +585,11 @@ $app-background-color: #145A32;
 	.role-RoleNameLabel{
 		margin-left:4px;
 	}
+
+.textfiled-height{
+		height:37px !important;
+		border-radius:6px;
+	}
 }
 
 .app-shell[width-range~="1001px-1400px"] {
@@ -755,6 +769,10 @@ $app-background-color: #145A32;
 	.header-GridLayout{
   		margin-top:5px;
 	}
+.textfiled-height{
+		height:32px !important;
+		border-radius:6px;
+	}
 }
 
 .app-shell[width-range~="601px-700px"]{
@@ -922,6 +940,10 @@ $app-background-color: #145A32;
 	.header-GridLayout{
   		margin-top:7px;
   		margin-left:-45px;
+	}
+	.textfiled-height{
+		height:27px !important;
+		border-radius:6px;
 	}
 }
 

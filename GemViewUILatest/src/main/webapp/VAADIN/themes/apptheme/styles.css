@@ -177,7 +177,7 @@
 
 .applicationStore-TabLayout {
 	margin-top: 63px;
-	background: #f2f2f2;
+	background: #f2f2f2 !important;
 }
 
 .applicationStore-activeCheckBox {
@@ -288,6 +288,11 @@
 	background: white;
 }
 
+.heartbeat-gridSearchLayout {
+	background: white;
+	margin-top: 10px;
+}
+
 .heartbeat-bad-terminal {
 	background-image: url(terminalBad.png);
 	background-size: contain;
@@ -319,6 +324,10 @@
 
 .heartbeat-verticalFormLayout {
 	padding: 0px 37px 0px 37px !important;
+}
+
+.heartbeat-verticalDetailLayout {
+	padding: 37px 37px 37px 0px !important;
 }
 
 .heartbeat-checkbox {
@@ -530,6 +539,11 @@
 	margin-left: 4px;
 }
 
+.app-shell[width-range~="1001px-"] .textfiled-height {
+	height: 37px !important;
+	border-radius: 6px;
+}
+
 .app-shell[width-range~="1001px-1400px"] .v-button-customstyle {
 	height: 37px !important;
 	padding: 0px 16px !important;
@@ -698,6 +712,11 @@
 
 .app-shell[width-range~="601px-1000px"] .header-GridLayout {
 	margin-top: 5px;
+}
+
+.app-shell[width-range~="601px-1000px"] .textfiled-height {
+	height: 32px !important;
+	border-radius: 6px;
 }
 
 .app-shell[width-range~="601px-700px"] .header-label {
@@ -877,6 +896,11 @@
 .app-shell[width-range~="-600px"] .header-GridLayout {
 	margin-top: 7px;
 	margin-left: -45px;
+}
+
+.app-shell[width-range~="-600px"] .textfiled-height {
+	height: 27px !important;
+	border-radius: 6px;
 }
 
 .app-shell[width-range~="-1000px"] .v-heartbeat-Button {

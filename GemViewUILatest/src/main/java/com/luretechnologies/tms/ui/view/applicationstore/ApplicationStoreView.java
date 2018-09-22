@@ -267,7 +267,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		((Button)appButtons.getComponent(1)).setEnabled(edit);
 		((Button)appButtons.getComponent(2)).setEnabled(delete);
 		fileButton.setEnabled(true);
-		profileDropDown.setEnabled(true);
+		//profileDropDown.setEnabled(true);
 		saveForm.setEnabled(edit || add);
 		cancelForm.setEnabled(edit || add);
 	}
@@ -461,8 +461,8 @@ private void disableAllComponents() throws Exception {
 			appGrid.deselectAll();
 			packageName.focus();
 			fileButton.setEnabled(false);
-			profileDropDown.setEnabled(false);
-			clearAllParams.setEnabled(false);
+			//profileDropDown.setEnabled(false);
+			//clearAllParams.setEnabled(false);
 			applicationDetailsForm.setEnabled(true);
 		});
 		createAppGridRowMenu.addStyleName(ValoTheme.BUTTON_BORDERLESS);
@@ -496,8 +496,8 @@ private void disableAllComponents() throws Exception {
 			appGrid.deselectAll();
 			packageName.focus();
 			fileButton.setEnabled(false);
-			profileDropDown.setEnabled(false);
-			clearAllParams.setEnabled(false);
+			//profileDropDown.setEnabled(false);
+			//clearAllParams.setEnabled(false);
 			applicationDetailsForm.setEnabled(true);
 		});
 		createAppGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
@@ -556,7 +556,7 @@ private void disableAllComponents() throws Exception {
 				HorizontalLayout HL = (HorizontalLayout) applicationDetailsForm.getComponent(4);
 				CheckBox checkbox = (CheckBox) HL.getComponent(1);
 				checkbox.setValue(selectedApp.isAvailable());
-				clearAllParams.setEnabled(delete);
+				//clearAllParams.setEnabled(delete);
 //				appDefaultParamGrid.getEditor().setEnabled(false);
 				selectedProfile=null;
 //					appDefaultParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(appStoreService.getAppDefaultParamListByAppId(selectedApp.getId())));
@@ -588,7 +588,7 @@ private void disableAllComponents() throws Exception {
 	private void setApplicationFormComponentsEnable(boolean access, boolean add, boolean edit, boolean delete) {
 		
 			fileButtonLayout.setEnabled(access);
-			profileDropDown.setEnabled(access);
+			//profileDropDown.setEnabled(access);
 			applicationDetailsForm.getComponent(4).setEnabled(access);
 		
 			if(add) {
@@ -601,7 +601,7 @@ private void disableAllComponents() throws Exception {
 			activeApplication.setEnabled(true);
 			fileButton.setEnabled(true);
 			deleteAppDefaultParamGridRow.setEnabled(false);
-			clearAllParams.setEnabled(false);
+			//clearAllParams.setEnabled(false);
 			createAppDefaultParamGridRow.setEnabled(true);
 			
 		}else {
@@ -612,12 +612,12 @@ private void disableAllComponents() throws Exception {
 			activeBoxLayout.setEnabled(false);
 			activeApplication.setEnabled(false);
 			deleteAppDefaultParamGridRow.setEnabled(false);
-			clearAllParams.setEnabled(false);
+			//clearAllParams.setEnabled(false);
 			fileButton.setEnabled(true);
 		}
 			
 			if(delete) {
-				clearAllParams.setEnabled(true);
+				//clearAllParams.setEnabled(true);
 				deleteAppDefaultParamGridRow.setEnabled(true);
 				createAppDefaultParamGridRow.setEnabled(false);
 			}
@@ -631,7 +631,7 @@ private void disableAllComponents() throws Exception {
 				applicationOwner.setEnabled(true);
 				activeBoxLayout.setEnabled(true);
 				activeApplication.setEnabled(true);
-				clearAllParams.setEnabled(false);
+				//clearAllParams.setEnabled(false);
 				deleteAppDefaultParamGridRow.setEnabled(false);
 				createAppDefaultParamGridRow.setEnabled(false);
 			}
@@ -642,7 +642,7 @@ private void disableAllComponents() throws Exception {
 			
 			if(delete && edit) {
 				deleteAppDefaultParamGridRow.setEnabled(true);
-				clearAllParams.setEnabled(true);
+				//clearAllParams.setEnabled(true);
 			}
 			
 			if(delete && add) {
@@ -653,7 +653,7 @@ private void disableAllComponents() throws Exception {
 	private void setApplicationFormComponentsEnableForAPPClick(boolean access, boolean add, boolean edit, boolean delete) {
 		
 			fileButtonLayout.setEnabled(access);
-			profileDropDown.setEnabled(access);
+			//profileDropDown.setEnabled(access);
 			applicationDetailsForm.getComponent(4).setEnabled(access);
 			appDefaultParamGrid.setEnabled(false);
 		
@@ -666,15 +666,15 @@ private void disableAllComponents() throws Exception {
 			activeBoxLayout.setEnabled(false);
 			activeApplication.setEnabled(false);
 			deleteAppDefaultParamGridRow.setEnabled(false);
-			clearAllParams.setEnabled(false);
+			//clearAllParams.setEnabled(false);
 			fileButton.setEnabled(true);
 			deleteAppDefaultParamGridRow.setEnabled(false);
-			clearAllParams.setEnabled(false);
+			//clearAllParams.setEnabled(false);
 			createAppDefaultParamGridRow.setEnabled(true);
 			}
 			
 			if(delete) {
-				clearAllParams.setEnabled(true);
+				//clearAllParams.setEnabled(true);
 				deleteAppDefaultParamGridRow.setEnabled(true);
 				createAppDefaultParamGridRow.setEnabled(false);
 			}
@@ -689,7 +689,7 @@ private void disableAllComponents() throws Exception {
 				applicationOwner.setEnabled(false);
 				activeBoxLayout.setEnabled(false);
 				activeApplication.setEnabled(false);
-				clearAllParams.setEnabled(false);
+				//clearAllParams.setEnabled(false);
 				deleteAppDefaultParamGridRow.setEnabled(false);
 				createAppDefaultParamGridRow.setEnabled(false);
 			}
@@ -700,7 +700,7 @@ private void disableAllComponents() throws Exception {
 			
 			if(delete && edit) {
 				deleteAppDefaultParamGridRow.setEnabled(true);
-				clearAllParams.setEnabled(true);
+				//clearAllParams.setEnabled(true);
 			}
 			
 			if(delete && add) {
@@ -809,7 +809,7 @@ private void disableAllComponents() throws Exception {
 			}
 			setApplicationFormComponentsEnable(access, false, false, false);
 			fileButton.setEnabled(true);
-			profileDropDown.setEnabled(true);
+			//profileDropDown.setEnabled(true);
 
 			}
 		});
@@ -1277,7 +1277,7 @@ private HorizontalLayout getApplicationProfileLayout() {
 						selectedProfile = (Profile) selection.getFirstSelectedItem().get();
 						
 						appDefaultParamGrid.getEditor().setEnabled(true);
-							clearAllParams.setEnabled(false);
+							//clearAllParams.setEnabled(false);
 							appDefaultParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(appStoreService.getAppParamListByAppProfileId(selectedProfile.getId())));
 					}
 				}
