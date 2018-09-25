@@ -118,6 +118,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 	private HorizontalLayout applicationParamLabelLayout;
 	private Grid<AppDefaultParam> appDefaultParamGrid;
 	private Grid<Profile> appProfileGrid;
+	private Grid<ApplicationFile> appFileGrid;
 	private GridLayout appStoreGridLayout;
 	private static List<ApplicationFile> uploadedFileList = new ArrayList<>();
 	private Grid<AppClient> appGrid;
@@ -568,6 +569,7 @@ private void disableAllComponents() throws Exception {
 //					appDefaultParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(appStoreService.getAppDefaultParamListByAppId(selectedApp.getId())));
 				profileSelect.setDataProvider(appStoreService.getAppProfileListDataProvider(selectedApp.getId()));
 				appProfileGrid.setDataProvider(appStoreService.getAppProfileListDataProvider(selectedApp.getId()));
+				appFileGrid.setDataProvider(new ListDataProvider<>(appStoreService.getAllAppFileList(selectedApp.getId())));
 					parameterType.setDataProvider(new ListDataProvider<>(appStoreService.getAppParamTypeList(selectedApp.getId())));
 					if(profileField.getValue()!=null && profileField.getValue()!="") {
 						profileField.clear();
@@ -867,32 +869,53 @@ private void disableAllComponents() throws Exception {
 		return applicationDetailsLayout;
 	}
 	
-	private HorizontalLayout getApplicationFileLayout() {
-		
+	private VerticalLayout getApplicationFileLayout() {
+		//TODO not working these examples https://vaadin.com/components/vaadin-upload/java-examples
 		fileButton = new Button("Files", VaadinIcons.UPLOAD);
 		fileButton.addStyleNames("v-button-customstyle", ValoTheme.BUTTON_FRIENDLY);
 		fileButton.setEnabled(false);
 		fileButton.setDescription("Upload Files");
 		fileButton.addClickListener(click -> {
-			if(appGrid.getSelectedItems().size()==0) {
-				Notification.show(NotificationUtil.APPLICATIONSTORE_ADD_FILES, Type.ERROR_MESSAGE);
-			}else {
-			Window fileListWindow = null;
-			try {
-				fileListWindow = getSmallListWindow(true, profileField);
-			} catch (ApiException e) {
-				appStoreService.logApplicationStoreScreenErrors(e);
+			if(appGrid.getSelectedItems().isEmpty())
+				Notification.show("Select a app first",Type.WARNING_MESSAGE);
+			else {
+			Window fileUpload = openFileUploadWindow(appFileGrid);
+			if (fileUpload.getParent() == null) {
+				UI.getCurrent().addWindow(fileUpload);
+			} else if (fileUpload.getComponentCount() > 0) {
+				fileUpload.close();
 			}
-			if (fileListWindow.getParent() == null)
-				UI.getCurrent().addWindow(fileListWindow);
-		}
+			}
 		});
 		fileButtonLayout = new HorizontalLayout();
 		fileButtonLayout.setCaption("Upload Files");
 		fileButtonLayout.addStyleName("asset-debugComboBox");
 		fileButtonLayout.addComponent(fileButton);
 		
-		return fileButtonLayout;
+		appFileGrid = new Grid<>(ApplicationFile.class);
+		appFileGrid.addStyleName("applicationStore-horizontalAlignment");
+		appFileGrid.setColumns("name", "description");
+		appFileGrid.setWidth("100%");
+		appFileGrid.setHeightByRows(20);
+		appFileGrid.setId(FILE_CHOOSE_LIST);
+		Button deleteAppFileGridRowMenu = new Button("Delete File", clicked -> {
+			UI.getCurrent().getWindows().forEach(Window::close);
+			if (appGrid.getSelectedItems().isEmpty()) {
+				Notification.show(NotificationUtil.APPLICATIONSTORE_DELETE, Notification.Type.ERROR_MESSAGE);
+			} else {
+//				confirmDeleteApp(applicationSearch); put file delete confirmation code
+			}
+
+		});
+		deleteAppFileGridRowMenu.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+		ContextMenuWindow paramContextWindow = new ContextMenuWindow();
+		paramContextWindow.addMenuItems(deleteAppFileGridRowMenu);
+		appFileGrid.addContextClickListener(click ->{
+			UI.getCurrent().getWindows().forEach(Window::close);
+			paramContextWindow.setPosition(click.getClientX(), click.getClientY());
+			UI.getCurrent().addWindow(paramContextWindow);
+		});
+		return new VerticalLayout(fileButtonLayout,appFileGrid);
 	}
 
 	private VerticalLayout getApplicationDefaulParametersLayout() throws ApiException {
@@ -966,7 +989,7 @@ private void disableAllComponents() throws Exception {
 		appDefaultParamGrid.addContextClickListener(click->{
 			UI.getCurrent().getWindows().forEach(Window::close);
 			paramContextWindow.setPosition(click.getClientX(), click.getClientY());
-			
+			UI.getCurrent().addWindow(paramContextWindow);
 		});
 
 		appDefaultParamSearch = new TextField();
@@ -1287,12 +1310,12 @@ private HorizontalLayout getApplicationProfileLayout() {
 			
 
 			addNewButton = new Button("Add New File", click -> {
-				Window fileUpload = openFileUploadWindow(optionList);
-				if (fileUpload.getParent() == null) {
-					UI.getCurrent().addWindow(fileUpload);
-				} else if (fileUpload.getComponentCount() > 0) {
-					fileUpload.close();
-				}
+//				Window fileUpload = openFileUploadWindow(optionList);
+//				if (fileUpload.getParent() == null) {
+//					UI.getCurrent().addWindow(fileUpload);
+//				} else if (fileUpload.getComponentCount() > 0) {
+//					fileUpload.close();
+//				}
 			});
 			addNewButton.setDescription("Add New File");
 			
@@ -1580,7 +1603,7 @@ private HorizontalLayout getApplicationProfileLayout() {
 		return appDefaultWindow;
 	}
 	
-	private Window openFileUploadWindow(ListSelect optionList) {
+	private Window openFileUploadWindow(Grid<ApplicationFile> optionList) {
 		LineBreakCounter lineBreakCounter = new LineBreakCounter();
 		lineBreakCounter.setSlow(true);
 
@@ -1629,10 +1652,10 @@ private HorizontalLayout getApplicationProfileLayout() {
 		private final Window uploadWindow;
 		private final ApplicationStoreService applicationStoreService;
 
-		private final ListSelect optionList;
+		private final Grid<ApplicationFile> optionList;
 
 		private UploadInfoWindow(final Upload upload, final LineBreakCounter lineBreakCounter,
-				final FileUploadReceiver fileUploadReceiver, final ListSelect optionList, Window uploadWindow,final ApplicationStoreService applicationStoreService) {
+				final FileUploadReceiver fileUploadReceiver, final Grid<ApplicationFile> optionList, Window uploadWindow,final ApplicationStoreService applicationStoreService) {
 			super("Status");
 			this.counter = lineBreakCounter;
 			this.fileUploadReceiver = fileUploadReceiver;

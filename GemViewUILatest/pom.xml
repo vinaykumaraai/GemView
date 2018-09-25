@@ -145,7 +145,6 @@
 			<artifactId>vaadin-board-precompiled</artifactId>
 			<version>1.0.1</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/com.vaadin/vaadin-icons -->
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-icons</artifactId>
@@ -167,12 +166,12 @@
 			<artifactId>webcomponents-helper</artifactId>
 			<version>0.2.0</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 			<version>3.0</version>
 		</dependency>
+		
 		
 
 
@@ -268,6 +267,7 @@
 			<artifactId>log4j</artifactId>
 			<version>1.2.17</version>
 		</dependency>
+		
 	</dependencies>
 
 	<build>
