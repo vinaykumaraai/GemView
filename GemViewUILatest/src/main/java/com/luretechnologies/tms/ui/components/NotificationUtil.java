@@ -142,6 +142,8 @@ public class NotificationUtil {
 	
 	public static final String APPLICATIONSTORE_EDIT = "Select any app to EDIT";
 	
+	public static final String APPLICATIONSTORE_EDIT_PARAM = "Select any Profile to EDIT params";
+	
 	public static final String APPLICATIONSTORE_DELETE = "Select any app to DELETE";
 	
 	public static final String APPLICATIONSTORE_PARAM_ADD = "Select any app to add the new default parameters";
