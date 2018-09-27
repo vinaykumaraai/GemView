@@ -31,8 +31,12 @@
  */
 package com.luretechnologies.tms.ui.view.applicationstore;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -65,6 +69,7 @@ import com.luretechnologies.tms.ui.navigation.NavigationManager;
 import com.luretechnologies.tms.ui.view.ContextMenuWindow;
 import com.luretechnologies.tms.ui.view.Header;
 import com.vaadin.annotations.JavaScript;
+import com.vaadin.annotations.StyleSheet;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.data.provider.Query;
@@ -80,6 +85,7 @@ import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CssLayout;
+import com.vaadin.ui.CustomLayout;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Grid.SelectionMode;
@@ -104,6 +110,7 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 
+@JavaScript({ "vaadin://themes/js/dropzone.js" })
 @SpringView(name = ApplicationStoreView.VIEW_NAME)
 public class ApplicationStoreView extends VerticalLayout implements Serializable, View {
 	private static final String DESCRIPTION = "description";
@@ -364,6 +371,12 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		applicationStoreTabSheet.addTab(getApplicationProfileLayout(),"Profile");
 		applicationStoreTabSheet.addTab(getApplicationDefaulParametersLayout(), "Parameters");
 		applicationStoreTabSheet.addTab(getApplicationFileLayout(), "Files");
+		
+		applicationStoreTabSheet.addSelectedTabChangeListener(select ->{
+			if(select.getTabSheet().getTab(applicationStoreTabSheet.getSelectedTab()).getCaption().equalsIgnoreCase("Files")) {
+				Page.getCurrent().getJavaScript().execute("var myDropzone = new Dropzone(\"form#my-awesome-dropzone\", { url: \"/file/post\"});"); //put specific url for post.
+			}
+		});
 		
 		return applicationStoreTabSheet;
 	}
@@ -887,10 +900,16 @@ private void disableAllComponents() throws Exception {
 			}
 			}
 		});
+		try {
+			CustomLayout dropZone = new CustomLayout(new ByteArrayInputStream("<form action=\"/file-upload\"\r\n class=\"dropzone\"\r\n id=\"my-awesome-dropzone\"></form>".getBytes()));
 		fileButtonLayout = new HorizontalLayout();
 		fileButtonLayout.setCaption("Upload Files");
 		fileButtonLayout.addStyleName("asset-debugComboBox");
-		fileButtonLayout.addComponent(fileButton);
+		fileButtonLayout.addComponents(fileButton,dropZone);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		appFileGrid = new Grid<>(ApplicationFile.class);
 		appFileGrid.addStyleName("applicationStore-horizontalAlignment");
