@@ -136,6 +136,7 @@ public class MainView extends MainViewDesign implements ViewDisplay {
 				if(permission.getAccess()) {
 					dashboard.setVisible(true);
 					dashboard.setDisableOnClick(true);
+					dashboard.addStyleName("menu-ButtonsLabelSize");
 					attachNavigation(dashboard, DashboardView.class);
 				}
 				break;
@@ -143,6 +144,7 @@ public class MainView extends MainViewDesign implements ViewDisplay {
 				if(permission.getAccess()) {
 				applicationstore.setVisible(true);
 				applicationstore.setDisableOnClick(true);
+				applicationstore.addStyleName("menu-ButtonsLabelSize");
 				attachNavigation(applicationstore, ApplicationStoreView.class);
 				}
 				break;
@@ -150,6 +152,7 @@ public class MainView extends MainViewDesign implements ViewDisplay {
 				if(permission.getAccess()) {
 				personalization.setVisible(true);
 				personalization.setDisableOnClick(true);
+				personalization.addStyleName("menu-ButtonsLabelSize");
 				attachNavigation(personalization, PersonalizationView.class);
 				}
 				break;
@@ -157,6 +160,7 @@ public class MainView extends MainViewDesign implements ViewDisplay {
 				if(permission.getAccess()) {
 				heartbeat.setVisible(true);
 				heartbeat.setDisableOnClick(true);
+				heartbeat.addStyleName("menu-ButtonsLabelSize");
 				attachNavigation(heartbeat, HeartbeatView.class);
 				}
 				break;
@@ -164,6 +168,7 @@ public class MainView extends MainViewDesign implements ViewDisplay {
 				if(permission.getAccess()) {
 				assetcontrol.setVisible(true);
 				assetcontrol.setDisableOnClick(true);
+				assetcontrol.addStyleName("menu-ButtonsLabelSize");
 				attachNavigation(assetcontrol, AssetcontrolView.class);
 				}
 				break;
@@ -171,6 +176,7 @@ public class MainView extends MainViewDesign implements ViewDisplay {
 				if(permission.getAccess()) {
 				deviceodometer.setVisible(true);
 				deviceodometer.setDisableOnClick(true);
+				deviceodometer.addStyleName("menu-ButtonsLabelSize");
 				attachNavigation(deviceodometer, DeviceodometerView.class);
 				}
 				break;
@@ -178,6 +184,7 @@ public class MainView extends MainViewDesign implements ViewDisplay {
 				if(permission.getAccess()) {
 				audit.setVisible(true);
 				audit.setDisableOnClick(true);
+				audit.addStyleName("menu-ButtonsLabelSize");
 				attachNavigation(audit, AuditView.class);
 				}
 				break;
@@ -185,7 +192,8 @@ public class MainView extends MainViewDesign implements ViewDisplay {
 				if(permission.getAccess()) {
 				users.setVisible(true);
 				users.setDisableOnClick(true);
-				administrationButton.setVisible(true);
+				//administrationButton.setVisible(true);
+				users.addStyleName("menu-ButtonsLabelSize");
 				attachNavigation(users, UserAdminView.class);
 				}
 				break;
@@ -193,7 +201,8 @@ public class MainView extends MainViewDesign implements ViewDisplay {
 				if(permission.getAccess()) {
 				roles.setVisible(true);
 				roles.setDisableOnClick(true);
-				administrationButton.setVisible(true);
+				//administrationButton.setVisible(true);
+				roles.addStyleName("menu-ButtonsLabelSize");
 				attachNavigation(roles, RolesView.class);
 				}
 				break;
@@ -201,7 +210,8 @@ public class MainView extends MainViewDesign implements ViewDisplay {
 				if(permission.getAccess()) {
 				system.setVisible(true);
 				system.setDisableOnClick(true);
-				administrationButton.setVisible(true);
+				system.addStyleName("menu-ButtonsLabelSize");
+				//administrationButton.setVisible(true);
 				attachNavigation(system, SystemView.class);
 				}
 				break;
@@ -210,7 +220,7 @@ public class MainView extends MainViewDesign implements ViewDisplay {
 		}
 	}
 		
-		menubar.setVisible(true);
+		/*menubar.setVisible(true);
 		administrationButton.addStyleName("submenuIconUp");
 		administrationButton.addClickListener(e->{
 			if(menubar.isVisible() && Page.getCurrent().getBrowserWindowWidth() > 1000) {
@@ -223,12 +233,15 @@ public class MainView extends MainViewDesign implements ViewDisplay {
 			administrationButton.removeStyleName("submenuIconDown");
 			administrationButton.addStyleName("submenuIconUp");
 			}
-		});
+		});*/
 		
 		gemViewTitle.setCaptionAsHtml(true);
 		gemViewTitle.addStyleNames("v-caption-logo");
 		gemViewTitle.setValue("gemView");
 		
+		boarding.addStyleName("menu-ButtonsLabelSize");
+		transactions.addStyleName("menu-ButtonsLabelSize");
+		logout.addStyleName("menu-ButtonsLabelSize");
 		
 		logout.addClickListener(e -> {
 			try {

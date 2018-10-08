@@ -16,6 +16,7 @@ public class AppClient extends AbstractEntity {
 	private List<Profile> profileList;
 	private List<ApplicationFile> appFileList;
 	private TreeNode owner;
+	private Profile profile;
 	public AppClient() {
 		// TODO Auto-generated constructor stub
 		super(false);
@@ -95,11 +96,17 @@ public class AppClient extends AbstractEntity {
 	public void setOwner(TreeNode treeNode) {
 		this.owner = treeNode;
 	}
-	public List<Profile> getProfile() {
+	public List<Profile> getProfileList() {
 		return profileList;
 	}
-	public void setProfile(List<Profile> profileList) {
+	public void setProfileList(List<Profile> profileList) {
 		this.profileList = profileList;
+	}
+	public Profile getProfile() {
+		return profile;
+	}
+	public void setProfile(Profile profile) {
+		this.profile = profile;
 	}
 
 	public List<ApplicationFile> getAppFileList() {

@@ -75,23 +75,38 @@ public class Header extends HorizontalLayout {
 			UI.getCurrent().addWindow(userMenuWindow);
 		});
 		userMenuButton.addStyleNames(ValoTheme.BUTTON_BORDERLESS, "header-menuButton");
-		GridLayout rightSideLayout = new GridLayout(2, 1);
-		rightSideLayout.addComponents(userLayout,userMenuButton);
-		rightSideLayout.addStyleName("header-GridLayout");
+		HorizontalLayout rightSideLayout = new HorizontalLayout();
+		HorizontalLayout componentsLayout = new HorizontalLayout();
+		GridLayout rightSideLayoutGridLayout = new GridLayout(2, 1);
+		rightSideLayoutGridLayout.addComponents(userLayout,userMenuButton);
+		rightSideLayoutGridLayout.addStyleName("header-GridLayout");
 		HorizontalLayout leftSideLayout = new HorizontalLayout(headerCaption);
+		//this.addComponent(leftSideLayout);
+		componentsLayout.addComponents(components);
+		//rightSideLayout.addComponents(components);
+		rightSideLayout.addComponent(rightSideLayoutGridLayout);
+		//this.addComponent(rightSideLayout);
+		//this.setComponentAlignment(leftSideLayout, Alignment.BOTTOM_LEFT);
+		//this.setComponentAlignment(rightSideLayout, Alignment.BOTTOM_RIGHT);
+		for(Component comp: components) {
+			comp.addStyleName("header-Components");
+			comp.setWidth("100%");
+			componentsLayout.setComponentAlignment(comp, Alignment.BOTTOM_RIGHT);
+		}
 		this.addComponent(leftSideLayout);
 		this.addComponents(components);
-		this.addComponent(rightSideLayout);
+		this.addComponent(rightSideLayoutGridLayout);
 		this.setComponentAlignment(leftSideLayout, Alignment.BOTTOM_LEFT);
-		this.setComponentAlignment(rightSideLayout, Alignment.BOTTOM_RIGHT);
-		for(Component comp: components) {
-			this.setComponentAlignment(comp, Alignment.BOTTOM_RIGHT);
-		}
+		this.setComponentAlignment(rightSideLayoutGridLayout, Alignment.BOTTOM_RIGHT);
 		this.addLayoutClickListener(click ->{
 			
 			if(click.getClickedComponent() == null || !click.getClickedComponent().equals(userMenuButton)) {
 				UI.getCurrent().getWindows().forEach(Window::close);
 			}
+		});
+		
+		UI.getCurrent().addClickListener(listener->{
+			userMenuWindow.close();
 		});
 		
 	}

@@ -46,7 +46,6 @@ import java.util.stream.Stream;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
-
 import com.luretechnologies.tms.backend.data.entity.ConnectionStats;
 import com.luretechnologies.tms.backend.data.entity.Downloads;
 import com.luretechnologies.tms.backend.service.DashboardService;
@@ -63,6 +62,7 @@ import com.vaadin.addon.charts.model.ListSeries;
 import com.vaadin.addon.charts.model.Marker;
 import com.vaadin.addon.charts.model.PlotOptionsColumn;
 import com.vaadin.addon.charts.model.PlotOptionsLine;
+import com.vaadin.addon.charts.model.Title;
 import com.vaadin.addon.charts.model.Tooltip;
 import com.vaadin.addon.charts.model.XAxis;
 import com.vaadin.addon.charts.model.YAxis;
@@ -139,13 +139,19 @@ public class DashboardView extends DashboardViewDesign implements View {
 		refresh.setPlaceholder("Select Time");
 		refresh.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", "header-Components");
 		
+		refresh.addSelectionListener(listener->{
+			if(listener!=null && listener.getValue().toString().equals("Refresh 30 secs")) {
+				UI.getCurrent().setPollInterval(30000);
+			}
+		});
+		
 		ComboBox downloads = new ComboBox();
 		downloads.setItems("Downloads 1","Downloads 2","Downloads 3","Downloads 4","Downloads 5");
 		downloads.setPlaceholder("Select Option");
 		downloads.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", 
 				"header-Components");
 		
-		Header header = new Header(userService,navigationManager, "Dashboard", new Label(), refresh, downloads);
+		Header header = new Header(userService,navigationManager, "Dashboard", refresh, downloads);
 		header.setId("header");
 		setResponsive(true);
 		grid = new Grid<>(Downloads.class);
@@ -162,14 +168,15 @@ public class DashboardView extends DashboardViewDesign implements View {
 		
 		grid.setDataProvider(new ListDataProvider<Downloads>( dashBoardService.getDownloadsData()));
 		grid.setCaptionAsHtml(true);
-		grid.setCaption("<h2 style=margin-bottom:10px;margin-left:695px;color:#197DE1;font-weight:400;>CURRENT DOWNLOADS"
+		grid.setCaption("<h2 style=margin-bottom:10px;color:#0000008f;font-weight:400;>Current Downloads"
 				+ "</h2>");
 		grid.setHeaderVisible(true);
+		grid.addStyleName("dashboard-gridBackground");
 		
 		/*Header header = new Header(userService,navigationManager, "Dashboard", new Label());
 		row = board.addRow(header);
 		row.addStyleName("board-row-group");*/
-		board.addStyleName("board-top");
+		board.addStyleNames("board-top");
 		Row row1 = board.addRow(new BoardBox(currentConnectionsLabel),new BoardBox(successfulDownloadsLabel),
 				new BoardBox(requestPerSecondLabel), downloadFailuresBox);
 		row1.addStyleName("board-row-group");
@@ -185,7 +192,7 @@ public class DashboardView extends DashboardViewDesign implements View {
 		row2.addStyleName("board-row-panels");
 		
 		Row row3 = board.addRow(new BoardBox(grid, "due-grid"));
-		row3.addStyleName("board-row-panels");
+		row3.addStyleNames("board-row-panels");
 
 		
 		initIncomingCallsGraphs();
@@ -262,7 +269,10 @@ public class DashboardView extends DashboardViewDesign implements View {
 
 		Configuration conf = incomingServiceCallsPie.getConfiguration();
 		String thisMonth = today.getMonth().getDisplayName(TextStyle.FULL, Locale.US);
-		conf.setTitle("INCOMING REQUEST CALLS PER WEEK");
+		Title title = new Title();
+		title.setUseHTML(true);
+		title.setText("<style=color:black>Incoming Request Calls Per Week</style>");
+		conf.setTitle(title);
 		incomingCallsSeries = new DataSeries(CALLS);
 		conf.addSeries(incomingCallsSeries);
 
@@ -277,7 +287,10 @@ public class DashboardView extends DashboardViewDesign implements View {
 		int year = Year.now().getValue();
 
 		Configuration conf = incomingServiceCallsArea.getConfiguration();
-		conf.setTitle("INCOMING REQUEST CALLS PER DAY");
+		Title title = new Title();
+		title.setUseHTML(true);
+		title.setText("<span style=color:#0000008f !important;>Incoming Request Calls Per Day</span>");
+		conf.setTitle(title);
 		//conf.getxAxis().setCategories(getMonthNames());
 		conf.getChart().setMarginBottom(6);
 
@@ -350,11 +363,14 @@ public class DashboardView extends DashboardViewDesign implements View {
 		incomingRequestCallsPerWeek.setId("Request Calls Per Week");
 		incomingRequestCallsPerWeek.setSizeFull();
 		
-		Label availableSystem = new Label("INCOMING REQUEST CALLS PER WEEK", ContentMode.HTML);
+		Label availableSystem = new Label("Incoming Request Calls Per Week", ContentMode.HTML);
 		availableSystem.addStyleName("label-chartStyle");
 		
 		Configuration Conf = incomingRequestCallsPerWeek.getConfiguration();
-		Conf.setTitle(availableSystem.getValue());
+		Title title = new Title();
+		title.setUseHTML(true);
+		title.setText("<span style=color:#0000008f !important;>Incoming Request Calls Per Week</span>");
+		Conf.setTitle(title);
 		//today.ge
 		XAxis x = new XAxis();
 		

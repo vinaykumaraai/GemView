@@ -38,6 +38,13 @@ $app-background-color: #145A32;
 	background: #216c2A !important;
 }
 
+.apptheme .v-textfield{
+	background:#efefef !important;
+}
+.apptheme .v-filterselect [class*="input"]{
+	background:#efefef !important;
+}
+
 .apptheme .app-shell[width-range~="601px-"] .navigation-bar {
 	background-color: white !important;
 	overflow-y:auto;
@@ -101,6 +108,24 @@ $app-background-color: #145A32;
 .apptheme .app-shell .navigation-bar .selected .v-icon, .apptheme .app-shell .navigation-bar .selected .v-button-caption{
  	color:white !important;
  }
+
+.apptheme vaadin-board .board-row-panels .board-box-inner{
+	text-align:center;
+}
+.apptheme vaadin-board .board-row-group{
+	border:none !important;
+}
+
+.apptheme vaadin-board .board-row-panels .board-box-inner{
+	border:none !important;
+}
+// .apptheme vaadin-board .board-box{
+// 	padding:8px !important;
+// }
+
+.apptheme vaadin-board .board-row-group.large .board-box-wrapper:not(:first-child) > .board-box{
+	border-left: 5px solid #eaeaea !important;
+}
 
 .search-Height{
 	height:37px !important;
@@ -190,6 +215,16 @@ $app-background-color: #145A32;
 .save-cancelButtonsAlignment{
 	padding-right:19px !important;
 // 	padding-top:5px !important;
+	background:white;
+	float:right;
+	margin-top:15px;
+}
+
+.save-cancelButtonsAlignmentSystems{
+// 	padding-top:5px !important;
+	background:white;
+	float:right;
+	margin-top:15px;
 }
 
 .save-cancelButtonAlignmentRoles{
@@ -223,7 +258,7 @@ $app-background-color: #145A32;
 }
 
 .applicationStore-VerticalLayout{
-	padding: 0px 37px 0px 15px !important;
+	padding: 37px 37px 0px 15px !important;
 	margin-top:-60px !important;
 }
 
@@ -427,6 +462,18 @@ $app-background-color: #145A32;
 		padding: 0px 20px 0px 20px !important;
 	}
 
+.personlization-SplitBackground{
+	background:white;
+}
+
+.personlization-Parameters{
+	padding: 37px 37px 37px 37px !important;
+}
+
+.personlization-ParametersComboBox{
+	margin-top:-15px;
+}
+
 .personlization-verticalFormLayout{
 	padding:0px 0px 0px 0px !important;
 }
@@ -452,6 +499,12 @@ $app-background-color: #145A32;
 
 .personlization-formAlignment{
 	float:left;
+}
+
+.personlization-AppAndProfileAlignment{
+	float:left;
+	margin-left:10px;
+	margin-top:-10px;
 }
 
 .personlization-activeLayout{
@@ -490,16 +543,25 @@ $app-background-color: #145A32;
 	font-size:26px !important;
 	margin-bottom:10px !important;
 	margin-left: 245px !important;
-	color:#197DE1 !important;
+	color:#00008f !important;
 	font-weight:bold !important;
 // 	<h2 style=margin-bottom:10px;margin-left:245px;color:#197DE1></h2>
 }
+
+.dashboard-gridBackground{
+	background-color:white !important;
+}
+
 .app-shell[width-range~="-1300px"] {
 	.applicationStore-VerticalLayout{
 		padding: 20px 37px 0px 15px !important;
 		margin-top:-40px !important;
 	}
 }
+
+// .apptheme h4, .apptheme .v-label-h4, .apptheme vaadin-board text.highcharts-title{
+// 	fill: #0000008f !important;
+// }
 
 .app-shell[width-range~="1001px-"] {
 	.v-heartbeat-Button{
@@ -615,6 +677,27 @@ $app-background-color: #145A32;
 		font-weight:400 !important;
 		margin-top: 1px !important;
 	}
+
+.header-Components{
+  		margin-top:10px !important;
+//   		margin-right: 30px !important;
+}
+
+.header-label{
+		margin-left: 40px;
+    	Font-size: 20px !important;
+    	margin-bottom: 55px !important;
+    	font:menu;
+	}
+.header-UserNameLayout{
+    margin-top: -38px;
+    text-align:right !important;
+}
+.header-menuButton{
+   margin-top: -5px;
+   margin-left:-45px;
+}
+
 }
 
 .app-shell[width-range~="601px-1000px"]{
@@ -756,20 +839,22 @@ $app-background-color: #145A32;
 	}
 
 	.header-label{
-		margin-left: 25px;
-    	Font-size: 24px;
-    	font-weight: bold;
-    	margin-top: -40px;
+		margin-left: 40px;
+    	Font-size: 20px !important;
+    	margin-bottom: 30px;
+    	font:menu;
 	}
 
 	.header-UserName{
-   		font-size:17px;
+   		font-size:17px !important;
    		margin-left:-10px;
+   		font:menu;
 	}
 
 	.header-UserRole{
   		 margin-top:-15px;
-   		font-size:12px;
+   		font-size:12px !important;
+   		font:menu;
 	}
 
 	.header-GridLayout{
@@ -781,28 +866,28 @@ $app-background-color: #145A32;
 	}
 }
 
-.app-shell[width-range~="601px-700px"]{
- 	.header-label{
-	margin-left: 25px;
-    Font-size: 24px;
-    font-weight: bold;
-    margin-top: -60px;
-}
-
-.header-UserName{
-   		font-size:17px;
-   		margin-left:-10px;
-   		margin-top:-20px;
-	}
-.header-UserRole{
-   margin-top:-35px;
-   font-size:12px;
-}
-.header-menuButton{
-   margin-top: -4px;
-   margin-left:-45px;
-}
- }
+// .app-shell[width-range~="601px-700px"]{
+//  	.header-label{
+// 	margin-left: 25px;
+//     Font-size: 24px;
+//     font-weight: bold;
+//     margin-top: -60px;
+// }
+// 
+// .header-UserName{
+//    		font-size:17px;
+//    		margin-left:-10px;
+//    		margin-top:-20px;
+// 	}
+// .header-UserRole{
+//    margin-top:-35px;
+//    font-size:12px;
+// }
+// .header-menuButton{
+//    margin-top: -4px;
+//    margin-left:-45px;
+// }
+//  }
 
 .app-shell[width-range~="-600px"]{
 	.v-panel-caption{
@@ -929,16 +1014,6 @@ $app-background-color: #145A32;
 		margin-left: -102px !important;
 	}
 
-	.header-label{
-		margin-left: 25px;
-    	Font-size: 18px;
-    	font-weight: bold;
-    	margin-top: -35px;
-	}
-	.header-UserName{
-   		font-size:14px;
-   		margin-left:-10px;
-	}
 	.header-UserRole{
   		 margin-top:-15px;
    		font-size:13px;
@@ -1385,10 +1460,10 @@ $app-background-color: #145A32;
 }
 
 .header-label{
-	margin-left: 25px;
-    Font-size: 36px;
-    font-weight: bold;
-    margin-top: -55px;
+	margin-left: 40px;
+    Font-size: 24px !important;
+    margin-bottom: 30px;
+    font:menu;
 }
 
 .header-UserNameLayout{
@@ -1397,13 +1472,15 @@ $app-background-color: #145A32;
 }
 
 .header-UserName{
-   font-size:20px;
+   font-size:20px !important;
    margin-left:-10px;
+   font:menu;
 }
 
 .header-UserRole{
    margin-top:-15px;
-   font-size:14px;
+   font-size:14px !important;
+   font:menu;
 }
 
 .header-menuButton{
@@ -1421,7 +1498,8 @@ $app-background-color: #145A32;
 	}
 
 .header-Components{
-  		margin-bottom:30px !important;
+  		margin-top:25px !important;
+//   		margin-right: 30px !important;
 }
 
 .app-shell[width-range~="1000px-1150px"]{
@@ -1448,6 +1526,7 @@ $app-background-color: #145A32;
 
 .label-chartStyle{
 		font-size: 36px !important;
+		color:black !important;
 	}
 
 .apptheme .v-button:focus:after{

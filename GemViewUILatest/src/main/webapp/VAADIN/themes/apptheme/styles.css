@@ -12,6 +12,14 @@
 	background: #216c2A !important;
 }
 
+.apptheme .v-textfield {
+	background: #efefef !important;
+}
+
+.apptheme .v-filterselect [class*="input"] {
+	background: #efefef !important;
+}
+
 .apptheme .app-shell[width-range~="601px-"] .navigation-bar {
 	background-color: white !important;
 	overflow-y: auto;
@@ -72,6 +80,22 @@
 
 .apptheme .app-shell .navigation-bar .selected .v-icon, .apptheme .app-shell .navigation-bar .selected .v-button-caption {
 	color: white !important;
+}
+
+.apptheme vaadin-board .board-row-panels .board-box-inner {
+	text-align: center;
+}
+
+.apptheme vaadin-board .board-row-group {
+	border: none !important;
+}
+
+.apptheme vaadin-board .board-row-panels .board-box-inner {
+	border: none !important;
+}
+
+.apptheme vaadin-board .board-row-group.large .board-box-wrapper:not(:first-child) > .board-box {
+	border-left: 5px solid #eaeaea !important;
 }
 
 .search-Height {
@@ -159,6 +183,15 @@
 
 .save-cancelButtonsAlignment {
 	padding-right: 19px !important;
+	background: white;
+	float: right;
+	margin-top: 15px;
+}
+
+.save-cancelButtonsAlignmentSystems {
+	background: white;
+	float: right;
+	margin-top: 15px;
 }
 
 .save-cancelButtonAlignmentRoles {
@@ -191,7 +224,7 @@
 }
 
 .applicationStore-VerticalLayout {
-	padding: 0px 37px 0px 15px !important;
+	padding: 37px 37px 0px 15px !important;
 	margin-top: -60px !important;
 }
 
@@ -387,6 +420,18 @@
 	padding: 0px 20px 0px 20px !important;
 }
 
+.personlization-SplitBackground {
+	background: white;
+}
+
+.personlization-Parameters {
+	padding: 37px 37px 37px 37px !important;
+}
+
+.personlization-ParametersComboBox {
+	margin-top: -15px;
+}
+
 .personlization-verticalFormLayout {
 	padding: 0px 0px 0px 0px !important;
 }
@@ -412,6 +457,12 @@
 
 .personlization-formAlignment {
 	float: left;
+}
+
+.personlization-AppAndProfileAlignment {
+	float: left;
+	margin-left: 10px;
+	margin-top: -10px;
 }
 
 .personlization-activeLayout {
@@ -450,8 +501,12 @@
 	font-size: 26px !important;
 	margin-bottom: 10px !important;
 	margin-left: 245px !important;
-	color: #197DE1 !important;
+	color: #00008f !important;
 	font-weight: bold !important;
+}
+
+.dashboard-gridBackground {
+	background-color: white !important;
 }
 
 .app-shell[width-range~="-1300px"] .applicationStore-VerticalLayout {
@@ -563,6 +618,27 @@
 	padding: 0px 10px !important;
 	font-weight: 400 !important;
 	margin-top: 1px !important;
+}
+
+.app-shell[width-range~="600px-700px"] .header-Components {
+	margin-top: 10px !important;
+}
+
+.app-shell[width-range~="600px-700px"] .header-label {
+	margin-left: 40px;
+	Font-size: 20px !important;
+	margin-bottom: 55px !important;
+	font: menu;
+}
+
+.app-shell[width-range~="600px-700px"] .header-UserNameLayout {
+	margin-top: -38px;
+	text-align: right !important;
+}
+
+.app-shell[width-range~="600px-700px"] .header-menuButton {
+	margin-top: -5px;
+	margin-left: -45px;
 }
 
 .app-shell[width-range~="601px-1000px"] .v-panel-caption {
@@ -700,20 +776,22 @@
 }
 
 .app-shell[width-range~="601px-1000px"] .header-label {
-	margin-left: 25px;
-	Font-size: 24px;
-	font-weight: bold;
-	margin-top: -40px;
+	margin-left: 40px;
+	Font-size: 20px !important;
+	margin-bottom: 30px;
+	font: menu;
 }
 
 .app-shell[width-range~="601px-1000px"] .header-UserName {
-	font-size: 17px;
+	font-size: 17px !important;
 	margin-left: -10px;
+	font: menu;
 }
 
 .app-shell[width-range~="601px-1000px"] .header-UserRole {
 	margin-top: -15px;
-	font-size: 12px;
+	font-size: 12px !important;
+	font: menu;
 }
 
 .app-shell[width-range~="601px-1000px"] .header-GridLayout {
@@ -723,29 +801,6 @@
 .app-shell[width-range~="601px-1000px"] .textfiled-height {
 	height: 32px !important;
 	border-radius: 6px;
-}
-
-.app-shell[width-range~="601px-700px"] .header-label {
-	margin-left: 25px;
-	Font-size: 24px;
-	font-weight: bold;
-	margin-top: -60px;
-}
-
-.app-shell[width-range~="601px-700px"] .header-UserName {
-	font-size: 17px;
-	margin-left: -10px;
-	margin-top: -20px;
-}
-
-.app-shell[width-range~="601px-700px"] .header-UserRole {
-	margin-top: -35px;
-	font-size: 12px;
-}
-
-.app-shell[width-range~="601px-700px"] .header-menuButton {
-	margin-top: -4px;
-	margin-left: -45px;
 }
 
 .app-shell[width-range~="-600px"] .v-panel-caption {
@@ -880,18 +935,6 @@
 	margin-bottom: -6px !important;
 	margin-top: 20px !important;
 	margin-left: -102px !important;
-}
-
-.app-shell[width-range~="-600px"] .header-label {
-	margin-left: 25px;
-	Font-size: 18px;
-	font-weight: bold;
-	margin-top: -35px;
-}
-
-.app-shell[width-range~="-600px"] .header-UserName {
-	font-size: 14px;
-	margin-left: -10px;
 }
 
 .app-shell[width-range~="-600px"] .header-UserRole {
@@ -1322,10 +1365,10 @@
 }
 
 .header-label {
-	margin-left: 25px;
-	Font-size: 36px;
-	font-weight: bold;
-	margin-top: -55px;
+	margin-left: 40px;
+	Font-size: 24px !important;
+	margin-bottom: 30px;
+	font: menu;
 }
 
 .header-UserNameLayout {
@@ -1334,13 +1377,15 @@
 }
 
 .header-UserName {
-	font-size: 20px;
+	font-size: 20px !important;
 	margin-left: -10px;
+	font: menu;
 }
 
 .header-UserRole {
 	margin-top: -15px;
-	font-size: 14px;
+	font-size: 14px !important;
+	font: menu;
 }
 
 .header-menuButton {
@@ -1358,7 +1403,7 @@
 }
 
 .header-Components {
-	margin-bottom: 30px !important;
+	margin-top: 25px !important;
 }
 
 .app-shell[width-range~="1000px-1150px"] .header-Components {
@@ -1379,6 +1424,7 @@
 
 .label-chartStyle {
 	font-size: 36px !important;
+	color: black !important;
 }
 
 .apptheme .v-button:focus:after {
@@ -16893,11 +16939,17 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .apptheme .app-shell[width-range~="1001px-"] .logo, .apptheme .app-shell[width-range~="1001px-"]  .v-caption-logo {
-	font-size: 24px !important;
+	font-size: 28px !important;
 	margin-bottom: 10px !important;
 	color: white !important;
 	font: menu;
 	background: #216c2a !important;
+	padding-right: 10px;
+}
+
+.apptheme .app-shell[width-range~="1001px-"] .menu-ButtonsLabelSize {
+	font: menu;
+	font-size: 17px !important;
 }
 
 .apptheme .v-errorindicator {

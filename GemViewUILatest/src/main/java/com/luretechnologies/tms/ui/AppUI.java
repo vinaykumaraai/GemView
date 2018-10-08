@@ -52,7 +52,7 @@ import com.vaadin.ui.UI;
 @Theme("apptheme")
 @SpringUI(path = AppUI.HOME_VIEW)
 @Viewport("width=device-width,initial-scale=1.0,user-scalable=no")
-@Title("Gem View")
+@Title("gemView")
 public class AppUI extends UI implements HasLogger {
 
 	/**

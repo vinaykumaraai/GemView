@@ -109,11 +109,17 @@
 	background: #0e3d22;
 }
 .logo{
-	font-size:24px !important;
+	font-size:28px !important;
 	margin-bottom:10px !important;
 	color: white !important;
 	font: menu;
 	background:#216c2a !important;
+	padding-right:10px;
+}
+
+.menu-ButtonsLabelSize{
+	font:menu;
+	font-size:17px !important;
 }
   }
 }

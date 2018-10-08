@@ -500,7 +500,7 @@ public class ApplicationStoreService {
 					}
 					serverApp.setAppParamCollection(appParamList);
 					List<AppProfile> appProfileList = new ArrayList<>();
-					for (Profile profile : appClient.getProfile()) {
+					for (Profile profile : appClient.getProfileList()) {
 						AppProfile appProfile = new AppProfile();
 						appProfile.setId(profile.getId());
 						appProfile.setName(profile.getName());
