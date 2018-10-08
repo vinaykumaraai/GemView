@@ -36,7 +36,6 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 
@@ -54,40 +53,43 @@ import com.luretechnologies.tms.ui.components.ComponentUtil;
 import com.luretechnologies.tms.ui.components.ConfirmDialogFactory;
 import com.luretechnologies.tms.ui.components.FormFieldType;
 import com.luretechnologies.tms.ui.components.NotificationUtil;
-import com.luretechnologies.tms.ui.view.deviceodometer.DeviceodometerView;
+import com.luretechnologies.tms.ui.navigation.NavigationManager;
+import com.luretechnologies.tms.ui.view.ContextMenuWindow;
+import com.luretechnologies.tms.ui.view.Header;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
-import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.server.Page;
-import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.Notification.Type;
+import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 
 @SpringView(name = SystemView.VIEW_NAME)
-public class SystemView extends VerticalLayout implements Serializable, View{
-	
+public class SystemView extends VerticalLayout implements Serializable, View {
+
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	public static final String VIEW_NAME = "system";
-	
+
 	Map<Integer, Systems> systemRepo = new LinkedHashMap<>();
 	Grid<Systems> systemGrid = new Grid<Systems>();
 	private volatile Systems selectedSystem;
@@ -100,19 +102,19 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 	private Button delete;
 	private Button edit;
 	private Button create;
-	
+
 	@Autowired
 	public ConfirmDialogFactory confirmDialogFactory;
-	
+
 	@Autowired
 	public SystemService systemService;
-	
+
 	@Autowired
 	private RolesService roleService;
-	
+
 	@Autowired
 	MainView mainView;
-	
+
 	@Autowired
 	UserService userService;
 
@@ -120,161 +122,170 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 	public SystemView() {
 		selectedSystem = new Systems();
 	}
-	
+
+	@Autowired
+	public NavigationManager navigationManager;
+
 	@PostConstruct
 	private void inti() {
 		try {
-		setHeight("100%");
-		setSpacing(false);
-		setMargin(false);
-		setResponsive(true);
-		Panel panel = getAndLoadSystemPanel();
-		VerticalLayout verticalLayout = new VerticalLayout();
-		panel.setContent(verticalLayout);
-		verticalLayout.setSpacing(false);
-		verticalLayout.setMargin(false);
-		Label availableSystem = new Label("Parameters & Settings", ContentMode.HTML);
-		availableSystem.addStyleName("label-style");
-		HorizontalLayout horizontalLayout = new HorizontalLayout();
-		horizontalLayout.setSizeFull();
-		
-		HorizontalLayout layout1 = new HorizontalLayout();
-		layout1.addComponent(availableSystem);
-		layout1.setComponentAlignment(availableSystem, Alignment.MIDDLE_LEFT);
-		layout1.setSizeFull();
-		
-		HorizontalLayout layout2 = new HorizontalLayout();
-		layout2.setSizeUndefined();
-		layout2.setResponsive(true);
-		
-		verticalLayout.addComponent(horizontalLayout);
-		VerticalLayout systemInfoLayout = new VerticalLayout();
-		verticalLayout.addComponent(systemInfoLayout);
-		systemInfoLayout.setMargin(false);
-		systemInfoLayout.setSpacing(true);
-		systemInfoLayout.setStyleName("form-layout");
-		
-		getAndLoadSystemForm(systemInfoLayout, false);
-		
-		cancel = new Button("Cancel");
-		cancel.addStyleName(ValoTheme.BUTTON_FRIENDLY);
-		cancel.addStyleName("v-button-customstyle");
-		cancel.setResponsive(true);
-		cancel.addClickListener(new ClickListener() {
-			public void buttonClick(ClickEvent event) {	
-				systemInfoLayout.removeAllComponents();
-				systemGrid.getDataProvider().refreshAll();
-				systemGrid.deselectAll();
-				selectedSystem = new Systems();
-				getAndLoadSystemForm(systemInfoLayout, false);	
-			}
-		});
-		layout2.addComponent(cancel);
-		
-		save = new Button("Save");
-		save.addStyleName(ValoTheme.BUTTON_FRIENDLY);
-		save.addStyleName("v-button-customstyle");
-		save.setResponsive(true);
-		save.setId("systemSave");
-		save.setDescription("Save");
-		save.addClickListener(new ClickListener() {
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 1L;
+			setHeight("100%");
+			setSpacing(false);
+			setMargin(false);
+			setResponsive(true);
+			Panel panel = getAndLoadSystemPanel();
+			VerticalLayout verticalLayout = new VerticalLayout();
+			panel.setContent(verticalLayout);
+			verticalLayout.setSpacing(false);
+			verticalLayout.setMargin(false);
+			Label availableSystem = new Label("Parameters & Settings", ContentMode.HTML);
+			availableSystem.addStyleName("label-style");
+			HorizontalLayout horizontalLayout = new HorizontalLayout();
+			horizontalLayout.setSizeFull();
 
-			public void buttonClick(ClickEvent event) {
-				String description = systemDescription.getValue();
-				String parametername = parameterName.getValue();
-				String type = comboBoxType.getValue();
-				String value = systemValue.getValue();
-				if(!(ComponentUtil.validatorTextField(parameterName) && ComponentUtil.validatorTextField(systemDescription) &&
-						ComponentUtil.validatorComboBox(comboBoxType) && ComponentUtil.validatorTextField(systemValue))) {
-					
-				} else {
-						if(systemGrid.getSelectedItems().size()>0) {
+			HorizontalLayout layout1 = new HorizontalLayout();
+			layout1.addComponent(availableSystem);
+			layout1.setComponentAlignment(availableSystem, Alignment.MIDDLE_LEFT);
+			layout1.setSizeFull();
+
+			HorizontalLayout layout2 = new HorizontalLayout();
+			layout2.setSizeUndefined();
+			layout2.setResponsive(true);
+
+			verticalLayout.addComponent(horizontalLayout);
+			VerticalLayout systemInfoLayout = new VerticalLayout();
+			verticalLayout.addComponent(systemInfoLayout);
+			systemInfoLayout.setMargin(false);
+			systemInfoLayout.setSpacing(true);
+			systemInfoLayout.setStyleName("form-layout");
+
+//		getAndLoadSystemForm(systemInfoLayout, false);
+
+			cancel = new Button("Cancel");
+			cancel.addStyleName(ValoTheme.BUTTON_FRIENDLY);
+			cancel.addStyleName("v-button-customstyle");
+			cancel.setResponsive(true);
+			cancel.addClickListener(new ClickListener() {
+				public void buttonClick(ClickEvent event) {
+					systemInfoLayout.removeAllComponents();
+					systemGrid.getDataProvider().refreshAll();
+					systemGrid.deselectAll();
+					selectedSystem = new Systems();
+//				getAndLoadSystemForm(systemInfoLayout, false);	
+				}
+			});
+			layout2.addComponent(cancel);
+
+			save = new Button("Save");
+			save.addStyleName(ValoTheme.BUTTON_FRIENDLY);
+			save.addStyleName("v-button-customstyle");
+			save.setResponsive(true);
+			save.setId("systemSave");
+			save.setDescription("Save");
+			save.addClickListener(new ClickListener() {
+				/**
+				 * 
+				 */
+				private static final long serialVersionUID = 1L;
+
+				public void buttonClick(ClickEvent event) {
+					String description = systemDescription.getValue();
+					String parametername = parameterName.getValue();
+					String type = comboBoxType.getValue();
+					String value = systemValue.getValue();
+					if (!(ComponentUtil.validatorTextField(parameterName)
+							&& ComponentUtil.validatorTextField(systemDescription)
+							&& ComponentUtil.validatorComboBox(comboBoxType)
+							&& ComponentUtil.validatorTextField(systemValue))) {
+
+					} else {
+						if (systemGrid.getSelectedItems().size() > 0) {
 							Systems system = systemGrid.getSelectedItems().iterator().next();
 							List<Systems> systemList = systemService.getAllSystemParam();
-							if(containsSystemInList(systemList, system)) {
-								selectedSystem = systemService.updateSystem(system, description, parametername, type, value);
+							if (containsSystemInList(systemList, system)) {
+								selectedSystem = systemService.updateSystem(system, description, parametername, type,
+										value);
 								DataProvider data = new ListDataProvider(systemService.getAllSystemParam());
 								systemGrid.setDataProvider(data);
 								systemInfoLayout.removeAllComponents();
 								clearParamComponents();
-								getAndLoadSystemForm(systemInfoLayout, false);
+//								getAndLoadSystemForm(systemInfoLayout, false);
 								systemGrid.select(selectedSystem);
 							}
-						}else{
-							if(!checkParamNameInList( parametername)) {
-								selectedSystem = systemService.createSystemParam(parametername, description, value, type);
+						} else {
+							if (!checkParamNameInList(parametername)) {
+								selectedSystem = systemService.createSystemParam(parametername, description, value,
+										type);
 								DataProvider data = new ListDataProvider(systemService.getAllSystemParam());
 								systemGrid.setDataProvider(data);
 								systemGrid.select(selectedSystem);
 								systemInfoLayout.removeAllComponents();
 								clearParamComponents();
-								getAndLoadSystemForm(systemInfoLayout, false);
+//								getAndLoadSystemForm(systemInfoLayout, false);
 							} else {
 								Notification.show(NotificationUtil.SYSTEM_PARAM_EXIST, Type.ERROR_MESSAGE);
 								parameterName.focus();
 							}
 						}
+					}
 				}
-			}
-		});
-		
-		layout2.addComponent(save);
-		layout2.setComponentAlignment(cancel, Alignment.MIDDLE_RIGHT);
-		layout2.setComponentAlignment(save, Alignment.MIDDLE_RIGHT);
-		layout2.setResponsive(true);
-		layout2.addStyleNames("save-cancelButtonsAlignment");
-		
-		horizontalLayout.addComponents(layout1, layout2);
-		horizontalLayout.addStyleName("label-SaveCancelAlignment");
-		horizontalLayout.setComponentAlignment(layout2, Alignment.MIDDLE_RIGHT);
-		
-		getSystemGrid(verticalLayout, systemInfoLayout);
-		
-		Permission appStorePermission = roleService.getLoggedInUserRolePermissions().stream().filter(per -> per.getPageName().equals("SYSTEM")).findFirst().get();
-		
+			});
+
+			layout2.addComponent(save);
+			layout2.setComponentAlignment(cancel, Alignment.MIDDLE_RIGHT);
+			layout2.setComponentAlignment(save, Alignment.MIDDLE_RIGHT);
+			layout2.setResponsive(true);
+			layout2.addStyleNames("save-cancelButtonsAlignment");
+
+			horizontalLayout.addComponents(layout1);// layout2);
+			horizontalLayout.addStyleName("label-SaveCancelAlignment");
+//		horizontalLayout.setComponentAlignment(layout2, Alignment.MIDDLE_RIGHT);
+
+			getSystemGrid(verticalLayout, systemInfoLayout);
+
+			Permission appStorePermission = roleService.getLoggedInUserRolePermissions().stream()
+					.filter(per -> per.getPageName().equals("SYSTEM")).findFirst().get();
+
 			disableAllComponents();
-		allowAccessBasedOnPermission(appStorePermission.getAdd(),appStorePermission.getEdit(),appStorePermission.getDelete());
-		
-		Page.getCurrent().addBrowserWindowResizeListener(r -> {
-			System.out.println("Height " + r.getHeight() + "Width:  " + r.getWidth() + " in pixel");
-			
-			if(r.getWidth()<=600) {
+			allowAccessBasedOnPermission(appStorePermission.getAdd(), appStorePermission.getEdit(),
+					appStorePermission.getDelete());
+
+			Page.getCurrent().addBrowserWindowResizeListener(r -> {
+				System.out.println("Height " + r.getHeight() + "Width:  " + r.getWidth() + " in pixel");
+
+				if (r.getWidth() <= 600) {
+					mainView.getTitle().setValue(userService.getLoggedInUserName());
+				} else if (r.getWidth() > 600 && r.getWidth() <= 1000) {
+					mainView.getTitle().setValue("gemView  " + userService.getLoggedInUserName());
+				} else {
+					mainView.getTitle().setValue("gemView  " + userService.getLoggedInUserName());
+				}
+			});
+
+			int width = Page.getCurrent().getBrowserWindowWidth();
+			if (width <= 600) {
 				mainView.getTitle().setValue(userService.getLoggedInUserName());
-			} else if(r.getWidth()>600 && r.getWidth()<=1000){
-				mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
-			}else {
-				mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
+			} else if (width > 600 && width <= 1000) {
+				mainView.getTitle().setValue("gemView  " + userService.getLoggedInUserName());
+			} else {
+				mainView.getTitle().setValue("gemView  " + userService.getLoggedInUserName());
 			}
-		});
-		
-		int width = Page.getCurrent().getBrowserWindowWidth();
-		if(width<=600) {
-			mainView.getTitle().setValue(userService.getLoggedInUserName());
-		} else if(width>600 && width<=1000){
-			mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
-		}else {
-			mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
-		}
-		
-		}catch(Exception ex) {
+
+		} catch (Exception ex) {
 			systemService.logSystemScreenErrors(ex);
 		}
-		
+
 		mainView.getSystem().setEnabled(true);
 	}
-	
+
 	private void disableAllComponents() throws Exception {
-		create.setEnabled(false);
-		edit.setEnabled(false);
-		delete.setEnabled(false);
-		save.setEnabled(false);
-		cancel.setEnabled(false);
+//		create.setEnabled(false);
+//		edit.setEnabled(false);
+//		delete.setEnabled(false);
+//		save.setEnabled(false);
+//		cancel.setEnabled(false);
 	}
-	
+
 	private void allowAccessBasedOnPermission(Boolean addBoolean, Boolean editBoolean, Boolean deleteBoolean) {
 		create.setEnabled(addBoolean);
 		edit.setEnabled(editBoolean);
@@ -282,67 +293,66 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		save.setEnabled(editBoolean || addBoolean);
 		cancel.setEnabled(editBoolean || addBoolean);
 	}
-	
+
 	public Panel getAndLoadSystemPanel() {
 		Panel panel = new Panel();
 		panel.setHeight("100%");
 		panel.addStyleName(ValoTheme.PANEL_WELL);
 		panel.setCaptionAsHtml(true);
-		panel.setCaption("Systems");
 		panel.setResponsive(true);
 		panel.setSizeFull();
-        addComponent(panel);
-       return panel;
+		addComponent(new Header(userService, navigationManager, "System", new Label()));
+		addComponent(panel);
+		return panel;
 	}
-	
+
 	private void clearParamComponents() {
 		parameterName.clear();
 		systemDescription.clear();
 		systemValue.clear();
 		comboBoxType.clear();
 	}
-	
+
 	private boolean checkParamNameInList(String parametername) {
-		ListDataProvider<Systems> provider = (ListDataProvider<Systems>)systemGrid.getDataProvider();
-		for(Systems systemParam : provider.getItems()) {
+		ListDataProvider<Systems> provider = (ListDataProvider<Systems>) systemGrid.getDataProvider();
+		for (Systems systemParam : provider.getItems()) {
 			String paramName = systemParam.getParameterName();
-			if(paramName.equalsIgnoreCase(parametername)) {
+			if (paramName.equalsIgnoreCase(parametername)) {
 				return true;
 			}
 		}
 		return false;
-		
+
 	}
-	
+
 	private boolean containsSystemInList(List<Systems> systemList, Systems system) {
-		for(Systems subSystem : systemList)
-		{
-			if(subSystem.getId().equals(system.getId())) {
+		for (Systems subSystem : systemList) {
+			if (subSystem.getId().equals(system.getId())) {
 				return true;
 			}
 		}
 		return false;
-		
+
 	}
-	
-	private void getAndLoadSystemForm(VerticalLayout verticalLayout , boolean isEditableOnly) {
+
+	private Component getAndLoadSystemForm(boolean isEditableOnly) {
 		FormLayout formLayout = new FormLayout();
 		formLayout.addStyleName("system-LabelAlignment");
-		
+
 		getSystemParameterName(formLayout, isEditableOnly);
-		
+
 		getSystemDescription(formLayout, isEditableOnly);
-		
+
 		getSystemType(formLayout, isEditableOnly);
-		
+
 		getSystemValue(formLayout, isEditableOnly);
-		
-		verticalLayout.addComponent(formLayout);
+
+		return formLayout;
 	}
-	
-	private void getSystemParameterName(FormLayout formLayout , boolean isEditableOnly) {
-		
-		String parametername = selectedSystem.getParameterName() != null ? selectedSystem.getParameterName(): "";
+
+	private void getSystemParameterName(FormLayout formLayout, boolean isEditableOnly) {
+
+		String parametername = selectedSystem.getParameterName() != null ? selectedSystem.getParameterName() : "";
 		parameterName = new TextField("Parameter Name", parametername.toUpperCase());
 		parameterName.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
 		parameterName.setWidth("48%");
@@ -352,16 +362,16 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		parameterName.setEnabled(isEditableOnly);
 		parameterName.setId("systemParamName");
 		parameterName.setMaxLength(50);
-		parameterName.addValueChangeListener(listener->{
-			if(listener.getValue().length()==50) {
+		parameterName.addValueChangeListener(listener -> {
+			if (listener.getValue().length() == 50) {
 				Notification.show(NotificationUtil.TEXTFIELD_LIMIT, Type.ERROR_MESSAGE);
 			}
 		});
 		formLayout.addComponent(parameterName);
 	}
-	
+
 	private void getSystemDescription(FormLayout formLayout, boolean isEditableOnly) {
-		String description = selectedSystem.getDescription() != null ? selectedSystem.getDescription(): "";
+		String description = selectedSystem.getDescription() != null ? selectedSystem.getDescription() : "";
 		systemDescription = new TextField("Description", description);
 		selectedSystem.setDescription(systemDescription.getValue());
 		systemDescription.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
@@ -372,30 +382,31 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		systemDescription.setEnabled(isEditableOnly);
 		systemDescription.setId("systemParamDescription");
 		systemDescription.setMaxLength(50);
-		systemDescription.addValueChangeListener(listener->{
-			if(listener.getValue().length()==50) {
+		systemDescription.addValueChangeListener(listener -> {
+			if (listener.getValue().length() == 50) {
 				Notification.show(NotificationUtil.TEXTFIELD_LIMIT, Type.ERROR_MESSAGE);
 			}
 		});
-		
+
 		formLayout.addComponent(systemDescription);
 	}
-	
+
 	private void getSystemType(FormLayout formLayout, boolean isEditableOnly) {
-		String type = selectedSystem.getType() != null ? selectedSystem.getType(): "";
-		comboBoxType = (ComboBox<String>)ComponentUtil.getFormFieldWithLabel("", FormFieldType.COMBOBOX);
+		String type = selectedSystem.getType() != null ? selectedSystem.getType() : "";
+		comboBoxType = (ComboBox<String>) ComponentUtil.getFormFieldWithLabel("", FormFieldType.COMBOBOX);
 		comboBoxType.setEnabled(isEditableOnly);
 		comboBoxType.setCaptionAsHtml(true);
-		comboBoxType.setCaption("Type"); 
-		comboBoxType.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size","system-TypeAlignment", "small");
-		comboBoxType.setDataProvider(new ListDataProvider<>(Arrays.asList("Text", "Numeric","Boolean")));
+		comboBoxType.setCaption("Type");
+		comboBoxType.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", "system-TypeAlignment",
+				"small");
+		comboBoxType.setDataProvider(new ListDataProvider<>(Arrays.asList("Text", "Numeric", "Boolean")));
 		comboBoxType.setValue(type);
 		comboBoxType.setId("systemParamType");
 		formLayout.addComponent(comboBoxType);
 	}
-	
+
 	private void getSystemValue(FormLayout formLayout, boolean isEditableOnly) {
-		String value = selectedSystem.getSystemValue() != null ? selectedSystem.getSystemValue(): "";
+		String value = selectedSystem.getSystemValue() != null ? selectedSystem.getSystemValue() : "";
 		systemValue = new TextField("Value", value);
 		selectedSystem.setSystemValue(systemValue.getValue());
 		systemValue.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
@@ -406,80 +417,126 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		systemValue.setEnabled(isEditableOnly);
 		systemValue.setId("systemParamValue");
 		systemValue.setMaxLength(50);
-		systemValue.addValueChangeListener(listener->{
-			if(listener.getValue().length()==50) {
+		systemValue.addValueChangeListener(listener -> {
+			if (listener.getValue().length() == 50) {
 				Notification.show(NotificationUtil.TEXTFIELD_LIMIT, Type.ERROR_MESSAGE);
 			}
 		});
 		formLayout.addComponent(systemValue);
 	}
-	
+
 	private Focusable getFirstFormField() {
 		return parameterName;
 	}
-	
+
 	private void getSystemGrid(VerticalLayout verticalLayout, VerticalLayout systemInfoLayout) throws ApiException {
-		create = new Button(VaadinIcons.FOLDER_ADD);
-		create.addStyleName(ValoTheme.BUTTON_FRIENDLY);
-		create.addStyleName("v-button-customstyle");
-		create.setDescription("Create System Parameter");
-		create.addClickListener(new ClickListener() {
-			public void buttonClick(ClickEvent event) {
-				systemGrid.deselectAll();
-				systemInfoLayout.removeAllComponents();
-				selectedSystem = new Systems();
-				getAndLoadSystemForm(systemInfoLayout, true);
-				getFirstFormField().focus();
+//		create = new Button(VaadinIcons.FOLDER_ADD);
+//		create.addStyleName(ValoTheme.BUTTON_FRIENDLY);
+//		create.addStyleName("v-button-customstyle");
+//		create.setDescription("Create System Parameter");
+//		create.addClickListener(new ClickListener() {
+//			public void buttonClick(ClickEvent event) {
+//				systemGrid.deselectAll();
+//				systemInfoLayout.removeAllComponents();
+//				selectedSystem = new Systems();
+//				getAndLoadSystemForm(systemInfoLayout, true);
+//				getFirstFormField().focus();
+//			}
+//		});
+//		
+//		edit = new Button(VaadinIcons.EDIT);
+//		edit.addStyleName(ValoTheme.BUTTON_FRIENDLY);
+//		edit.addStyleName("v-button-customstyle");
+//		edit.setDescription("Edit System Parameter");
+//		edit.addClickListener(new ClickListener() {
+//			public void buttonClick(ClickEvent event) {
+//				//parameterName.focus();
+//				if(systemDescription.getValue()==null || systemDescription.getValue().isEmpty() || 
+//						parameterName.getValue()==null ||  parameterName.getValue().isEmpty() ||
+//								comboBoxType.getValue()==null ||  comboBoxType.getValue().isEmpty() ||
+//								systemValue.getValue()==null ||  systemValue.getValue().isEmpty()) {
+//					Notification.show(NotificationUtil.SYSTEM_EDIT, Notification.Type.ERROR_MESSAGE);
+//				}else {
+//					systemInfoLayout.removeAllComponents();
+//					getAndLoadSystemForm(systemInfoLayout, true);	
+//					getFirstFormField().focus();
+//				}
+//			}
+//		});
+//		
+//		delete = new Button(VaadinIcons.TRASH);
+//		delete.addStyleName(ValoTheme.BUTTON_FRIENDLY);
+//		delete.addStyleName("v-button-customstyle");
+//		delete.setDescription("Delete System Parameter");
+//		delete.addClickListener(new ClickListener() {
+//			
+//			@Override
+//			public void buttonClick(ClickEvent event) {
+//				if(systemDescription.getValue()==null || systemDescription.getValue().isEmpty() || 
+//						parameterName.getValue()==null ||  parameterName.getValue().isEmpty() ||
+//								comboBoxType.getValue()==null ||  comboBoxType.getValue().isEmpty() ||
+//						systemValue.getValue()==null ||  systemValue.getValue().isEmpty()) {
+//					Notification.show(NotificationUtil.SYSTEM_DELETE, Notification.Type.ERROR_MESSAGE);
+//				}else {
+//				
+//				confirmDialog( systemInfoLayout, selectedSystem);
+//				}
+//			}
+//		});
+//		
+//		HorizontalLayout buttonGroup =  new HorizontalLayout();
+//		buttonGroup.addStyleName("system-ButtonLayout");
+//		buttonGroup.setDefaultComponentAlignment(Alignment.MIDDLE_RIGHT);
+//		buttonGroup.addComponent(create);
+//		buttonGroup.addComponent(edit);
+//		buttonGroup.addComponent(delete);
+
+		Button createSystemGridMenu = new Button("Create Parameter", click -> {
+			systemGrid.deselectAll();
+			selectedSystem = new Systems();
+			Window createWindow = new Window("", getAndLoadSystemForm(true));
+			createWindow.setClosable(true);
+			createWindow.setModal(true);
+			createWindow.setSizeUndefined();
+			UI.getCurrent().getWindows().forEach(Window::close);
+			UI.getCurrent().addWindow(createWindow);
+		});
+		createSystemGridMenu.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+		Button editSystemGridMenu = new Button("Edit Parameter", click -> {
+			systemGrid.deselectAll();
+			if (selectedSystem == null || selectedSystem.getId() == null) {
+				Notification.show(NotificationUtil.SYSTEM_EDIT, Notification.Type.ERROR_MESSAGE);
+			} else {
+				Window editWindow = new Window("", getAndLoadSystemForm(true));
+				editWindow.setClosable(true);
+				editWindow.setModal(true);
+				editWindow.setSizeUndefined();
+				UI.getCurrent().getWindows().forEach(Window::close);
+				UI.getCurrent().addWindow(editWindow);
 			}
 		});
-		
-		edit = new Button(VaadinIcons.EDIT);
-		edit.addStyleName(ValoTheme.BUTTON_FRIENDLY);
-		edit.addStyleName("v-button-customstyle");
-		edit.setDescription("Edit System Parameter");
-		edit.addClickListener(new ClickListener() {
-			public void buttonClick(ClickEvent event) {
-				//parameterName.focus();
-				if(systemDescription.getValue()==null || systemDescription.getValue().isEmpty() || 
-						parameterName.getValue()==null ||  parameterName.getValue().isEmpty() ||
-								comboBoxType.getValue()==null ||  comboBoxType.getValue().isEmpty() ||
-								systemValue.getValue()==null ||  systemValue.getValue().isEmpty()) {
-					Notification.show(NotificationUtil.SYSTEM_EDIT, Notification.Type.ERROR_MESSAGE);
-				}else {
-					systemInfoLayout.removeAllComponents();
-					getAndLoadSystemForm(systemInfoLayout, true);	
-					getFirstFormField().focus();
-				}
+		editSystemGridMenu.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+		Button deleteSystemGridMenu = new Button("Delete Parameter", click -> {
+			systemGrid.deselectAll();
+			if (selectedSystem == null || selectedSystem.getId() == null) {
+				Notification.show(NotificationUtil.SYSTEM_DELETE, Notification.Type.ERROR_MESSAGE);
+			} else {
+				confirmDialog(systemInfoLayout, selectedSystem);
 			}
 		});
-		
-		delete = new Button(VaadinIcons.TRASH);
-		delete.addStyleName(ValoTheme.BUTTON_FRIENDLY);
-		delete.addStyleName("v-button-customstyle");
-		delete.setDescription("Delete System Parameter");
-		delete.addClickListener(new ClickListener() {
-			
-			@Override
-			public void buttonClick(ClickEvent event) {
-				if(systemDescription.getValue()==null || systemDescription.getValue().isEmpty() || 
-						parameterName.getValue()==null ||  parameterName.getValue().isEmpty() ||
-								comboBoxType.getValue()==null ||  comboBoxType.getValue().isEmpty() ||
-						systemValue.getValue()==null ||  systemValue.getValue().isEmpty()) {
-					Notification.show(NotificationUtil.SYSTEM_DELETE, Notification.Type.ERROR_MESSAGE);
-				}else {
-				
-				confirmDialog( systemInfoLayout, selectedSystem);
-				}
-			}
+		deleteSystemGridMenu.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+		ContextMenuWindow paramContextWindow = new ContextMenuWindow();
+		paramContextWindow.addMenuItems(createSystemGridMenu, editSystemGridMenu, deleteSystemGridMenu);
+		systemGrid.addContextClickListener(click -> {
+			UI.getCurrent().getWindows().forEach(Window::close);
+			paramContextWindow.setPosition(click.getClientX(), click.getClientY());
+			UI.getCurrent().addWindow(paramContextWindow);
 		});
-		
-		HorizontalLayout buttonGroup =  new HorizontalLayout();
-		buttonGroup.addStyleName("system-ButtonLayout");
-		buttonGroup.setDefaultComponentAlignment(Alignment.MIDDLE_RIGHT);
-		buttonGroup.addComponent(create);
-		buttonGroup.addComponent(edit);
-		buttonGroup.addComponent(delete);
-		
+
+		UI.getCurrent().addClickListener(Listener -> {
+			paramContextWindow.close();
+
+		});
 		systemGrid.setCaptionAsHtml(true);
 		systemGrid.addStyleName("v-grid-cell-fontSize");
 		systemGrid.setHeightByRows(12);
@@ -488,23 +545,23 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		systemGrid.addColumn(Systems::getDescription).setCaption("Description");
 		systemGrid.addColumn(Systems::getType).setCaption("Type");
 		systemGrid.addColumn(Systems::getSystemValue).setCaption("Value");
-		
+
 		DataProvider data = new ListDataProvider(systemService.getAllSystemParam());
 		systemGrid.setDataProvider(data);
 		systemGrid.setWidth("100%");
 		systemGrid.setResponsive(true);
-		
+
 		systemGrid.addSelectionListener(e -> {
 			if (!e.isUserOriginated()) {
 				return;
 			}
 
 			if (e.getFirstSelectedItem().isPresent()) {
-				//Load and update the data in permission grid.
-				systemInfoLayout.removeAllComponents();
+				// Load and update the data in permission grid.
+//				systemInfoLayout.removeAllComponents();
 				Systems selectedSystem = e.getFirstSelectedItem().get();
 				this.selectedSystem = selectedSystem;
-				getAndLoadSystemForm(systemInfoLayout, false);
+//				getAndLoadSystemForm(systemInfoLayout, false);
 			} else {
 				clearParamComponents();
 			}
@@ -512,33 +569,33 @@ public class SystemView extends VerticalLayout implements Serializable, View{
 		VerticalLayout systemGridLayout = new VerticalLayout();
 		systemGridLayout.addStyleName("system-GridAlignment");
 		systemGridLayout.setDefaultComponentAlignment(Alignment.MIDDLE_RIGHT);
-		systemGridLayout.addComponent(buttonGroup);
+//		systemGridLayout.addComponent(buttonGroup);
 		systemGridLayout.addComponent(systemGrid);
 		verticalLayout.addComponent(systemGridLayout);
-		
-	}
-	
-	private void confirmDialog(VerticalLayout systemInfoLayout, Systems system) {
-		ConfirmDialog.show(this.getUI(), "Please Confirm:", "Are you sure you want to delete?",
-		        "Ok", "Cancel", new ConfirmDialog.Listener() {
 
-		            public void onClose(ConfirmDialog dialog) {
-		                if (dialog.isConfirmed()) {
-		                    // Confirmed to continue
-		                	systemInfoLayout.removeAllComponents();
-		                	
-								systemService.deleteSystem(system);
-								DataProvider data = new ListDataProvider(systemService.getAllSystemParam());
-								systemGrid.setDataProvider(data);
-								selectedSystem = new Systems();
-								systemGrid.getDataProvider().refreshAll();
-			                	getAndLoadSystemForm(systemInfoLayout, false);
-		                } else {
-		                    // User did not confirm
-		                    
-		                }
-		            }
-		        });
 	}
-	
+
+	private void confirmDialog(VerticalLayout systemInfoLayout, Systems system) {
+		ConfirmDialog.show(this.getUI(), "Please Confirm:", "Are you sure you want to delete?", "Ok", "Cancel",
+				new ConfirmDialog.Listener() {
+
+					public void onClose(ConfirmDialog dialog) {
+						if (dialog.isConfirmed()) {
+							// Confirmed to continue
+							systemInfoLayout.removeAllComponents();
+
+							systemService.deleteSystem(system);
+							DataProvider data = new ListDataProvider(systemService.getAllSystemParam());
+							systemGrid.setDataProvider(data);
+							selectedSystem = new Systems();
+							systemGrid.getDataProvider().refreshAll();
+//			                	getAndLoadSystemForm(systemInfoLayout, false);
+						} else {
+							// User did not confirm
+
+						}
+					}
+				});
+	}
+
 }
