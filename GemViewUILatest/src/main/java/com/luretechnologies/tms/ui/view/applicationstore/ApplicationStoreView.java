@@ -107,7 +107,7 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 
-@JavaScript({ "vaadin://themes/js/dropzone.js" })
+@JavaScript({ "vaadin://js/dropzone.js" })
 @SpringView(name = ApplicationStoreView.VIEW_NAME)
 public class ApplicationStoreView extends VerticalLayout implements Serializable, View {
 	private static final String DESCRIPTION = "description";
