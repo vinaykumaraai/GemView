@@ -18,7 +18,6 @@ import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.client.restlib.service.model.DebugItem;
 import com.luretechnologies.client.restlib.service.model.HeartbeatAudit;
 import com.luretechnologies.tms.backend.data.entity.Alert;
-import com.luretechnologies.tms.backend.data.entity.AppClient;
 import com.luretechnologies.tms.backend.data.entity.AssetHistory;
 import com.luretechnologies.tms.backend.data.entity.DebugItems;
 import com.luretechnologies.tms.backend.data.entity.Permission;
@@ -32,12 +31,9 @@ import com.luretechnologies.tms.ui.MainView;
 import com.luretechnologies.tms.ui.components.ComponentUtil;
 import com.luretechnologies.tms.ui.components.FormFieldType;
 import com.luretechnologies.tms.ui.components.NotificationUtil;
-import com.luretechnologies.tms.ui.view.admin.AbstractCrudView;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.event.ShortcutAction.KeyCode;
-import com.vaadin.external.org.slf4j.Logger;
-import com.vaadin.external.org.slf4j.LoggerFactory;
 import com.vaadin.event.ShortcutListener;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
@@ -51,17 +47,18 @@ import com.vaadin.ui.DateField;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Grid.SelectionMode;
-import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TabSheet.SelectedTabChangeEvent;
 import com.vaadin.ui.TabSheet.SelectedTabChangeListener;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
+import com.vaadin.ui.TreeGrid;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -79,7 +76,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 	private static Grid<DebugItems> deviceDebugGrid;
 	private static Grid<Alert> alertGrid =new Grid<>(Alert.class);
 	private static Button deleteHistoryGridRow, deleteAlertGridRow, editAlertGridRow, createAlertGridRow,saveAlertForm,cancelAlertForm,deleteDeviceDebugGridRow, saveDeviceDebug,clearSearch, clearHistorySeach, clearDebugSearch;
-	private static Tree<TreeNode> nodeTree;
+	private static TreeGrid<TreeNode> nodeTree;
 	private static TextField treeNodeSearch, historySearch,deviceDebugGridSearch;
 	private static HorizontalSplitPanel splitScreen;
 	private static TabSheet assetTabSheet;
@@ -215,26 +212,29 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		searchLayout.addComponents(treeNodeSearch,clearSearch);
 		searchLayout.setWidth("85%");
 		VerticalLayout treeSearchPanelLayout = new VerticalLayout(searchLayout);
-		nodeTree = new Tree<TreeNode>();
+		nodeTree = new TreeGrid<TreeNode>(TreeNode.class);
 		nodeTree.setTreeData(assetControlService.getTreeData());
-		nodeTree.setItemIconGenerator(item -> {
-			switch (item.getType()){
-			case ENTERPRISE:
-				return VaadinIcons.ORIENTATION;
-			case ORGANIZATION:
-				return VaadinIcons.BUILDING_O;
-			case MERCHANT:
-				return VaadinIcons.SHOP;
-			case REGION:
-				return VaadinIcons.OFFICE;
-			case TERMINAL:
-				return VaadinIcons.LAPTOP;
-			case DEVICE:
-				return VaadinIcons.MOBILE_BROWSER;
-			default:
-				return null;
-			}
-		});
+		nodeTree.setColumns("label","serialNum");
+		nodeTree.getColumn("label").setCaption("Entity");
+		nodeTree.getColumn("serialNum").setCaption("Serial");
+//		nodeTree.setItemIconGenerator(item -> {
+//			switch (item.getType()){
+//			case ENTERPRISE:
+//				return VaadinIcons.ORIENTATION;
+//			case ORGANIZATION:
+//				return VaadinIcons.BUILDING_O;
+//			case MERCHANT:
+//				return VaadinIcons.SHOP;
+//			case REGION:
+//				return VaadinIcons.OFFICE;
+//			case TERMINAL:
+//				return VaadinIcons.LAPTOP;
+//			case DEVICE:
+//				return VaadinIcons.MOBILE_BROWSER;
+//			default:
+//				return null;
+//			}
+//		});
 		treeSearchPanelLayout.addComponent(nodeTree);
 		treeSearchPanelLayout.setMargin(true);
 		treeSearchPanelLayout.setStyleName("split-Height-ButtonLayout");

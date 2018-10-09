@@ -58,7 +58,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.TextField;
-import com.vaadin.ui.Tree;
+import com.vaadin.ui.TreeGrid;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
@@ -66,11 +66,11 @@ import com.vaadin.ui.themes.ValoTheme;
 public class AlertTab {
 	Button createAlertGridRow, editAlertGridRow, deleteAlertGridRow, saveAlertForm, cancelAlertForm;
 	Grid<Alert> alertGrid;
-	Tree<TreeNode> nodeTree;
+	TreeGrid<TreeNode> nodeTree;
 	UI assetControlUI;
 	AssetControlService assetControlService;
 	Permission assetControlPermission;
-	public AlertTab(Grid<Alert> alertGrid, Tree<TreeNode> nodeTree,UI assetControlUI, AssetControlService assetControlService,Permission assetControlpermission, Button... buttons) {
+	public AlertTab(Grid<Alert> alertGrid, TreeGrid<TreeNode> nodeTree,UI assetControlUI, AssetControlService assetControlService,Permission assetControlpermission, Button... buttons) {
 		createAlertGridRow = buttons[0];
 		editAlertGridRow = buttons[1];
 		deleteAlertGridRow = buttons[2];
