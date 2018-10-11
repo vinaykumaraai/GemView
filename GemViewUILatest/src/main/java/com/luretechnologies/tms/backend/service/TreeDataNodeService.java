@@ -125,11 +125,21 @@ public class TreeDataNodeService {
 		}
 	}
 	
-	private List<TreeNode> getChildNodes(List<Entity> entityList){
+	private List<TreeNode> getChildNodes(List<Entity> entityList) throws ApiException{
 		List<TreeNode> nodeChildList = new ArrayList<>();
 		for(Entity entity : entityList) {
 			TreeNode node = new TreeNode(entity.getName(), entity.getId(), entity.getType(), entity.getEntityId(), entity.getDescription()
 					,true);
+//			switch (entity.getType()) {
+//			case TERMINAL:
+//				node.setSerialNum(RestServiceUtil.getInstance().getClient().getTerminalApi().getTerminal(entity.getId().toString()).getSerialNumber());
+//				break;
+//			case DEVICE:
+//				node.setSerialNum(RestServiceUtil.getInstance().getClient().getDeviceApi().getDevice(entity.getId().toString()).getSerialNumber());
+//				break;
+//			default:
+//				break;
+//			}
 			nodeChildList.add(node);
 		}
 		return nodeChildList;

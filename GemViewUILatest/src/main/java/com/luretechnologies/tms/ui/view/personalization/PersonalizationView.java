@@ -378,7 +378,6 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 				}
 			});
 			createEntity.addStyleName(ValoTheme.BUTTON_BORDERLESS);
-			treeContextMenuWindow.addMenuItems(createEntity);
 			
 			editEntity = new Button("Edit Entity", click -> {
 				UI.getCurrent().getWindows().forEach(Window::close);
@@ -391,7 +390,6 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 				}
 			});
 			editEntity.addStyleName(ValoTheme.BUTTON_BORDERLESS);
-			treeContextMenuWindow.addMenuItems(editEntity);
 			
 
 			deleteEntity = new Button("Delete Entity", click -> {
@@ -404,7 +402,6 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 				}
 			});
 			deleteEntity.addStyleName(ValoTheme.BUTTON_BORDERLESS);
-			treeContextMenuWindow.addMenuItems(deleteEntity);
 			
 			copyEntity = new Button("Copy Entity", click -> {
 				//  Copy new entity
@@ -424,7 +421,6 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 			});
 			
 			copyEntity.addStyleName(ValoTheme.BUTTON_BORDERLESS);
-			treeContextMenuWindow.addMenuItems(copyEntity);
 			
 			pasteEntity = new Button("Paste Entity", click -> {
 				//  Paste new entity
@@ -492,7 +488,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 			});
 			pasteEntity.setEnabled(true);
 			pasteEntity.addStyleName(ValoTheme.BUTTON_BORDERLESS);
-			treeContextMenuWindow.addMenuItems(pasteEntity);
+			treeContextMenuWindow.addMenuItems(createEntity,editEntity,deleteEntity,copyEntity,pasteEntity);
 			UI.getCurrent().addWindow(treeContextMenuWindow);
 			
 			UI.getCurrent().addClickListener(listener->{

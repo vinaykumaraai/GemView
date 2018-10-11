@@ -31,6 +31,7 @@ import com.luretechnologies.tms.ui.MainView;
 import com.luretechnologies.tms.ui.components.ComponentUtil;
 import com.luretechnologies.tms.ui.components.FormFieldType;
 import com.luretechnologies.tms.ui.components.NotificationUtil;
+import com.luretechnologies.tms.ui.view.ContextMenuWindow;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.event.ShortcutAction.KeyCode;
@@ -59,7 +60,10 @@ import com.vaadin.ui.TabSheet.SelectedTabChangeListener;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.TreeGrid;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
+import com.vaadin.ui.renderers.HtmlRenderer;
 import com.vaadin.ui.themes.ValoTheme;
 
 @SpringView(name = AssetcontrolView.VIEW_NAME)
@@ -217,6 +221,43 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		nodeTree.setColumns("label","serialNum");
 		nodeTree.getColumn("label").setCaption("Entity");
 		nodeTree.getColumn("serialNum").setCaption("Serial");
+		
+		Button createEntity = new Button("Add Entity", click -> {
+			UI.getCurrent().getWindows().forEach(Window::close);
+			if (nodeTree.getSelectedItems().size() == 0) {
+				Notification.show(NotificationUtil.PERSONALIZATION_CREATE_ENTITY, Notification.Type.ERROR_MESSAGE);
+			} else {
+				//TODO create code
+			}
+		});
+		createEntity.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+		Button editEntity = new Button("Edit Entity", click -> {
+			UI.getCurrent().getWindows().forEach(Window::close);
+			if (nodeTree.getSelectedItems().size() == 0) {
+				Notification.show(NotificationUtil.PERSONALIZATION_EDIT, Notification.Type.ERROR_MESSAGE);
+			} else {
+			//TODO edit Code
+			}
+		});
+		editEntity.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+		Button deleteEntity = new Button("Delete Entity", click -> {
+			UI.getCurrent().getWindows().forEach(Window::close);
+			if (nodeTree.getSelectedItems().size() == 0) {
+				Notification.show(NotificationUtil.PERSONALIZATION_DELETE, Notification.Type.ERROR_MESSAGE);
+			} else {
+				TreeNode selectedNode = nodeTree.getSelectedItems().iterator().next();
+				confirmDialog(selectedNode.getId(), selectedNode);
+			}
+		});
+		deleteEntity.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+		
+		ContextMenuWindow assestControlTreeGridMenu = new ContextMenuWindow();
+		assestControlTreeGridMenu.addMenuItems(createEntity,editEntity,deleteEntity);
+		nodeTree.addContextClickListener(click->{
+			UI.getCurrent().getWindows().forEach(Window::close);
+			assestControlTreeGridMenu.setPosition(click.getClientX(), click.getClientY());
+			UI.getCurrent().addWindow(assestControlTreeGridMenu);
+		});
 //		nodeTree.setItemIconGenerator(item -> {
 //			switch (item.getType()){
 //			case ENTERPRISE:
