@@ -11,6 +11,8 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Whitelist;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.dialogs.ConfirmDialog;
 
@@ -58,7 +60,6 @@ import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TabSheet.SelectedTabChangeEvent;
 import com.vaadin.ui.TabSheet.SelectedTabChangeListener;
 import com.vaadin.ui.TextField;
-import com.vaadin.ui.Tree;
 import com.vaadin.ui.TreeGrid;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
@@ -218,10 +219,40 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		VerticalLayout treeSearchPanelLayout = new VerticalLayout(searchLayout);
 		nodeTree = new TreeGrid<TreeNode>(TreeNode.class);
 		nodeTree.setTreeData(assetControlService.getTreeData());
-		nodeTree.setColumns("label","serialNum");
-		nodeTree.getColumn("label").setCaption("Entity");
-		nodeTree.getColumn("serialNum").setCaption("Serial");
-		
+//		
+//		
+//		
+	nodeTree.addColumn(entity -> {
+		String iconHtml="";
+		switch (entity.getType()){
+		case ENTERPRISE:
+			iconHtml =  VaadinIcons.ORIENTATION.getHtml();
+			break;
+		case ORGANIZATION:
+			iconHtml = VaadinIcons.BUILDING_O.getHtml();
+			break;
+		case MERCHANT:
+			iconHtml =  VaadinIcons.SHOP.getHtml();
+			break;
+		case REGION:
+			iconHtml = VaadinIcons.OFFICE.getHtml();
+			break;
+		case TERMINAL:
+			iconHtml = VaadinIcons.LAPTOP.getHtml();
+			break;
+		case DEVICE:
+			iconHtml = VaadinIcons.MOBILE_BROWSER.getHtml();
+			break;
+		default:
+			break;
+		}
+		return iconHtml +" "+ Jsoup.clean(entity.getLabel(),Whitelist.simpleText());
+	},new HtmlRenderer()).setCaption("Entity").setId("entity");	
+	nodeTree.getColumn("serialNum").setCaption("Serial");
+	nodeTree.setHierarchyColumn("entity");
+	
+	nodeTree.setColumns("entity","serialNum");
+	
 		Button createEntity = new Button("Add Entity", click -> {
 			UI.getCurrent().getWindows().forEach(Window::close);
 			if (nodeTree.getSelectedItems().size() == 0) {

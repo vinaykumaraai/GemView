@@ -42,6 +42,7 @@ import com.luretechnologies.tms.backend.service.AssetControlService;
 import com.luretechnologies.tms.ui.components.ComponentUtil;
 import com.luretechnologies.tms.ui.components.FormFieldType;
 import com.luretechnologies.tms.ui.components.NotificationUtil;
+import com.luretechnologies.tms.ui.view.ContextMenuWindow;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.icons.VaadinIcons;
@@ -61,6 +62,7 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.TreeGrid;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 
 public class AlertTab {
@@ -124,7 +126,7 @@ public class AlertTab {
 		alertSaveCancleAndLabelLayout.setComponentAlignment(saveCancelLayout, Alignment.MIDDLE_RIGHT);
 	
 		
-		alertLayout.addComponent(alertSaveCancleAndLabelLayout);
+		//alertLayout.addComponent(alertSaveCancleAndLabelLayout);
 		Component[] alertFormComponentArray = {
 				ComponentUtil.getFormFieldWithLabel("Alert Type", FormFieldType.TEXTBOX),
 				ComponentUtil.getFormFieldWithLabel("Name", FormFieldType.TEXTBOX),
@@ -139,8 +141,8 @@ public class AlertTab {
 		
 		// Add,Delete,Edit Button Layout
 		alertVerticalButtonLayout.addComponent(getAlertGridButtonLayout(alertFormComponentArray));
-		alertLayout.addComponent(alertVerticalButtonLayout);
-		alertLayout.setComponentAlignment(alertLayout.getComponent(1), Alignment.TOP_RIGHT);
+		//alertLayout.addComponent(alertVerticalButtonLayout);
+		//alertLayout.setComponentAlignment(alertLayout.getComponent(1), Alignment.TOP_RIGHT);
 		
 		// Alert Grid
 		alertLayout.addComponent(getAlertGrid());
@@ -156,6 +158,7 @@ public class AlertTab {
 				((TextField) alertFormComponentArray[4]).setValue(item.getItem().getEmail());
 			}
 		});
+		
 		alertGrid.addSelectionListener(selection -> {
 			if (selection.getFirstSelectedItem().isPresent()) {
 				editAlertGridRow.setEnabled(assetControlPermission.getEdit());
@@ -182,6 +185,50 @@ public class AlertTab {
 				cancelAlertForm.setEnabled(true);
 				saveAlertForm.setEnabled(true);
 			}
+		});
+		Window alertFormWindow = new Window();
+		alertFormWindow.setSizeUndefined();
+		alertFormWindow.setModal(true);
+		alertFormWindow.setClosable(true);
+		alertFormWindow.setContent(formLayout);
+		Button createAlertGridRowMenu = new Button("Add Alert", click -> {
+			UI.getCurrent().getWindows().forEach(Window::close);
+			if (nodeTree.getSelectedItems().size() == 0) {
+				Notification.show(NotificationUtil.ASSET_ALERT_SAVETONODE, Notification.Type.ERROR_MESSAGE);
+			} else {
+				for (Component component : alertFormComponentArray) {
+					if(component instanceof TextField){
+						((TextField)component).clear();
+					}
+				}
+				UI.getCurrent().getWindows().forEach(Window::close);
+				UI.getCurrent().addWindow(alertFormWindow);
+				
+			}
+		});
+		Button editAlertGridRowMenu = new Button("Edit Alert", click->{
+			UI.getCurrent().getWindows().forEach(Window::close);
+			if (alertGrid.getSelectedItems().size() == 0) {
+				Notification.show(NotificationUtil.ASSET_ALERT_EDIT, Notification.Type.ERROR_MESSAGE);
+			} else {
+				UI.getCurrent().getWindows().forEach(Window::close);
+				UI.getCurrent().addWindow(alertFormWindow);
+			}
+		});
+		Button deleteAlertGridRowMenu = new Button("Delete Alert", click-> {
+			UI.getCurrent().getWindows().forEach(Window::close);
+			if (alertGrid.getSelectedItems().size() == 0) {
+				Notification.show(NotificationUtil.ASSET_ALERT_DELETE, Notification.Type.ERROR_MESSAGE);
+			} else {
+			}
+		});
+		
+		ContextMenuWindow assestControlAlertGridMenu = new ContextMenuWindow();
+		assestControlAlertGridMenu.addMenuItems(editAlertGridRowMenu,deleteAlertGridRowMenu,createAlertGridRowMenu);
+		alertGrid.addContextClickListener(click->{
+			UI.getCurrent().getWindows().forEach(Window::close);
+			assestControlAlertGridMenu.setPosition(click.getClientX(), click.getClientY());
+			UI.getCurrent().addWindow(assestControlAlertGridMenu);
 		});
 		cancelAlertForm.setEnabled(assetControlPermission.getAdd() || assetControlPermission.getEdit());
 		saveAlertForm.setEnabled(assetControlPermission.getAdd() || assetControlPermission.getEdit());
