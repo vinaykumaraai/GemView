@@ -56,6 +56,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Panel;
+import com.vaadin.ui.Slider;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TabSheet.SelectedTabChangeEvent;
 import com.vaadin.ui.TabSheet.SelectedTabChangeListener;
@@ -109,6 +110,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 	private static Permission assetControlPermission;
 	private static CssLayout assetControlHistorySearchLayout;
 	private static CssLayout assetControlDebugSearchLayout;
+	private static Slider debugActivateSlider;
 	
 	@Autowired
 	public AssetcontrolView() {
@@ -888,6 +890,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 					DataProvider debugItemsData = new ListDataProvider(debugItemsList);
 					deviceDebugGrid.setData(debugItemsData);
 					deviceDebugGridSearch.clear();
+					debugActivateSlider.setValue(selection.getFirstSelectedItem().get().isActive()?1.0:0.0);
 					break;
 				default:
 					break;
@@ -985,7 +988,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		debugLabel.addComponent(entityInformation);
 		
 		
-		debugLayout.addComponent(entityInformation);
+//		debugLayout.addComponent(entityInformation);
 		deviceDebugFormLayout = new FormLayout();
 		deviceDebugFormLayout.addStyleNames("heartbeat-verticalLayout", "asset-debugSFormLayout","system-LabelAlignment");
 		deviceDebugFormLayout.addComponent(ComponentUtil.getFormFieldWithLabel("Entity Type", FormFieldType.TEXTBOX));
@@ -1002,25 +1005,25 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		deviceDebugDuration.setResponsive(true);
 		deviceDebugDuration.setDateFormat(DATE_FORMAT);
 		//deviceDebugDuration.setRangeStart(LocalDateTime.now().toLocalDate());
-		deviceDebugDuration.setPlaceholder("Duration Date");
+		deviceDebugDuration.setPlaceholder("End Date");
 		deviceDebugDuration.addStyleNames("v-textfield-font", "personlization-formAlignment");
 		deviceDebugDuration.setCaptionAsHtml(true);
 		deviceDebugDuration.setCaption("Debug Duration");
 
 		deviceDebugFormLayout.addComponent(deviceDebugDuration);
 		deviceDebugFormLayout.setComponentAlignment(deviceDebugDuration, Alignment.TOP_RIGHT); // FIXME : alignment issue
-		debugLayout.addComponent(deviceDebugFormLayout);
+//		debugLayout.addComponent(deviceDebugFormLayout);
 		// Grid
 		Label debugMonitoring = new Label("Device Debug Monitoring");
 		debugMonitoring.addStyleNames(ValoTheme.LABEL_BOLD, ValoTheme.LABEL_H3);
 		debugMonitoring.addStyleName("label-style");
 		debugMonitoringLabel.addStyleName("assetDebug-label");
 		debugMonitoringLabel.addComponent(debugMonitoring);
-		debugLayout.addComponent(debugMonitoringLabel);
-		getDeviceDebugGridSearchLayout();
-		debugLayout.addComponent(getDeviceDebugGrid());
+//		debugLayout.addComponent(debugMonitoringLabel);
+//		getDeviceDebugGridSearchLayout();
+//		debugLayout.addComponent(getDeviceDebugGrid());
 		
-		deviceDebugGrid.addSelectionListener(selection->{
+//		deviceDebugGrid.addSelectionListener(selection->{
 			/*if(selection.getFirstSelectedItem().isPresent()) {
 				DebugItems selectedDebug = selection.getFirstSelectedItem().get();
 				((TextField)deviceDebugFormLayout.getComponent(0)).setValue(selectedDebug.getType().name());
@@ -1059,9 +1062,19 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 					}
 				}
 			}*/
-		});
+//		});
 		deleteDeviceDebugGridRow.setEnabled(assetControlPermission.getDelete());
 		saveDeviceDebug.setEnabled(assetControlPermission.getAdd() || assetControlPermission.getEdit());
+		//FIXME: Using custom field for On off : https://vaadin.com/forum/thread/293624
+		debugActivateSlider = new Slider("Activate Debug");
+		debugActivateSlider.setMin(0.0);
+		debugActivateSlider.setMax(1.0);
+		//debugActivateSlider.setValue(nodeTree.getSelectionModel().getFirstSelectedItem().get().device.isActive()?1.0:0.0);
+		
+		debugActivateSlider.addValueChangeListener(value ->{
+			//Put saving mechanism
+		});
+		debugLayout.addComponents(debugActivateSlider,deviceDebugDuration);
 		return debugLayout;
 	}
 
