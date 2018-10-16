@@ -15,6 +15,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.dialogs.ConfirmDialog;
+import org.vaadin.teemu.switchui.Switch;
 
 import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.client.restlib.service.model.DebugItem;
@@ -110,7 +111,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 	private static Permission assetControlPermission;
 	private static CssLayout assetControlHistorySearchLayout;
 	private static CssLayout assetControlDebugSearchLayout;
-	private static Slider debugActivateSlider;
+	private static Switch debugActivateSlider;
 	
 	@Autowired
 	public AssetcontrolView() {
@@ -410,8 +411,8 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		case "debug":
 			
 				DataProvider data2 = new ListDataProvider(Collections.EMPTY_LIST);
-				deviceDebugGrid.setDataProvider(data2);
-				deviceDebugGridSearch.clear();
+//				deviceDebugGrid.setDataProvider(data2);
+//				deviceDebugGridSearch.clear();
 				clearCalenderDates();
 			break;
 		default:
@@ -615,7 +616,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		                	deviceDebugGrid.setDataProvider(data);
 		                	nodeTree.getDataProvider().refreshAll();
 		        			deviceDebugGrid.getDataProvider().refreshAll();
-		        			deviceDebugGridSearch.clear();
+//		        			deviceDebugGridSearch.clear();
 		        			clearCalenderDates();
 		                } else {
 		                    // User did not confirm
@@ -889,8 +890,8 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 					List<DebugItems> debugItemsList = new ArrayList<>();
 					DataProvider debugItemsData = new ListDataProvider(debugItemsList);
 					deviceDebugGrid.setData(debugItemsData);
-					deviceDebugGridSearch.clear();
-					debugActivateSlider.setValue(selection.getFirstSelectedItem().get().isActive()?1.0:0.0);
+//					deviceDebugGridSearch.clear();
+					debugActivateSlider.setValue(selection.getFirstSelectedItem().get().isActive());
 					break;
 				default:
 					break;
@@ -939,7 +940,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 						clearEntityInformation();
 					}
 					deviceDebugGrid.setDataProvider(debugItemsData);
-					deviceDebugGridSearch.clear();
+//					deviceDebugGridSearch.clear();
 					break;
 				default:
 					break;
@@ -948,7 +949,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 			
 			clearCalenderDates();
 			historySearch.clear();
-			deviceDebugGridSearch.clear();
+//			deviceDebugGridSearch.clear();
 
 		});
 		return historyLayoutFull;
@@ -1020,7 +1021,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		debugMonitoringLabel.addStyleName("assetDebug-label");
 		debugMonitoringLabel.addComponent(debugMonitoring);
 //		debugLayout.addComponent(debugMonitoringLabel);
-//		getDeviceDebugGridSearchLayout();
+		getDeviceDebugGridSearchLayout();
 //		debugLayout.addComponent(getDeviceDebugGrid());
 		
 //		deviceDebugGrid.addSelectionListener(selection->{
@@ -1063,12 +1064,10 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 				}
 			}*/
 //		});
-		deleteDeviceDebugGridRow.setEnabled(assetControlPermission.getDelete());
-		saveDeviceDebug.setEnabled(assetControlPermission.getAdd() || assetControlPermission.getEdit());
+//		deleteDeviceDebugGridRow.setEnabled(assetControlPermission.getDelete());
+//		saveDeviceDebug.setEnabled(assetControlPermission.getAdd() || assetControlPermission.getEdit());
 		//FIXME: Using custom field for On off : https://vaadin.com/forum/thread/293624
-		debugActivateSlider = new Slider("Activate Debug");
-		debugActivateSlider.setMin(0.0);
-		debugActivateSlider.setMax(1.0);
+		debugActivateSlider = new Switch("Activate Debug"); // Doesnot work generates a checkbox instead slider.
 		//debugActivateSlider.setValue(nodeTree.getSelectionModel().getFirstSelectedItem().get().device.isActive()?1.0:0.0);
 		
 		debugActivateSlider.addValueChangeListener(value ->{
@@ -1213,8 +1212,8 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		//dateDeleteDebugLayout.setWidth("100%");
 		debugDeleteSaveLayout= new HorizontalLayout();
 		
-		optionsLayoutDebugHorizontalDesktop.addComponent(debugSearchLayout);
-		optionsLayoutDebugHorizontalDesktop.setComponentAlignment(debugSearchLayout, Alignment.MIDDLE_LEFT);
+//		optionsLayoutDebugHorizontalDesktop.addComponent(debugSearchLayout);
+//		optionsLayoutDebugHorizontalDesktop.setComponentAlignment(debugSearchLayout, Alignment.MIDDLE_LEFT);
 		dateDeleteDebugLayout.addComponent(deviceDebugStartDateField);
 		dateDeleteDebugLayout.setComponentAlignment(deviceDebugStartDateField, Alignment.MIDDLE_LEFT);
 		dateDeleteDebugLayout.addComponent(deviceDebugEndDateField);
@@ -1223,11 +1222,11 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		dateDeleteDebugLayout.setComponentAlignment(deleteDeviceDebugGridRow, Alignment.MIDDLE_RIGHT);
 		dateDeleteDebugLayout.addComponent(saveDeviceDebug);
 		dateDeleteDebugLayout.setComponentAlignment(saveDeviceDebug, Alignment.MIDDLE_RIGHT);
-		optionsLayoutDebugHorizontalDesktop.addComponent(dateDeleteDebugLayout);
-		optionsLayoutDebugHorizontalDesktop.setComponentAlignment(dateDeleteDebugLayout, Alignment.MIDDLE_LEFT);
+//		optionsLayoutDebugHorizontalDesktop.addComponent(dateDeleteDebugLayout);
+//		optionsLayoutDebugHorizontalDesktop.setComponentAlignment(dateDeleteDebugLayout, Alignment.MIDDLE_LEFT);
 		
-		debugLayout.addComponent(optionsLayoutDebugHorizontalDesktop);
-		debugLayout.setComponentAlignment(optionsLayoutDebugHorizontalDesktop, Alignment.TOP_LEFT);
+//		debugLayout.addComponent(optionsLayoutDebugHorizontalDesktop);
+//		debugLayout.setComponentAlignment(optionsLayoutDebugHorizontalDesktop, Alignment.TOP_LEFT);
 		debugLayout.addComponent(optionsLayoutDebugVerticalTab);
 		debugLayout.setComponentAlignment(optionsLayoutDebugVerticalTab, Alignment.TOP_LEFT);
 		debugLayout.addComponent(optionsLayoutDebugVerticalPhone);

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.luretechnologies.tms</groupId>
@@ -72,11 +73,8 @@
 
 		<!-- https://mvnrepository.com/artifact/com.vaadin/grid-renderers-collection-addon -->
 		<!-- https://mvnrepository.com/artifact/com.vaadin/grid-renderers-collection-addon -->
-		<!-- <dependency>
-   			<groupId>org.vaadin.addons</groupId>
-  			 <artifactId>attributes</artifactId>
-   			<version>0.0.1</version>
-			</dependency> -->
+		<!-- <dependency> <groupId>org.vaadin.addons</groupId> <artifactId>attributes</artifactId> 
+			<version>0.0.1</version> </dependency> -->
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>grid-renderers-collection-addon</artifactId>
@@ -89,6 +87,11 @@
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-push</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.vaadin.teemu</groupId>
+			<artifactId>switch</artifactId>
+			<version>2.0.3</version>
 		</dependency>
 		<dependency>
 			<groupId>com.vaadin</groupId>
@@ -151,17 +154,11 @@
 			<artifactId>vaadin-icons</artifactId>
 			<version>3.0.1</version>
 		</dependency>
-		<!-- <dependency>
-   			<groupId>org.vaadin.addons</groupId>
-  			 <artifactId>attributes</artifactId>
-   			<version>0.0.1</version>
-			</dependency> -->
-		<!-- <dependency>
-			<groupId>com.luretechnologies.tms.client.rest</groupId>
-			<artifactId>tms-client-restlib-admin</artifactId>
-			<version>1.0.0-SNAPSHOT</version>
-			<scope>system</scope>
-		</dependency> -->
+		<!-- <dependency> <groupId>org.vaadin.addons</groupId> <artifactId>attributes</artifactId> 
+			<version>0.0.1</version> </dependency> -->
+		<!-- <dependency> <groupId>com.luretechnologies.tms.client.rest</groupId> 
+			<artifactId>tms-client-restlib-admin</artifactId> <version>1.0.0-SNAPSHOT</version> 
+			<scope>system</scope> </dependency> -->
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>webcomponents-helper</artifactId>
@@ -172,8 +169,8 @@
 			<artifactId>commons-lang3</artifactId>
 			<version>3.0</version>
 		</dependency>
-		
-		
+
+
 
 
 		<!-- Spring -->
@@ -202,7 +199,7 @@
 			<artifactId>spring-data-provider</artifactId>
 			<version>1.0.0</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.luretechnologies.tms.client.rest</groupId>
 			<artifactId>admin</artifactId>
@@ -210,21 +207,14 @@
 			<scope>system</scope>
 			<systemPath>${basedir}/src/main/resources/admin-1.0.0-SNAPSHOT.jar</systemPath>
 		</dependency>
-		<!-- <dependency>
-   			<groupId>org.vaadin.addons</groupId>
-  			 <artifactId>attributes</artifactId>
-   			<version>0.0.1-SNAPSHOT</version>
-   			<scope>system</scope>
-   			<systemPath>${basedir}/src/main/resources/attributes.jar</systemPath>
+		<!-- <dependency> <groupId>org.vaadin.addons</groupId> <artifactId>attributes</artifactId> 
+			<version>0.0.1-SNAPSHOT</version> <scope>system</scope> <systemPath>${basedir}/src/main/resources/attributes.jar</systemPath> 
 			</dependency> -->
-			
-		<!-- <dependency>
-			<groupId>com.luretechnologies.tms.client.rest</groupId>
-			<artifactId>admin</artifactId>
-			<version>1.0.0-SNAPSHOT</version>
-			<scope>system</scope>
-		</dependency> -->
-		
+
+		<!-- <dependency> <groupId>com.luretechnologies.tms.client.rest</groupId> 
+			<artifactId>admin</artifactId> <version>1.0.0-SNAPSHOT</version> <scope>system</scope> 
+			</dependency> -->
+
 		<!-- HTTP client: jersey-client -->
 		<dependency>
 			<groupId>com.sun.jersey</groupId>
@@ -268,7 +258,7 @@
 			<artifactId>log4j</artifactId>
 			<version>1.2.17</version>
 		</dependency>
-		
+
 	</dependencies>
 
 	<build>
