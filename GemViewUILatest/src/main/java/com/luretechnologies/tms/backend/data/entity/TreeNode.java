@@ -49,7 +49,7 @@ public class TreeNode {
 	
 	private EntityTypeEnum type;
 	
-	public List<Entity> entityList;
+	public List<Entity> entityChildrenList;
 	
 	public boolean active;
 	
@@ -72,7 +72,7 @@ public class TreeNode {
 	public TreeNode() {
 	// TODO Auto-generated constructor stub
 	}
-	public TreeNode(String label, Long id, EntityTypeEnum entityTypeEnum, String entityId, String description, boolean active) {
+	public TreeNode(String label, Long id, EntityTypeEnum entityTypeEnum, String entityId, String description, List<Entity> entityChildrenList, boolean active) {
 		super();
 		Objects.requireNonNull(label);
 		Objects.requireNonNull(id);
@@ -84,6 +84,7 @@ public class TreeNode {
 		this.id = id;
 		this.type = entityTypeEnum;
 		this.description=description;
+		this.entityChildrenList = entityChildrenList;
 		this.active=active;
 	}
 
@@ -111,12 +112,12 @@ public class TreeNode {
 		this.type = type;
 	}
 
-	public List<Entity> getEntityList() {
-		return entityList;
+	public List<Entity> getEntityChildrenList() {
+		return entityChildrenList;
 	}
 
-	public void setEntityList(List<Entity> entityList) {
-		this.entityList = entityList;
+	public void setEntityChildrenList(List<Entity> entityList) {
+		this.entityChildrenList = entityList;
 	}
 
 	public String getEntityId() {

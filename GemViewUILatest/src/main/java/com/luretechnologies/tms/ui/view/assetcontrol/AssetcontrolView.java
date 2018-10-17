@@ -8,6 +8,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
@@ -27,14 +28,19 @@ import com.luretechnologies.tms.backend.data.entity.Permission;
 import com.luretechnologies.tms.backend.data.entity.TerminalClient;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
 import com.luretechnologies.tms.backend.service.AssetControlService;
+import com.luretechnologies.tms.backend.service.PersonalizationService;
 import com.luretechnologies.tms.backend.service.RolesService;
 import com.luretechnologies.tms.backend.service.TreeDataNodeService;
 import com.luretechnologies.tms.backend.service.UserService;
 import com.luretechnologies.tms.ui.MainView;
 import com.luretechnologies.tms.ui.components.ComponentUtil;
+import com.luretechnologies.tms.ui.components.EntityOperations;
 import com.luretechnologies.tms.ui.components.FormFieldType;
+import com.luretechnologies.tms.ui.components.MainViewIconsLoad;
 import com.luretechnologies.tms.ui.components.NotificationUtil;
+import com.luretechnologies.tms.ui.navigation.NavigationManager;
 import com.luretechnologies.tms.ui.view.ContextMenuWindow;
+import com.luretechnologies.tms.ui.view.Header;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.event.ShortcutAction.KeyCode;
@@ -111,13 +117,19 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 	private static Permission assetControlPermission;
 	private static CssLayout assetControlHistorySearchLayout;
 	private static CssLayout assetControlDebugSearchLayout;
-	private static Switch debugActivateSlider;
+	private static Button createEntity, editEntity, deleteEntity, copyEntity, pasteEntity;
+	private Header header;
+	private ContextMenuWindow paramContextWindow ;
+	private static Slider debugActivateSlider;
+	private Switch s;
 	
 	@Autowired
 	public AssetcontrolView() {
 
 	}
 
+	@Autowired
+	private PersonalizationService personalizationService;
 	
 	@Autowired
 	RolesService roleService;
@@ -134,67 +146,15 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 	@Autowired
 	public TreeDataNodeService treeDataNodeService;
 	
+	@Autowired
+	public NavigationManager navigationManager;
+	
 
 	@PostConstruct
 	private void init() {
 		try {
 		assetControlPermission = roleService.getLoggedInUserRolePermissions().stream().filter(check -> check.getPageName().equals("ASSET")).findFirst().get();
-		Page.getCurrent().addBrowserWindowResizeListener(r->{
-			if(r.getWidth()<=1575 && r.getWidth()>855) {
-				tabMode();
-				splitScreen.setSplitPosition(30);
-			}else if(r.getWidth()<=855 && r.getWidth()> 0){
-				phoneMode();
-				splitScreen.setSplitPosition(35);
-			} else {
-				desktopMode();
-				splitScreen.setSplitPosition(20);
-			}
-			
-			if(r.getWidth()<=600) {
-				treeNodeSearch.setHeight(28, Unit.PIXELS);
-				historySearch.setHeight("28px");
-				deviceDebugGridSearch.setHeight("28px");
-				debugStartDateField.setHeight("28px");
-				debugEndDateField.setHeight("28px");
-				deviceDebugStartDateField.setHeight("28px");
-				deviceDebugEndDateField.setHeight("28px");
-				deviceDebugDuration.setHeight("28px");
-				clearHistorySeach.removeStyleNames("v-button-customstyle", "audit-AuditSearchClearDesktop");
-				clearHistorySeach.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearPhone");
-				clearDebugSearch.removeStyleNames("v-button-customstyle", "audit-AuditSearchClearDesktop");
-				clearDebugSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearPhone");
-				mainView.getTitle().setValue(userService.getLoggedInUserName());
-			} else if(r.getWidth()>600 && r.getWidth()<=1000){
-				treeNodeSearch.setHeight(32, Unit.PIXELS);
-				historySearch.setHeight("32px");
-				deviceDebugGridSearch.setHeight("32px");
-				debugStartDateField.setHeight("32px");
-				debugEndDateField.setHeight("32px");
-				deviceDebugStartDateField.setHeight("32px");
-				deviceDebugEndDateField.setHeight("32px");
-				deviceDebugDuration.setHeight("32px");
-				clearHistorySeach.removeStyleNames("audit-AuditSearchClearDesktop", "audit-AuditSearchClearPhone");
-				clearHistorySeach.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"v-button-customstyle");
-				clearDebugSearch.removeStyleNames("audit-AuditSearchClearDesktop", "audit-AuditSearchClearPhone");
-				clearDebugSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"v-button-customstyle");
-				mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
-			}else {
-				treeNodeSearch.setHeight(37, Unit.PIXELS);
-				historySearch.setHeight("37px");
-				deviceDebugGridSearch.setHeight("37px");
-				debugStartDateField.setHeight("37px");
-				debugEndDateField.setHeight("37px");
-				deviceDebugStartDateField.setHeight("37px");
-				deviceDebugEndDateField.setHeight("37px");
-				deviceDebugDuration.setHeight("37px");
-				clearHistorySeach.removeStyleNames("audit-AuditSearchClearPhone", "v-button-customstyle");
-				clearHistorySeach.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearDesktop");
-				clearDebugSearch.removeStyleNames("audit-AuditSearchClearPhone", "v-button-customstyle");
-				clearDebugSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearDesktop");
-				mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
-			}
-		});
+		header = new Header(userService, navigationManager, "Asset", new Label());
 		
 		setSpacing(false);
 		setMargin(false);
@@ -204,7 +164,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		treeNodeSearch.setWidth("100%");
 		treeNodeSearch.setIcon(VaadinIcons.SEARCH);
 		treeNodeSearch.setStyleName("small inline-icon search");
-		treeNodeSearch.addStyleName("v-textfield-font");
+		treeNodeSearch.addStyleNames("v-textfield-font", "searchBar-Textfield");
 		treeNodeSearch.setPlaceholder("Search");	
 		treeNodeSearch.setMaxLength(50);
 		clearSearch = new Button(VaadinIcons.CLOSE);
@@ -220,119 +180,165 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		searchLayout.addComponents(treeNodeSearch,clearSearch);
 		searchLayout.setWidth("85%");
 		VerticalLayout treeSearchPanelLayout = new VerticalLayout(searchLayout);
+		treeSearchPanelLayout.setHeight("100%");
+		treeSearchPanelLayout.setExpandRatio(searchLayout, 1);
 		nodeTree = new TreeGrid<TreeNode>(TreeNode.class);
 		nodeTree.setTreeData(assetControlService.getTreeData());
-//		
-//		
-//		
-	nodeTree.addColumn(entity -> {
-		String iconHtml="";
-		switch (entity.getType()){
-		case ENTERPRISE:
-			iconHtml =  VaadinIcons.ORIENTATION.getHtml();
-			break;
-		case ORGANIZATION:
-			iconHtml = VaadinIcons.BUILDING_O.getHtml();
-			break;
-		case MERCHANT:
-			iconHtml =  VaadinIcons.SHOP.getHtml();
-			break;
-		case REGION:
-			iconHtml = VaadinIcons.OFFICE.getHtml();
-			break;
-		case TERMINAL:
-			iconHtml = VaadinIcons.LAPTOP.getHtml();
-			break;
-		case DEVICE:
-			iconHtml = VaadinIcons.MOBILE_BROWSER.getHtml();
-			break;
-		default:
-			break;
-		}
-		return iconHtml +" "+ Jsoup.clean(entity.getLabel(),Whitelist.simpleText());
-	},new HtmlRenderer()).setCaption("Entity").setId("entity");	
-	nodeTree.getColumn("serialNum").setCaption("Serial");
-	nodeTree.setHierarchyColumn("entity");
-	
-	nodeTree.setColumns("entity","serialNum");
-	
-		Button createEntity = new Button("Add Entity", click -> {
-			UI.getCurrent().getWindows().forEach(Window::close);
-			if (nodeTree.getSelectedItems().size() == 0) {
-				Notification.show(NotificationUtil.PERSONALIZATION_CREATE_ENTITY, Notification.Type.ERROR_MESSAGE);
-			} else {
-				//TODO create code
+		nodeTree.setSizeFull();
+		nodeTree.addStyleName("treeGrid");
+		
+		nodeTree.addColumn(entity -> {
+			String iconHtml="";
+			switch (entity.getType()){
+			case ENTERPRISE:
+				iconHtml =  VaadinIcons.ORIENTATION.getHtml();
+				break;
+			case ORGANIZATION:
+				iconHtml = VaadinIcons.BUILDING_O.getHtml();
+				break;
+			case MERCHANT:
+				iconHtml =  VaadinIcons.SHOP.getHtml();
+				break;
+			case REGION:
+				iconHtml = VaadinIcons.OFFICE.getHtml();
+				break;
+			case TERMINAL:
+				iconHtml = VaadinIcons.LAPTOP.getHtml();
+				break;
+			case DEVICE:
+				iconHtml = VaadinIcons.MOBILE_BROWSER.getHtml();
+				break;
+			default:
+				break;
 			}
-		});
+			return iconHtml +" "+ Jsoup.clean(entity.getLabel(),Whitelist.simpleText());
+		},new HtmlRenderer()).setCaption("Entity").setId("entity");	
+		nodeTree.getColumn("serialNum").setCaption("Serial");
+		nodeTree.setHierarchyColumn("entity");
+		
+		nodeTree.setColumns("entity","serialNum");
+		
+		createEntity = new Button("Add Entity");
 		createEntity.addStyleName(ValoTheme.BUTTON_BORDERLESS);
-		Button editEntity = new Button("Edit Entity", click -> {
-			UI.getCurrent().getWindows().forEach(Window::close);
-			if (nodeTree.getSelectedItems().size() == 0) {
-				Notification.show(NotificationUtil.PERSONALIZATION_EDIT, Notification.Type.ERROR_MESSAGE);
-			} else {
-			//TODO edit Code
-			}
-		});
+		
+		editEntity = new Button("Edit Entity");
 		editEntity.addStyleName(ValoTheme.BUTTON_BORDERLESS);
-		Button deleteEntity = new Button("Delete Entity", click -> {
-			UI.getCurrent().getWindows().forEach(Window::close);
-			if (nodeTree.getSelectedItems().size() == 0) {
-				Notification.show(NotificationUtil.PERSONALIZATION_DELETE, Notification.Type.ERROR_MESSAGE);
-			} else {
-				TreeNode selectedNode = nodeTree.getSelectedItems().iterator().next();
-				confirmDialog(selectedNode.getId(), selectedNode);
-			}
-		});
+		
+		deleteEntity = new Button("Delete Entity");
 		deleteEntity.addStyleName(ValoTheme.BUTTON_BORDERLESS);
 		
+		copyEntity = new Button("Copy Entity");
+		copyEntity.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+		
+		pasteEntity = new Button("Paste Entity");
+		pasteEntity.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+		pasteEntity.setEnabled(false);
+		
 		ContextMenuWindow assestControlTreeGridMenu = new ContextMenuWindow();
-		assestControlTreeGridMenu.addMenuItems(createEntity,editEntity,deleteEntity);
+		assestControlTreeGridMenu.addMenuItems(createEntity,editEntity,deleteEntity, copyEntity, pasteEntity);
 		nodeTree.addContextClickListener(click->{
 			UI.getCurrent().getWindows().forEach(Window::close);
 			assestControlTreeGridMenu.setPosition(click.getClientX(), click.getClientY());
 			UI.getCurrent().addWindow(assestControlTreeGridMenu);
+			EntityOperations.entityOperations(nodeTree, createEntity, editEntity, deleteEntity, copyEntity, pasteEntity, treeDataNodeService, personalizationService, assestControlTreeGridMenu);
 		});
-//		nodeTree.setItemIconGenerator(item -> {
-//			switch (item.getType()){
-//			case ENTERPRISE:
-//				return VaadinIcons.ORIENTATION;
-//			case ORGANIZATION:
-//				return VaadinIcons.BUILDING_O;
-//			case MERCHANT:
-//				return VaadinIcons.SHOP;
-//			case REGION:
-//				return VaadinIcons.OFFICE;
-//			case TERMINAL:
-//				return VaadinIcons.LAPTOP;
-//			case DEVICE:
-//				return VaadinIcons.MOBILE_BROWSER;
-//			default:
-//				return null;
-//			}
-//		});
+		
 		treeSearchPanelLayout.addComponent(nodeTree);
+		treeSearchPanelLayout.setExpandRatio(nodeTree, 14);
 		treeSearchPanelLayout.setMargin(true);
 		treeSearchPanelLayout.setStyleName("split-Height-ButtonLayout");
 		verticalPanelLayout.addComponent(treeSearchPanelLayout);
 		splitScreen = new HorizontalSplitPanel();
 		splitScreen.setFirstComponent(verticalPanelLayout);
-		splitScreen.setSplitPosition(20);
+		splitScreen.addStyleName("heartbeat-secondComponent");
 		splitScreen.addComponent(getTabSheet());
 		splitScreen.setHeight("100%");
 		panel.setContent(splitScreen);
 		
+		Page.getCurrent().addBrowserWindowResizeListener(r->{
+			if(r.getWidth()<=1575 && r.getWidth()>855) {
+				tabMode();
+				splitScreen.setSplitPosition(40);
+			}else if(r.getWidth()<=855 && r.getWidth()> 0){
+				phoneMode();
+				splitScreen.setSplitPosition(30);
+			} else {
+				desktopMode();
+				splitScreen.setSplitPosition(31);
+			}
+			
+			if(r.getWidth()<=600) {
+				treeNodeSearch.setHeight(28, Unit.PIXELS);
+				historySearch.setHeight("28px");
+				deviceDebugGridSearch.setHeight("28px");
+				debugStartDateField.setHeight("28px");
+				debugEndDateField.setHeight("28px");
+				deviceDebugStartDateField.setHeight("28px");
+				deviceDebugEndDateField.setHeight("28px");
+				deviceDebugDuration.setHeight("28px");
+				clearHistorySeach.removeStyleNames("v-button-customstyle", "audit-AuditSearchClearDesktop");
+				clearHistorySeach.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearPhone");
+				clearDebugSearch.removeStyleNames("v-button-customstyle", "audit-AuditSearchClearDesktop");
+				clearDebugSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearPhone");
+				assetTabSheet.getTab(0).setCaption("<h3 style=font-weight:400;width:90px;height:15px;>AssetLog</h3>");
+				assetTabSheet.getTab(1).setCaption("<h3 style=font-weight:400;width:90px;height:15px;>Alert</h3>");
+				assetTabSheet.getTab(2).setCaption("<h3 style=font-weight:400;width:90px;height:15px;>Debug</h3>");
+				removeComponent(header);
+				mainView.getTitle().setValue(userService.getLoggedInUserName());
+				MainViewIconsLoad.noIconsOnDesktopMode(mainView);
+			} else if(r.getWidth()>600 && r.getWidth()<=1000){
+				treeNodeSearch.setHeight(32, Unit.PIXELS);
+				historySearch.setHeight("32px");
+				deviceDebugGridSearch.setHeight("32px");
+				debugStartDateField.setHeight("32px");
+				debugEndDateField.setHeight("32px");
+				deviceDebugStartDateField.setHeight("32px");
+				deviceDebugEndDateField.setHeight("32px");
+				deviceDebugDuration.setHeight("32px");
+				clearHistorySeach.removeStyleNames("audit-AuditSearchClearDesktop", "audit-AuditSearchClearPhone");
+				clearHistorySeach.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"v-button-customstyle");
+				clearDebugSearch.removeStyleNames("audit-AuditSearchClearDesktop", "audit-AuditSearchClearPhone");
+				clearDebugSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"v-button-customstyle");
+				addComponentAsFirst(header);
+				assetTabSheet.getTab(0).setCaption("<h3 style=font-weight:400;width:120px;height:20px;>AssetLog</h3>");
+				assetTabSheet.getTab(1).setCaption("<h3 style=font-weight:400;width:120px;height:20px;>Alert</h3>");
+				assetTabSheet.getTab(2).setCaption("<h3 style=font-weight:400;width:120px;height:20px;>Debug</h3>");
+				mainView.getTitle().setValue("gemView");
+				MainViewIconsLoad.iconsOnTabMode(mainView);
+			}else {
+				treeNodeSearch.setHeight(37, Unit.PIXELS);
+				historySearch.setHeight("37px");
+				deviceDebugGridSearch.setHeight("37px");
+				debugStartDateField.setHeight("37px");
+				debugEndDateField.setHeight("37px");
+				deviceDebugStartDateField.setHeight("37px");
+				deviceDebugEndDateField.setHeight("37px");
+				deviceDebugDuration.setHeight("37px");
+				clearHistorySeach.removeStyleNames("audit-AuditSearchClearPhone", "v-button-customstyle");
+				clearHistorySeach.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearDesktop");
+				clearDebugSearch.removeStyleNames("audit-AuditSearchClearPhone", "v-button-customstyle");
+				clearDebugSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearDesktop");
+				assetTabSheet.getTab(0).setCaption("<h3 style=font-weight:400;width:150px;height:25px;>AssetLog</h3>");
+				assetTabSheet.getTab(1).setCaption("<h3 style=font-weight:400;width:150px;height:25px;>Alert</h3>");
+				assetTabSheet.getTab(2).setCaption("<h3 style=font-weight:400;width:150px;height:25px;>Debug</h3>");
+				MainViewIconsLoad.noIconsOnDesktopMode(mainView);
+				addComponentAsFirst(header);
+				mainView.getTitle().setValue("gemView");
+			}
+		});
+		
+		
 		int width = Page.getCurrent().getBrowserWindowWidth();
-		int height = Page.getCurrent().getBrowserWindowHeight();
 		if(width >0 && width <=855) {
 			phoneMode();
 			splitScreen.setSplitPosition(35);
 		} else if(width>855 && width<=1575) {
 			tabMode();
-			splitScreen.setSplitPosition(30);
+			splitScreen.setSplitPosition(40);
 		}
 		else {
 			desktopMode();
-			splitScreen.setSplitPosition(20);
+			splitScreen.setSplitPosition(31);
 		}
 		
 		if(width<=600) {
@@ -347,6 +353,11 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 			clearHistorySeach.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearPhone");
 			clearDebugSearch.removeStyleNames("v-button-customstyle", "audit-AuditSearchClearDesktop");
 			clearDebugSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearPhone");
+			assetTabSheet.getTab(0).setCaption("<h3 style=font-weight:400;width:90px;height:15px;>AssetLog</h3>");
+			assetTabSheet.getTab(1).setCaption("<h3 style=font-weight:400;width:90px;height:15px;>Alert</h3>");
+			assetTabSheet.getTab(2).setCaption("<h3 style=font-weight:400;width:90px;height:15px;>Debug</h3>");
+			MainViewIconsLoad.noIconsOnDesktopMode(mainView);
+			removeComponent(header);
 			mainView.getTitle().setValue(userService.getLoggedInUserName());
 		} else if(width>600 && width<=1000){
 			treeNodeSearch.setHeight(32, Unit.PIXELS);
@@ -360,7 +371,12 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 			clearHistorySeach.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"v-button-customstyle");
 			clearDebugSearch.removeStyleNames("audit-AuditSearchClearDesktop", "audit-AuditSearchClearPhone");
 			clearDebugSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"v-button-customstyle");
-			mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
+			assetTabSheet.getTab(0).setCaption("<h3 style=font-weight:400;width:120px;height:20px;>AssetLog</h3>");
+			assetTabSheet.getTab(1).setCaption("<h3 style=font-weight:400;width:120px;height:20px;>Alert</h3>");
+			assetTabSheet.getTab(2).setCaption("<h3 style=font-weight:400;width:120px;height:20px;>Debug</h3>");
+			MainViewIconsLoad.iconsOnTabMode(mainView);
+			addComponentAsFirst(header);
+			mainView.getTitle().setValue("gemView");
 		}else {
 			treeNodeSearch.setHeight(37, Unit.PIXELS);
 			historySearch.setHeight("37px");
@@ -373,7 +389,12 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 			clearHistorySeach.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearDesktop");
 			clearDebugSearch.removeStyleNames("audit-AuditSearchClearPhone", "v-button-customstyle");
 			clearDebugSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearDesktop");
-			mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
+			assetTabSheet.getTab(0).setCaption("<h3 style=font-weight:400;width:150px;height:25px;>AssetLog</h3>");
+			assetTabSheet.getTab(1).setCaption("<h3 style=font-weight:400;width:150px;height:25px;>Alert</h3>");
+			assetTabSheet.getTab(2).setCaption("<h3 style=font-weight:400;width:150px;height:25px;>Debug</h3>");
+			MainViewIconsLoad.noIconsOnDesktopMode(mainView);
+			addComponentAsFirst(header);
+			mainView.getTitle().setValue("gemView");
 		}
 		
 		assetTabSheet.addSelectedTabChangeListener(new SelectedTabChangeListener() {
@@ -411,8 +432,8 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		case "debug":
 			
 				DataProvider data2 = new ListDataProvider(Collections.EMPTY_LIST);
-//				deviceDebugGrid.setDataProvider(data2);
-//				deviceDebugGridSearch.clear();
+				deviceDebugGrid.setDataProvider(data2);
+				deviceDebugGridSearch.clear();
 				clearCalenderDates();
 			break;
 		default:
@@ -425,10 +446,13 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		panel.setHeight("100%");
 		panel.addStyleName(ValoTheme.PANEL_WELL);
 		panel.setCaptionAsHtml(true);
-		panel.setCaption("Asset Control");
 		panel.setResponsive(true);
 		panel.setSizeFull();
+		panel.setSizeFull();
+		addComponent(header);
 		addComponent(panel);
+		setExpandRatio(header, 1);
+	    setExpandRatio(panel, 11);
 		return panel;
 	}
 	private void tabMode() {
@@ -438,8 +462,8 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		dateDeleteHistoryLayout.setComponentAlignment(debugStartDateField, Alignment.TOP_RIGHT);
 		dateDeleteHistoryLayout.addComponent(debugEndDateField);
 		dateDeleteHistoryLayout.setComponentAlignment(debugEndDateField, Alignment.TOP_RIGHT);
-		dateDeleteHistoryLayout.addComponent(deleteHistoryGridRow);
-		dateDeleteHistoryLayout.setComponentAlignment(deleteHistoryGridRow, Alignment.TOP_LEFT);
+//		dateDeleteHistoryLayout.addComponent(deleteHistoryGridRow);
+//		dateDeleteHistoryLayout.setComponentAlignment(deleteHistoryGridRow, Alignment.TOP_LEFT);
 		optionsLayoutHistoryVerticalTab.addComponents(historySearchLayout,dateDeleteHistoryLayout);
 		
 		optionsLayoutHistoryHorizontalDesktop.setVisible(false);
@@ -467,7 +491,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 	
 	private void phoneMode() {
 		//History Screen
-		dateDeleteHistoryLayoutPhone.addComponents(debugStartDateField, debugEndDateField,deleteHistoryGridRow);
+		dateDeleteHistoryLayoutPhone.addComponents(debugStartDateField, debugEndDateField);
 		optionsLayoutHistoryVerticalPhone.addStyleName("audit-phoneAlignment");
 		historySearchLayout.addStyleName("audit-phoneAlignment");
 		optionsLayoutHistoryVerticalPhone.addComponents(historySearchLayout,dateDeleteHistoryLayoutPhone);
@@ -494,8 +518,8 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		dateDeleteHistoryLayout.setComponentAlignment(debugStartDateField, Alignment.TOP_RIGHT);
 		dateDeleteHistoryLayout.addComponent(debugEndDateField);
 		dateDeleteHistoryLayout.setComponentAlignment(debugEndDateField, Alignment.TOP_RIGHT);
-		dateDeleteHistoryLayout.addComponent(deleteHistoryGridRow);
-		dateDeleteHistoryLayout.setComponentAlignment(deleteHistoryGridRow, Alignment.TOP_LEFT);
+//		dateDeleteHistoryLayout.addComponent(deleteHistoryGridRow);
+//		dateDeleteHistoryLayout.setComponentAlignment(deleteHistoryGridRow, Alignment.TOP_LEFT);
 		optionsLayoutHistoryHorizontalDesktop.addComponent(dateDeleteHistoryLayout);
 		optionsLayoutHistoryHorizontalDesktop.setComponentAlignment(dateDeleteHistoryLayout, Alignment.TOP_RIGHT);
 		optionsLayoutHistoryHorizontalDesktop.setVisible(true);
@@ -560,16 +584,17 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 	}
 
 	private TabSheet getTabSheet() throws ApiException {
-
-		// debugLayout.setSizeUndefined();
 		assetTabSheet = new TabSheet();
-		assetTabSheet.setHeight(100.0f, Unit.PERCENTAGE);
-		assetTabSheet.setSizeFull();
-		assetTabSheet.addStyleNames(ValoTheme.TABSHEET_EQUAL_WIDTH_TABS, ValoTheme.TABSHEET_CENTERED_TABS,
-				ValoTheme.TABSHEET_ICONS_ON_TOP, ValoTheme.TABSHEET_COMPACT_TABBAR, ValoTheme.TABSHEET_PADDED_TABBAR);
-		assetTabSheet.addTab(getHistory(), "History");
-		assetTabSheet.addTab(getAlert(), "Alert");
-		assetTabSheet.addTab(getDebug(), "Debug");
+		assetTabSheet.setHeight(91.0f, Unit.PERCENTAGE);
+		assetTabSheet.addStyleNames(ValoTheme.TABSHEET_FRAMED, ValoTheme.TABSHEET_PADDED_TABBAR, "tabsheet-margin");
+		assetTabSheet.setCaptionAsHtml(true);
+		assetTabSheet.setTabCaptionsAsHtml(true);
+		assetTabSheet.addTab(getHistory());
+		assetTabSheet.getTab(0).setId("assetlog");
+		assetTabSheet.addTab(getAlert());
+		assetTabSheet.getTab(1).setId("alert");
+		assetTabSheet.addTab(getDebug());
+		assetTabSheet.getTab(2).setId("debug");
 		
 		return assetTabSheet;
 	}
@@ -581,14 +606,16 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		deviceDebugStartDateField.clear();
 	}
 	
-	private void confirmDialog(Long id, TreeNode treeNode) {
+	private void confirmDialog(Set<AssetHistory> historyList, TreeNode treeNode) {
 		ConfirmDialog.show(this.getUI(), "Please Confirm:", "Are you sure you want to delete?",
 		        "Ok", "Cancel", new ConfirmDialog.Listener() {
 
 		            public void onClose(ConfirmDialog dialog) {
 		                if (dialog.isConfirmed()) {
 		                    // Confirmed to continue
-								assetControlService.deleteHistoryGridData(id);
+		                	for(AssetHistory history : historyList) {
+								assetControlService.deleteHistoryGridData(history.getId());
+		                	}
 								List<AssetHistory> historyListNew = assetControlService.getHistoryGridData(treeNode.getEntityId());
 			                	DataProvider data = new ListDataProvider(historyListNew);
 			                	debugGrid.setDataProvider(data);
@@ -616,7 +643,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		                	deviceDebugGrid.setDataProvider(data);
 		                	nodeTree.getDataProvider().refreshAll();
 		        			deviceDebugGrid.getDataProvider().refreshAll();
-//		        			deviceDebugGridSearch.clear();
+		        			deviceDebugGridSearch.clear();
 		        			clearCalenderDates();
 		                } else {
 		                    // User did not confirm
@@ -656,7 +683,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		//debugGrid.setHeightByRows(20);
 		debugGrid.setResponsive(true);
 		debugGrid.addStyleName("grid-AuditOdometerAlignment");
-		debugGrid.setSelectionMode(SelectionMode.SINGLE);
+		debugGrid.setSelectionMode(SelectionMode.MULTI);
 		debugGrid.setColumns("type", "description");
 		//debugGrid.setDataProvider(debugService.getListDataProvider());
 		debugGrid.getColumn("type").setCaption("Debug Type").setStyleGenerator(style -> {
@@ -737,18 +764,32 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		});
 		assetControlHistorySearchLayout.addComponents(historySearch, clearHistorySeach);
 		
-		deleteHistoryGridRow = new Button(VaadinIcons.TRASH);
-		deleteHistoryGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
+		deleteHistoryGridRow = new Button("Delete Record/s");
+		deleteHistoryGridRow.addStyleNames(ValoTheme.BUTTON_BORDERLESS, "v-button-customstyle");
 		deleteHistoryGridRow.setResponsive(true);
 		deleteHistoryGridRow.addClickListener(clicked -> {
 			if(debugGrid.getSelectedItems().isEmpty()) {
 				Notification.show(NotificationUtil.ASSET_HISTORY_DELETE, Notification.Type.ERROR_MESSAGE);
 			}else {
-				confirmDialog(debugGrid.getSelectedItems().iterator().next().getId(), nodeTree.getSelectedItems().iterator().next());
+				confirmDialog(debugGrid.getSelectedItems(), nodeTree.getSelectedItems().iterator().next());
 			}
-
+			paramContextWindow.close();
 		});
 		deleteHistoryGridRow.setEnabled(assetControlPermission.getDelete());
+		
+		paramContextWindow = new ContextMenuWindow();
+		paramContextWindow.addMenuItems(deleteHistoryGridRow);
+		debugGrid.addContextClickListener(click -> {
+			UI.getCurrent().getWindows().forEach(Window::close);
+			paramContextWindow.setPosition(click.getClientX(), click.getClientY());
+			UI.getCurrent().addWindow(paramContextWindow);
+		});
+		
+		UI.getCurrent().addClickListener(listener->{
+			if(paramContextWindow!=null) {
+				paramContextWindow.close();
+			}
+		});
 
 		 optionsLayoutHistoryHorizontalDesktop = new HorizontalLayout();
 		optionsLayoutHistoryHorizontalDesktop.setWidth("100%");
@@ -802,8 +843,8 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		dateDeleteHistoryLayout.setComponentAlignment(debugStartDateField, Alignment.MIDDLE_LEFT);
 		dateDeleteHistoryLayout.addComponent(debugEndDateField);
 		dateDeleteHistoryLayout.setComponentAlignment(debugEndDateField, Alignment.MIDDLE_RIGHT);
-		dateDeleteHistoryLayout.addComponent(deleteHistoryGridRow);
-		dateDeleteHistoryLayout.setComponentAlignment(deleteHistoryGridRow, Alignment.MIDDLE_RIGHT);
+//		dateDeleteHistoryLayout.addComponent(deleteHistoryGridRow);
+//		dateDeleteHistoryLayout.setComponentAlignment(deleteHistoryGridRow, Alignment.MIDDLE_RIGHT);
 		optionsLayoutHistoryHorizontalDesktop.addComponent(dateDeleteHistoryLayout);
 		optionsLayoutHistoryHorizontalDesktop.setComponentAlignment(dateDeleteHistoryLayout, Alignment.MIDDLE_RIGHT);
 		
@@ -873,8 +914,8 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		nodeTree.addSelectionListener(selection -> {
 			if(!selection.getFirstSelectedItem().isPresent()) {
 				
-				switch (assetTabSheet.getTab(assetTabSheet.getSelectedTab()).getCaption().toLowerCase()) {
-				case "history":
+				switch (assetTabSheet.getTab(assetTabSheet.getSelectedTab()).getId().toLowerCase()) {
+				case "assetlog":
 					
 					List<AssetHistory> assetHistoryList = new ArrayList<>();
 					DataProvider historyData = new ListDataProvider(assetHistoryList);
@@ -889,17 +930,17 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 				case "debug":
 					List<DebugItems> debugItemsList = new ArrayList<>();
 					DataProvider debugItemsData = new ListDataProvider(debugItemsList);
-					deviceDebugGrid.setData(debugItemsData);
-//					deviceDebugGridSearch.clear();
-					debugActivateSlider.setValue(selection.getFirstSelectedItem().get().isActive());
+					//deviceDebugGrid.setData(debugItemsData);
+					//deviceDebugGridSearch.clear();
+					s.setEnabled(false);
 					break;
 				default:
 					break;
 				}
 				
 			} else {
-				switch (assetTabSheet.getTab(assetTabSheet.getSelectedTab()).getCaption().toLowerCase()) {
-				case "history":
+				switch (assetTabSheet.getTab(assetTabSheet.getSelectedTab()).getId().toLowerCase()) {
+				case "assetlog":
 					List<AssetHistory> assetHistoryList = new ArrayList<>();
 						assetHistoryList = assetControlService.getHistoryGridData(nodeTree.getSelectedItems().iterator().next().getEntityId());
 						DataProvider data = new ListDataProvider(assetHistoryList);
@@ -913,34 +954,29 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 					alertGrid.setDataProvider(alertData);
 					break;
 				case "debug":
-					List<DebugItems> debugItemsList = new ArrayList<>();
-					debugItemsList= assetControlService.getDeviceDebugList(nodeTree.getSelectedItems().iterator().next().getEntityId(), 
-							selection.getFirstSelectedItem().get().getType().name());
-					DataProvider debugItemsData = new ListDataProvider(debugItemsList);
 					if(nodeTree.getSelectedItems().iterator().next().getType().name().equalsIgnoreCase("Terminal")) {
-						((TextField)deviceDebugFormLayout.getComponent(0)).setValue(nodeTree.getSelectedItems().iterator().next().getType().name());
-						((TextField)deviceDebugFormLayout.getComponent(1)).setValue(nodeTree.getSelectedItems().iterator().next().getLabel());
-						((TextField)deviceDebugFormLayout.getComponent(2)).setValue(nodeTree.getSelectedItems().iterator().next().getDescription());
-						HorizontalLayout HL= (HorizontalLayout)deviceDebugFormLayout.getComponent(3);
-						CheckBox checkbox = (CheckBox) HL.getComponent(1);
-						checkbox.setValue(nodeTree.getSelectedItems().iterator().next().isActive());
 						TerminalClient terminal = assetControlService.getTerminal(nodeTree.getSelectedItems().iterator().next().getEntityId());
 						if(terminal!=null) {
-							((TextField)deviceDebugFormLayout.getComponent(4)).setValue(terminal.getSerialNumber());
-							HorizontalLayout HL1= (HorizontalLayout)deviceDebugFormLayout.getComponent(5);
-							CheckBox checkbox1 = (CheckBox) HL1.getComponent(1);
-							checkbox1.setValue(terminal.isActive());
-							String date = terminal.getDuration();
-							LocalDate localDate = LocalDate.parse(date);
-							DateField dateField = (DateField)deviceDebugFormLayout.getComponent(6);
-							dateField.setDateFormat(DATE_FORMAT);
-							dateField.setValue(localDate);
+							s.setEnabled(true);
+							s.setValue(terminal.isDebugActive());
+							if(s.getValue()) {
+								deviceDebugDuration.setEnabled(true);
+								String date = terminal.getDuration();
+								LocalDate localDate = LocalDate.parse(date);
+								deviceDebugDuration.setValue(localDate);
+							}else {
+								deviceDebugDuration.clear();
+								deviceDebugDuration.setEnabled(false);
+							}
 						}
+						
 					}else {
-						clearEntityInformation();
+						s.setValue(false);
+						s.setEnabled(false);
+						deviceDebugDuration.clear();
+						deviceDebugDuration.setEnabled(false);
 					}
-					deviceDebugGrid.setDataProvider(debugItemsData);
-//					deviceDebugGridSearch.clear();
+	
 					break;
 				default:
 					break;
@@ -949,7 +985,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 			
 			clearCalenderDates();
 			historySearch.clear();
-//			deviceDebugGridSearch.clear();
+			deviceDebugGridSearch.clear();
 
 		});
 		return historyLayoutFull;
@@ -971,7 +1007,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 	}
 
 	private VerticalLayout getAlert() {
-		Button[] buttons= {createAlertGridRow,editAlertGridRow,deleteAlertGridRow,saveAlertForm,cancelAlertForm};
+		Button[] buttons= {saveAlertForm,cancelAlertForm};
 		AlertTab alertTab  = new AlertTab(alertGrid, nodeTree,Page.getCurrent().getUI(), assetControlService,assetControlPermission,buttons);
 		return alertTab.getAlert();
 	}
@@ -981,7 +1017,13 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		HorizontalLayout debugLabel = new HorizontalLayout();
 		HorizontalLayout debugMonitoringLabel = new HorizontalLayout();
 		
-		debugLayout.addStyleName("heartbeat-verticalLayout");
+		//debugLayout.addStyleName("heartbeat-verticalLayout");
+		s = new Switch("Activate Debug");
+		s.setValue(false);
+		s.setAnimationEnabled(true);
+		s.addStyleName("assetDebug-Switch");
+		s.setEnabled(false);
+		
 		Label entityInformation = new Label("Entity Information");
 		entityInformation.addStyleNames(ValoTheme.LABEL_BOLD, ValoTheme.LABEL_H3);
 		entityInformation.addStyleName("label-style");
@@ -989,7 +1031,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		debugLabel.addComponent(entityInformation);
 		
 		
-//		debugLayout.addComponent(entityInformation);
+		//debugLayout.addComponent(entityInformation);
 		deviceDebugFormLayout = new FormLayout();
 		deviceDebugFormLayout.addStyleNames("heartbeat-verticalLayout", "asset-debugSFormLayout","system-LabelAlignment");
 		deviceDebugFormLayout.addComponent(ComponentUtil.getFormFieldWithLabel("Entity Type", FormFieldType.TEXTBOX));
@@ -1001,8 +1043,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		//deviceDebugFormLayout.addComponent(ComponentUtil.getFormFieldWithLabel("Debug Duration", FormFieldType.TEXTBOX));
 		
 		deviceDebugDuration =  new DateField();
-		deviceDebugDuration.setWidth("60%");
-		deviceDebugDuration.setHeight("37px");
+		
 		deviceDebugDuration.setResponsive(true);
 		deviceDebugDuration.setDateFormat(DATE_FORMAT);
 		//deviceDebugDuration.setRangeStart(LocalDateTime.now().toLocalDate());
@@ -1010,21 +1051,21 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		deviceDebugDuration.addStyleNames("v-textfield-font", "personlization-formAlignment");
 		deviceDebugDuration.setCaptionAsHtml(true);
 		deviceDebugDuration.setCaption("Debug Duration");
+		deviceDebugDuration.setEnabled(false);
 
 		deviceDebugFormLayout.addComponent(deviceDebugDuration);
 		deviceDebugFormLayout.setComponentAlignment(deviceDebugDuration, Alignment.TOP_RIGHT); // FIXME : alignment issue
-//		debugLayout.addComponent(deviceDebugFormLayout);
-		// Grid
+		//debugLayout.addComponent(deviceDebugFormLayout);
 		Label debugMonitoring = new Label("Device Debug Monitoring");
 		debugMonitoring.addStyleNames(ValoTheme.LABEL_BOLD, ValoTheme.LABEL_H3);
 		debugMonitoring.addStyleName("label-style");
 		debugMonitoringLabel.addStyleName("assetDebug-label");
 		debugMonitoringLabel.addComponent(debugMonitoring);
-//		debugLayout.addComponent(debugMonitoringLabel);
+		//debugLayout.addComponent(debugMonitoringLabel);
 		getDeviceDebugGridSearchLayout();
-//		debugLayout.addComponent(getDeviceDebugGrid());
+		//debugLayout.addComponent(getDeviceDebugGrid());
 		
-//		deviceDebugGrid.addSelectionListener(selection->{
+		//deviceDebugGrid.addSelectionListener(selection->{
 			/*if(selection.getFirstSelectedItem().isPresent()) {
 				DebugItems selectedDebug = selection.getFirstSelectedItem().get();
 				((TextField)deviceDebugFormLayout.getComponent(0)).setValue(selectedDebug.getType().name());
@@ -1063,17 +1104,43 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 					}
 				}
 			}*/
-//		});
+		//});
 //		deleteDeviceDebugGridRow.setEnabled(assetControlPermission.getDelete());
 //		saveDeviceDebug.setEnabled(assetControlPermission.getAdd() || assetControlPermission.getEdit());
-		//FIXME: Using custom field for On off : https://vaadin.com/forum/thread/293624
-		debugActivateSlider = new Switch("Activate Debug"); // Doesnot work generates a checkbox instead slider.
-		//debugActivateSlider.setValue(nodeTree.getSelectionModel().getFirstSelectedItem().get().device.isActive()?1.0:0.0);
 		
-		debugActivateSlider.addValueChangeListener(value ->{
-			//Put saving mechanism
+		/*debugActivateSlider.addListener(listener->{ 
+			listener.getComponent().
+		}); */
+		//debugActivateSlider.setValue(nodeTree.getSelectionModel().getFirstSelectedItem().get().device.isActive()?1.0:0.0);
+			
+		s.addValueChangeListener(listener -> {
+			if (nodeTree.getSelectedItems().size() > 0) {
+				if (nodeTree.getSelectedItems().iterator().next().getType().name().equalsIgnoreCase("Terminal")) {
+					if (listener.getValue()) {
+						deviceDebugDuration.setEnabled(true);
+
+						deviceDebugDuration.addValueChangeListener(change -> {
+							if (change.getValue() != null) {
+								String dateValue = change.getValue().format(dateFormatter2);
+								assetControlService.saveDebugAndDuration(
+										nodeTree.getSelectedItems().iterator().next().getEntityId(), true, dateValue);
+							}
+						});
+					} else {
+						deviceDebugDuration.setEnabled(false);
+						deviceDebugDuration.clear();
+						assetControlService.saveDebugAndDuration(
+								nodeTree.getSelectedItems().iterator().next().getEntityId(), false, null);
+					}
+
+				}
+			} else {
+				Notification.show(NotificationUtil.PERSONALIZATION_DEBUG_DURATION, Type.ERROR_MESSAGE);
+			}
 		});
-		debugLayout.addComponents(debugActivateSlider,deviceDebugDuration);
+		
+		FormLayout fL = new FormLayout(s,deviceDebugDuration);
+		debugLayout.addComponents(fL);
 		return debugLayout;
 	}
 
@@ -1212,8 +1279,8 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		//dateDeleteDebugLayout.setWidth("100%");
 		debugDeleteSaveLayout= new HorizontalLayout();
 		
-//		optionsLayoutDebugHorizontalDesktop.addComponent(debugSearchLayout);
-//		optionsLayoutDebugHorizontalDesktop.setComponentAlignment(debugSearchLayout, Alignment.MIDDLE_LEFT);
+		optionsLayoutDebugHorizontalDesktop.addComponent(debugSearchLayout);
+		optionsLayoutDebugHorizontalDesktop.setComponentAlignment(debugSearchLayout, Alignment.MIDDLE_LEFT);
 		dateDeleteDebugLayout.addComponent(deviceDebugStartDateField);
 		dateDeleteDebugLayout.setComponentAlignment(deviceDebugStartDateField, Alignment.MIDDLE_LEFT);
 		dateDeleteDebugLayout.addComponent(deviceDebugEndDateField);
@@ -1222,15 +1289,15 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		dateDeleteDebugLayout.setComponentAlignment(deleteDeviceDebugGridRow, Alignment.MIDDLE_RIGHT);
 		dateDeleteDebugLayout.addComponent(saveDeviceDebug);
 		dateDeleteDebugLayout.setComponentAlignment(saveDeviceDebug, Alignment.MIDDLE_RIGHT);
-//		optionsLayoutDebugHorizontalDesktop.addComponent(dateDeleteDebugLayout);
-//		optionsLayoutDebugHorizontalDesktop.setComponentAlignment(dateDeleteDebugLayout, Alignment.MIDDLE_LEFT);
+		optionsLayoutDebugHorizontalDesktop.addComponent(dateDeleteDebugLayout);
+		optionsLayoutDebugHorizontalDesktop.setComponentAlignment(dateDeleteDebugLayout, Alignment.MIDDLE_LEFT);
 		
 //		debugLayout.addComponent(optionsLayoutDebugHorizontalDesktop);
 //		debugLayout.setComponentAlignment(optionsLayoutDebugHorizontalDesktop, Alignment.TOP_LEFT);
-		debugLayout.addComponent(optionsLayoutDebugVerticalTab);
-		debugLayout.setComponentAlignment(optionsLayoutDebugVerticalTab, Alignment.TOP_LEFT);
-		debugLayout.addComponent(optionsLayoutDebugVerticalPhone);
-		debugLayout.setComponentAlignment(optionsLayoutDebugVerticalPhone, Alignment.TOP_LEFT);
+//		debugLayout.addComponent(optionsLayoutDebugVerticalTab);
+//		debugLayout.setComponentAlignment(optionsLayoutDebugVerticalTab, Alignment.TOP_LEFT);
+//		debugLayout.addComponent(optionsLayoutDebugVerticalPhone);
+//		debugLayout.setComponentAlignment(optionsLayoutDebugVerticalPhone, Alignment.TOP_LEFT);
 
 		deviceDebugEndDateField.addShortcutListener(new ShortcutListener("Clear", KeyCode.ESCAPE, null) {
 

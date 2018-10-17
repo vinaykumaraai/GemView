@@ -70,6 +70,7 @@ import com.luretechnologies.tms.ui.view.personalization.PersonalizationView;
 import com.luretechnologies.tms.ui.view.system.SystemView;
 import com.vaadin.external.org.slf4j.Logger;
 import com.vaadin.external.org.slf4j.LoggerFactory;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewDisplay;
 import com.vaadin.navigator.ViewLeaveAction;
@@ -359,6 +360,18 @@ public class MainView extends MainViewDesign implements ViewDisplay {
 	
 	public Button getSystem() {
 		return system;
+	}
+	
+	public Button getBoarding() {
+		return boarding;
+	}
+	
+	public Button getTransactions() {
+		return transactions;
+	}
+	
+	public Button getLogout() {
+		return logout;
 	}
 	
 	private String getAbsoluteUrl(String url) {

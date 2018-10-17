@@ -61,8 +61,8 @@ public class HeartbeatService {
 				List<com.luretechnologies.client.restlib.service.model.Terminal> terminalListServer = RestServiceUtil.getInstance().getClient().getTerminalApi().getTerminals(null, null);
 				for(com.luretechnologies.client.restlib.service.model.Terminal terminalServer :terminalListServer) {
 					TerminalClient terminal = new TerminalClient(terminalServer.getId(), terminalServer.getType().name(), terminalServer.getName(), terminalServer.getDescription(),
-							terminalServer.getSerialNumber(), terminalServer.getAvailable(),terminalServer.getDebugActive(),
-							terminalServer.getFrequency(), terminalServer.getLastContact().toString(), terminalServer.getEntityId());
+							terminalServer.getSerialNumber(), terminalServer.getAvailable(),terminalServer.isHeartbeat(),
+							terminalServer.getDebugActive(), terminalServer.getFrequency(), terminalServer.getLastContact().toString(), terminalServer.getEntityId());
 					terminalList.add(terminal);
 				}
 				return terminalList;
@@ -93,7 +93,8 @@ public class HeartbeatService {
 				List<com.luretechnologies.client.restlib.service.model.Terminal> terminalListServer = RestServiceUtil.getInstance().getClient().getTerminalApi().searchTerminals(filter, null, null);
 				for(com.luretechnologies.client.restlib.service.model.Terminal terminalServer :terminalListServer) {
 					TerminalClient terminal = new TerminalClient(terminalServer.getId(), terminalServer.getType().name(), terminalServer.getName(), terminalServer.getDescription(),
-							terminalServer.getSerialNumber(), terminalServer.getAvailable(),terminalServer.getDebugActive(),
+							terminalServer.getSerialNumber(), terminalServer.getAvailable(),terminalServer.isHeartbeat(),
+							terminalServer.getDebugActive(),
 							terminalServer.getFrequency(), terminalServer.getLastContact().toString(), terminalServer.getEntityId());
 					terminalList.add(terminal);
 				}

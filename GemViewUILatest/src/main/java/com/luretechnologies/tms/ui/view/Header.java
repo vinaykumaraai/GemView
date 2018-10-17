@@ -69,6 +69,8 @@ public class Header extends HorizontalLayout {
 		userMenuWindow.addMenuItems(Roles);
 		userMenuWindow.addMenuItems(System);
 		userMenuWindow.addMenuItems(logOut);
+		userMenuWindow.setHeight("230px");
+		userMenuWindow.setWidth("210px");
 		Button userMenuButton = new Button(VaadinIcons.ELLIPSIS_DOTS_V, click->{
 			UI.getCurrent().getWindows().forEach(Window::close);
 			userMenuWindow.setPosition(click.getClientX(), click.getClientY());

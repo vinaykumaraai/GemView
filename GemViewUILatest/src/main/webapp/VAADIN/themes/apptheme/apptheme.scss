@@ -39,10 +39,10 @@ $app-background-color: #145A32;
 }
 
 .apptheme .v-textfield{
-	background:#efefef !important;
+	background:#f9f9f9 !important;
 }
 .apptheme .v-filterselect [class*="input"]{
-	background:#efefef !important;
+	background:#f9f9f9 !important;
 }
 
 .apptheme .app-shell[width-range~="601px-"] .navigation-bar {
@@ -132,6 +132,17 @@ $app-background-color: #145A32;
 }
 .v-textfield-lineHeight{
 	height: 28px !important;
+}
+
+.searchBar-Textfield{
+	border-bottom-right-radius: 0px !important;
+    border-top-right-radius: 0px !important;
+    border-bottom-left-radius: 6px !important;
+    border-top-left-radius: 6px !important;
+}
+
+.treeGrid{
+	margin-top:-15px;
 }
 
 .role-textbox{
@@ -454,12 +465,12 @@ $app-background-color: #145A32;
 .split-height{
 		background-color: white;
 		overflow:auto !important;
-		padding: 22px 0px 22px 0px !important;
+		padding: 22px 0px 0px 0px !important;
 	}
 
 .split-Height-ButtonLayout{
 		background-color: white;
-		padding: 0px 20px 0px 20px !important;
+		padding: 0px 10px 0px 10px !important;
 	}
 
 .personlization-SplitBackground{
@@ -654,9 +665,9 @@ $app-background-color: #145A32;
 		margin-left:4px;
 	}
 
-.textfiled-height{
+	.textfiled-height{
 		height:37px !important;
-		border-radius:6px;
+		border-radius:6px !important;
 	}
 }
 
@@ -685,9 +696,10 @@ $app-background-color: #145A32;
 
 .header-label{
 		margin-left: 40px;
-    	Font-size: 20px !important;
+    	Font-size: 24px !important;
     	margin-bottom: 55px !important;
     	font:menu;
+    	font-weight:400;
 	}
 .header-UserNameLayout{
     margin-top: -38px;
@@ -782,7 +794,6 @@ $app-background-color: #145A32;
 
 	.asset-alertActiveLayout{
 		float:left;
-		margin-left:-58px;
 		margin-top:12px;
 	}
 
@@ -840,9 +851,10 @@ $app-background-color: #145A32;
 
 	.header-label{
 		margin-left: 40px;
-    	Font-size: 20px !important;
+    	Font-size: 24x !important;
     	margin-bottom: 30px;
     	font:menu;
+    	font-weight:400;
 	}
 
 	.header-UserName{
@@ -860,34 +872,11 @@ $app-background-color: #145A32;
 	.header-GridLayout{
   		margin-top:5px;
 	}
-.textfiled-height{
+	.textfiled-height{
 		height:32px !important;
-		border-radius:6px;
+		border-radius:6px !important;
 	}
 }
-
-// .app-shell[width-range~="601px-700px"]{
-//  	.header-label{
-// 	margin-left: 25px;
-//     Font-size: 24px;
-//     font-weight: bold;
-//     margin-top: -60px;
-// }
-// 
-// .header-UserName{
-//    		font-size:17px;
-//    		margin-left:-10px;
-//    		margin-top:-20px;
-// 	}
-// .header-UserRole{
-//    margin-top:-35px;
-//    font-size:12px;
-// }
-// .header-menuButton{
-//    margin-top: -4px;
-//    margin-left:-45px;
-// }
-//  }
 
 .app-shell[width-range~="-600px"]{
 	.v-panel-caption{
@@ -970,7 +959,6 @@ $app-background-color: #145A32;
 
 	.asset-alertActiveLayout{
 		float:left;
-		margin-left:-53px;
 		margin-top:12px;
 	}
 
@@ -1024,7 +1012,7 @@ $app-background-color: #145A32;
 	}
 	.textfiled-height{
 		height:27px !important;
-		border-radius:6px;
+		border-radius:6px !important;
 	}
 }
 
@@ -1050,20 +1038,6 @@ $app-background-color: #145A32;
 	.v-heartbeat-Button .v-icon{
 		padding-left:25px;
 	}
-
-// 	.h1{
-// 		font-size: 24px !important;
-// 		color:#216C2A !important;;
-// 		font-weight:bold !important;;
-// 	}
-
-// 	.v-heartbeat-Button .v-heartbeat-Button-caption{
-// 	font-size: 10px;
-//     margin: 0;
-//     width: 100%;
-//     float: left;
-//     margin-top: 3px;
-// 	}
 }
 
 .label-SaveCancelAlignment{
@@ -1148,7 +1122,6 @@ $app-background-color: #145A32;
 
 .asset-alertActiveLayout{
 	float:left;
-	margin-left:-64px;
 	margin-top:12px;
 }
 
@@ -1461,9 +1434,10 @@ $app-background-color: #145A32;
 
 .header-label{
 	margin-left: 40px;
-    Font-size: 24px !important;
+    Font-size: 30px !important;
     margin-bottom: 30px;
     font:menu;
+    font-weight:400;
 }
 
 .header-UserNameLayout{
@@ -1498,8 +1472,16 @@ $app-background-color: #145A32;
 	}
 
 .header-Components{
-  		margin-top:25px !important;
+  		margin-top:20px !important;
 //   		margin-right: 30px !important;
+}
+
+.tabsheet-margin{
+	margin-top:70px;
+}
+
+.assetDebug-Switch{
+	border-radius: 15px !important;
 }
 
 .app-shell[width-range~="1000px-1150px"]{

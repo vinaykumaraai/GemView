@@ -230,7 +230,9 @@ public class PersonalizationService {
 					terminal.setAvailable(node.isActive());
 					terminal.setDescription(node.getDescription());
 					terminal.setName(node.getLabel());
-					terminal.setFrequency(Long.parseLong(node.getFrequency()));
+					if(node.getFrequency()!=null) {
+						terminal.setFrequency(Long.parseLong(node.getFrequency()));
+					}
 					terminal.setHeartbeat(node.isHeartBeat());
 					terminal.setSerialNumber(node.getSerialNum());
 					
@@ -674,7 +676,7 @@ public void updateOverRideParam(AppClient app, AppDefaultParam param) {
 			terminalForPV = RestServiceUtil.getInstance().getClient().getTerminalApi()
 					.getTerminal(entityId);
 			TerminalClient terminal = new TerminalClient(terminalForPV.getId(), terminalForPV.getType().name(), terminalForPV.getName(), terminalForPV.getDescription(),
-					terminalForPV.getSerialNumber(), terminalForPV.getAvailable(),terminalForPV.getDebugActive(),
+					terminalForPV.getSerialNumber(), terminalForPV.getAvailable(),terminalForPV.isHeartbeat(), terminalForPV.getDebugActive(),
 					terminalForPV.getFrequency(), terminalForPV.getLastContact().toString(), terminalForPV.getEntityId());
 			return terminal;
 		}catch (ApiException e) {
@@ -703,7 +705,7 @@ public void updateOverRideParam(AppClient app, AppDefaultParam param) {
 		try {
 			if (RestServiceUtil.getSESSION() != null && id!=null) {
 				Entity entity = RestServiceUtil.getInstance().getClient().getEntityApi().getEntityById(id);
-				owner = new TreeNode(entity.getName(), entity.getId(), entity.getType(), entity.getEntityId(), entity.getDescription()
+				owner = new TreeNode(entity.getName(), entity.getId(), entity.getType(), entity.getEntityId(), entity.getDescription(), entity.getChildrenEntities()
 						,true);
 			}
 		} catch (ApiException e) {

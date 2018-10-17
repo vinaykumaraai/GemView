@@ -51,6 +51,7 @@ import com.luretechnologies.tms.backend.data.entity.Downloads;
 import com.luretechnologies.tms.backend.service.DashboardService;
 import com.luretechnologies.tms.backend.service.UserService;
 import com.luretechnologies.tms.ui.MainView;
+import com.luretechnologies.tms.ui.components.MainViewIconsLoad;
 import com.luretechnologies.tms.ui.navigation.NavigationManager;
 import com.luretechnologies.tms.ui.view.Header;
 import com.vaadin.addon.charts.Chart;
@@ -68,6 +69,7 @@ import com.vaadin.addon.charts.model.XAxis;
 import com.vaadin.addon.charts.model.YAxis;
 import com.vaadin.board.Row;
 import com.vaadin.data.provider.ListDataProvider;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.Page;
@@ -208,6 +210,7 @@ public class DashboardView extends DashboardViewDesign implements View {
 			grid.setHeight("88%");
 			removeComponent(header);
 			board.removeStyleName("board-top");
+			MainViewIconsLoad.noIconsOnDesktopMode(mainView);
 		}else if(width>600 && width <=1000) {
 			grid.setHeight("86%");
 			if((getComponent(0).getId()!=null || getComponent(0).getId()!="") &&
@@ -217,6 +220,7 @@ public class DashboardView extends DashboardViewDesign implements View {
 				addComponentAsFirst(header);
 				board.addStyleName("board-top");
 			}
+			MainViewIconsLoad.iconsOnTabMode(mainView);
 		}else {
 			mainView.getTitle().setValue("gemView");/*  "+ userService.getLoggedInUserName());
 */			grid.setHeight("85%");
@@ -227,6 +231,7 @@ public class DashboardView extends DashboardViewDesign implements View {
 				addComponentAsFirst(header);
 				board.addStyleName("board-top");
 			}
+			MainViewIconsLoad.noIconsOnDesktopMode(mainView);
 		}
 		
 		Page.getCurrent().addBrowserWindowResizeListener(resizeListener->{
@@ -235,6 +240,7 @@ public class DashboardView extends DashboardViewDesign implements View {
 				grid.setHeight("88%");
 				removeComponent(header);
 				board.removeStyleName("board-top");
+				MainViewIconsLoad.noIconsOnDesktopMode(mainView);
 			}else if(resizeListener.getWidth()>600 && resizeListener.getWidth() <=1000) {
 				grid.setHeight("86%");
 				if((getComponent(0).getId()!=null || getComponent(0).getId()!="") &&
@@ -244,7 +250,7 @@ public class DashboardView extends DashboardViewDesign implements View {
 					addComponentAsFirst(header);
 					board.addStyleName("board-top");
 				}
-				
+				MainViewIconsLoad.iconsOnTabMode(mainView);
 			}else {
 				mainView.getTitle().setValue("gemView");/*  "+ userService.getLoggedInUserName());
 */				grid.setHeight("85%");
@@ -255,6 +261,7 @@ public class DashboardView extends DashboardViewDesign implements View {
 					addComponentAsFirst(header);
 					board.addStyleName("board-top");
 				}
+				MainViewIconsLoad.noIconsOnDesktopMode(mainView);
 			}
 		});
 		

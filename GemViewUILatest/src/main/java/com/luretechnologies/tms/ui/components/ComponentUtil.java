@@ -83,9 +83,8 @@ public class ComponentUtil {
 		switch (type) {
 		case TEXTBOX:
 			TextField textField = new TextField(labelName, "");
-			textField.setWidth("60%");
-			textField.addStyleNames("role-textbox", "v-grid-cell",
-					ValoTheme.TEXTFIELD_BORDERLESS, "v-textfield-lineHeight");
+			textField.setWidth("100%");
+			textField.addStyleNames("v-textfield-font","textfiled-height");
 			textField.setResponsive(true);
 			textField.setEnabled(false);
 			textField.setMaxLength(50);

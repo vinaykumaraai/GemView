@@ -47,6 +47,7 @@ import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.client.restlib.service.model.AlertAction;
 import com.luretechnologies.client.restlib.service.model.AuditUserLog;
 import com.luretechnologies.client.restlib.service.model.DebugItem;
+import com.luretechnologies.client.restlib.service.model.Device;
 import com.luretechnologies.client.restlib.service.model.Heartbeat;
 import com.luretechnologies.client.restlib.service.model.HeartbeatAlert;
 import com.luretechnologies.client.restlib.service.model.HeartbeatAudit;
@@ -462,10 +463,12 @@ public class AssetControlService {
 			if(RestServiceUtil.getSESSION()!=null) {
 				
 				com.luretechnologies.client.restlib.service.model.Terminal terminal = RestServiceUtil.getInstance().getClient().getTerminalApi().getTerminal(entityId);
-				DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-	            Date tempHelp = format.parse(date +" 00:00:00");
-				terminal.setAvailable(value);
-				terminal.setDebugExpirationDate(tempHelp);
+				if(date!=null) {
+					DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	            	Date tempHelp = format.parse(date +" 00:00:00");
+	            	terminal.setDebugExpirationDate(tempHelp);
+				}
+				terminal.setDebugActive(value);
 				RestServiceUtil.getInstance().getClient().getTerminalApi().updateTerminal(entityId, terminal);
 			}
 				
@@ -493,7 +496,7 @@ public class AssetControlService {
 				com.luretechnologies.client.restlib.service.model.Terminal terminal = RestServiceUtil.getInstance().getClient().getTerminalApi().getTerminal(entityId);
 				if(terminal!=null) {
 					String date = new SimpleDateFormat("yyyy-MM-dd").format(terminal.getDebugExpirationDate());
-					TerminalClient mockTerminal = new TerminalClient(terminal.getSerialNumber(), terminal.getAvailable(), date);
+					TerminalClient mockTerminal = new TerminalClient(terminal.getSerialNumber(), terminal.getDebugActive(), date);
 					return mockTerminal;
 				}
 			}

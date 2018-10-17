@@ -36,6 +36,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -61,16 +62,18 @@ import com.vaadin.ui.Notification.Type;
 public class TreeDataNodeService {
 	private final static Logger treeDataLogger = Logger.getLogger(TreeDataNodeService.class);
 	
+	@Autowired
+	private PersonalizationService personalizationService;
+	
 	public TreeData<TreeNode> getTreeData(){
 		
 		try {
 			if(RestServiceUtil.getSESSION()!=null) {
 				TreeData<TreeNode> treeData = new TreeData<>();
 				Entity entity = RestServiceUtil.getInstance().getClient().getEntityApi().getEntityHierarchy();
-				List<Entity> entityList = RestServiceUtil.getInstance().getClient().getEntityApi().getEntityChildren(entity.getId());
-				TreeNode node = new TreeNode(entity.getName(), entity.getId(), entity.getType(), entity.getEntityId(), entity.getDescription()
-						, true);
-				List<TreeNode> treeNodeChildList = getChildNodes(entityList);		
+				TreeNode node = new TreeNode(entity.getName(), entity.getId(), entity.getType(), entity.getEntityId(), entity.getDescription(),entity.getChildrenEntities(),
+						 true);
+				List<TreeNode> treeNodeChildList = getChildNodes(entity.getChildrenEntities());		
 				treeData.addItems(null, node);
 				treeData.addItems(node, treeNodeChildList);
 				treeDataRecursive(treeNodeChildList, treeData);
@@ -100,7 +103,7 @@ public class TreeDataNodeService {
 		for(TreeNode entity : entityList) {
 			List<Entity> entityListSub;
 			try {
-				entityListSub = RestServiceUtil.getInstance().getClient().getEntityApi().getEntityChildren(entity.getId());
+				entityListSub = entity.getEntityChildrenList();
 				if(entityListSub!=null && !entityListSub.isEmpty()) {
 					List<TreeNode> subChildList = getChildNodes(entityListSub);
 					treeData.addItems(entity, subChildList);
@@ -128,18 +131,26 @@ public class TreeDataNodeService {
 	private List<TreeNode> getChildNodes(List<Entity> entityList) throws ApiException{
 		List<TreeNode> nodeChildList = new ArrayList<>();
 		for(Entity entity : entityList) {
-			TreeNode node = new TreeNode(entity.getName(), entity.getId(), entity.getType(), entity.getEntityId(), entity.getDescription()
+			TreeNode node = new TreeNode(entity.getName(), entity.getId(), entity.getType(), entity.getEntityId(), entity.getDescription(), entity.getChildrenEntities()
 					,true);
-//			switch (entity.getType()) {
-//			case TERMINAL:
-//				node.setSerialNum(RestServiceUtil.getInstance().getClient().getTerminalApi().getTerminal(entity.getId().toString()).getSerialNumber());
-//				break;
-//			case DEVICE:
-//				node.setSerialNum(RestServiceUtil.getInstance().getClient().getDeviceApi().getDevice(entity.getId().toString()).getSerialNumber());
-//				break;
-//			default:
-//				break;
-//			}
+			switch(entity.getType().toString()) {
+			
+				case "TERMINAL":{
+						if(!entity.getEntityId().equals("TEREBZN8XEOXN") && !entity.getEntityId().equals("TERL5O8EVKZ8R")) {
+						node.setSerialNum(personalizationService.getTerminalSerialNumberByEntityId(entity.getEntityId()));
+					}
+					break;
+				} 
+				case "DEVICE":{
+					Device device = RestServiceUtil.getInstance().getClient().getDeviceApi().getDevice(entity.getEntityId());
+					if(device!=null) {
+						node.setSerialNum(device.getSerialNumber());
+					}
+					break;
+				} default:{
+					break;
+				}
+			}
 			nodeChildList.add(node);
 		}
 		return nodeChildList;
@@ -261,32 +272,32 @@ public class TreeDataNodeService {
 					List<Device> deviceList = RestServiceUtil.getInstance().getClient().getDeviceApi().searchDevices(filter, null, null);
 				
 				for(Organization organization : organizationList) {
-					TreeNode node = new TreeNode(organization.getName(), organization.getId(), organization.getType(), organization.getEntityId(), organization.getDescription()
-							, true);
+					TreeNode node = new TreeNode(organization.getName(), organization.getId(), organization.getType(), organization.getEntityId(), organization.getDescription(),
+							organization.getChildrenEntities(), true);
 					treeNodeChildList.add(node);
 				}
 				
 				for(Region region : regionList) {
-					TreeNode node = new TreeNode(region.getName(), region.getId(), region.getType(), region.getEntityId(), region.getDescription()
+					TreeNode node = new TreeNode(region.getName(), region.getId(), region.getType(), region.getEntityId(), region.getDescription(), region.getChildrenEntities()
 							, true);
 					treeNodeChildList.add(node);
 				}
 				
 				for(Merchant merchant : merchantList) {
-					TreeNode node = new TreeNode(merchant.getName(), merchant.getId(), merchant.getType(), merchant.getEntityId(), merchant.getDescription()
+					TreeNode node = new TreeNode(merchant.getName(), merchant.getId(), merchant.getType(), merchant.getEntityId(), merchant.getDescription(), merchant.getChildrenEntities()
 							, true);
 					treeNodeChildList.add(node);
 				}
 				
 				for(Terminal terminal : terminalList) {
-					TreeNode node = new TreeNode(terminal.getName(), terminal.getId(), terminal.getType(), terminal.getEntityId(), terminal.getDescription()
+					TreeNode node = new TreeNode(terminal.getName(), terminal.getId(), terminal.getType(), terminal.getEntityId(), terminal.getDescription(), terminal.getChildrenEntities()
 							, true);
 					treeNodeChildList.add(node);
 				}
 				
 				for(Device device : deviceList) {
-					TreeNode node = new TreeNode(device.getName(), device.getId(), device.getType(), device.getEntityId(), device.getDescription()
-							, true);
+					TreeNode node = new TreeNode(device.getName(), device.getId(), device.getType(), device.getEntityId(), device.getDescription(),
+							device.getChildrenEntities(), true);
 					treeNodeChildList.add(node);
 				}
 				
@@ -319,7 +330,7 @@ public class TreeDataNodeService {
 			if(RestServiceUtil.getSESSION()!=null) {
 				Entity entity = RestServiceUtil.getInstance().getClient().getEntityApi().getEntityHierarchy();
 				List<Entity> entityList = RestServiceUtil.getInstance().getClient().getEntityApi().getEntityChildren(entity.getId());
-				TreeNode node = new TreeNode(entity.getName(), entity.getId(), entity.getType(), entity.getEntityId(), entity.getDescription()
+				TreeNode node = new TreeNode(entity.getName(), entity.getId(), entity.getType(), entity.getEntityId(), entity.getDescription(), entity.getChildrenEntities()
 						, true);
 				List<TreeNode> treeNodeChildList = getChildNodes(entityList);		
 				

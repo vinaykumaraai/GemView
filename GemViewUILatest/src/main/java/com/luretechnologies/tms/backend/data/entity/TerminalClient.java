@@ -49,6 +49,8 @@ public class TerminalClient {
 	
 	private boolean activateHeartbeat;
 	
+	private boolean debugActive;
+
 	private String duration;
 	
 	private Long frequency;
@@ -66,12 +68,12 @@ public class TerminalClient {
 		Objects.requireNonNull(debugActive);
 		Objects.requireNonNull(duration);
 		this.serialNumber=serialNumber;
-		this.active = debugActive;
+		this.debugActive = debugActive;
 		this.duration = duration;
 	}
 
 	public TerminalClient(Long id, String type, String label, String description, String serialNumber, boolean active,
-			boolean activateHeartbeat, Long frequency, String lastSeen, String entityId) {
+			boolean activateHeartbeat, boolean debugActive,  Long frequency, String lastSeen, String entityId) {
 		super();
 		this.id = id;
 		this.type = type;
@@ -83,6 +85,7 @@ public class TerminalClient {
 		this.frequency = frequency;
 		this.lastSeen = lastSeen;
 		this.entityId=entityId;
+		this.debugActive = debugActive;
 	}
 
 	public Long getId() {
@@ -201,5 +204,12 @@ public class TerminalClient {
 		this.entityId = entityId;
 	}
 	
+	public boolean isDebugActive() {
+		return debugActive;
+	}
+
+	public void setDebugActive(boolean debugActive) {
+		this.debugActive = debugActive;
+	}
 	
 }

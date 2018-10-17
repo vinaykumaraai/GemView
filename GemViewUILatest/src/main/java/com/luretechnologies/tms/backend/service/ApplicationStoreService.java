@@ -229,7 +229,7 @@ public class ApplicationStoreService {
 		try {
 			if (RestServiceUtil.getSESSION() != null && id!=null) {
 				Entity entity = RestServiceUtil.getInstance().getClient().getEntityApi().getEntityById(id);
-				owner = new TreeNode(entity.getName(), entity.getId(), entity.getType(), entity.getEntityId(), entity.getDescription()
+				owner = new TreeNode(entity.getName(), entity.getId(), entity.getType(), entity.getEntityId(), entity.getDescription(), entity.getChildrenEntities()
 						,true);
 			}
 		}  catch (ApiException e) {
@@ -261,7 +261,7 @@ public class ApplicationStoreService {
 				List<Entity> entityList = RestServiceUtil.getInstance().getClient().getEntityApi().getEntityChildren(entity.getId());
 				entityList.add(entity);
 				for(Entity entityNew : entityList) {
-					TreeNode node = new TreeNode(entityNew.getName(), entityNew.getId(), entityNew.getType(), entityNew.getEntityId(), entityNew.getDescription()
+					TreeNode node = new TreeNode(entityNew.getName(), entityNew.getId(), entityNew.getType(), entityNew.getEntityId(), entityNew.getDescription(), entity.getChildrenEntities()
 							,true);
 					nodeChildList.add(node);
 				}
