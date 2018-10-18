@@ -42,7 +42,7 @@ import com.luretechnologies.common.enums.EntityTypeEnum;
 public class ExtendedTreeNode extends TreeNode {
 	
 	public ExtendedTreeNode(String label, Long id, com.luretechnologies.client.restlib.service.model.EntityTypeEnum type, String entityId, String description, boolean active) {
-		super(label, id, type, entityId, description, active);
+		super(label, id, type, entityId, description, null,active);
 	}
 
 	private List<? extends AbstractEntity> extendedList;

@@ -72,7 +72,7 @@ import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 
 @Service
-public class PersonalizationService {
+public class PersonalizationService extends CommonService {
 	private final static Logger personlizationServiceLogger = Logger.getLogger(PersonalizationService.class);
 
 	@Autowired
@@ -82,6 +82,7 @@ public class PersonalizationService {
 	Region regionForPersonalizationView;
 	Organization organizationForPersonalizationView;
 
+	@Override
 	public TreeData<TreeNode> getTreeData() {
 		try {
 			if (RestServiceUtil.getSESSION() != null) {

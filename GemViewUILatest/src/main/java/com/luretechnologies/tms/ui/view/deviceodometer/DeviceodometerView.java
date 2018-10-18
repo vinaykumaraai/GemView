@@ -32,7 +32,6 @@
 package com.luretechnologies.tms.ui.view.deviceodometer;
 
 import java.io.Serializable;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -41,11 +40,12 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Whitelist;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.dialogs.ConfirmDialog;
 
-import com.luretechnologies.client.restlib.common.ApiException;
-import com.luretechnologies.tms.backend.data.entity.AppClient;
+import com.luretechnologies.client.restlib.service.model.HeartbeatOdometer;
 import com.luretechnologies.tms.backend.data.entity.DeviceOdometer;
 import com.luretechnologies.tms.backend.data.entity.Permission;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
@@ -54,14 +54,13 @@ import com.luretechnologies.tms.backend.service.RolesService;
 import com.luretechnologies.tms.backend.service.TreeDataNodeService;
 import com.luretechnologies.tms.backend.service.UserService;
 import com.luretechnologies.tms.ui.MainView;
+import com.luretechnologies.tms.ui.components.EntityOperations;
 import com.luretechnologies.tms.ui.components.NotificationUtil;
-import com.luretechnologies.tms.ui.view.applicationstore.ApplicationStoreView;
+import com.luretechnologies.tms.ui.view.ContextMenuWindow;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
-import com.vaadin.event.ShortcutListener;
 import com.vaadin.event.ShortcutAction.KeyCode;
-import com.vaadin.external.org.slf4j.Logger;
-import com.vaadin.external.org.slf4j.LoggerFactory;
+import com.vaadin.event.ShortcutListener;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.server.Page;
@@ -71,17 +70,20 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.DateField;
 import com.vaadin.ui.Grid;
+import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
+import com.vaadin.ui.renderers.HtmlRenderer;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
+import com.vaadin.ui.TreeGrid;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Grid.SelectionMode;
-import com.vaadin.ui.Notification.Type;
+import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
-import com.luretechnologies.client.restlib.service.model.HeartbeatOdometer;
 
 @SpringView(name = DeviceodometerView.VIEW_NAME)
 public class DeviceodometerView extends VerticalLayout implements Serializable, View {
@@ -93,7 +95,7 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 	public static final String VIEW_NAME = "deviceodometer";
 	private static final LocalDateTime localTimeNow = LocalDateTime.now();
 	private static Grid<DeviceOdometer> odometerDeviceGrid;
-	private static Tree<TreeNode> nodeTree;
+	private static TreeGrid<TreeNode> nodeTreeGrid;
 	private static Button deleteGridRow, clearSearch, clearOdometerSearch;
 	private static TextField treeNodeSearch, odometerDeviceSearch;
 	private static HorizontalSplitPanel splitScreen;
@@ -106,7 +108,8 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 	private static HorizontalLayout dateDeleteLayout;
 	private static VerticalLayout dateDeleteLayoutPhone;
 	private static CssLayout deviceOdometerSearchLayout;
-
+	private static Button createEntity, editEntity, deleteEntity, copyEntity, pasteEntity;
+	
 	private static HorizontalLayout panelTools;
 
 	@Autowired
@@ -199,28 +202,63 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 		treeSeachLayout.setWidth("85%");
 		treeSeachLayout.addComponents(treeNodeSearch,clearSearch);
 		VerticalLayout treeSearchPanelLayout = new VerticalLayout(treeSeachLayout);
-		nodeTree = new Tree<TreeNode>();
-		nodeTree.setTreeData(odometerDeviceService.getDeviceOdometerTreeData());
-		nodeTree.setItemIconGenerator(item -> {
-			switch (item.getType()) {
+		nodeTreeGrid = new TreeGrid<TreeNode>();
+		nodeTreeGrid.setTreeData(odometerDeviceService.getTreeData());
+		nodeTreeGrid.addColumn(entity -> {
+			String iconHtml="";
+			switch (entity.getType()){
 			case ENTERPRISE:
-				return VaadinIcons.ORIENTATION;
+				iconHtml =  VaadinIcons.ORIENTATION.getHtml();
+				break;
 			case ORGANIZATION:
-				return VaadinIcons.BUILDING_O;
+				iconHtml = VaadinIcons.BUILDING_O.getHtml();
+				break;
 			case MERCHANT:
-				return VaadinIcons.SHOP;
+				iconHtml =  VaadinIcons.SHOP.getHtml();
+				break;
 			case REGION:
-				return VaadinIcons.OFFICE;
+				iconHtml = VaadinIcons.OFFICE.getHtml();
+				break;
 			case TERMINAL:
-				return VaadinIcons.LAPTOP;
+				iconHtml = VaadinIcons.LAPTOP.getHtml();
+				break;
 			case DEVICE:
-				return VaadinIcons.MOBILE_BROWSER;
+				iconHtml = VaadinIcons.MOBILE_BROWSER.getHtml();
+				break;
 			default:
-				return null;
+				break;
 			}
-		});
+			return iconHtml +" "+ Jsoup.clean(entity.getLabel(),Whitelist.simpleText());
+		},new HtmlRenderer()).setCaption("Entity").setId("entity");	
+		nodeTreeGrid.getColumn("serialNum").setCaption("Serial");
+		nodeTreeGrid.setHierarchyColumn("entity");
 		
-		treeSearchPanelLayout.addComponent(nodeTree);
+		nodeTreeGrid.setColumns("entity","serialNum");
+		createEntity = new Button("Add Entity");
+		createEntity.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+		
+		editEntity = new Button("Edit Entity");
+		editEntity.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+		
+		deleteEntity = new Button("Delete Entity");
+		deleteEntity.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+		
+		copyEntity = new Button("Copy Entity");
+		copyEntity.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+		
+		pasteEntity = new Button("Paste Entity");
+		pasteEntity.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+		pasteEntity.setEnabled(false);
+		
+		ContextMenuWindow odometerTreeGridMenu = new ContextMenuWindow();
+		odometerTreeGridMenu.addMenuItems(createEntity,editEntity,deleteEntity, copyEntity, pasteEntity);
+		nodeTreeGrid.addContextClickListener(click->{
+			UI.getCurrent().getWindows().forEach(Window::close);
+			odometerTreeGridMenu.setPosition(click.getClientX(), click.getClientY());
+			UI.getCurrent().addWindow(odometerTreeGridMenu);
+			EntityOperations.entityOperations(nodeTreeGrid, createEntity, editEntity, deleteEntity, copyEntity, pasteEntity, treeDataNodeService, odometerDeviceService, odometerTreeGridMenu);
+		});
+		treeSearchPanelLayout.addComponent(nodeTreeGrid);
 		treeSearchPanelLayout.setMargin(true);
 		treeSearchPanelLayout.setStyleName("split-Height-ButtonLayout");
 		verticalPanelLayout.addComponent(treeSearchPanelLayout);
@@ -357,17 +395,17 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 				search.addCloseListener(listener -> {
 					String valueInLower = changed.getValue().toLowerCase();
 					if (!valueInLower.isEmpty() && valueInLower != null) {
-						nodeTree.setTreeData(treeDataNodeService.searchTreeData(valueInLower));
+						nodeTreeGrid.setTreeData(treeDataNodeService.searchTreeData(valueInLower));
 					} else {
-						nodeTree.setTreeData(treeDataNodeService.getTreeData());
+						nodeTreeGrid.setTreeData(treeDataNodeService.getTreeData());
 					}
 				});
 			} else {
 				String valueInLower = changed.getValue().toLowerCase();
 				if (!valueInLower.isEmpty() && valueInLower != null) {
-					nodeTree.setTreeData(treeDataNodeService.searchTreeData(valueInLower));
+					nodeTreeGrid.setTreeData(treeDataNodeService.searchTreeData(valueInLower));
 				} else {
-					nodeTree.setTreeData(treeDataNodeService.getTreeData());
+					nodeTreeGrid.setTreeData(treeDataNodeService.getTreeData());
 				}
 			}
 		});
@@ -396,7 +434,7 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 									type);
 							DataProvider data = new ListDataProvider(odometerList);
 							odometerDeviceGrid.setDataProvider(data);
-							nodeTree.getDataProvider().refreshAll();
+							nodeTreeGrid.getDataProvider().refreshAll();
 							odometerDeviceSearch.clear();
 							clearCalenderDates();
 
@@ -470,7 +508,7 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 							startDate = odometerStartDateField.getValue().format(dateFormatter1);
 						}
 						List<DeviceOdometer> searchGridData = odometerDeviceService.searchOdometerGridData(
-								nodeTree.getSelectedItems().iterator().next().getEntityId(), filter, startDate,
+								nodeTreeGrid.getSelectedItems().iterator().next().getEntityId(), filter, startDate,
 								endDate);
 						DataProvider data = new ListDataProvider(searchGridData);
 						odometerDeviceGrid.setDataProvider(data);
@@ -486,7 +524,7 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 						startDate = odometerStartDateField.getValue().format(dateFormatter1);
 					}
 					List<DeviceOdometer> searchGridData = odometerDeviceService.searchOdometerGridData(
-							nodeTree.getSelectedItems().iterator().next().getEntityId(), filter, startDate, endDate);
+							nodeTreeGrid.getSelectedItems().iterator().next().getEntityId(), filter, startDate, endDate);
 					DataProvider data = new ListDataProvider(searchGridData);
 					odometerDeviceGrid.setDataProvider(data);
 				}
@@ -510,8 +548,8 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 				Notification.show(NotificationUtil.ODOMETER_DELETE, Notification.Type.ERROR_MESSAGE);
 			} else {
 				confirmDialog(odometerDeviceGrid.getSelectedItems().iterator().next().getId(),
-						nodeTree.getSelectedItems().iterator().next().getEntityId(),
-						nodeTree.getSelectedItems().iterator().next().getType().name());
+						nodeTreeGrid.getSelectedItems().iterator().next().getEntityId(),
+						nodeTreeGrid.getSelectedItems().iterator().next().getType().name());
 			}
 		});
 
@@ -587,7 +625,7 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 		// end Date listner
 		odometerEndDateField.addValueChangeListener(change -> {
 			if (!(change.getValue() == null)) {
-				if (!nodeTree.getSelectedItems().isEmpty()) {
+				if (!nodeTreeGrid.getSelectedItems().isEmpty()) {
 					if (odometerStartDateField.getValue() != null) {
 						if (change.getValue().compareTo(odometerStartDateField.getValue()) > 0) {
 							String endDate = odometerEndDateField.getValue().format(dateFormatter1);
@@ -596,7 +634,7 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 							List<DeviceOdometer> odometerListFilterBydates = new ArrayList<>();
 							List<HeartbeatOdometer> odometerList;
 							odometerList = odometerDeviceService.searchByDates(
-									nodeTree.getSelectedItems().iterator().next().getEntityId(), filter, startDate,
+									nodeTreeGrid.getSelectedItems().iterator().next().getEntityId(), filter, startDate,
 									endDate);
 							for (HeartbeatOdometer heartBeatOdometer : odometerList) {
 								DeviceOdometer deviceOdometer = new DeviceOdometer(heartBeatOdometer.getId(),
@@ -629,10 +667,10 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 				odometerDeviceSearch.clear();
 				odometerEndDateField.clear();
 				List<DeviceOdometer> odometerListNew;
-				if (nodeTree.getSelectedItems().size() > 0) {
+				if (nodeTreeGrid.getSelectedItems().size() > 0) {
 					odometerListNew = odometerDeviceService.getOdometerGridData(
-							nodeTree.getSelectedItems().iterator().next().getEntityId(),
-							nodeTree.getSelectedItems().iterator().next().getType().name());
+							nodeTreeGrid.getSelectedItems().iterator().next().getEntityId(),
+							nodeTreeGrid.getSelectedItems().iterator().next().getType().name());
 					DataProvider data = new ListDataProvider(odometerListNew);
 					odometerDeviceGrid.setDataProvider(data);
 				}
@@ -640,7 +678,7 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 			}
 		});
 
-		nodeTree.addSelectionListener(selection -> {
+		nodeTreeGrid.addSelectionListener(selection -> {
 			if (!selection.getFirstSelectedItem().isPresent()) {
 				List<DeviceOdometer> auditListNew = new ArrayList<>();
 				DataProvider data = new ListDataProvider(auditListNew);

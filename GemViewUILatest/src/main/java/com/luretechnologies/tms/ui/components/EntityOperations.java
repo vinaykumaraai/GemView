@@ -37,6 +37,7 @@ import org.vaadin.dialogs.ConfirmDialog;
 
 import com.luretechnologies.client.restlib.service.model.EntityTypeEnum;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
+import com.luretechnologies.tms.backend.service.CommonService;
 import com.luretechnologies.tms.backend.service.PersonalizationService;
 import com.luretechnologies.tms.backend.service.TreeDataNodeService;
 import com.luretechnologies.tms.ui.view.ContextMenuWindow;
@@ -69,12 +70,12 @@ public class EntityOperations {
 	
 	public static void entityOperations(TreeGrid<TreeNode> nodeTree, 
 			Button createEntity, Button editEntity, Button deleteEntity, Button copyEntity,
-			Button pasteEntity, TreeDataNodeService treeDataNodeService, PersonalizationService personalizationService, 
+			Button pasteEntity, TreeDataNodeService treeDataNodeService, CommonService commonService, 
 			ContextMenuWindow treeContextMenuWindow) {
 		createEntity.addClickListener(click -> {
 			UI.getCurrent().getWindows().forEach(Window::close);
 			treeContextMenuWindow.close();
-			createEntityWindow = openEntityWindow(nodeTree, treeDataNodeService, personalizationService, false);
+			createEntityWindow = openEntityWindow(nodeTree, treeDataNodeService, commonService, false);
 			//createEntityWindow.setModal(false);
 			if (nodeTree.getSelectedItems().size() == 0) {
 				Notification.show(NotificationUtil.PERSONALIZATION_CREATE_ENTITY, Notification.Type.ERROR_MESSAGE);
@@ -91,7 +92,7 @@ public class EntityOperations {
 			if (nodeTree.getSelectedItems().size() == 0) {
 				Notification.show(NotificationUtil.PERSONALIZATION_EDIT, Notification.Type.ERROR_MESSAGE);
 			} else {
-				editEntityWindow = openEntityWindow(nodeTree, treeDataNodeService, personalizationService,true );
+				editEntityWindow = openEntityWindow(nodeTree, treeDataNodeService, commonService,true );
 				if (editEntityWindow.getParent() == null)
 					UI.getCurrent().addWindow(editEntityWindow);
 
@@ -105,7 +106,7 @@ public class EntityOperations {
 			if (nodeTree.getSelectedItems().size() == 0) {
 				Notification.show(NotificationUtil.PERSONALIZATION_DELETE, Notification.Type.ERROR_MESSAGE);
 			} else {
-				confirmDeleteEntity(nodeTree, selectedNode, personalizationService);
+				confirmDeleteEntity(nodeTree, selectedNode, commonService);
 			}
 		});
 		
@@ -139,7 +140,7 @@ public class EntityOperations {
 						if(selectedNodeForCopy.getType().toString().equals("ORGANIZATION")) {
 							
 								treeDataNodeService.pasteTreeNode(selectedNodeForCopy, toPasteNode);
-								nodeTree.setTreeData(personalizationService.getTreeData());
+								nodeTree.setTreeData(commonService.getTreeData());
 						} else {
 							Notification.show("Cannot Copy "+selectedNodeForCopy.getType().toString()+" entity to this level", Type.ERROR_MESSAGE);
 						}
@@ -148,7 +149,7 @@ public class EntityOperations {
 						if(selectedNodeForCopy.getType().toString().equals("ORGANIZATION") || 
 								selectedNodeForCopy.getType().toString().equals("REGION")) {
 								treeDataNodeService.pasteTreeNode(selectedNodeForCopy, toPasteNode);
-								nodeTree.setTreeData(personalizationService.getTreeData());
+								nodeTree.setTreeData(commonService.getTreeData());
 							} else {
 							Notification.show("Cannot Copy "+selectedNodeForCopy.getType().toString()+" entity to this level", Type.ERROR_MESSAGE);
 						}
@@ -156,7 +157,7 @@ public class EntityOperations {
 					case REGION:
 						if(selectedNodeForCopy.getType().toString().equals("MERCHANT")) {
 								treeDataNodeService.pasteTreeNode(selectedNodeForCopy, toPasteNode);
-								nodeTree.setTreeData(personalizationService.getTreeData());
+								nodeTree.setTreeData(commonService.getTreeData());
 						} else {
 							Notification.show("Cannot Copy "+selectedNodeForCopy.getType().toString()+" entity to this level", Type.ERROR_MESSAGE);
 						}
@@ -164,7 +165,7 @@ public class EntityOperations {
 					case MERCHANT:
 						if(selectedNodeForCopy.getType().toString().equals("TERMINAL")) {
 								treeDataNodeService.pasteTreeNode(selectedNodeForCopy, toPasteNode);
-								nodeTree.setTreeData(personalizationService.getTreeData());
+								nodeTree.setTreeData(commonService.getTreeData());
 						} else {
 							Notification.show("Cannot Copy "+selectedNodeForCopy.getType().toString()+" entity to this level", Type.ERROR_MESSAGE);
 						}
@@ -172,7 +173,7 @@ public class EntityOperations {
 					case TERMINAL:
 						if(selectedNodeForCopy.getType().toString().equals("DEVICE")) {
 								treeDataNodeService.pasteTreeNode(selectedNodeForCopy, toPasteNode);
-								nodeTree.setTreeData(personalizationService.getTreeData());
+								nodeTree.setTreeData(commonService.getTreeData());
 						} else {
 							Notification.show("Cannot Copy "+selectedNodeForCopy.getType().toString()+" entity to this level", Type.ERROR_MESSAGE);
 						}
@@ -237,7 +238,7 @@ public class EntityOperations {
 		});
 	
 	}
-	private static ContextMenuWindow openEntityWindow(TreeGrid<TreeNode> nodeTree, TreeDataNodeService treeDataNodeService, PersonalizationService personalizationService, 
+	private static ContextMenuWindow openEntityWindow(TreeGrid<TreeNode> nodeTree, TreeDataNodeService treeDataNodeService, CommonService commonService, 
 			boolean update) {
 		ContextMenuWindow entityWindow = new ContextMenuWindow();
 		entityTypeTree = new ComboBox<EntityTypeEnum>();
@@ -309,8 +310,8 @@ public class EntityOperations {
 							}
 							selectedNode.setDescription(entityDescription.getValue());
 							selectedNode.setLabel(entityName.getValue());
-							personalizationService.updateEntity(selectedNode);
-							nodeTree.setTreeData(personalizationService.getTreeData());
+							commonService.updateEntity(selectedNode);
+							nodeTree.setTreeData(commonService.getTreeData());
 							entityWindow.close();
 
 						}
@@ -347,8 +348,8 @@ public class EntityOperations {
 									Type.ERROR_MESSAGE);
 						} else {
 							newNode.setType(entityTypeTree.getValue());
-							personalizationService.createEntity(selectedNode, newNode);
-							nodeTree.setTreeData(personalizationService.getTreeData());
+							commonService.createEntity(selectedNode, newNode);
+							nodeTree.setTreeData(commonService.getTreeData());
 							entityWindow.close();
 							TreeNode node = treeDataNodeService.findEntityData(selectedNode);
 							nodeTree.expand(node);
@@ -366,8 +367,8 @@ public class EntityOperations {
 									Type.ERROR_MESSAGE);
 						} else {
 							newNode.setType(entityTypeTree.getValue());
-							personalizationService.createEntity(selectedNode, newNode);
-							nodeTree.setTreeData(personalizationService.getTreeData());
+							commonService.createEntity(selectedNode, newNode);
+							nodeTree.setTreeData(commonService.getTreeData());
 							entityWindow.close();
 						}
 						break;
@@ -382,8 +383,8 @@ public class EntityOperations {
 									Type.ERROR_MESSAGE);
 						} else {
 							newNode.setType(entityTypeTree.getValue());
-							personalizationService.createEntity(selectedNode, newNode);
-							nodeTree.setTreeData(personalizationService.getTreeData());
+							commonService.createEntity(selectedNode, newNode);
+							nodeTree.setTreeData(commonService.getTreeData());
 							entityWindow.close();
 						}
 						break;
@@ -399,8 +400,8 @@ public class EntityOperations {
 									Type.ERROR_MESSAGE);
 						} else {
 							newNode.setType(entityTypeTree.getValue());
-							personalizationService.createEntity(selectedNode, newNode);
-							nodeTree.setTreeData(personalizationService.getTreeData());
+							commonService.createEntity(selectedNode, newNode);
+							nodeTree.setTreeData(commonService.getTreeData());
 							entityWindow.close();
 						}
 						break;
@@ -444,15 +445,15 @@ public class EntityOperations {
 		return entityWindow;
 	}
 	
-	private static void confirmDeleteEntity(TreeGrid<TreeNode> nodeTree, TreeNode selectedNode, PersonalizationService personalizationService) {
+	private static void confirmDeleteEntity(TreeGrid<TreeNode> nodeTree, TreeNode selectedNode, CommonService commonService) {
 		ConfirmDialog.show(UI.getCurrent().getUI(), "Please Confirm:", "Are you sure you want to delete?", "Ok", "Cancel",
 				new ConfirmDialog.Listener() {
 
 					public void onClose(ConfirmDialog dialog) {
 						if (dialog.isConfirmed()) {
 							if (nodeTree.getSelectedItems().size() == 1) {
-									personalizationService.deleteEntity(selectedNode);
-									nodeTree.setTreeData(personalizationService.getTreeData());
+									commonService.deleteEntity(selectedNode);
+									nodeTree.setTreeData(commonService.getTreeData());
 								/*ClearAllComponents();
 								ClearGrid();*/
 							}
