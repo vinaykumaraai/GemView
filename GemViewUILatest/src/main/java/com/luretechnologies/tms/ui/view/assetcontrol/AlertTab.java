@@ -118,7 +118,6 @@ public class AlertTab {
 				email.setHeight("32px");
 				saveAlertForm.setHeight("32px");
 				cancelAlertForm.setHeight("32px");
-				alertFormWindow.center();
 				if(alertFormWindow!=null) {
 					alertFormWindow.center();
 					alertFormWindow.setSizeUndefined();

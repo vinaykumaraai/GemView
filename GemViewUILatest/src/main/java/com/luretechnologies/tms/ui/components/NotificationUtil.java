@@ -142,6 +142,8 @@ public class NotificationUtil {
 	
 	public static final String PERSONALIZATION_DEBUG_DURATION = "Select any Entity to Active Debug";
 	
+	public static final String PERSONALIZATION_APP_SELECTION = "Select any Entity to select App";
+	
 	public static final String APPLICATIONSTORE_EDIT = "Select any app to EDIT";
 	
 	public static final String APPLICATIONSTORE_EDIT_PARAM = "Select any Profile to EDIT params";

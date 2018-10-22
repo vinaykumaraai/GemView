@@ -276,6 +276,8 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 				deviceDebugStartDateField.setHeight("28px");
 				deviceDebugEndDateField.setHeight("28px");
 				deviceDebugDuration.setHeight("28px");
+				clearSearch.removeStyleNames("v-button-customstyle", "audit-AuditSearchClearDesktop");
+				clearSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearPhone");
 				clearHistorySeach.removeStyleNames("v-button-customstyle", "audit-AuditSearchClearDesktop");
 				clearHistorySeach.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearPhone");
 				clearDebugSearch.removeStyleNames("v-button-customstyle", "audit-AuditSearchClearDesktop");
@@ -295,6 +297,8 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 				deviceDebugStartDateField.setHeight("32px");
 				deviceDebugEndDateField.setHeight("32px");
 				deviceDebugDuration.setHeight("32px");
+				clearSearch.removeStyleNames("audit-AuditSearchClearDesktop", "audit-AuditSearchClearPhone");
+				clearSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"v-button-customstyle");
 				clearHistorySeach.removeStyleNames("audit-AuditSearchClearDesktop", "audit-AuditSearchClearPhone");
 				clearHistorySeach.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"v-button-customstyle");
 				clearDebugSearch.removeStyleNames("audit-AuditSearchClearDesktop", "audit-AuditSearchClearPhone");

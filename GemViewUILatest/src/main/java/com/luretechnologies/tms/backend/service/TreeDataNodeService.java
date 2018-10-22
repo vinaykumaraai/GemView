@@ -133,24 +133,24 @@ public class TreeDataNodeService {
 		for(Entity entity : entityList) {
 			TreeNode node = new TreeNode(entity.getName(), entity.getId(), entity.getType(), entity.getEntityId(), entity.getDescription(), entity.getChildrenEntities()
 					,true);
-			switch(entity.getType().toString()) {
-			
-				case "TERMINAL":{
-						if(!entity.getEntityId().equals("TEREBZN8XEOXN") && !entity.getEntityId().equals("TERL5O8EVKZ8R")) {
-						node.setSerialNum(personalizationService.getTerminalSerialNumberByEntityId(entity.getEntityId()));
-					}
-					break;
-				} 
-				case "DEVICE":{
-					Device device = RestServiceUtil.getInstance().getClient().getDeviceApi().getDevice(entity.getEntityId());
-					if(device!=null) {
-						node.setSerialNum(device.getSerialNumber());
-					}
-					break;
-				} default:{
-					break;
-				}
-			}
+//			switch(entity.getType().toString()) {
+//			
+//				case "TERMINAL":{
+//						if(!entity.getEntityId().equals("TEREBZN8XEOXN") && !entity.getEntityId().equals("TERL5O8EVKZ8R")) {
+//						node.setSerialNum(personalizationService.getTerminalSerialNumberByEntityId(entity.getEntityId()));
+//					}
+//					break;
+//				} 
+//				case "DEVICE":{
+//					Device device = RestServiceUtil.getInstance().getClient().getDeviceApi().getDevice(entity.getEntityId());
+//					if(device!=null) {
+//						node.setSerialNum(device.getSerialNumber());
+//					}
+//					break;
+//				} default:{
+//					break;
+//				}
+//			}
 			nodeChildList.add(node);
 		}
 		return nodeChildList;

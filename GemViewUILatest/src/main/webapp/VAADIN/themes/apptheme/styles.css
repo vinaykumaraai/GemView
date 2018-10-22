@@ -220,8 +220,12 @@
 }
 
 .applicationStore-TabLayout {
-	margin-top: 15px;
+	margin-top: 6px;
 	background: #f2f2f2 !important;
+}
+
+.applicationStore-FilesLayout {
+	margin-left: 15px;
 }
 
 .applicationStore-buttonsLayout {
@@ -359,6 +363,10 @@
 	text-align: left !important;
 }
 
+.heartbeat-TerminalImage-Height {
+	height: 60px !important;
+}
+
 .heartbeat-SearchLayout {
 	padding: 0px 20px 20px 20px !important;
 }
@@ -377,7 +385,7 @@
 }
 
 .heartbeat-verticalDetailLayout {
-	padding: 37px 37px 37px 0px !important;
+	padding: 0px 37px 37px 0px !important;
 }
 
 .heartbeat-checkbox {
@@ -437,6 +445,14 @@
 
 .personlization-Parameters {
 	padding: 37px 37px 37px 37px !important;
+}
+
+.personlization-ParametersAppDropDown {
+	margin-top: -28px !important;
+}
+
+.personlization-OverRideParameters {
+	padding: 37px 0px 0px 0px !important;
 }
 
 .personlization-ParametersComboBox {
@@ -543,7 +559,7 @@
 	border-bottom-color: #bcbcbc;
 	background-color: #fafafa;
 	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.05);
-	width: 195px;
+	width: 210px;
 	box-shadow: none;
 	background: transparent;
 	color: inherit;
@@ -620,7 +636,6 @@
 	height: 37px !important;
 	padding: 0px 16px !important;
 	font-weight: 400 !important;
-	margin-top: 1px;
 }
 
 .app-shell[width-range~="600px-700px"] .v-button-customstyle {
@@ -628,7 +643,6 @@
 	height: 32px !important;
 	padding: 0px 10px !important;
 	font-weight: 400 !important;
-	margin-top: 1px !important;
 }
 
 .app-shell[width-range~="600px-700px"] .header-Components {
@@ -671,7 +685,6 @@
 	height: 32px !important;
 	padding: 0px 10px !important;
 	font-weight: 400 !important;
-	margin-top: 1px;
 }
 
 .app-shell[width-range~="601px-1000px"] .v-grid-cell {
@@ -833,7 +846,6 @@
 	height: 28px !important;
 	padding: 0px 8px !important;
 	font-weight: 400 !important;
-	margin-top: 2px !important;
 }
 
 .app-shell[width-range~="-600px"] .v-grid-cell {
@@ -1429,6 +1441,18 @@
 	margin-bottom: 30px !important;
 	width: 130px;
 	height: 26px;
+}
+
+.app-shell[width-range~="1001px-"] .v-treegrid-cell {
+	font-size: 16px !important;
+}
+
+.app-shell[width-range~="601px-1000px"] .v-treegrid-cell {
+	font-size: 14px !important;
+}
+
+.app-shell[width-range~="-600px"] .v-treegrid-cell {
+	font-size: 12px !important;
 }
 
 .app-shell[width-range~="600px-800px"] .header-Components {

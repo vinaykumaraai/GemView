@@ -172,7 +172,7 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 				odometerEndDateField.setHeight("32px");
 				treeNodeSearch.setHeight(32, Unit.PIXELS);
 				odometerDeviceSearch.setHeight(32, Unit.PIXELS);
-				mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
+				mainView.getTitle().setValue("gemView");
 				clearOdometerSearch.removeStyleNames("audit-AuditSearchClearDesktop", "odometer-OdometerSearchClearPhone");
 				clearOdometerSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"v-button-customstyle");
 				addComponentAsFirst(header);
@@ -181,7 +181,7 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 				odometerEndDateField.setHeight("100%");
 				treeNodeSearch.setHeight(37, Unit.PIXELS);
 				odometerDeviceSearch.setHeight(37, Unit.PIXELS);
-				mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
+				mainView.getTitle().setValue("gemView");
 				clearOdometerSearch.removeStyleNames("audit-AuditSearchClearPhone", "v-button-customstyle");
 				clearOdometerSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearDesktop");
 				addComponentAsFirst(header);
@@ -306,7 +306,7 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 			odometerDeviceSearch.setHeight(32, Unit.PIXELS);
 			clearOdometerSearch.removeStyleNames("audit-AuditSearchClearDesktop", "audit-AuditSearchClearPhone");
 			clearOdometerSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"v-button-customstyle");
-			mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
+			mainView.getTitle().setValue("gemView");
 		}else {
 			odometerStartDateField.setHeight("100%");
 			odometerEndDateField.setHeight("100%");
@@ -314,7 +314,7 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 			odometerDeviceSearch.setHeight(37, Unit.PIXELS);
 			clearOdometerSearch.removeStyleNames("audit-AuditSearchClearPhone", "v-button-customstyle");
 			clearOdometerSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearDesktop");
-			mainView.getTitle().setValue("gemView  "+ userService.getLoggedInUserName());
+			mainView.getTitle().setValue("gemView");
 		}
 		
 		Permission appStorePermission = roleService.getLoggedInUserRolePermissions().stream().filter(per -> per.getPageName().equals("ODOMETER")).findFirst().get();
@@ -472,7 +472,7 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 		odometerDeviceGrid.setHeight("97%");
 		odometerDeviceGrid.addStyleName("grid-AuditOdometerAlignment");
 		odometerDeviceGrid.setResponsive(true);
-		odometerDeviceGrid.setSelectionMode(SelectionMode.SINGLE);
+		odometerDeviceGrid.setSelectionMode(SelectionMode.MULTI);
 		odometerDeviceGrid.setColumns("statusType", "description", "statistics");
 		odometerDeviceSearch = new TextField();
 		odometerDeviceSearch.setWidth("100%");

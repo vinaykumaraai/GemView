@@ -76,7 +76,6 @@ public class EntityOperations {
 			UI.getCurrent().getWindows().forEach(Window::close);
 			treeContextMenuWindow.close();
 			createEntityWindow = openEntityWindow(nodeTree, treeDataNodeService, commonService, false);
-			//createEntityWindow.setModal(false);
 			if (nodeTree.getSelectedItems().size() == 0) {
 				Notification.show(NotificationUtil.PERSONALIZATION_CREATE_ENTITY, Notification.Type.ERROR_MESSAGE);
 			} else {

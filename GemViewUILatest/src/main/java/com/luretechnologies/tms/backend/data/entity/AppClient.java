@@ -14,7 +14,7 @@ public class AppClient extends AbstractEntity {
 	private List<AppDefaultParam> appDefaultParamList;
 	private Devices device;
 	private List<Profile> profileList;
-	private List<ApplicationFile> appFileList;
+	private List<AppDefaultParam> appFileList;
 	private TreeNode owner;
 	private Profile profile;
 	public AppClient() {
@@ -23,7 +23,7 @@ public class AppClient extends AbstractEntity {
 	}
 //Add the device and owner to it App
 	public AppClient(Long id, String packageName, String description, String packageVersion, boolean available, boolean active,
-			List<AppDefaultParam> appDefaultParamList,Devices device,TreeNode owner, List<Profile> profileList, List<ApplicationFile> appFileList) {
+			List<AppDefaultParam> appDefaultParamList,Devices device,TreeNode owner, List<Profile> profileList, List<AppDefaultParam> appFileList) {
 		Objects.requireNonNull(packageName);
 		Objects.requireNonNull(description);
 		Objects.requireNonNull(packageVersion);
@@ -109,10 +109,10 @@ public class AppClient extends AbstractEntity {
 		this.profile = profile;
 	}
 
-	public List<ApplicationFile> getAppFileList() {
+	public List<AppDefaultParam> getAppFileList() {
 		return appFileList;
 	}
-	public void setAppFileList(List<ApplicationFile> appFileList) {
+	public void setAppFileList(List<AppDefaultParam> appFileList) {
 		this.appFileList = appFileList;
 	}
 

@@ -338,13 +338,13 @@ public class ApplicationStoreService {
 		return debugDataProvider;
 	}
 
-	private List<ApplicationFile> getApplicationFileList(List<AppFile> appFileList) {
-		List<ApplicationFile> fileList = new ArrayList<>();
+	private List<AppDefaultParam> getApplicationFileList(List<AppFile> appFileList) {
+		List<AppDefaultParam> fileList = new ArrayList<>();
 		if(appFileList!=null) {
 			for (AppFile appFile : appFileList) {
-				ApplicationFile file = new ApplicationFile(appFile.getId(), appFile.getName(), appFile.getDescription(),
-					appFile.getDefaultValue());
-				fileList.add(file);
+				AppDefaultParam appParamFileClient = new AppDefaultParam(appFile.getId(), appFile.getName(),
+						appFile.getDescription(), appFile.getAppFileFormat().getName(), appFile.getDefaultValue());
+				fileList.add(appParamFileClient);
 			}
 			return fileList;
 		}
@@ -359,16 +359,18 @@ public class ApplicationStoreService {
 		return sortedList;
 	}
 	
-	public List<ApplicationFile> getAllAppFileList(Long id) {
-		List<ApplicationFile> applicationFileList = new ArrayList<>();
+	public List<AppDefaultParam> getAllAppFileList(Long id) {
+		List<AppDefaultParam> applicationParamFileList = new ArrayList<>();
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
-				List<AppFile> appFileList = RestServiceUtil.getInstance().getClient().getAppApi().getAppFileList(id);
-				for (AppFile appFile : appFileList) {
-					ApplicationFile file = new ApplicationFile(appFile.getId(), appFile.getName(),
-							appFile.getDescription(), appFile.getDefaultValue());
-					applicationFileList.add(file);
-				}
+				List<AppParam> appParamFileList = RestServiceUtil.getInstance().getClient().getAppApi().getAppFileList(id);
+				for (AppParam appParamFile : appParamFileList) {
+					if(appParamFile.getAppParamFormat().getName().toString().equals("file")) {
+						AppDefaultParam appParamFileClient = new AppDefaultParam(appParamFile.getId(), appParamFile.getName(),
+								appParamFile.getDescription(), appParamFile.getAppParamFormat().getValue(), appParamFile.getDefaultValue());
+						applicationParamFileList.add(appParamFileClient);
+					}
+			}
 			}
 		} catch (ApiException e) {
 			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
@@ -387,7 +389,7 @@ public class ApplicationStoreService {
 				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving the App file list in Application Store Screen",Type.ERROR_MESSAGE);
 				ComponentUtil.sessionExpired(notification);
 			}
-		return applicationFileList;
+		return applicationParamFileList;
 	}
 	
 	public List<AppDefaultParam> getAppFileListByAppProfileId(Long id){

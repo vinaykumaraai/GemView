@@ -32,7 +32,9 @@
 package com.luretechnologies.tms.backend.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
@@ -198,17 +200,24 @@ public class DashboardService {
 		
 	}
 	
-	public List<Number> getHeartBeatDataPerWeek() {
-		List<Long> heartBeatPerWeekLong = new ArrayList<>();
-		List<Number> heartBeatPerWeek = new ArrayList<>();
+	public Map<String, Number> getHeartBeatDataPerWeek() {
+		Map<String, Long> heartBeatPerWeekLong = new HashMap<>();
+		Map<String, Number> heartBeatPerWeek = new HashMap<>();
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
 				 DashboardWidget dashboardWidget = RestServiceUtil.getInstance().getClient().getDashboardApi().getDashboardWidget();
 				 heartBeatPerWeekLong = dashboardWidget.getHeartbeatPerWeekDays();
-				 for(Long value: heartBeatPerWeekLong) {
-					 Number number = value.intValue();
-					 heartBeatPerWeek.add(number);
-				 }
+				 List<Integer> valueList = new ArrayList<>();
+//				 for (Map.Entry<String, Long> entry : heartBeatPerWeekLong.entrySet()) {
+//					 Integer value = Integer.parseInt(entry.getKey().substring(2, 4));
+//					 valueList.add(value);
+//					}
+				 
+				 for (Map.Entry<String, Long> entry : heartBeatPerWeekLong.entrySet()) {
+					 Number number = entry.getValue().intValue();
+					 heartBeatPerWeek.put(entry.getKey(), number);
+					}
+
 				 return heartBeatPerWeek;
 			}
 		} catch (ApiException e) {
@@ -265,17 +274,17 @@ public class DashboardService {
 		return downloadPerDay;
 	}
 	
-	public List<Number> getDownloadDataPerWeek() {
-		List<Long> downloadDataPerWeekLong = new ArrayList<>();
-		List<Number> downloadDataPerWeek = new ArrayList<>();
+	public Map<String, Number> getDownloadDataPerWeek() {
+		Map<String, Long> downloadDataPerWeekLong = new HashMap<>();
+		Map<String, Number> downloadDataPerWeek = new HashMap<>();
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
 				 DashboardWidget dashboardWidget = RestServiceUtil.getInstance().getClient().getDashboardApi().getDashboardWidget();
 				 downloadDataPerWeekLong = dashboardWidget.getHeartbeatPerWeekDays();
-				 for(Long value: downloadDataPerWeekLong) {
-					 Number number = value.intValue();
-					 downloadDataPerWeek.add(number);
-				 }
+				 for (Map.Entry<String, Long> entry : downloadDataPerWeekLong.entrySet()) {
+					 Number number = entry.getValue().intValue();
+					 downloadDataPerWeek.put(entry.getKey(), number);
+					}
 				 return downloadDataPerWeek;
 			}
 		} catch (ApiException e) {

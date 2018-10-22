@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
@@ -117,6 +118,8 @@ public class DashboardView extends DashboardViewDesign implements View {
 	private DataSeries downloadServicesPerWeek;
 	private List<Number> list = new ArrayList<Number>();
 	private Row row;
+	private Map<String, Number> heartBeatPerWeek;
+	private Map<String, Number> downloadDataPerWeek;
 
 
 	@Autowired
@@ -343,13 +346,16 @@ public class DashboardView extends DashboardViewDesign implements View {
 		callsPerPeriod[0].setData(dashBoardService.getHeartBeatDataPerDay());
 		callsPerPeriod[1].setData(dashBoardService.getDownloadDataPerDay());
 		
-		for(int index=0; index<7; index++) {
-			List<Number> heartBeatPerWeek = dashBoardService.getHeartBeatDataPerWeek();
-			List<Number> downloadDataPerWeek = dashBoardService.getDownloadDataPerWeek();
-			heartBeatServicesPerWeek.add(new DataSeriesItem("Heartbeat", heartBeatPerWeek.get(index)));
-			downloadServicesPerWeek.add(new DataSeriesItem("Downlaod", downloadDataPerWeek.get(index)));
-			
+		heartBeatPerWeek = dashBoardService.getHeartBeatDataPerWeek();
+		downloadDataPerWeek = dashBoardService.getDownloadDataPerWeek();
+		for (Map.Entry<String, Number> entry : heartBeatPerWeek.entrySet()) {
+			heartBeatServicesPerWeek.add(new DataSeriesItem("Heartbeat", entry.getValue()));
 		}
+		
+		for (Map.Entry<String, Number> entry : downloadDataPerWeek.entrySet()) {
+			downloadServicesPerWeek.add(new DataSeriesItem("Downlaod", entry.getValue()));
+		}
+			
 	}
 	private void updateLabels(ConnectionStats deliveryStats) {
 		currentConnectionsLabel.setContentSucess(Integer.toString(deliveryStats.getCurrentConnections()));
@@ -361,11 +367,11 @@ public class DashboardView extends DashboardViewDesign implements View {
 	
 	private void initIncomingCallsGraphs() {
 		List<String> list = Arrays.asList("Heartbeat","Download");
-		List<String> weekList = new ArrayList<>();;
-		for(int index=7; index>=1;index--) {
-			LocalDate today = LocalDate.now().minusDays(index);
-			weekList.add(today.format(dateFormatter).toString());
-		}
+		//List<String> weekList = new ArrayList<>();;
+//		for(int index=7; index>=1;index--) {
+//			LocalDate today = LocalDate.now().minusDays(index);
+//			weekList.add(today.format(dateFormatter).toString());
+//		}
 
 		incomingRequestCallsPerWeek.setId("Request Calls Per Week");
 		incomingRequestCallsPerWeek.setSizeFull();
@@ -378,11 +384,14 @@ public class DashboardView extends DashboardViewDesign implements View {
 		title.setUseHTML(true);
 		title.setText("<span style=color:#0000008f !important;>Incoming Request Calls Per Week</span>");
 		Conf.setTitle(title);
+		Map<String, Number >downloadDataPerWeek = dashBoardService.getDownloadDataPerWeek();
 		//today.ge
 		XAxis x = new XAxis();
-		
-			x.setCategories(weekList.get(0), weekList.get(1), weekList.get(2), weekList.get(3), weekList.get(4)
-					, weekList.get(5), weekList.get(6));
+		List<String> dates = new ArrayList<>();
+		for(Map.Entry<String, Number> entry : downloadDataPerWeek.entrySet()) {
+			dates.add(entry.getKey());
+		}
+		x.setCategories(dates.get(0), dates.get(1), dates.get(2), dates.get(3), dates.get(4), dates.get(5), dates.get(6));
 		
         Conf.addxAxis(x);
         

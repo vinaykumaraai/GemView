@@ -73,6 +73,7 @@ import com.vaadin.event.ShortcutListener;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.server.Page;
+import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -89,6 +90,8 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
+import com.vaadin.ui.TabSheet.SelectedTabChangeEvent;
+import com.vaadin.ui.TabSheet.SelectedTabChangeListener;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.TabSheet;
@@ -154,7 +157,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 	private HorizontalLayout appParamSearchLayout;
 	private TabSheet applicationStoreTabSheet;
 	private final NavigationManager navigationManager;
-	private Grid<ApplicationFile> appFileGrid;
+	private Grid<AppDefaultParam> appFileGrid;
 	private Header header;
 	
 	@Autowired
@@ -228,6 +231,10 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 				clearParamSearch.removeStyleNames("v-button-customstyle", "audit-AuditSearchClearDesktop");
 				clearParamSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"odometer-OdometerSearchClearPhone");
 				mainView.getTitle().setValue(userService.getLoggedInUserName());
+				applicationStoreTabSheet.getTab(0).setCaption("<h3 style=font-weight:400;width:90px;height:15px;>Details</h3>");
+				applicationStoreTabSheet.getTab(1).setCaption("<h3 style=font-weight:400;width:90px;height:15px;>Profiles</h3>");
+				applicationStoreTabSheet.getTab(2).setCaption("<h3 style=font-weight:400;width:90px;height:15px;>Parameters</h3>");
+				applicationStoreTabSheet.getTab(3).setCaption("<h3 style=font-weight:400;width:90px;height:15px;>Files</h3>");
 				removeComponent(header);
 			} else if(r.getWidth()>600 && r.getWidth()<=1000){
 				applicationSearch.setHeight("32px");
@@ -239,6 +246,10 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 				clearParamSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"v-button-customstyle");
 				mainView.getTitle().setValue("gemView"/*+ userService.getLoggedInUserName()*/);
 				addComponentAsFirst(header);
+				applicationStoreTabSheet.getTab(0).setCaption("<h3 style=font-weight:400;width:120px;height:20px;>Details</h3>");
+				applicationStoreTabSheet.getTab(1).setCaption("<h3 style=font-weight:400;width:120px;height:20px;>Profiles</h3>");
+				applicationStoreTabSheet.getTab(2).setCaption("<h3 style=font-weight:400;width:120px;height:20px;>Parameters</h3>");
+				applicationStoreTabSheet.getTab(3).setCaption("<h3 style=font-weight:400;width:120px;height:20px;>Files</h3>");
 			}else {
 				applicationSearch.setHeight(37, Unit.PIXELS);
 				appDefaultParamSearch.setHeight("37px");
@@ -249,6 +260,10 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 				clearParamSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearDesktop");
 				mainView.getTitle().setValue("gemView"/*+ userService.getLoggedInUserName()*/);
 				addComponentAsFirst(header);
+				applicationStoreTabSheet.getTab(0).setCaption("<h3 style=font-weight:400;width:150px;height:25px;>Details</h3>");
+				applicationStoreTabSheet.getTab(1).setCaption("<h3 style=font-weight:400;width:150px;height:25px;>Profiles</h3>");
+				applicationStoreTabSheet.getTab(2).setCaption("<h3 style=font-weight:400;width:150px;height:25px;>Parameters</h3>");
+				applicationStoreTabSheet.getTab(3).setCaption("<h3 style=font-weight:400;width:150px;height:25px;>Files</h3>");
 			}
 			
 			if(r.getWidth()<=730) {
@@ -314,6 +329,10 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			clearParamSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"odometer-OdometerSearchClearPhone");
 			removeComponent(header);
 			mainView.getTitle().setValue(userService.getLoggedInUserName());
+			applicationStoreTabSheet.getTab(0).setCaption("<h3 style=font-weight:400;width:90px;height:15px;>Details</h3>");
+			applicationStoreTabSheet.getTab(1).setCaption("<h3 style=font-weight:400;width:90px;height:15px;>Profiles</h3>");
+			applicationStoreTabSheet.getTab(2).setCaption("<h3 style=font-weight:400;width:90px;height:15px;>Parameters</h3>");
+			applicationStoreTabSheet.getTab(3).setCaption("<h3 style=font-weight:400;width:90px;height:15px;>Files</h3>");
 		} else if(width>600 && width<=1000){
 			applicationSearch.setHeight("32px");
 			appDefaultParamSearch.setHeight("32px");
@@ -324,6 +343,10 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			clearParamSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"v-button-customstyle");
 			mainView.getTitle().setValue("gemView"/*+ userService.getLoggedInUserName()*/);
 			addComponentAsFirst(header);
+			applicationStoreTabSheet.getTab(0).setCaption("<h3 style=font-weight:400;width:120px;height:20px;>Details</h3>");
+			applicationStoreTabSheet.getTab(1).setCaption("<h3 style=font-weight:400;width:120px;height:20px;>Profiles</h3>");
+			applicationStoreTabSheet.getTab(2).setCaption("<h3 style=font-weight:400;width:120px;height:20px;>Parameters</h3>");
+			applicationStoreTabSheet.getTab(3).setCaption("<h3 style=font-weight:400;width:120px;height:20px;>Files</h3>");
 		}else {
 			applicationSearch.setHeight(37, Unit.PIXELS);
 			appDefaultParamSearch.setHeight("37px");
@@ -334,6 +357,10 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			clearParamSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearDesktop");
 			mainView.getTitle().setValue("gemView"/*+ userService.getLoggedInUserName()*/);
 			addComponentAsFirst(header);
+			applicationStoreTabSheet.getTab(0).setCaption("<h3 style=font-weight:400;width:150px;height:25px;>Details</h3>");
+			applicationStoreTabSheet.getTab(1).setCaption("<h3 style=font-weight:400;width:150px;height:25px;>Profiles</h3>");
+			applicationStoreTabSheet.getTab(2).setCaption("<h3 style=font-weight:400;width:150px;height:25px;>Parameters</h3>");
+			applicationStoreTabSheet.getTab(3).setCaption("<h3 style=font-weight:400;width:150px;height:25px;>Files</h3>");
 		}
 		
 		if(width<=730) {
@@ -377,18 +404,30 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 	
 	private VerticalLayout getTabSheet() throws ApiException {
 		VerticalLayout tabVerticalLayout = new VerticalLayout();
+		tabVerticalLayout.setHeight("100%");
 		applicationStoreTabSheet = new TabSheet();
-		applicationStoreTabSheet.setHeight("100%");
+		applicationStoreTabSheet.setCaptionAsHtml(true);
+		applicationStoreTabSheet.setTabCaptionsAsHtml(true);
+		applicationStoreTabSheet.setHeight("91%");
 		applicationStoreTabSheet.addStyleName("applicationStore-TabLayout");
-		applicationStoreTabSheet.addStyleNames(ValoTheme.TABSHEET_EQUAL_WIDTH_TABS, ValoTheme.TABSHEET_CENTERED_TABS,
-				ValoTheme.TABSHEET_ICONS_ON_TOP, ValoTheme.TABSHEET_COMPACT_TABBAR, ValoTheme.TABSHEET_PADDED_TABBAR);
-		applicationStoreTabSheet.addTab(getAppicationDetailsLayout(), "Details");
-		applicationStoreTabSheet.addTab(getApplicationProfileLayout(),"Profile");
-		applicationStoreTabSheet.addTab(getApplicationDefaulParametersLayout(), "Parameters");
-		applicationStoreTabSheet.addTab(getApplicationFileLayout(), "Files");
+		applicationStoreTabSheet.addStyleNames(ValoTheme.TABSHEET_FRAMED, ValoTheme.TABSHEET_PADDED_TABBAR);
+		applicationStoreTabSheet.addTab(getAppicationDetailsLayout());
+		applicationStoreTabSheet.addTab(getApplicationProfileLayout());
+		applicationStoreTabSheet.addTab(getApplicationDefaulParametersLayout());
+		applicationStoreTabSheet.addTab(getApplicationFileLayout());
 		tabVerticalLayout.addComponents(buttonLayout, applicationStoreTabSheet);
 		tabVerticalLayout.addStyleName("heartbeat-verticalLayout");
 		tabVerticalLayout.setComponentAlignment(buttonLayout, Alignment.BOTTOM_RIGHT);
+		
+		applicationStoreTabSheet.addSelectedTabChangeListener(new SelectedTabChangeListener() {
+			
+			@Override
+			public void selectedTabChange(SelectedTabChangeEvent event) {
+				selectedProfile=null;
+				profileSelectFiles.clear();
+				
+			}
+		});
 		
 		return tabVerticalLayout;
 	}
@@ -408,14 +447,14 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		vl.addStyleName("applicationStore-GridLayout");
 		return vl;
 	}
-private void disableAllComponents() throws Exception {
-	/*HorizontalLayout appButtons = ((HorizontalLayout)((HorizontalLayout)((VerticalLayout)appStoreGridLayout.getComponent(0, 0)).getComponent(0)).getComponent(1));
-	((Button)appButtons.getComponent(0)).setEnabled(false);
-	((Button)appButtons.getComponent(1)).setEnabled(false);
-	((Button)appButtons.getComponent(2)).setEnabled(false);*/
-	saveForm.setEnabled(false);
-	cancelForm.setEnabled(false);
-}
+	private void disableAllComponents() throws Exception {
+		/*HorizontalLayout appButtons = ((HorizontalLayout)((HorizontalLayout)((VerticalLayout)appStoreGridLayout.getComponent(0, 0)).getComponent(0)).getComponent(1));
+		((Button)appButtons.getComponent(0)).setEnabled(false);
+		((Button)appButtons.getComponent(1)).setEnabled(false);
+		((Button)appButtons.getComponent(2)).setEnabled(false);*/
+		saveForm.setEnabled(false);
+		cancelForm.setEnabled(false);
+	}
 	private VerticalLayout getApplicationListLayout() {
 		appGrid = new Grid<>(AppClient.class);
 		appGrid.setWidth("100%");
@@ -509,6 +548,7 @@ private void disableAllComponents() throws Exception {
 			}
 		});
 		editAppGridRowMenu.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+		editAppGridRowMenu.setEnabled(false);
 		Button deleteAppGridRowMenu = new Button("Delete Application", clicked -> {
 			UI.getCurrent().getWindows().forEach(Window::close);
 			if (appGrid.getSelectedItems().isEmpty()) {
@@ -519,6 +559,7 @@ private void disableAllComponents() throws Exception {
 
 		});
 		deleteAppGridRowMenu.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+		deleteAppGridRowMenu.setEnabled(false);
 		Button createAppGridRow = new Button(VaadinIcons.FOLDER_ADD, click -> {			
 			setApplicationFormComponentsEnable(access, add, edit, delete);
 			appGrid.deselectAll();
@@ -564,6 +605,13 @@ private void disableAllComponents() throws Exception {
 		appGrid.addContextClickListener(click->{
 			UI.getCurrent().getWindows().forEach(Window::close);
 			appGridContextMenu.setPosition(click.getClientX(), click.getClientY());
+			if(appGrid.getSelectedItems().size()>0) {
+				deleteAppGridRowMenu.setEnabled(true);
+				editAppGridRowMenu.setEnabled(true);
+			}else {
+				deleteAppGridRowMenu.setEnabled(false);
+				editAppGridRowMenu.setEnabled(false);
+			}
 			UI.getCurrent().addWindow(appGridContextMenu);
 			
 		});
@@ -879,8 +927,8 @@ private void disableAllComponents() throws Exception {
 			setApplicationFormComponentsEnable(access, false, false, false);
 			
 			appDefaultParamGrid.setDataProvider(new ListDataProvider<>(Arrays.asList()));
-			((TextField) ((HorizontalLayout) ((VerticalLayout) appDefaultParamGrid.getParent()).getComponent(1))
-					.getComponent(2)).clear();
+//			((TextField) ((HorizontalLayout) ((VerticalLayout) appDefaultParamGrid.getParent()).getComponent(1))
+//					.getComponent(2)).clear();
 			appDefaultParamGrid.setEnabled(false);
 			appGrid.deselectAll();
 
@@ -896,8 +944,8 @@ private void disableAllComponents() throws Exception {
 		//applicationDetailsForm.addStyleNames("applicationStore-FormLayout", "system-LabelAlignment");
 		applicationDetailsForm.addStyleNames("heartbeat-verticalDetailLayout");
 		applicationDetailsForm.setCaptionAsHtml(true);
+		applicationDetailsForm.setHeight("100%");
 		applicationDetailsLabel = new HorizontalLayout();
-		applicationDetailsLabel.setWidth("100%");
 		/*Label appDetailsLabel = new Label("Application Details");
 		appDetailsLabel.addStyleName("label-style");
 		appDetailsLabel.addStyleNames(ValoTheme.LABEL_BOLD, ValoTheme.LABEL_H3);
@@ -912,6 +960,7 @@ private void disableAllComponents() throws Exception {
 		appDetailsSaveCancleAndLabelLayout.setComponentAlignment(buttonLayout, Alignment.MIDDLE_RIGHT);*/
 		VerticalLayout applicationDetailsLayout = new VerticalLayout(
 				applicationDetailsForm);
+		applicationDetailsLayout.setHeight("100%");
 		applicationDetailsLayout.addStyleNames("applicationStore-ApplicationDetailsLayout");
 		//applicationDetailsLayout.setComponentAlignment(appDetailsSaveCancleAndLabelLayout, Alignment.TOP_RIGHT);
 		return applicationDetailsLayout;
@@ -925,7 +974,7 @@ private void disableAllComponents() throws Exception {
 		fileButton.setDescription("Upload Files");
 		fileButton.addClickListener(click -> {
 			if(appGrid.getSelectedItems().isEmpty())
-				Notification.show("Select a app first",Type.WARNING_MESSAGE);
+				Notification.show("Select a app first",Type.ERROR_MESSAGE);
 			else {
 			Window fileUpload = openFileUploadWindow(appFileGrid);
 			if (fileUpload.getParent() == null) {
@@ -941,18 +990,22 @@ private void disableAllComponents() throws Exception {
 		profileSelectFiles.addSelectionListener(select ->{
 			if(select.getValue()!=null) {
 				selectedProfile = select.getValue();
+				appFileGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(appStoreService.getAppFileListByAppProfileId(selectedProfile.getId())));
+			}else {
+				appFileGrid.setDataProvider(new ListDataProvider<>(appStoreService.getAllAppFileList(selectedApp.getId())));
 			}
 		});
 		profileSelectFiles.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", "textfiled-height");
 		
 		fileButtonLayout = new HorizontalLayout();
-		fileButtonLayout.setCaption("Upload Files");
-		fileButtonLayout.addStyleName("asset-debugComboBox");
+		fileButtonLayout.setCaptionAsHtml(true);
+		fileButtonLayout.setCaption("<span style=margin-left:15px;>Upload Files</span>");
+		fileButtonLayout.addStyleNames("asset-debugComboBox", "applicationStore-FilesLayout");
 		fileButtonLayout.addComponents(fileButton, profileSelectFiles);
 	
-		appFileGrid = new Grid<>(ApplicationFile.class);
+		appFileGrid = new Grid<>(AppDefaultParam.class);
 		appFileGrid.addStyleName("applicationStore-horizontalAlignment");
-		appFileGrid.setColumns("name", "description");
+		appFileGrid.setColumns("parameter");
 		appFileGrid.setWidth("100%");
 		appFileGrid.setHeightByRows(18);
 		appFileGrid.setId(FILE_CHOOSE_LIST);
@@ -962,7 +1015,7 @@ private void disableAllComponents() throws Exception {
 			if (appGrid.getSelectedItems().isEmpty() || appFileGrid.getSelectedItems().isEmpty()) {
 				Notification.show(NotificationUtil.APPLICATIONSTORE_DELETE, Notification.Type.ERROR_MESSAGE);
 			} else {
-				confirmDeleteAppProfileFiles();
+				confirmDeleteAppProfileFiles(selectedProfile);
 			}
 
 		});
@@ -1379,16 +1432,27 @@ private HorizontalLayout getApplicationProfileLayout() {
 				});
 	}
 	
-	private void confirmDeleteAppProfileFiles() {
+	private void confirmDeleteAppProfileFiles(Profile selectedProfile) {
 		ConfirmDialog.show(this.getUI(), "Please Confirm:", "Are you sure you want to delete?", "Ok", "Cancel",
 				new ConfirmDialog.Listener() {
 
 					public void onClose(ConfirmDialog dialog) {
 						if (dialog.isConfirmed()) {
-							for(ApplicationFile file : appFileGrid.getSelectedItems()) {
-								appStoreService.deleteAppFiles(appGrid.getSelectedItems().iterator().next().getId(), file.getId());
-							}
-							appProfileGrid.setDataProvider(appStoreService.getAppProfileListDataProvider(selectedApp.getId()));
+								if(selectedProfile!=null) {
+									for(AppDefaultParam file : appFileGrid.getSelectedItems()) {
+										appStoreService.deleteAppProfileFiles(selectedProfile.getId(), file.getId());
+									}
+									appFileGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(appStoreService.getAppFileListByAppProfileId(selectedProfile.getId())));
+									
+								}else {
+									for(AppDefaultParam file : appFileGrid.getSelectedItems()) {
+										appStoreService.deleteAppFiles(appGrid.getSelectedItems().iterator().next().getId(), file.getId());
+									}
+									appFileGrid.setDataProvider(new ListDataProvider<>(appStoreService.getAllAppFileList(selectedApp.getId())));
+								}
+								
+							
+							/*appProfileGrid.setDataProvider(appStoreService.getAppProfileListDataProvider(selectedApp.getId()));*/
 						} else {
 							// User did not confirm
 
@@ -1430,7 +1494,7 @@ private HorizontalLayout getApplicationProfileLayout() {
 				}
 			}else {
 				if (appGrid.getSelectedItems().size() > 0) {
-					optionList.setDataProvider(new ListDataProvider<ApplicationFile>(appStoreService.getAllAppFileList(appGrid.getSelectedItems().iterator().next().getId())));
+					optionList.setDataProvider(new ListDataProvider<AppDefaultParam>(appStoreService.getAllAppFileList(appGrid.getSelectedItems().iterator().next().getId())));
 					optionList.setId(FILE_CHOOSE_LIST);
 				}
 			}
@@ -1461,7 +1525,7 @@ private HorizontalLayout getApplicationProfileLayout() {
 					}else {
 						ApplicationFile file = (ApplicationFile) optionList.getSelectedItems().iterator().next();
 						appStoreService.deleteAppFiles(appGrid.getSelectedItems().iterator().next().getId(), file.getId());
-						optionList.setDataProvider(new ListDataProvider<ApplicationFile>(appStoreService.getAllAppFileList(appGrid.getSelectedItems().iterator().next().getId())));
+						optionList.setDataProvider(new ListDataProvider<AppDefaultParam>(appStoreService.getAllAppFileList(appGrid.getSelectedItems().iterator().next().getId())));
 					}
 				}
 			});
@@ -1746,7 +1810,7 @@ private HorizontalLayout getApplicationProfileLayout() {
 		return appDefaultWindow;
 	}
 	
-	private Window openFileUploadWindow(Grid<ApplicationFile> optionList) {
+	private Window openFileUploadWindow(Grid<AppDefaultParam> optionList) {
 		LineBreakCounter lineBreakCounter = new LineBreakCounter();
 		lineBreakCounter.setSlow(true);
 
@@ -1795,10 +1859,10 @@ private HorizontalLayout getApplicationProfileLayout() {
 		private final Window uploadWindow;
 		private final ApplicationStoreService applicationStoreService;
 
-		private final Grid<ApplicationFile> optionList;
+		private final Grid<AppDefaultParam> optionList;
 
 		private UploadInfoWindow(final Upload upload, final LineBreakCounter lineBreakCounter,
-				final FileUploadReceiver fileUploadReceiver, final Grid<ApplicationFile> optionList, Window uploadWindow,final ApplicationStoreService applicationStoreService) {
+				final FileUploadReceiver fileUploadReceiver, final Grid<AppDefaultParam> optionList, Window uploadWindow,final ApplicationStoreService applicationStoreService) {
 			super("Status");
 			this.counter = lineBreakCounter;
 			this.fileUploadReceiver = fileUploadReceiver;
@@ -1885,7 +1949,7 @@ private HorizontalLayout getApplicationProfileLayout() {
 			
 			if (optionList.getId().equalsIgnoreCase(FILE_CHOOSE_LIST)) {
 				applicationStoreService.uploadAppFiles(ApplicationStoreView.selectedApp.getId(), "Description111", ApplicationStoreView.applicationFilePath);
-				optionList.setDataProvider(new ListDataProvider<ApplicationFile>(applicationStoreService.getAllAppFileList(ApplicationStoreView.selectedApp.getId())));
+				optionList.setDataProvider(new ListDataProvider<AppDefaultParam>(applicationStoreService.getAllAppFileList(ApplicationStoreView.selectedApp.getId())));
 			} else {
 
 			}

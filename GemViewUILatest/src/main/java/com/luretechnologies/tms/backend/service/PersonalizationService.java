@@ -82,7 +82,6 @@ public class PersonalizationService extends CommonService {
 	Region regionForPersonalizationView;
 	Organization organizationForPersonalizationView;
 
-	@Override
 	public TreeData<TreeNode> getTreeData() {
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
@@ -816,13 +815,13 @@ public void updateOverRideParam(AppClient app, AppDefaultParam param) {
 		}
 		return profileList;
 	}
-	private List<ApplicationFile> getApplicationFileList(List<AppFile> appFileList) {
-		List<ApplicationFile> fileList = new ArrayList<>();
+	private List<AppDefaultParam> getApplicationFileList(List<AppFile> appFileList) {
+		List<AppDefaultParam> fileList = new ArrayList<>();
 		if(appFileList!=null) {
 			for (AppFile appFile : appFileList) {
-				ApplicationFile file = new ApplicationFile(appFile.getId(), appFile.getName(), appFile.getDescription(),
-					appFile.getDefaultValue());
-				fileList.add(file);
+				AppDefaultParam appParamFileClient = new AppDefaultParam(appFile.getId(), appFile.getName(),
+						appFile.getDescription(), appFile.getAppFileFormat().getName(), appFile.getDefaultValue());
+				fileList.add(appParamFileClient);
 			}
 			return fileList;
 		}
