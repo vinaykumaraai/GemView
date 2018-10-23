@@ -8,6 +8,7 @@ import com.luretechnologies.tms.ui.navigation.NavigationManager;
 import com.luretechnologies.tms.ui.view.admin.roles.RolesView;
 import com.luretechnologies.tms.ui.view.admin.user.UserAdminView;
 import com.luretechnologies.tms.ui.view.system.SystemView;
+import com.luretechnologies.tms.ui.view.user.UserView;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -48,7 +49,7 @@ public class Header extends HorizontalLayout {
 		logOut.setIcon(VaadinIcons.SIGN_OUT);
 		Button Users = new Button("Users",click -> {
 			userMenuWindow.close();
-			navigationManager.navigateTo(UserAdminView.class);
+			navigationManager.navigateTo(UserView.class);
 		});
 		Users.addStyleName(ValoTheme.BUTTON_BORDERLESS);
 		Users.setIcon(VaadinIcons.USERS);
@@ -73,7 +74,7 @@ public class Header extends HorizontalLayout {
 		userMenuWindow.setWidth("210px");
 		Button userMenuButton = new Button(VaadinIcons.ELLIPSIS_DOTS_V, click->{
 			UI.getCurrent().getWindows().forEach(Window::close);
-			userMenuWindow.setPosition(click.getClientX(), click.getClientY());
+			userMenuWindow.setPosition(click.getClientX()-10, click.getClientY());
 			UI.getCurrent().addWindow(userMenuWindow);
 		});
 		userMenuButton.addStyleNames(ValoTheme.BUTTON_BORDERLESS, "header-menuButton");

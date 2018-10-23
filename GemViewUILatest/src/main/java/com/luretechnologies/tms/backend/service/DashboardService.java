@@ -32,7 +32,12 @@
 package com.luretechnologies.tms.backend.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
@@ -198,18 +203,24 @@ public class DashboardService {
 		
 	}
 	
-	public List<Number> getHeartBeatDataPerWeek() {
-		List<Long> heartBeatPerWeekLong = new ArrayList<>();
-		List<Number> heartBeatPerWeek = new ArrayList<>();
+	public Map<String, Number> getHeartBeatDataPerWeek() {
+		Map<String, Long> heartBeatPerWeekLong = new HashMap<>();
+		Map<String, Number> heartBeatPerWeek = new HashMap<>();
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
 				 DashboardWidget dashboardWidget = RestServiceUtil.getInstance().getClient().getDashboardApi().getDashboardWidget();
 				 heartBeatPerWeekLong = dashboardWidget.getHeartbeatPerWeekDays();
-				 for(Long value: heartBeatPerWeekLong) {
-					 Number number = value.intValue();
-					 heartBeatPerWeek.add(number);
-				 }
-				 return heartBeatPerWeek;
+				 List<Integer> valueList = new ArrayList<>();
+				 
+				 for (Map.Entry<String, Long> entry : heartBeatPerWeekLong.entrySet()) {
+					 Number number = entry.getValue().intValue();
+					 heartBeatPerWeek.put(entry.getKey(), number);
+					}
+				 
+				 Map<String, Number> newMapSortedByKey = heartBeatPerWeek.entrySet().stream()
+			                .sorted((e1,e2) -> e1.getKey().compareTo(e2.getKey()))
+			                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1,e2) -> e1, LinkedHashMap::new));
+				 return newMapSortedByKey;
 			}
 		} catch (ApiException e) {
 			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
@@ -265,18 +276,22 @@ public class DashboardService {
 		return downloadPerDay;
 	}
 	
-	public List<Number> getDownloadDataPerWeek() {
-		List<Long> downloadDataPerWeekLong = new ArrayList<>();
-		List<Number> downloadDataPerWeek = new ArrayList<>();
+	public Map<String, Number> getDownloadDataPerWeek() {
+		Map<String, Long> downloadDataPerWeekLong = new HashMap<>();
+		Map<String, Number> downloadDataPerWeek = new HashMap<>();
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
 				 DashboardWidget dashboardWidget = RestServiceUtil.getInstance().getClient().getDashboardApi().getDashboardWidget();
 				 downloadDataPerWeekLong = dashboardWidget.getHeartbeatPerWeekDays();
-				 for(Long value: downloadDataPerWeekLong) {
-					 Number number = value.intValue();
-					 downloadDataPerWeek.add(number);
-				 }
-				 return downloadDataPerWeek;
+				 for (Map.Entry<String, Long> entry : downloadDataPerWeekLong.entrySet()) {
+					 Number number = entry.getValue().intValue();
+					 downloadDataPerWeek.put(entry.getKey(), number);
+					}
+				 
+				 Map<String, Number> newMapSortedByKey = downloadDataPerWeek.entrySet().stream()
+			                .sorted((e1,e2) -> e1.getKey().compareTo(e2.getKey()))
+			                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1,e2) -> e1, LinkedHashMap::new));
+				 return newMapSortedByKey;
 			}
 		} catch (ApiException e) {
 			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {

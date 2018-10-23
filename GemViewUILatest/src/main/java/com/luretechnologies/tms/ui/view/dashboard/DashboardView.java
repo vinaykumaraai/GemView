@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
@@ -117,6 +118,8 @@ public class DashboardView extends DashboardViewDesign implements View {
 	private DataSeries downloadServicesPerWeek;
 	private List<Number> list = new ArrayList<Number>();
 	private Row row;
+	private Map<String, Number> heartBeatPerWeek;
+	private Map<String, Number> downloadDataPerWeek;
 
 
 	@Autowired
@@ -136,24 +139,24 @@ public class DashboardView extends DashboardViewDesign implements View {
 	@SuppressWarnings("unchecked")
 	@PostConstruct
 	public void init() {
-		ComboBox refresh = new ComboBox();
-		refresh.setItems("Refresh 30 secs","Refresh 1 min","Refresh 5 mins","Refresh 30 mins","Refresh 1 hr");
-		refresh.setPlaceholder("Select Time");
-		refresh.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", "header-Components");
+//		ComboBox refresh = new ComboBox();
+//		refresh.setItems("Refresh 30 secs","Refresh 1 min","Refresh 5 mins","Refresh 30 mins","Refresh 1 hr");
+//		refresh.setPlaceholder("Select Time");
+//		refresh.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", "header-Components");
+//		
+//		refresh.addSelectionListener(listener->{
+//			if(listener!=null && listener.getValue().toString().equals("Refresh 30 secs")) {
+//				UI.getCurrent().setPollInterval(30000);
+//			}
+//		});
+//		
+//		ComboBox downloads = new ComboBox();
+//		downloads.setItems("Downloads 1","Downloads 2","Downloads 3","Downloads 4","Downloads 5");
+//		downloads.setPlaceholder("Select Option");
+//		downloads.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", 
+//				"header-Components");
 		
-		refresh.addSelectionListener(listener->{
-			if(listener!=null && listener.getValue().toString().equals("Refresh 30 secs")) {
-				UI.getCurrent().setPollInterval(30000);
-			}
-		});
-		
-		ComboBox downloads = new ComboBox();
-		downloads.setItems("Downloads 1","Downloads 2","Downloads 3","Downloads 4","Downloads 5");
-		downloads.setPlaceholder("Select Option");
-		downloads.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", 
-				"header-Components");
-		
-		Header header = new Header(userService,navigationManager, "Dashboard", refresh, downloads);
+		Header header = new Header(userService,navigationManager, "Dashboard");
 		header.setId("header");
 		setResponsive(true);
 		grid = new Grid<>(Downloads.class);
@@ -168,12 +171,15 @@ public class DashboardView extends DashboardViewDesign implements View {
 		grid.getColumn("device").setCaption("Device");
 		grid.getColumn("completion").setCaption("Completion");
 		
-		//grid.setDataProvider(new ListDataProvider<Downloads>( dashBoardService.getDownloadsData()));
+		grid.setDataProvider(new ListDataProvider<Downloads>( dashBoardService.getDownloadsData()));
 		grid.setCaptionAsHtml(true);
 		grid.setCaption("<h2 style=margin-bottom:10px;color:#0000008f;font-weight:400;>Current Downloads"
 				+ "</h2>");
 		grid.setHeaderVisible(true);
 		grid.addStyleName("dashboard-gridBackground");
+		
+		heartBeatPerWeek = dashBoardService.getHeartBeatDataPerWeek();
+		downloadDataPerWeek = dashBoardService.getDownloadDataPerWeek();
 		
 		/*Header header = new Header(userService,navigationManager, "Dashboard", new Label());
 		row = board.addRow(header);
@@ -332,8 +338,8 @@ public class DashboardView extends DashboardViewDesign implements View {
 	
 	@Override
 	public void enter(ViewChangeEvent event) {
-//		updateLabels(dashBoardService.getLabelData());
-//		updateGraphs();
+		updateLabels(dashBoardService.getLabelData());
+		updateGraphs();
 	}
 	
 	
@@ -343,13 +349,14 @@ public class DashboardView extends DashboardViewDesign implements View {
 		callsPerPeriod[0].setData(dashBoardService.getHeartBeatDataPerDay());
 		callsPerPeriod[1].setData(dashBoardService.getDownloadDataPerDay());
 		
-		for(int index=0; index<7; index++) {
-			List<Number> heartBeatPerWeek = dashBoardService.getHeartBeatDataPerWeek();
-			List<Number> downloadDataPerWeek = dashBoardService.getDownloadDataPerWeek();
-			heartBeatServicesPerWeek.add(new DataSeriesItem("Heartbeat", heartBeatPerWeek.get(index)));
-			downloadServicesPerWeek.add(new DataSeriesItem("Downlaod", downloadDataPerWeek.get(index)));
-			
+		for (Map.Entry<String, Number> entry : heartBeatPerWeek.entrySet()) {
+			heartBeatServicesPerWeek.add(new DataSeriesItem("Heartbeat", entry.getValue()));
 		}
+		
+		for (Map.Entry<String, Number> entry : downloadDataPerWeek.entrySet()) {
+			downloadServicesPerWeek.add(new DataSeriesItem("Downlaod", entry.getValue()));
+		}
+			
 	}
 	private void updateLabels(ConnectionStats deliveryStats) {
 		currentConnectionsLabel.setContentSucess(Integer.toString(deliveryStats.getCurrentConnections()));
@@ -361,12 +368,6 @@ public class DashboardView extends DashboardViewDesign implements View {
 	
 	private void initIncomingCallsGraphs() {
 		List<String> list = Arrays.asList("Heartbeat","Download");
-		List<String> weekList = new ArrayList<>();;
-		for(int index=7; index>=1;index--) {
-			LocalDate today = LocalDate.now().minusDays(index);
-			weekList.add(today.format(dateFormatter).toString());
-		}
-
 		incomingRequestCallsPerWeek.setId("Request Calls Per Week");
 		incomingRequestCallsPerWeek.setSizeFull();
 		
@@ -378,12 +379,16 @@ public class DashboardView extends DashboardViewDesign implements View {
 		title.setUseHTML(true);
 		title.setText("<span style=color:#0000008f !important;>Incoming Request Calls Per Week</span>");
 		Conf.setTitle(title);
-		//today.ge
 		XAxis x = new XAxis();
-		
-			x.setCategories(weekList.get(0), weekList.get(1), weekList.get(2), weekList.get(3), weekList.get(4)
-					, weekList.get(5), weekList.get(6));
-		
+		List<String> dates = new ArrayList<>();
+		if(downloadDataPerWeek!=null && !downloadDataPerWeek.isEmpty()) {
+			for(Map.Entry<String, Number> entry : downloadDataPerWeek.entrySet()) {
+				dates.add(entry.getKey());
+			}
+		}
+		if(dates.size()==7) {
+			x.setCategories(dates.get(0), dates.get(1), dates.get(2), dates.get(3), dates.get(4), dates.get(5), dates.get(6));
+		}
         Conf.addxAxis(x);
         
         YAxis y = new YAxis();

@@ -45,6 +45,8 @@ public class User extends AbstractEntity {
 	
 	private String password;
 
+	private String username; 
+
 	private String name;
 
 	private String role;
@@ -69,17 +71,16 @@ public class User extends AbstractEntity {
 		// An empty constructor is needed for all beans
 	}
 
-	public User(Long id,String email, String name, String role, String firstname, String lastname, boolean active, int passwordFrequncy, Long entityId, String ipAddress) {
+	public User(Long id,String email, String username, String role, String firstname, String lastname, boolean active, int passwordFrequncy, Long entityId, String ipAddress) {
 		Objects.requireNonNull(email);
-		Objects.requireNonNull(name);
+		Objects.requireNonNull(username);
 		Objects.requireNonNull(role);
 		Objects.requireNonNull(firstname);
 		Objects.requireNonNull(lastname);
 		Objects.requireNonNull(active);
-		Objects.requireNonNull(passwordFrequncy);
 
 		this.email = email;
-		this.name = name;
+		this.username = username;
 		this.role = role;
 		this.firstname = firstname;
 		this.lastname= lastname;
@@ -97,7 +98,7 @@ public class User extends AbstractEntity {
 		Objects.requireNonNull(lastname);
 
 		this.email = email;
-		this.name = username;
+		this.username = username;
 		this.role = role;
 		this.firstname = firstname;
 		this.lastname= lastname;
@@ -202,11 +203,19 @@ public class User extends AbstractEntity {
 	public void setIpAddress(String ipAddress) {
 		this.ipAddress = ipAddress;
 	}
+	
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
 
 
 	@Override
 	public String toString() {
-		return name;
+		return username;
 	}
 
 }

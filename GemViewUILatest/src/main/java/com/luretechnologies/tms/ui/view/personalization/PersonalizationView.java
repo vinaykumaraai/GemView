@@ -180,6 +180,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 	private ComboBox<Profile> profileListPersonlization = new ComboBox<Profile>("Profile");
 	private ComboBox<AppClient> appDropDownParam;
 	private ComboBox<Profile> profileDropDownParam;
+	private ContextMenuWindow openProfileListWindow;
 	Logger logger = LoggerFactory.getLogger(PersonalizationView.class);
 	
 	private static final String FILE_CHOOSE_LIST = "fileChooseList";
@@ -230,6 +231,10 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 				clearParamSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"odometer-OdometerSearchClearPhone");
 				removeComponent(header);
 				mainView.getTitle().setValue(userService.getLoggedInUserName());
+				if(openProfileListWindow!=null) {
+					openProfileListWindow.setPosition(180, 200);
+					openProfileListWindow.setWidth("180px");
+				}
 			} else if (r.getWidth() > 600 && r.getWidth() <= 1000) {
 				treeNodeSearch.setHeight(32, Unit.PIXELS);
 				overRideParamSearch.setHeight(32, Unit.PIXELS);
@@ -237,6 +242,12 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 				clearParamSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"v-button-customstyle");
 				addComponentAsFirst(header);
 				mainView.getTitle().setValue("gemView");
+				if(openProfileListWindow!=null) {
+					openProfileListWindow.center();
+					openProfileListWindow.setWidth("30%");
+					openProfileListWindow.setHeight("40%");
+				}
+				
 			} else {
 				treeNodeSearch.setHeight(37, Unit.PIXELS);
 				overRideParamSearch.setHeight(37, Unit.PIXELS);
@@ -244,6 +255,11 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 				clearParamSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearDesktop");
 				addComponentAsFirst(header);
 				mainView.getTitle().setValue("gemView");
+				if(openProfileListWindow!=null) {
+					openProfileListWindow.center();
+					openProfileListWindow.setWidth("30%");
+					openProfileListWindow.setHeight("40%");
+				}
 			}
 		});
 
@@ -545,6 +561,10 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 			clearParamSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"odometer-OdometerSearchClearPhone");
 			mainView.getTitle().setValue(userService.getLoggedInUserName());
 			removeComponent(header);
+			if(openProfileListWindow!=null) {
+				openProfileListWindow.setPosition(180, 200);
+				openProfileListWindow.setWidth("180px");
+			}
 		} else if (width > 600 && width <= 1000) {
 			treeNodeSearch.setHeight(32, Unit.PIXELS);
 			overRideParamSearch.setHeight(32, Unit.PIXELS);
@@ -552,6 +572,11 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 			clearParamSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"v-button-customstyle");
 			mainView.getTitle().setValue("gemView");
 			addComponentAsFirst(header);
+			if(openProfileListWindow!=null) {
+				openProfileListWindow.center();
+				openProfileListWindow.setWidth("30%");
+				openProfileListWindow.setHeight("40%");
+			}
 		} else {
 			treeNodeSearch.setHeight(37, Unit.PIXELS);
 			overRideParamSearch.setHeight(37, Unit.PIXELS);
@@ -559,6 +584,11 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 			clearParamSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearDesktop");
 			mainView.getTitle().setValue("gemView");
 			addComponentAsFirst(header);
+			if(openProfileListWindow!=null) {
+				openProfileListWindow.center();
+				openProfileListWindow.setWidth("30%");
+				openProfileListWindow.setHeight("40%");
+			}
 		}
 		
 		configureTreeNodeSearch();
@@ -659,7 +689,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		entityGridLayout = new VerticalLayout();
 		entityGridLayout.setWidth("100%");
 		entityGridLayout.setHeight("100%");
-		entityGridLayout.addStyleNames("personlization-Parameters", "heartbeat-secondComponent");
+		entityGridLayout.addStyleNames("personlization-OverRideParameters", "heartbeat-secondComponent");
 		
 		entityFileLayout= new VerticalLayout();
 		entityFileLayout.setWidth("100%");
@@ -1115,10 +1145,10 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		return fileUploadWindow;
 	}
 	
-	private Window openProfileTwinListToAddWindow() {
+	private ContextMenuWindow openProfileTwinListToAddWindow() {
 		
 		if(selectedProfile!=null) {
-			Window openProfileListWindow = new Window("File List Window");
+			/*ContextMenuWindow openProfileListWindow = new ContextMenuWindow();
 			
 			ListSelect<AppDefaultParam> optionListFromProfile = new ListSelect<>();
 			optionListFromProfile.setRows(8);
@@ -1220,15 +1250,15 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 			openProfileListWindow.setModal(true);
 			openProfileListWindow.setClosable(true);
 			openProfileListWindow.setWidth(37, Unit.PERCENTAGE);
-			return openProfileListWindow;
-			
+			return openProfileListWindow;*/
+			return null;
 		}else {
-		Window openProfileListWindow = new Window("Profile List Window");
+		openProfileListWindow = new ContextMenuWindow();
 		
 		ListSelect<Profile> optionListFromApp = new ListSelect<>();
 		optionListFromApp.setRows(8);
 		optionListFromApp.setResponsive(true);
-		optionListFromApp.setWidth("280px");
+		optionListFromApp.setWidth("150px");
 		optionListFromApp.setCaption("Profiles of Selected App");
 		List<Profile> profileListWithOutEntity = personalizationService.getProfileListWithOutEntity(selectedApp.getId(), selectedNode.getId());
 		DataProvider data = new ListDataProvider<>(profileListWithOutEntity);
@@ -1237,7 +1267,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		ListSelect<Profile> optionListFromEntity = new ListSelect<>();
 		optionListFromEntity.setRows(8);
 		optionListFromEntity.setResponsive(true);
-		optionListFromEntity.setWidth("280px");
+		optionListFromEntity.setWidth("150px");
 		optionListFromEntity.setCaption("Profiles of Selected Entity");
 		List<Profile> profileListWithEntity = personalizationService.getProfileListForEntity(selectedApp.getId(), selectedNode.getId());
 		DataProvider dataFromEntity = new ListDataProvider<>(profileListWithEntity);
@@ -1326,9 +1356,11 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		// Window Setup
 		openProfileListWindow.setContent(new VerticalLayout(profileFormLayout, buttonLayout));
 		openProfileListWindow.center();
-		openProfileListWindow.setModal(true);
+		openProfileListWindow.setResizable(true);
 		openProfileListWindow.setClosable(true);
-		openProfileListWindow.setWidth(37, Unit.PERCENTAGE);
+		openProfileListWindow.setDraggable(true);
+		openProfileListWindow.setWidth("30%");
+		openProfileListWindow.setHeight("40%");
 		return openProfileListWindow;
 	}
 }
@@ -1394,6 +1426,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 	}
 
 	private VerticalLayout getOverRideParamGrid(VerticalLayout entityGridLayout, AppClient app, Profile profile) {
+		entityGridLayout.setHeight("100%");
 		HorizontalLayout overRideParamLabelLayout = new HorizontalLayout();
 		overRideParamLabelLayout.addStyleName("personlization-overRideParamLabelLayout");
 		HorizontalLayout overRideParamSearchButtonLayout = new HorizontalLayout();
@@ -1430,8 +1463,20 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		});
 		overrideParamSearchCSSLayout.addComponents(overRideParamSearch, clearParamSearch);
 		
+		addParam = new Button("", VaadinIcons.GRID);
+		addParam.addStyleNames("v-button-customstyle", ValoTheme.BUTTON_FRIENDLY);
+		addParam.setDescription("Select Profiles");
+		addParam.setEnabled(true);
 		
-		overRideParamSearchLayout.addComponent(overrideParamSearchCSSLayout);
+		addParam.addClickListener(click ->{
+			if(selectedProfile != null) {
+				UI.getCurrent().addWindow(openProfileParamGridAddWindow());
+			}else {
+				Notification.show("Select any Profile to add Override Parameters", Type.ERROR_MESSAGE);
+			}
+		});
+		
+		overRideParamSearchLayout.addComponents(overrideParamSearchCSSLayout);
 		
 		appDropDownParam = new ComboBox<AppClient>();
 		if(appDropDownParam!=null) {
@@ -1479,20 +1524,8 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 			}
 		});
 		
-		overRideParamAppAndParamLayout.addComponents(appDropDownParam,profileDropDownParam);
-		
-		addParam = new Button("", VaadinIcons.GRID);
-		addParam.addStyleNames("v-button-customstyle", ValoTheme.BUTTON_FRIENDLY);
-		addParam.setDescription("Select Profiles");
-		addParam.setEnabled(true);
-		
-		addParam.addClickListener(click ->{
-			if(selectedProfile != null) {
-				UI.getCurrent().addWindow(openProfileParamGridAddWindow());
-			}else {
-				Notification.show("Select any Profile to add Override Parameters", Type.ERROR_MESSAGE);
-			}
-		});
+		appDropDownParam.addStyleName("personlization-ParametersAppDropDown");
+		overRideParamAppAndParamLayout.addComponents(appDropDownParam, addParam);
 
 		deleteParam = new Button(VaadinIcons.TRASH, click -> {
 			if (nodeTree.getSelectedItems().size() == 0) {
@@ -1506,14 +1539,13 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		deleteParam.setEnabled(false);
 		deleteParam.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		deleteParam.setDescription("Delete Params", ContentMode.HTML);
-		overRideParamButtonLayout.addComponents(addParam);
 
-		overRideParamSearchButtonLayout.addComponents(overRideParamSearchLayout, overRideParamButtonLayout, overRideParamAppAndParamLayout);
+		overRideParamSearchButtonLayout.addComponents(overRideParamSearchLayout, overRideParamAppAndParamLayout);
 
 		overRideParamGrid = new Grid<>(AppDefaultParam.class);
 		overRideParamGrid.addStyleNames("personlization-gridHeight");
 		overRideParamGrid.setWidth("100%");
-		overRideParamGrid.setHeightByRows(7);
+		overRideParamGrid.setHeightByRows(18);
 		overRideParamGrid.setResponsive(true);
 		overRideParamGrid.setSelectionMode(SelectionMode.SINGLE);
 		overRideParamGrid.setColumns("parameter", "description", "type", "value");

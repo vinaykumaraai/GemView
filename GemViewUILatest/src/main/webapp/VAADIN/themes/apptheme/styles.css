@@ -447,6 +447,14 @@
 	padding: 37px 37px 37px 37px !important;
 }
 
+.personlization-ParametersAppDropDown {
+	margin-top: -28px !important;
+}
+
+.personlization-OverRideParameters {
+	padding: 37px 0px 0px 0px !important;
+}
+
 .personlization-ParametersComboBox {
 	margin-top: -15px;
 }
@@ -644,19 +652,9 @@
 .app-shell[width-range~="600px-700px"] .header-label {
 	margin-left: 40px;
 	Font-size: 24px !important;
-	margin-bottom: 55px !important;
+	margin-bottom: 30px !important;
 	font: menu;
 	font-weight: 400;
-}
-
-.app-shell[width-range~="600px-700px"] .header-UserNameLayout {
-	margin-top: -38px;
-	text-align: right !important;
-}
-
-.app-shell[width-range~="600px-700px"] .header-menuButton {
-	margin-top: -5px;
-	margin-left: -45px;
 }
 
 .app-shell[width-range~="601px-1000px"] .v-panel-caption {
@@ -1016,6 +1014,10 @@
 
 .audit-DeviceVerticalAlignment {
 	padding: 0px 0px 0px 0px !important;
+}
+
+.audit-DateAlignment {
+	margin-left: -20px !important;
 }
 
 .audit-DeviceSearch {

@@ -705,8 +705,8 @@ public void updateOverRideParam(AppClient app, AppDefaultParam param) {
 		try {
 			if (RestServiceUtil.getSESSION() != null && id!=null) {
 				Entity entity = RestServiceUtil.getInstance().getClient().getEntityApi().getEntityById(id);
-				owner = new TreeNode(entity.getName(), entity.getId(), entity.getType(), entity.getEntityId(), entity.getDescription(), entity.getChildrenEntities()
-						,true);
+				owner = new TreeNode(entity.getName(), entity.getId(), entity.getType(), entity.getEntityId(), entity.getDescription(), entity.getChildrenEntities(),
+						entity.getSerialNumber(),true);
 			}
 		} catch (ApiException e) {
 			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {

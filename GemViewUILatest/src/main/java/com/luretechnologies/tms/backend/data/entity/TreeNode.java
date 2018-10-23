@@ -72,13 +72,13 @@ public class TreeNode {
 	public TreeNode() {
 	// TODO Auto-generated constructor stub
 	}
-	public TreeNode(String label, Long id, EntityTypeEnum entityTypeEnum, String entityId, String description, List<Entity> entityChildrenList, boolean active) {
+	public TreeNode(String label, Long id, EntityTypeEnum entityTypeEnum, String entityId, String description, List<Entity> entityChildrenList,String serialNumber, boolean active) {
 		super();
 		Objects.requireNonNull(label);
 		Objects.requireNonNull(id);
 		Objects.requireNonNull(entityTypeEnum);
 		Objects.requireNonNull(entityId);
-		Objects.requireNonNull(description);
+		
 		this.entityId = entityId;
 		this.label = label;
 		this.id = id;
@@ -86,6 +86,7 @@ public class TreeNode {
 		this.description=description;
 		this.entityChildrenList = entityChildrenList;
 		this.active=active;
+		this.serialNum=serialNum;
 	}
 
 	public String getLabel() {

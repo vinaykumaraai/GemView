@@ -71,7 +71,7 @@ public class TreeDataNodeService {
 			if(RestServiceUtil.getSESSION()!=null) {
 				TreeData<TreeNode> treeData = new TreeData<>();
 				Entity entity = RestServiceUtil.getInstance().getClient().getEntityApi().getEntityHierarchy();
-				TreeNode node = new TreeNode(entity.getName(), entity.getId(), entity.getType(), entity.getEntityId(), entity.getDescription(),entity.getChildrenEntities(),
+				TreeNode node = new TreeNode(entity.getName(), entity.getId(), entity.getType(), entity.getEntityId(), entity.getDescription(),entity.getChildrenEntities(),entity.getSerialNumber(),
 						 true);
 				List<TreeNode> treeNodeChildList = getChildNodes(entity.getChildrenEntities());		
 				treeData.addItems(null, node);
@@ -131,21 +131,15 @@ public class TreeDataNodeService {
 	private List<TreeNode> getChildNodes(List<Entity> entityList) throws ApiException{
 		List<TreeNode> nodeChildList = new ArrayList<>();
 		for(Entity entity : entityList) {
-			TreeNode node = new TreeNode(entity.getName(), entity.getId(), entity.getType(), entity.getEntityId(), entity.getDescription(), entity.getChildrenEntities()
-					,true);
+			TreeNode node = new TreeNode(entity.getName(), entity.getId(), entity.getType(), entity.getEntityId(), entity.getDescription(), entity.getChildrenEntities(), entity.getSerialNumber(),
+					true);
 			switch(entity.getType().toString()) {
 			
 				case "TERMINAL":{
-						if(!entity.getEntityId().equals("TEREBZN8XEOXN") && !entity.getEntityId().equals("TERL5O8EVKZ8R")) {
-						node.setSerialNum(personalizationService.getTerminalSerialNumberByEntityId(entity.getEntityId()));
-					}
-					break;
+						node.setSerialNum(entity.getSerialNumber());
 				} 
 				case "DEVICE":{
-					Device device = RestServiceUtil.getInstance().getClient().getDeviceApi().getDevice(entity.getEntityId());
-					if(device!=null) {
-						node.setSerialNum(device.getSerialNumber());
-					}
+					node.setSerialNum(entity.getSerialNumber());
 					break;
 				} default:{
 					break;
@@ -273,31 +267,31 @@ public class TreeDataNodeService {
 				
 				for(Organization organization : organizationList) {
 					TreeNode node = new TreeNode(organization.getName(), organization.getId(), organization.getType(), organization.getEntityId(), organization.getDescription(),
-							organization.getChildrenEntities(), true);
+							organization.getChildrenEntities(), organization.getSerialNumber(),true);
 					treeNodeChildList.add(node);
 				}
 				
 				for(Region region : regionList) {
 					TreeNode node = new TreeNode(region.getName(), region.getId(), region.getType(), region.getEntityId(), region.getDescription(), region.getChildrenEntities()
-							, true);
+							, region.getSerialNumber(), true);
 					treeNodeChildList.add(node);
 				}
 				
 				for(Merchant merchant : merchantList) {
 					TreeNode node = new TreeNode(merchant.getName(), merchant.getId(), merchant.getType(), merchant.getEntityId(), merchant.getDescription(), merchant.getChildrenEntities()
-							, true);
+							, merchant.getSerialNumber(), true);
 					treeNodeChildList.add(node);
 				}
 				
 				for(Terminal terminal : terminalList) {
 					TreeNode node = new TreeNode(terminal.getName(), terminal.getId(), terminal.getType(), terminal.getEntityId(), terminal.getDescription(), terminal.getChildrenEntities()
-							, true);
+							, terminal.getSerialNumber(), true);
 					treeNodeChildList.add(node);
 				}
 				
 				for(Device device : deviceList) {
 					TreeNode node = new TreeNode(device.getName(), device.getId(), device.getType(), device.getEntityId(), device.getDescription(),
-							device.getChildrenEntities(), true);
+							device.getChildrenEntities(), device.getSerialNumber(), true);
 					treeNodeChildList.add(node);
 				}
 				
@@ -330,8 +324,8 @@ public class TreeDataNodeService {
 			if(RestServiceUtil.getSESSION()!=null) {
 				Entity entity = RestServiceUtil.getInstance().getClient().getEntityApi().getEntityHierarchy();
 				List<Entity> entityList = RestServiceUtil.getInstance().getClient().getEntityApi().getEntityChildren(entity.getId());
-				TreeNode node = new TreeNode(entity.getName(), entity.getId(), entity.getType(), entity.getEntityId(), entity.getDescription(), entity.getChildrenEntities()
-						, true);
+				TreeNode node = new TreeNode(entity.getName(), entity.getId(), entity.getType(), entity.getEntityId(), entity.getDescription(), entity.getChildrenEntities(),
+						entity.getSerialNumber(), true);
 				List<TreeNode> treeNodeChildList = getChildNodes(entityList);		
 				
 				nodeList.add(node);

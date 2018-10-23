@@ -148,24 +148,24 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 		getGrid().setHeightByRows(7);
 		getUpdate().setCaption(CAPTION_UPDATE);
 		getCancel().setCaption(CAPTION_DISCARD);
-		getTree().setItemIconGenerator(item -> {
-			switch (item.getType()) {
-			case ENTERPRISE:
-				return VaadinIcons.ORIENTATION;
-			case ORGANIZATION:
-				return VaadinIcons.BUILDING_O;
-			case MERCHANT:
-				return VaadinIcons.SHOP;
-			case REGION:
-				return VaadinIcons.OFFICE;
-			case TERMINAL:
-				return VaadinIcons.LAPTOP;
-			case DEVICE:
-				return VaadinIcons.MOBILE_BROWSER;
-			default:
-				return null;
-			}
-		});
+//		getTree().setItemIconGenerator(item -> {
+//			switch (item.getType()) {
+//			case ENTERPRISE:
+//				return VaadinIcons.ORIENTATION;
+//			case ORGANIZATION:
+//				return VaadinIcons.BUILDING_O;
+//			case MERCHANT:
+//				return VaadinIcons.SHOP;
+//			case REGION:
+//				return VaadinIcons.OFFICE;
+//			case TERMINAL:
+//				return VaadinIcons.LAPTOP;
+//			case DEVICE:
+//				return VaadinIcons.MOBILE_BROWSER;
+//			default:
+//				return null;
+//			}
+//		});
 	}
 
 	public void editItem(boolean isNew) {
@@ -237,7 +237,7 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 		searchLayout.setWidth("85%");
 		configureTreeNodeSearch();
 		treePanelLayout.addComponentAsFirst(searchLayout);
-		Tree<TreeNode> treeComponent = getUserTree(treeDataService.getTreeData());
+		Tree<TreeNode> treeComponent = null;/*getUserTree(treeDataService.getTreeData());*/
 		treePanelLayout.addComponent(treeComponent);
 		treePanelLayout.setComponentAlignment(treeComponent, Alignment.BOTTOM_LEFT);
 		treePanelLayout.setStyleName("split-Height-ButtonLayout");

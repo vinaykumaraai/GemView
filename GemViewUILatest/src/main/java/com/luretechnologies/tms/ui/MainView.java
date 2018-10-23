@@ -68,6 +68,7 @@ import com.luretechnologies.tms.ui.view.deviceodometer.DeviceodometerView;
 import com.luretechnologies.tms.ui.view.heartbeat.HeartbeatView;
 import com.luretechnologies.tms.ui.view.personalization.PersonalizationView;
 import com.luretechnologies.tms.ui.view.system.SystemView;
+import com.luretechnologies.tms.ui.view.user.UserView;
 import com.vaadin.external.org.slf4j.Logger;
 import com.vaadin.external.org.slf4j.LoggerFactory;
 import com.vaadin.icons.VaadinIcons;
@@ -195,7 +196,7 @@ public class MainView extends MainViewDesign implements ViewDisplay {
 				users.setDisableOnClick(true);
 				//administrationButton.setVisible(true);
 				users.addStyleName("menu-ButtonsLabelSize");
-				attachNavigation(users, UserAdminView.class);
+				attachNavigation(users, UserView.class);
 				}
 				break;
 			case "ROLE":

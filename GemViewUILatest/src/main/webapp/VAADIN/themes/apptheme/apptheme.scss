@@ -489,6 +489,14 @@ $app-background-color: #145A32;
 	padding: 37px 37px 37px 37px !important;
 }
 
+.personlization-ParametersAppDropDown{
+	margin-top:-28px !important;
+}
+
+.personlization-OverRideParameters{
+	padding: 37px 0px 0px 0px !important;
+}
+
 .personlization-ParametersComboBox{
 	margin-top:-15px;
 }
@@ -705,18 +713,18 @@ $app-background-color: #145A32;
 .header-label{
 		margin-left: 40px;
     	Font-size: 24px !important;
-    	margin-bottom: 55px !important;
+    	margin-bottom: 30px !important;
     	font:menu;
     	font-weight:400;
 	}
-.header-UserNameLayout{
-    margin-top: -38px;
-    text-align:right !important;
-}
-.header-menuButton{
-   margin-top: -5px;
-   margin-left:-45px;
-}
+// .header-UserNameLayout{
+//     margin-top: -38px;
+//     text-align:right !important;
+// }
+// .header-menuButton{
+//    margin-top: -5px;
+//    margin-left:-45px;
+// }
 
 }
 
@@ -1074,6 +1082,10 @@ $app-background-color: #145A32;
 
 .audit-DeviceVerticalAlignment{
 	padding:0px 0px 0px 0px !important;
+}
+
+.audit-DateAlignment{
+	margin-left:-20px !important;
 }
 
 .audit-DeviceSearch{

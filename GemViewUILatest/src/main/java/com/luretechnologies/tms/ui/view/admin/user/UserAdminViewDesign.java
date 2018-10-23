@@ -30,7 +30,6 @@ import com.vaadin.ui.declarative.Design;
 public class UserAdminViewDesign extends Panel {
 	protected HorizontalSplitPanel splitscreen;
 	protected VerticalLayout userdatalayout;
-	protected Label userLabel;
 	protected HorizontalLayout saveCancelLayout;
 	protected Button save;
 	protected Button cancel;

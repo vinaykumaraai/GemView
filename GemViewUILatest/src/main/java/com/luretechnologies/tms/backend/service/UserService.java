@@ -248,13 +248,12 @@ public class UserService extends CrudService<User>{
 			try {
 				com.luretechnologies.client.restlib.service.model.Role role = RestServiceUtil.getInstance().getClient().getRoleApi().getRolebyName(user.getRole());
 				Entity entityServer = RestServiceUtil.getInstance().getClient().getEntityApi().getEntityById(entityId);
-				userServer.setUsername(user.getName());
+				userServer.setUsername(user.getUsername());
 				userServer.setFirstName(user.getFirstname());
 				userServer.setLastName(user.getLastname());
 				userServer.setRole(role);
 				userServer.setEmail(user.getEmail());
 				userServer.setAvailable(user.isActive());
-				userServer.setPasswordFrequency(user.getPasswordFrequency());
 				userServer.setEntity(entityServer);
 				
 				if(user.getId()!=null) {
