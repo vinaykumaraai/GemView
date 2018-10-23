@@ -177,7 +177,12 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 					debugSearch.setHeight(32, Unit.PIXELS);
 					clearAuditSearch.removeStyleNames("audit-AuditSearchClearDesktop", "audit-AuditSearchClearPhone");
 					clearAuditSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
+<<<<<<< Updated upstream
 					mainView.getTitle().setValue("gemView");
+					addComponentAsFirst(header);
+=======
+					mainView.getTitle().setValue("gemView  " + userService.getLoggedInUserName());
+>>>>>>> Stashed changes
 					addComponentAsFirst(header);
 				} else {
 					debugStartDateField.setHeight("100%");
@@ -186,7 +191,12 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 					debugSearch.setHeight(37, Unit.PIXELS);
 					clearAuditSearch.removeStyleNames("audit-AuditSearchClearPhone", "v-button-customstyle");
 					clearAuditSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "audit-AuditSearchClearDesktop");
+<<<<<<< Updated upstream
 					mainView.getTitle().setValue("gemView");
+					addComponentAsFirst(header);
+=======
+					mainView.getTitle().setValue("gemView  " + userService.getLoggedInUserName());
+>>>>>>> Stashed changes
 					addComponentAsFirst(header);
 				}
 			});
@@ -622,14 +632,17 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		deleteGridRow = new Button(VaadinIcons.TRASH);
 		deleteGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		deleteGridRow.setResponsive(true);
-//		deleteGridRow.addClickListener(clicked -> {
-//			if (debugGrid.getSelectedItems().isEmpty()) {
-//				Notification.show(NotificationUtil.AUDIT_DELETE, Notification.Type.ERROR_MESSAGE);
-//			} else {
-//				confirmDialog(debugGrid.getSelectedItems().iterator().next().getId(),
-//						nodeTreeGrid.getSelectedItems().iterator().next());
-//			}
-//		});
+<<<<<<< Updated upstream
+=======
+		deleteGridRow.addClickListener(clicked -> {
+			if (debugGrid.getSelectedItems().isEmpty()) {
+				Notification.show(NotificationUtil.AUDIT_DELETE, Notification.Type.ERROR_MESSAGE);
+			} else {
+				confirmDialog(debugGrid.getSelectedItems().iterator().next().getId(),
+						nodeTreeGrid.getSelectedItems().iterator().next());
+			}
+>>>>>>> Stashed changes
+		});
 
 		optionsLayoutHorizontalDesktop = new HorizontalLayout();
 		optionsLayoutHorizontalDesktop.setWidth("100%");
