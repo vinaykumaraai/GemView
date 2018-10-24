@@ -33,8 +33,6 @@ package com.luretechnologies.tms.backend.data.entity;
 
 import java.util.List;
 
-import com.luretechnologies.common.enums.EntityTypeEnum;
-
 /**
  * @author Vinay
  *
@@ -42,7 +40,7 @@ import com.luretechnologies.common.enums.EntityTypeEnum;
 public class ExtendedTreeNode extends TreeNode {
 	
 	public ExtendedTreeNode(String label, Long id, com.luretechnologies.client.restlib.service.model.EntityTypeEnum type, String entityId, String description, boolean active) {
-		super(label, id, type, entityId, description, null,active);
+		super(label, id, type, entityId, description, null,"",active);
 	}
 
 	private List<? extends AbstractEntity> extendedList;
