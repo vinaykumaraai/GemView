@@ -119,7 +119,7 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 	private static final String info = "info";
 	private ContextMenuWindow deleteContextWindow;
 
-	private static Button createEntity, editEntity, deleteEntity, copyEntity, pasteEntity;
+	private  Button createEntity, editEntity, deleteEntity, copyEntity, pasteEntity;
 	
 	@Autowired
 	public AuditView() {
@@ -147,7 +147,7 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 	@PostConstruct
 	private void init() {
 		try {
-			header = new Header(userService, navigationManager, "Audit", new Label());
+			header = new Header(userService, roleService, navigationManager, "Audit", new Label());
 			Page.getCurrent().addBrowserWindowResizeListener(r -> {
 				System.out.println("Height " + r.getHeight() + "Width:  " + r.getWidth() + " in pixel");
 				if (r.getWidth() <= 1400 && r.getWidth() >= 700) {
@@ -171,7 +171,7 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 					removeComponent(header);
 					debugEndDateField.setWidth("100%");
 					splitScreen.setSplitPosition(20);
-					MainViewIconsLoad.noIconsOnDesktopMode(mainView);
+					MainViewIconsLoad.iconsOnPhoneMode(mainView);
 				} else if (r.getWidth() > 600 && r.getWidth() <= 1000) {
 					debugStartDateField.setHeight("32px");
 					debugEndDateField.setHeight("32px");
@@ -271,14 +271,18 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 			pasteEntity.addStyleName(ValoTheme.BUTTON_BORDERLESS);
 			pasteEntity.setEnabled(false);
 			
-			ContextMenuWindow odometerTreeGridMenu = new ContextMenuWindow();
-			odometerTreeGridMenu.addMenuItems(createEntity,editEntity,deleteEntity, copyEntity, pasteEntity);
+			ContextMenuWindow auditTreeGridMenu = new ContextMenuWindow();
+			auditTreeGridMenu.addMenuItems(createEntity,editEntity,deleteEntity, copyEntity, pasteEntity);
 			nodeTreeGrid.addContextClickListener(click->{
 				UI.getCurrent().getWindows().forEach(Window::close);
-				odometerTreeGridMenu.setPosition(click.getClientX(), click.getClientY());
-				UI.getCurrent().addWindow(odometerTreeGridMenu);
-				EntityOperations.entityOperations(nodeTreeGrid, createEntity, editEntity, deleteEntity, copyEntity, pasteEntity, treeDataNodeService, auditService, odometerTreeGridMenu);
+				if(click.getClientY() > 750) {
+					auditTreeGridMenu.setPosition(click.getClientX(), click.getClientY()-220);
+				}else {
+					auditTreeGridMenu.setPosition(click.getClientX(), click.getClientY());
+				}
+				UI.getCurrent().addWindow(auditTreeGridMenu);
 			});
+			EntityOperations.entityOperations(nodeTreeGrid, createEntity, editEntity, deleteEntity, copyEntity, pasteEntity, treeDataNodeService, auditService, auditTreeGridMenu);
 			treeSearchPanelLayout.addComponent(nodeTreeGrid);
 			treeSearchPanelLayout.setExpandRatio(nodeTreeGrid, 14);
 			treeSearchPanelLayout.setMargin(true);
@@ -311,7 +315,7 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 				removeComponent(header);
 				debugEndDateField.setWidth("100%");
 				splitScreen.setSplitPosition(20);
-				MainViewIconsLoad.noIconsOnDesktopMode(mainView);
+				MainViewIconsLoad.iconsOnPhoneMode(mainView);
 			} else if (width > 600 && width <= 1000) {
 				debugStartDateField.setHeight("32px");
 				debugEndDateField.setHeight("32px");

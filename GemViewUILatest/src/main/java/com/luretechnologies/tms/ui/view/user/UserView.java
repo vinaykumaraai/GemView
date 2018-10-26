@@ -44,15 +44,12 @@ import javax.annotation.PostConstruct;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.vaadin.dialogs.ConfirmDialog;
 
-import com.luretechnologies.client.restlib.service.model.EntityTypeEnum;
-import com.luretechnologies.tms.backend.data.entity.Audit;
-import com.luretechnologies.tms.backend.data.entity.Permission;
-import com.luretechnologies.tms.backend.data.entity.Role;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
 import com.luretechnologies.tms.backend.data.entity.User;
+import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
 import com.luretechnologies.tms.backend.service.AuditService;
-import com.luretechnologies.tms.backend.service.CommonService;
 import com.luretechnologies.tms.backend.service.RolesService;
 import com.luretechnologies.tms.backend.service.TreeDataNodeService;
 import com.luretechnologies.tms.backend.service.UserService;
@@ -64,8 +61,6 @@ import com.luretechnologies.tms.ui.components.NotificationUtil;
 import com.luretechnologies.tms.ui.navigation.NavigationManager;
 import com.luretechnologies.tms.ui.view.ContextMenuWindow;
 import com.luretechnologies.tms.ui.view.Header;
-import com.luretechnologies.tms.ui.view.audit.AuditView;
-import com.vaadin.data.TreeData;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.event.ShortcutListener;
@@ -73,14 +68,12 @@ import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.server.Page;
-import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CssLayout;
-import com.vaadin.ui.DateField;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
@@ -111,8 +104,11 @@ public class UserView extends VerticalLayout implements Serializable, View {
 	private  HorizontalLayout header;
 	private  ComboBox<String> roles;
 	private TextField userName, firstName, lastName, email, password, ipAddress;
-	private ContextMenuWindow userMenuContextWindow, createEntityWindow, editEntityWindow;
+	private ContextMenuWindow userMenuContextWindow, createEntityWindow, editEntityWindow, entityWindow;
 	private CheckBox userActive, fixedIp;
+	private HorizontalLayout firstAndLastNameHL, passwordAndIPAddressHL, buttonLayout;
+	private VerticalLayout firstAndLastNameVL, passwordAndIPAddressVL, profileFormLayout;
+	private User selectedUser;
 
 	private Button createEntity, editEntity, deleteEntity, copyEntity, pasteEntity, createUser, editUser, deleteUser;
 
@@ -146,7 +142,18 @@ public class UserView extends VerticalLayout implements Serializable, View {
 	@PostConstruct
 	private void init() {
 		try {
-			header = new Header(userService, navigationManager, "Users", new Label());
+			header = new Header(userService, roleService, navigationManager, "Users", new Label());
+			
+			userName = new TextField("User Name");
+			firstName = new TextField("First Name");
+			lastName = new TextField("Last Name");
+			email = new TextField("Email");
+			ipAddress = new TextField("IP Address");
+			resendPassword = new Button("Resend Password");
+			save = new Button("Save");
+			cancel = new Button("Cancel");
+			
+			
 			Page.getCurrent().addBrowserWindowResizeListener(r -> {
 				if (r.getWidth() <= 1400 && r.getWidth() >= 700) {
 					tabMode();
@@ -165,12 +172,52 @@ public class UserView extends VerticalLayout implements Serializable, View {
 					MainViewIconsLoad.noIconsOnDesktopMode(mainView);
 					treeNodeSearch.setHeight(28, Unit.PIXELS);
 					userSearch.setHeight(28, Unit.PIXELS);
+					
+					userName.setHeight(28, Unit.PIXELS);
+					roles.setHeight(28, Unit.PIXELS);
+					firstName.setHeight(28, Unit.PIXELS);
+					lastName.setHeight(28, Unit.PIXELS);
+					email.setHeight(28, Unit.PIXELS);
+					ipAddress.setHeight(28, Unit.PIXELS);
+					save.setHeight(28, Unit.PIXELS);
+					cancel.setHeight(28, Unit.PIXELS);
+					resendPassword.setHeight(28, Unit.PIXELS);
+					MainViewIconsLoad.iconsOnPhoneMode(mainView);
+					
+					if(createEntityWindow!=null) {
+						createEntityWindow.setPosition(180, 200);
+						createEntityWindow.setWidth("200px");
+					}
+					
+					if(editEntityWindow!=null) {
+						editEntityWindow.setPosition(180, 200);
+						editEntityWindow.setWidth("200px");
+					}
 				} else if (r.getWidth() > 600 && r.getWidth() <= 1000) {
 					mainView.getTitle().setValue("gemView");
 					addComponentAsFirst(header);
 					MainViewIconsLoad.iconsOnTabMode(mainView);
 					treeNodeSearch.setHeight(32, Unit.PIXELS);
 					userSearch.setHeight(32, Unit.PIXELS);
+					
+					userName.setHeight(32, Unit.PIXELS);
+					roles.setHeight(32, Unit.PIXELS);
+					firstName.setHeight(32, Unit.PIXELS);
+					lastName.setHeight(32, Unit.PIXELS);
+					email.setHeight(32, Unit.PIXELS);
+					ipAddress.setHeight(32, Unit.PIXELS);
+					save.setHeight(32, Unit.PIXELS);
+					cancel.setHeight(32, Unit.PIXELS);
+					resendPassword.setHeight(32, Unit.PIXELS);
+					MainViewIconsLoad.iconsOnTabMode(mainView);
+					
+					if(createEntityWindow!=null) {
+						createEntityWindow.center();
+					}
+					
+					if(editEntityWindow!=null) {
+						editEntityWindow.center();
+					}
 				} else {
 					mainView.getTitle().setValue("gemView");
 					addComponentAsFirst(header);
@@ -178,6 +225,29 @@ public class UserView extends VerticalLayout implements Serializable, View {
 					MainViewIconsLoad.noIconsOnDesktopMode(mainView);
 					treeNodeSearch.setHeight(37, Unit.PIXELS);
 					userSearch.setHeight(37, Unit.PIXELS);
+					
+					userName.setHeight(37, Unit.PIXELS);
+					roles.setHeight(37, Unit.PIXELS);
+					firstName.setHeight(37, Unit.PIXELS);
+					lastName.setHeight(37, Unit.PIXELS);
+					email.setHeight(37, Unit.PIXELS);
+					ipAddress.setHeight(37, Unit.PIXELS);
+					save.setHeight(37, Unit.PIXELS);
+					cancel.setHeight(37, Unit.PIXELS);
+					resendPassword.setHeight(37, Unit.PIXELS);
+					MainViewIconsLoad.noIconsOnDesktopMode(mainView);
+					
+					if(createEntityWindow!=null) {
+						createEntityWindow.center();
+						createEntityWindow.setWidth("30%");
+						createEntityWindow.setHeight("55%");
+					}
+					
+					if(editEntityWindow!=null) {
+						editEntityWindow.center();
+						editEntityWindow.setWidth("30%");
+						editEntityWindow.setHeight("55%");
+					}
 				}
 			});
 			setSpacing(false);
@@ -254,14 +324,19 @@ public class UserView extends VerticalLayout implements Serializable, View {
 			pasteEntity.addStyleName(ValoTheme.BUTTON_BORDERLESS);
 			pasteEntity.setEnabled(false);
 			
-			ContextMenuWindow odometerTreeGridMenu = new ContextMenuWindow();
-			odometerTreeGridMenu.addMenuItems(createEntity,editEntity,deleteEntity, copyEntity, pasteEntity);
+			ContextMenuWindow userTreeGridMenu = new ContextMenuWindow();
+			userTreeGridMenu.addMenuItems(createEntity,editEntity,deleteEntity, copyEntity, pasteEntity);
 			nodeTreeGrid.addContextClickListener(click->{
 				UI.getCurrent().getWindows().forEach(Window::close);
-				odometerTreeGridMenu.setPosition(click.getClientX(), click.getClientY());
-				UI.getCurrent().addWindow(odometerTreeGridMenu);
-				EntityOperations.entityOperations(nodeTreeGrid, createEntity, editEntity, deleteEntity, copyEntity, pasteEntity, treeDataNodeService, auditService, odometerTreeGridMenu);
+				if(click.getClientY() > 750) {
+					userTreeGridMenu.setPosition(click.getClientX(), click.getClientY()-220);
+				}else {
+					userTreeGridMenu.setPosition(click.getClientX(), click.getClientY());
+				}
+				UI.getCurrent().addWindow(userTreeGridMenu);
 			});
+			EntityOperations.entityOperations(nodeTreeGrid, createEntity, editEntity, deleteEntity, copyEntity, pasteEntity, treeDataNodeService, auditService, userTreeGridMenu);
+			
 			treeSearchPanelLayout.addComponent(nodeTreeGrid);
 			treeSearchPanelLayout.setExpandRatio(nodeTreeGrid, 14);
 			treeSearchPanelLayout.setMargin(true);
@@ -302,16 +377,54 @@ public class UserView extends VerticalLayout implements Serializable, View {
 			if (width <= 600) {
 				mainView.getTitle().setValue(userService.getLoggedInUserName());
 				removeComponent(header);
-				splitScreen.setSplitPosition(20);
+				splitScreen.setSplitPosition(30);
 				MainViewIconsLoad.noIconsOnDesktopMode(mainView);
 				treeNodeSearch.setHeight(28, Unit.PIXELS);
 				userSearch.setHeight(28, Unit.PIXELS);
+				
+				userName.setHeight(28, Unit.PIXELS);
+				roles.setHeight(28, Unit.PIXELS);
+				firstName.setHeight(28, Unit.PIXELS);
+				lastName.setHeight(28, Unit.PIXELS);
+				email.setHeight(28, Unit.PIXELS);
+				ipAddress.setHeight(28, Unit.PIXELS);
+				save.setHeight(28, Unit.PIXELS);
+				cancel.setHeight(28, Unit.PIXELS);
+				resendPassword.setHeight(28, Unit.PIXELS);
+				
+				if(createEntityWindow!=null) {
+					createEntityWindow.setPosition(180, 200);
+					createEntityWindow.setWidth("200px");
+				}
+				
+				if(editEntityWindow!=null) {
+					editEntityWindow.setPosition(180, 200);
+					editEntityWindow.setWidth("200px");
+				}
 			} else if (width > 600 && width <= 1000) {
 				mainView.getTitle().setValue("gemView");
 				addComponentAsFirst(header);
 				MainViewIconsLoad.iconsOnTabMode(mainView);
 				treeNodeSearch.setHeight(32, Unit.PIXELS);
 				userSearch.setHeight(32, Unit.PIXELS);
+				
+				userName.setHeight(32, Unit.PIXELS);
+				roles.setHeight(32, Unit.PIXELS);
+				firstName.setHeight(32, Unit.PIXELS);
+				lastName.setHeight(32, Unit.PIXELS);
+				email.setHeight(32, Unit.PIXELS);
+				ipAddress.setHeight(32, Unit.PIXELS);
+				save.setHeight(32, Unit.PIXELS);
+				cancel.setHeight(32, Unit.PIXELS);
+				resendPassword.setHeight(32, Unit.PIXELS);
+				
+				if(createEntityWindow!=null) {
+					createEntityWindow.center();
+				}
+				
+				if(editEntityWindow!=null) {
+					editEntityWindow.center();
+				}
 			} else {
 				mainView.getTitle().setValue("gemView");
 				addComponentAsFirst(header);
@@ -319,6 +432,28 @@ public class UserView extends VerticalLayout implements Serializable, View {
 				MainViewIconsLoad.noIconsOnDesktopMode(mainView);
 				treeNodeSearch.setHeight(37, Unit.PIXELS);
 				userSearch.setHeight(37, Unit.PIXELS);
+				
+				userName.setHeight(37, Unit.PIXELS);
+				roles.setHeight(37, Unit.PIXELS);
+				firstName.setHeight(37, Unit.PIXELS);
+				lastName.setHeight(37, Unit.PIXELS);
+				email.setHeight(37, Unit.PIXELS);
+				ipAddress.setHeight(37, Unit.PIXELS);
+				save.setHeight(37, Unit.PIXELS);
+				cancel.setHeight(37, Unit.PIXELS);
+				resendPassword.setHeight(37, Unit.PIXELS);
+				
+				if(createEntityWindow!=null) {
+					createEntityWindow.center();
+					createEntityWindow.setWidth("30%");
+					createEntityWindow.setHeight("55%");
+				}
+				
+				if(editEntityWindow!=null) {
+					editEntityWindow.center();
+					editEntityWindow.setWidth("30%");
+					editEntityWindow.setHeight("55%");
+				}
 				
 			}
 
@@ -343,45 +478,112 @@ public class UserView extends VerticalLayout implements Serializable, View {
 	}
 
 	private void tabMode() {
-//		optionsLayoutVerticalTab.addStyleName("audit-tabAlignment");
-//		dateDeleteLayout.addComponent(debugStartDateField);
-//		dateDeleteLayout.setComponentAlignment(debugStartDateField, Alignment.TOP_RIGHT);
-//		dateDeleteLayout.addComponent(debugEndDateField);
-//		dateDeleteLayout.setComponentAlignment(debugEndDateField, Alignment.TOP_RIGHT);
-////		dateDeleteLayout.addComponent(deleteGridRow);
-////		dateDeleteLayout.setComponentAlignment(deleteGridRow, Alignment.TOP_LEFT);
-//		optionsLayoutVerticalTab.addComponents(debugSearchLayout, dateDeleteLayout);
-//
-//		optionsLayoutHorizontalDesktop.setVisible(false);
-//		optionsLayoutVerticalPhone.setVisible(false);
-//		optionsLayoutVerticalTab.setVisible(true);
+		
+		if(createEntityWindow!=null || editEntityWindow!=null) {
+			if(profileFormLayout.getComponentIndex(firstAndLastNameHL) !=-1 && 
+					profileFormLayout.getComponentIndex(passwordAndIPAddressHL) !=-1) {
+				
+				firstName = new TextField("First Name");
+				firstName.addStyleNames("v-textfield-font", "textfiled-height");
+				firstName.setWidth("100%");
+				firstName.setRequiredIndicatorVisible(true);
+				
+				lastName = new TextField("Last Name");
+				lastName.addStyleNames("v-textfield-font", "textfiled-height");
+				lastName.setWidth("100%");
+				lastName.setRequiredIndicatorVisible(true);
+				
+				if(selectedUser!=null) {
+					firstName.setValue(selectedUser.getFirstname());
+					lastName.setValue(selectedUser.getLastname());
+				}else {
+					firstName.clear();
+					lastName.clear();
+				}
+				
+				firstAndLastNameVL = new VerticalLayout(firstName, lastName);
+				firstAndLastNameVL.addStyleNames("personlization-formAlignment", "system-GridAlignment");
+				firstAndLastNameVL.setWidth("100%");
+			
+				passwordAndIPAddressVL = new VerticalLayout(resendPassword, ipAddress);
+				passwordAndIPAddressVL.addStyleNames("personlization-formAlignment", "system-GridAlignment");
+				profileFormLayout.replaceComponent(firstAndLastNameHL, firstAndLastNameVL);
+				profileFormLayout.replaceComponent(passwordAndIPAddressHL, passwordAndIPAddressVL);
+			}
+		}
 	}
 
 	private void phoneMode() {
-//		dateDeleteLayoutPhone.addComponents(debugStartDateField, debugEndDateField);
-//		optionsLayoutVerticalPhone.addStyleName("audit-phoneAlignment");
-//		debugSearchLayout.addStyleName("audit-phoneAlignment");
-//		optionsLayoutVerticalPhone.addComponents(debugSearchLayout, dateDeleteLayoutPhone);
-//		optionsLayoutVerticalPhone.setVisible(true);
-//		optionsLayoutHorizontalDesktop.setVisible(false);
-//		optionsLayoutVerticalTab.setVisible(false);
+		
+		if(createEntityWindow!=null || editEntityWindow!=null) {
+			if(profileFormLayout.getComponentIndex(firstAndLastNameHL) !=-1 && 
+					profileFormLayout.getComponentIndex(passwordAndIPAddressHL) !=-1) {
+				
+				firstName = new TextField("First Name");
+				firstName.addStyleNames("v-textfield-font", "textfiled-height");
+				firstName.setWidth("100%");
+				firstName.setRequiredIndicatorVisible(true);
+				
+				lastName = new TextField("Last Name");
+				lastName.addStyleNames("v-textfield-font", "textfiled-height");
+				lastName.setWidth("100%");
+				lastName.setRequiredIndicatorVisible(true);
+				
+				if(selectedUser!=null) {
+					firstName.setValue(selectedUser.getFirstname());
+					lastName.setValue(selectedUser.getLastname());
+				}else {
+					firstName.clear();
+					lastName.clear();
+				}
+				
+				firstAndLastNameVL = new VerticalLayout(firstName, lastName);
+				firstAndLastNameVL.addStyleNames("personlization-formAlignment", "system-GridAlignment");
+				firstAndLastNameVL.setWidth("100%");
+			
+				passwordAndIPAddressVL = new VerticalLayout(resendPassword, ipAddress);
+				passwordAndIPAddressVL.addStyleNames("personlization-formAlignment", "system-GridAlignment");
+				profileFormLayout.replaceComponent(firstAndLastNameHL, firstAndLastNameVL);
+				profileFormLayout.replaceComponent(passwordAndIPAddressHL, passwordAndIPAddressVL);
+			}
+		}
 	}
 
 	private void desktopMode() {
-//		optionsLayoutHorizontalDesktop.addComponent(debugSearchLayout);
-//		optionsLayoutHorizontalDesktop.setComponentAlignment(debugSearchLayout, Alignment.MIDDLE_LEFT);
-//		dateDeleteLayout.addComponent(debugStartDateField);
-//		//dateDeleteLayout.setComponentAlignment(debugStartDateField, Alignment.TOP_RIGHT);
-//		dateDeleteLayout.addComponent(debugEndDateField);
-//		//dateDeleteLayout.setComponentAlignment(debugEndDateField, Alignment.TOP_RIGHT);
-////		dateDeleteLayout.addComponent(deleteGridRow);
-////		dateDeleteLayout.setComponentAlignment(deleteGridRow, Alignment.TOP_LEFT);
-//		optionsLayoutHorizontalDesktop.addComponent(dateDeleteLayout);
-//		// optionsLayoutHorizontalDesktop.addComponent(dateDeleteLayout);
-//		//optionsLayoutHorizontalDesktop.setComponentAlignment(dateDeleteLayout, Alignment.TOP_RIGHT);
-//		optionsLayoutHorizontalDesktop.setVisible(true);
-//		optionsLayoutVerticalTab.setVisible(false);
-//		optionsLayoutVerticalPhone.setVisible(false);
+		if(createEntityWindow!=null || editEntityWindow!=null) {
+			if(profileFormLayout.getComponentIndex(firstAndLastNameVL) !=-1 && 
+					profileFormLayout.getComponentIndex(passwordAndIPAddressVL) !=-1) {
+				
+				firstName = new TextField("First Name");
+				firstName.addStyleNames("v-textfield-font", "textfiled-height");
+				firstName.setWidth("100%");
+				firstName.setRequiredIndicatorVisible(true);
+				
+				lastName = new TextField("Last Name");
+				lastName.addStyleNames("v-textfield-font", "textfiled-height");
+				lastName.setWidth("100%");
+				lastName.setRequiredIndicatorVisible(true);
+				
+				if(selectedUser!=null) {
+					firstName.setValue(selectedUser.getFirstname());
+					lastName.setValue(selectedUser.getLastname());
+				}else {
+					firstName.clear();
+					lastName.clear();
+				}
+			
+			firstAndLastNameHL = new HorizontalLayout(firstName, lastName);
+			firstAndLastNameHL.addStyleName("personlization-formAlignment");
+			firstAndLastNameHL.setWidth("100%");
+			
+			passwordAndIPAddressHL = new HorizontalLayout(resendPassword, ipAddress);
+			passwordAndIPAddressHL.addStyleName("personlization-formAlignment");
+		
+			profileFormLayout.replaceComponent(firstAndLastNameVL, firstAndLastNameHL);
+			profileFormLayout.replaceComponent(passwordAndIPAddressVL, passwordAndIPAddressHL);
+			}
+		}
+		
 	}
 
 	public Panel getAndLoadAuditPanel() {
@@ -426,15 +628,30 @@ public class UserView extends VerticalLayout implements Serializable, View {
 		userGrid.getColumn("username").setCaption("User Name");
 		userGrid.setSelectionMode(SelectionMode.MULTI);
 		
+		userGrid.addSelectionListener(listener->{
+			if(listener.getAllSelectedItems().size()==0) {
+				selectedUser=null;
+			}
+		});
+		
 		createUser = new Button("Add User", click -> {
 			UI.getCurrent().getWindows().forEach(Window::close);
 			userMenuContextWindow.close();
 			createEntityWindow = openEntityWindow(false);
+			resendPassword.setEnabled(false);
 			if (nodeTreeGrid.getSelectedItems().size() == 0) {
 				Notification.show("Select any entity to create user", Notification.Type.ERROR_MESSAGE);
 			} else {
-				if (createEntityWindow.getParent() == null)
+				if (createEntityWindow.getParent() == null) {
+					int width = Page.getCurrent().getBrowserWindowWidth();
+					if (width > 0 && width <= 699) {
+						phoneMode();
+					} else if (width >= 700 && width <= 1400) {
+						tabMode();
+					} 
+					clearAllData();
 					UI.getCurrent().addWindow(createEntityWindow);
+				}
 			}
 		});
 		createUser.addStyleName(ValoTheme.BUTTON_BORDERLESS);
@@ -443,11 +660,19 @@ public class UserView extends VerticalLayout implements Serializable, View {
 			UI.getCurrent().getWindows().forEach(Window::close);
 			userMenuContextWindow.close();
 			editEntityWindow = openEntityWindow(true);
+			resendPassword.setEnabled(true);
 			if (nodeTreeGrid.getSelectedItems().size() == 0) {
 				Notification.show("Select any entity to create user", Notification.Type.ERROR_MESSAGE);
 			} else {
-				if (editEntityWindow.getParent() == null)
+				if (editEntityWindow.getParent() == null) {
+					int width = Page.getCurrent().getBrowserWindowWidth();
+					if (width > 0 && width <= 699) {
+						phoneMode();
+					} else if (width >= 700 && width <= 1400) {
+						tabMode();
+					} 
 					UI.getCurrent().addWindow(editEntityWindow);
+				}
 			}
 
 		});
@@ -455,7 +680,9 @@ public class UserView extends VerticalLayout implements Serializable, View {
 		editUser.setEnabled(false);
 		
 		deleteUser = new Button("Delete User", click -> {
+			UI.getCurrent().getWindows().forEach(Window::close);
 			userMenuContextWindow.close();
+			confirmDialog(userGrid.getSelectedItems());
 		});
 		deleteUser.addStyleName(ValoTheme.BUTTON_BORDERLESS);
 		deleteUser.setEnabled(false);
@@ -489,6 +716,13 @@ public class UserView extends VerticalLayout implements Serializable, View {
 		
 		userGirdAndSearchLayout.addComponents(searchLayout, userGrid);
 		userGirdAndSearchLayout.setExpandRatio(userGrid, 14);
+		
+		resendPassword.addClickListener(listener->{
+			if(email!=null && email.getValue()!=null && !email.getValue().isEmpty()) {
+				RestServiceUtil.getInstance().resendPassword(email.getValue());
+				editEntityWindow.close();
+			}
+		});
 		
 		userSearch.addValueChangeListener(event -> {
 			if (event.getValue().length() == 50) {
@@ -559,25 +793,21 @@ public class UserView extends VerticalLayout implements Serializable, View {
 	}
 	
 	private ContextMenuWindow openEntityWindow(boolean edit) {
-		ContextMenuWindow entityWindow = new ContextMenuWindow();
+		entityWindow = new ContextMenuWindow();
 		
-		userName = new TextField("User Name");
 		userName.addStyleNames("v-textfield-font", "textfiled-height");
 		userName.focus();
 		userName.setWidth("100%");
 		userName.setRequiredIndicatorVisible(true);
 		
-		firstName = new TextField("First Name");
 		firstName.addStyleNames("v-textfield-font", "textfiled-height");
 		firstName.setWidth("100%");
 		firstName.setRequiredIndicatorVisible(true);
 		
-		lastName = new TextField("Last Name");
 		lastName.addStyleNames("v-textfield-font", "textfiled-height");
 		lastName.setWidth("100%");
 		lastName.setRequiredIndicatorVisible(true);
 		
-		email = new TextField("Email");
 		email.addStyleNames("v-textfield-font", "textfiled-height");
 		email.setWidth("100%");
 		email.setRequiredIndicatorVisible(true);
@@ -587,7 +817,6 @@ public class UserView extends VerticalLayout implements Serializable, View {
 		password.setWidth("100%");
 		password.setRequiredIndicatorVisible(true);
 		
-		ipAddress = new TextField("IP Address");
 		ipAddress.addStyleNames("v-textfield-font", "textfiled-height");
 		ipAddress.setWidth("100%");
 		ipAddress.setRequiredIndicatorVisible(true);
@@ -600,32 +829,35 @@ public class UserView extends VerticalLayout implements Serializable, View {
 		fixedIp.addStyleNames("user-activeBox", "v-textfield-font", "personlization-formAlignment");
 		fixedIp.setRequiredIndicatorVisible(true);
 		
-		resendPassword = new Button("Resend Password");
 		resendPassword.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle", "personlization-plusButtons");
 		
-		HorizontalLayout firstAndLastNameLayout = new HorizontalLayout(firstName, lastName);
-		firstAndLastNameLayout.addStyleName("personlization-formAlignment");
-		firstAndLastNameLayout.setWidth("100%");
+		firstAndLastNameHL = new HorizontalLayout(firstName, lastName);
+		firstAndLastNameHL.addStyleName("personlization-formAlignment");
+		firstAndLastNameHL.setWidth("100%");
 		
-		HorizontalLayout passwordAndIPAddress = new HorizontalLayout(resendPassword, ipAddress);
-		passwordAndIPAddress.addStyleName("personlization-formAlignment");
+		passwordAndIPAddressHL = new HorizontalLayout(resendPassword, ipAddress);
+		passwordAndIPAddressHL.addStyleName("personlization-formAlignment");
 		
 		if(edit) {
-			User selectedUser = userGrid.getSelectedItems().iterator().next();
+			selectedUser = userGrid.getSelectedItems().iterator().next();
 			userName.setValue(selectedUser.getUsername());
 			firstName.setValue(selectedUser.getFirstname());
 			lastName.setValue(selectedUser.getLastname());
 			email.setValue(selectedUser.getEmail());
 			roles.setValue(selectedUser.getRole());
+			userName.setEnabled(false);
+			email.setEnabled(false);
 			if(selectedUser.getIpAddress()!=null) {
 				ipAddress.setValue(selectedUser.getIpAddress());
 			}
 			userActive.setValue(selectedUser.isActive());
 		}else {
 			clearAllData();
+			userName.setEnabled(true);
+			email.setEnabled(true);
 		}
 		
-		save = new Button("Save", click -> {
+		save.addClickListener(click -> {
 			if(createEntityWindow!=null) {
 				createEntityWindow.setModal(true);
 			}
@@ -637,13 +869,12 @@ public class UserView extends VerticalLayout implements Serializable, View {
 			if(nodeTreeGrid.getSelectedItems().isEmpty()) {
 				Notification.show(NotificationUtil.USER_CREATE, Notification.Type.ERROR_MESSAGE);
 			}else {
-				if(!(ComponentUtil.validatorTextField(userName) && 
+				if(!(ComponentUtil.validateUserName(userName) && 
 						ComponentUtil.validatorComboBox(roles) &&
 						ComponentUtil.validatorTextField(firstName) &&
 						ComponentUtil.validatorTextField(lastName) &&
-						ComponentUtil.validatorTextField(email) 
-						/*ComponentUtil.validatorCheckBox(getActiveBox()) && 
-						ComponentUtil.validatorComboBox(getPassFreqncy())*/)) {
+						ComponentUtil.validatorEmailId(email) &&
+						ComponentUtil.validatorCheckBox(userActive))) {
 				}else {
 					User existingUserCheck = new User();
 					if(!userGrid.getSelectedItems().isEmpty() && userGrid.getSelectedItems().iterator().next().getId()!=null) {
@@ -693,16 +924,17 @@ public class UserView extends VerticalLayout implements Serializable, View {
 		});
 
 		save.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
-		cancel = new Button("Cancel", click -> {
+		cancel.addClickListener(click -> {
 			clearAllData();
 		});
 		cancel.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
-		HorizontalLayout buttonLayout = new HorizontalLayout(save, cancel);
+		buttonLayout = new HorizontalLayout(save, cancel);
 		buttonLayout.setComponentAlignment(save, Alignment.BOTTOM_RIGHT);
 		buttonLayout.setComponentAlignment(cancel, Alignment.BOTTOM_RIGHT);
 		
-		VerticalLayout profileFormLayout = new VerticalLayout(userName,firstAndLastNameLayout , email, roles, passwordAndIPAddress, fixedIp, userActive);
+		profileFormLayout = new VerticalLayout(userName,firstAndLastNameHL , email, roles, passwordAndIPAddressHL, fixedIp, userActive);
 		profileFormLayout.addStyleNames("system-LabelAlignment", "heartbeat-verticalLayout", "header-Components");
+		
 		VerticalLayout verticalLayout = new VerticalLayout(profileFormLayout, buttonLayout);
 		verticalLayout.addStyleNames("system-LabelAlignment", "heartbeat-verticalLayout", "header-Components");
 		
@@ -732,5 +964,33 @@ public class UserView extends VerticalLayout implements Serializable, View {
 		userActive.clear();
 		ipAddress.clear();
 		fixedIp.clear();
+	}
+	
+	public void confirmDialog(Set<User> userList) {
+		ConfirmDialog.show(this.getViewComponent().getUI(), "Please Confirm:",
+				"Are you sure you want to delete?", "Ok", "Cancel", null, new ConfirmDialog.Listener() {
+
+					public void onClose(ConfirmDialog dialog) {
+						if (dialog.isConfirmed()) {
+								boolean delete = false;
+								for(User user : userList) {
+									delete = userService.deleteUser(user.getId(), delete);
+									if(!delete) {
+										Notification.show(NotificationUtil.SELF_USER_DELETE, Type.ERROR_MESSAGE);
+										break;
+									}
+								}
+									List<User> userList = userService.getUsersListByEntityId(nodeTreeGrid.getSelectedItems().iterator().next().getEntityId());
+									DataProvider data = new ListDataProvider(userList);
+									userGrid.setDataProvider(data);
+									userSearch.clear();
+								
+								
+						} else {
+							// User did not confirm
+
+						}
+					}
+				});
 	}
 }

@@ -54,6 +54,8 @@ public class MainViewIconsLoad {
 		mainView.getUsers().setIcon(null);
 		mainView.getRoles().setIcon(null);
 		mainView.getSystem().setIcon(null);
+		mainView.getMenubar().setVisible(false);
+		mainView.getLogout().setVisible(false);
 		
 	}
 	
@@ -71,6 +73,25 @@ public class MainViewIconsLoad {
 		mainView.getUsers().setIcon(VaadinIcons.USERS);
 		mainView.getRoles().setIcon(VaadinIcons.USER);
 		mainView.getSystem().setIcon(VaadinIcons.DESKTOP);
-		
+		mainView.getMenubar().setVisible(false);
+		mainView.getLogout().setVisible(false);
+	}
+	
+	public static  void iconsOnPhoneMode(MainView mainView) {
+		mainView.getDashboard().setIcon(null);
+		mainView.getBoarding().setIcon(null);
+		mainView.getTransactions().setIcon(null);
+		mainView.getApplicationStore().setIcon(null);
+		mainView.getPersonlization().setIcon(null);
+		mainView.getHeartbeat().setIcon(null);
+		mainView.getAssetControl().setIcon(null);
+		mainView.getDeviceOdometer().setIcon(null);
+		mainView.getAudit().setIcon(null);
+		mainView.getLogout().setIcon(null);
+		mainView.getUsers().setIcon(null);
+		mainView.getRoles().setIcon(null);
+		mainView.getSystem().setIcon(null);
+		mainView.getMenubar().setVisible(true);
+		mainView.getLogout().setVisible(true);
 	}
 }

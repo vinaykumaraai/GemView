@@ -46,6 +46,7 @@ import com.vaadin.spring.annotation.SpringComponent;
 import com.luretechnologies.tms.backend.data.entity.User;
 import com.luretechnologies.tms.backend.service.UserService;
 
+@Deprecated
 @SpringComponent
 @PrototypeScope
 public class UserAdminDataProvider extends AbstractBackEndDataProvider<User, Object> {

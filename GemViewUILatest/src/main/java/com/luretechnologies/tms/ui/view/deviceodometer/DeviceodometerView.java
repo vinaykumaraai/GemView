@@ -146,7 +146,7 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 	@PostConstruct
 	private void init() {
 		try {
-			header = new Header(userService, navigationManager, "Odometer", new Label());
+			header = new Header(userService, roleService, navigationManager, "Odometer", new Label());
 		Page.getCurrent().addBrowserWindowResizeListener(r->{
 			System.out.println("Height "+ r.getHeight() + "Width:  " + r.getWidth()+ " in pixel");
 			if(r.getWidth()<=1450 && r.getWidth()>=700) {
@@ -170,7 +170,7 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 				mainView.getTitle().setValue(userService.getLoggedInUserName());
 				removeComponent(header);
 				odometerEndDateField.setWidth("100%");
-				MainViewIconsLoad.noIconsOnDesktopMode(mainView);
+				MainViewIconsLoad.iconsOnPhoneMode(mainView);
 			} else if(r.getWidth()>600 && r.getWidth()<=1000){
 				odometerStartDateField.setHeight("32px");
 				odometerEndDateField.setHeight("32px");
@@ -275,10 +275,14 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 		odometerTreeGridMenu.addMenuItems(createEntity,editEntity,deleteEntity, copyEntity, pasteEntity);
 		nodeTreeGrid.addContextClickListener(click->{
 			UI.getCurrent().getWindows().forEach(Window::close);
-			odometerTreeGridMenu.setPosition(click.getClientX(), click.getClientY());
+			if(click.getClientY() > 750) {
+				odometerTreeGridMenu.setPosition(click.getClientX(), click.getClientY()-220);
+			}else {
+				odometerTreeGridMenu.setPosition(click.getClientX(), click.getClientY());
+			}
 			UI.getCurrent().addWindow(odometerTreeGridMenu);
-			EntityOperations.entityOperations(nodeTreeGrid, createEntity, editEntity, deleteEntity, copyEntity, pasteEntity, treeDataNodeService, odometerDeviceService, odometerTreeGridMenu);
 		});
+		EntityOperations.entityOperations(nodeTreeGrid, createEntity, editEntity, deleteEntity, copyEntity, pasteEntity, treeDataNodeService, odometerDeviceService, odometerTreeGridMenu);
 		treeSearchPanelLayout.addComponent(nodeTreeGrid);
 		treeSearchPanelLayout.setExpandRatio(nodeTreeGrid, 14);
 		treeSearchPanelLayout.setMargin(true);
@@ -312,7 +316,7 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 			clearOdometerSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"odometer-OdometerSearchClearPhone");
 			mainView.getTitle().setValue(userService.getLoggedInUserName());
 			odometerEndDateField.setWidth("100%");
-			MainViewIconsLoad.noIconsOnDesktopMode(mainView);
+			MainViewIconsLoad.iconsOnPhoneMode(mainView);
 		} else if(width>600 && width<=1000){
 			odometerStartDateField.setHeight("32px");
 			odometerEndDateField.setHeight("32px");

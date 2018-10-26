@@ -117,6 +117,8 @@ import com.vaadin.ui.themes.ValoTheme;
  * @param <T>
  *            the type of entity which can be edited in the view
  */
+
+@Deprecated
 public abstract class AbstractCrudView<T extends AbstractEntity> extends VerticalLayout implements Serializable, View, HasLogger {
 
 	public static final String CAPTION_DISCARD = "Cancel";

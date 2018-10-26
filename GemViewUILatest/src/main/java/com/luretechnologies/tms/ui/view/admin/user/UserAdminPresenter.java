@@ -43,6 +43,7 @@ import com.luretechnologies.tms.backend.service.UserService;
 import com.luretechnologies.tms.ui.navigation.NavigationManager;
 import com.luretechnologies.tms.ui.view.admin.AbstractCrudPresenter;
 
+@Deprecated
 @SpringComponent
 @ViewScope
 public class UserAdminPresenter extends AbstractCrudPresenter<User, UserService, UserAdminView>

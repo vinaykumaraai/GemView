@@ -66,6 +66,7 @@ import com.luretechnologies.tms.backend.service.TreeDataNodeService;
 import com.luretechnologies.tms.backend.service.UserService;
 import com.luretechnologies.tms.ui.MainView;
 import com.luretechnologies.tms.ui.components.ComponentUtil;
+import com.luretechnologies.tms.ui.components.MainViewIconsLoad;
 import com.luretechnologies.tms.ui.components.NotificationUtil;
 import com.luretechnologies.tms.ui.navigation.NavigationManager;
 import com.luretechnologies.tms.ui.view.ContextMenuWindow;
@@ -222,7 +223,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 	@PostConstruct
 	private void inti() {
 	  try {
-		  header = new Header(userService,navigationManager, "Personlization", new Label());
+		  header = new Header(userService, roleService, navigationManager, "Personlization", new Label());
 		Page.getCurrent().addBrowserWindowResizeListener(r -> {
 			if (r.getWidth() <= 600) {
 				treeNodeSearch.setHeight(28, Unit.PIXELS);
@@ -235,6 +236,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 					openProfileListWindow.setPosition(180, 200);
 					openProfileListWindow.setWidth("180px");
 				}
+				MainViewIconsLoad.iconsOnPhoneMode(mainView);
 			} else if (r.getWidth() > 600 && r.getWidth() <= 1000) {
 				treeNodeSearch.setHeight(32, Unit.PIXELS);
 				overRideParamSearch.setHeight(32, Unit.PIXELS);
@@ -242,6 +244,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 				clearParamSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"v-button-customstyle");
 				addComponentAsFirst(header);
 				mainView.getTitle().setValue("gemView");
+				MainViewIconsLoad.iconsOnTabMode(mainView);
 				if(openProfileListWindow!=null) {
 					openProfileListWindow.center();
 					openProfileListWindow.setWidth("30%");
@@ -255,6 +258,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 				clearParamSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearDesktop");
 				addComponentAsFirst(header);
 				mainView.getTitle().setValue("gemView");
+				MainViewIconsLoad.noIconsOnDesktopMode(mainView);
 				if(openProfileListWindow!=null) {
 					openProfileListWindow.center();
 					openProfileListWindow.setWidth("30%");
@@ -395,7 +399,11 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		nodeTree.addContextClickListener(event -> {
 			UI.getCurrent().getWindows().forEach(Window::close);
 			ContextMenuWindow treeContextMenuWindow = new ContextMenuWindow();
-			treeContextMenuWindow.setPosition(event.getClientX(), event.getClientY());
+			if(event.getClientY() > 750) {
+				treeContextMenuWindow.setPosition(event.getClientX(), event.getClientY()-220);
+			}else {
+				treeContextMenuWindow.setPosition(event.getClientX(), event.getClientY());
+			}
 			
 			createEntity = new Button("Add Entity", click -> {
 				UI.getCurrent().getWindows().forEach(Window::close);
@@ -561,6 +569,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 			clearParamSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"odometer-OdometerSearchClearPhone");
 			mainView.getTitle().setValue(userService.getLoggedInUserName());
 			removeComponent(header);
+			MainViewIconsLoad.iconsOnPhoneMode(mainView);
 			if(openProfileListWindow!=null) {
 				openProfileListWindow.setPosition(180, 200);
 				openProfileListWindow.setWidth("180px");
@@ -572,6 +581,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 			clearParamSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"v-button-customstyle");
 			mainView.getTitle().setValue("gemView");
 			addComponentAsFirst(header);
+			MainViewIconsLoad.iconsOnTabMode(mainView);
 			if(openProfileListWindow!=null) {
 				openProfileListWindow.center();
 				openProfileListWindow.setWidth("30%");
@@ -584,6 +594,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 			clearParamSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearDesktop");
 			mainView.getTitle().setValue("gemView");
 			addComponentAsFirst(header);
+			MainViewIconsLoad.noIconsOnDesktopMode(mainView);
 			if(openProfileListWindow!=null) {
 				openProfileListWindow.center();
 				openProfileListWindow.setWidth("30%");

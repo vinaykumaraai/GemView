@@ -86,7 +86,7 @@ public class TreeNode {
 		this.description=description;
 		this.entityChildrenList = entityChildrenList;
 		this.active=active;
-		this.serialNum=serialNum;
+		this.serialNum=serialNumber;
 	}
 
 	public String getLabel() {

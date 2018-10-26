@@ -32,15 +32,11 @@
 package com.luretechnologies.tms.backend.service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
-
-import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
@@ -52,8 +48,6 @@ import org.springframework.stereotype.Service;
 import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.client.restlib.service.model.Entity;
 import com.luretechnologies.tms.app.security.BackendAuthenticationProvider;
-import com.luretechnologies.tms.backend.data.entity.Permission;
-import com.luretechnologies.tms.backend.data.entity.Role;
 import com.luretechnologies.tms.backend.data.entity.User;
 import com.luretechnologies.tms.backend.rest.util.RestClient;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
@@ -406,6 +400,10 @@ public class UserService extends CrudService<User>{
 		String username = provider.loggedInUserName();
 		return username;
 				
+	}
+	
+	public String getRoleName() {
+		return RestServiceUtil.getSESSION().getRoleName();
 	}
 	
 	public User getLoggedInUser() {

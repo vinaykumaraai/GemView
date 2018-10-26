@@ -77,10 +77,10 @@ public class ApplicationStoreService {
 		List<AppClient> appClientList = new ArrayList<>();
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
-				String username = provider.loggedInUserName();
-				User user = RestServiceUtil.getInstance().getClient().getUserApi().getUserByUserName(username);
-				Long entityId = user.getEntity().getId();
-				List<App> appsList = RestServiceUtil.getInstance().getClient().getAppApi().getAppsByEntityHierarchy(entityId);
+//				String username = provider.loggedInUserName();
+//				User user = RestServiceUtil.getInstance().getClient().getUserApi().getUserByUserName(username);
+//				Long entityId = user.getEntity().getId();
+				List<App> appsList = RestServiceUtil.getInstance().getClient().getAppApi().getAppListByEntityChildren();
 				for (App app : appsList) {
 					AppClient appClient = new AppClient(app.getId(), app.getName(), app.getDescription(),
 							app.getVersion(), app.getAvailable(), app.getActive(),getAppDefaultParamList(app.getAppParamCollection()),

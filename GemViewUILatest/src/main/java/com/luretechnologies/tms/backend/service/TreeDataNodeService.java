@@ -133,18 +133,6 @@ public class TreeDataNodeService {
 		for(Entity entity : entityList) {
 			TreeNode node = new TreeNode(entity.getName(), entity.getId(), entity.getType(), entity.getEntityId(), entity.getDescription(), entity.getChildrenEntities(), entity.getSerialNumber(),
 					true);
-			switch(entity.getType().toString()) {
-			
-				case "TERMINAL":{
-						node.setSerialNum(entity.getSerialNumber());
-				} 
-				case "DEVICE":{
-					node.setSerialNum(entity.getSerialNumber());
-					break;
-				} default:{
-					break;
-				}
-			}
 			nodeChildList.add(node);
 		}
 		return nodeChildList;

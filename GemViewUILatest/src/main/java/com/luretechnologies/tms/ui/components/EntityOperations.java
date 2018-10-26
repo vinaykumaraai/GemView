@@ -38,17 +38,15 @@ import org.vaadin.dialogs.ConfirmDialog;
 import com.luretechnologies.client.restlib.service.model.EntityTypeEnum;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
 import com.luretechnologies.tms.backend.service.CommonService;
-import com.luretechnologies.tms.backend.service.PersonalizationService;
 import com.luretechnologies.tms.backend.service.TreeDataNodeService;
 import com.luretechnologies.tms.ui.view.ContextMenuWindow;
 import com.vaadin.data.provider.ListDataProvider;
-import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.Page;
+import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.TextField;
@@ -128,6 +126,7 @@ public class EntityOperations {
 		
 		pasteEntity.addClickListener(click -> {
 			//  Paste new entity
+			
 			UI.getCurrent().getWindows().forEach(Window::close);
 			treeContextMenuWindow.close();
 			if (nodeTree.getSelectionModel().getFirstSelectedItem().isPresent()) {
@@ -188,6 +187,8 @@ public class EntityOperations {
 					}
 					pasteEntity.setEnabled(false);
 				}
+			selectedNodeForCopy = null;
+			
 		});
 		
 		UI.getCurrent().addClickListener(listener->{
@@ -197,44 +198,129 @@ public class EntityOperations {
 				createEntityWindow.close();
 			}
 			
+			if(editEntityWindow!=null) {
+				editEntityWindow.close();
+			}
+			
+			
 	});
 		
 		Page.getCurrent().addBrowserWindowResizeListener(r->{
 			
 			if (r.getWidth() <= 600) {
+				if(createEntityWindow!=null) {
+					createEntityWindow.setPosition(180, 200);
+					createEntityWindow.setWidth("180px");
+				}
+				
+				if(editEntityWindow!=null) {
+					editEntityWindow.setPosition(180, 200);
+					editEntityWindow.setWidth("180px");
+				}
+				
+				if(createEntityWindow!=null || editEntityWindow!=null) {
+					entityTypeTree.setHeight("28px");
+					entityName.setHeight("28px");
+					entityDescription.setHeight("28px");
+					serialNumber.setHeight("28px");
+					save.setHeight("27px");
+					cancel.setHeight("27px");
+				}
+			} else if (r.getWidth() > 600 && r.getWidth() <= 1000) {
+				
+				if(createEntityWindow!=null) {
+					createEntityWindow.center();
+				}
+				
+				if(editEntityWindow!=null) {
+					editEntityWindow.center();
+				}
+				
+				if(createEntityWindow!=null || editEntityWindow!=null) {
+					entityTypeTree.setHeight("32px");
+					entityName.setHeight("32px");
+					entityDescription.setHeight("32px");
+					serialNumber.setHeight("32px");
+					save.setHeight("32px");
+					cancel.setHeight("32px");
+				}
+			} else {
+				
+				if(createEntityWindow!=null) {
+					createEntityWindow.center();
+				}
+				if(editEntityWindow!=null) {
+					editEntityWindow.center();
+				}
+				
+				if(createEntityWindow!=null || editEntityWindow!=null) {
+					entityTypeTree.setHeight("37px");
+					entityName.setHeight("37px");
+					entityDescription.setHeight("37px");
+					serialNumber.setHeight("37px");
+					save.setHeight("37px");
+					cancel.setHeight("37px");
+				}
+			}
+			
+		});
+		
+		int width = Page.getCurrent().getBrowserWindowWidth();
+		if (width <= 600) {
+
+			if(createEntityWindow!=null) {
+				createEntityWindow.setPosition(180, 200);
+				createEntityWindow.setWidth("180px");
+			}
+			
+			if(editEntityWindow!=null) {
+				editEntityWindow.setPosition(180, 200);
+				editEntityWindow.setWidth("180px");
+			}
+			
+			if(createEntityWindow!=null || editEntityWindow!=null) {
 				entityTypeTree.setHeight("28px");
 				entityName.setHeight("28px");
 				entityDescription.setHeight("28px");
 				serialNumber.setHeight("28px");
 				save.setHeight("27px");
 				cancel.setHeight("27px");
-				if(createEntityWindow!=null) {
-					createEntityWindow.setPosition(180, 200);
-					createEntityWindow.setWidth("180px");
-				}
-			} else if (r.getWidth() > 600 && r.getWidth() <= 1000) {
+			}
+		} else if (width > 600 && width <= 1000) {
+		
+			if(createEntityWindow!=null) {
+				createEntityWindow.center();
+			}
+			
+			if(editEntityWindow!=null) {
+				editEntityWindow.center();
+			}
+			
+			if(createEntityWindow!=null || editEntityWindow!=null) {
 				entityTypeTree.setHeight("32px");
 				entityName.setHeight("32px");
 				entityDescription.setHeight("32px");
 				serialNumber.setHeight("32px");
 				save.setHeight("32px");
 				cancel.setHeight("32px");
-				if(createEntityWindow!=null) {
-					createEntityWindow.center();
-				}
-			} else {
+			}
+		} else {
+			if(createEntityWindow!=null) {
+				createEntityWindow.center();
+			}
+			if(editEntityWindow!=null) {
+				editEntityWindow.center();
+			}
+			
+			if(createEntityWindow!=null || editEntityWindow!=null) {
 				entityTypeTree.setHeight("37px");
 				entityName.setHeight("37px");
 				entityDescription.setHeight("37px");
 				serialNumber.setHeight("37px");
 				save.setHeight("37px");
 				cancel.setHeight("37px");
-				if(createEntityWindow!=null) {
-					createEntityWindow.center();
-				}
 			}
-			
-		});
+		}
 	
 	}
 	private static ContextMenuWindow openEntityWindow(TreeGrid<TreeNode> nodeTree, TreeDataNodeService treeDataNodeService, CommonService commonService, 
@@ -350,8 +436,6 @@ public class EntityOperations {
 							commonService.createEntity(selectedNode, newNode);
 							nodeTree.setTreeData(commonService.getTreeData());
 							entityWindow.close();
-							TreeNode node = treeDataNodeService.findEntityData(selectedNode);
-							nodeTree.expand(node);
 						}
 						break;
 					case MERCHANT:

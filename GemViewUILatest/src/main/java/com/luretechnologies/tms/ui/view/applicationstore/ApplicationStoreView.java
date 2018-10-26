@@ -60,6 +60,7 @@ import com.luretechnologies.tms.backend.service.RolesService;
 import com.luretechnologies.tms.backend.service.UserService;
 import com.luretechnologies.tms.ui.MainView;
 import com.luretechnologies.tms.ui.components.ComponentUtil;
+import com.luretechnologies.tms.ui.components.MainViewIconsLoad;
 import com.luretechnologies.tms.ui.components.NotificationUtil;
 import com.luretechnologies.tms.ui.navigation.NavigationManager;
 import com.luretechnologies.tms.ui.view.ContextMenuWindow;
@@ -183,7 +184,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		setSpacing(false);
 		setMargin(false);
 		setResponsive(true);
-		header = new Header(userService,navigationManager, "Application Store", new Label());
+		header = new Header(userService, roleService, navigationManager, "Application Store", new Label());
 		Panel panel = getAndLoadApplicationStorePanel();
 		appStoreGridLayout = new GridLayout(2, 1, getAppStoreComponents());
 		appStoreGridLayout.setWidth("100%");
@@ -236,6 +237,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 				applicationStoreTabSheet.getTab(2).setCaption("<h3 style=font-weight:400;width:90px;height:15px;>Parameters</h3>");
 				applicationStoreTabSheet.getTab(3).setCaption("<h3 style=font-weight:400;width:90px;height:15px;>Files</h3>");
 				removeComponent(header);
+				MainViewIconsLoad.iconsOnPhoneMode(mainView);
 			} else if(r.getWidth()>600 && r.getWidth()<=1000){
 				applicationSearch.setHeight("32px");
 				appDefaultParamSearch.setHeight("32px");
@@ -250,6 +252,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 				applicationStoreTabSheet.getTab(1).setCaption("<h3 style=font-weight:400;width:120px;height:20px;>Profiles</h3>");
 				applicationStoreTabSheet.getTab(2).setCaption("<h3 style=font-weight:400;width:120px;height:20px;>Parameters</h3>");
 				applicationStoreTabSheet.getTab(3).setCaption("<h3 style=font-weight:400;width:120px;height:20px;>Files</h3>");
+				MainViewIconsLoad.iconsOnTabMode(mainView);
 			}else {
 				applicationSearch.setHeight(37, Unit.PIXELS);
 				appDefaultParamSearch.setHeight("37px");
@@ -264,6 +267,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 				applicationStoreTabSheet.getTab(1).setCaption("<h3 style=font-weight:400;width:150px;height:25px;>Profiles</h3>");
 				applicationStoreTabSheet.getTab(2).setCaption("<h3 style=font-weight:400;width:150px;height:25px;>Parameters</h3>");
 				applicationStoreTabSheet.getTab(3).setCaption("<h3 style=font-weight:400;width:150px;height:25px;>Files</h3>");
+				MainViewIconsLoad.noIconsOnDesktopMode(mainView);
 			}
 			
 			if(r.getWidth()<=730) {
@@ -333,6 +337,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			applicationStoreTabSheet.getTab(1).setCaption("<h3 style=font-weight:400;width:90px;height:15px;>Profiles</h3>");
 			applicationStoreTabSheet.getTab(2).setCaption("<h3 style=font-weight:400;width:90px;height:15px;>Parameters</h3>");
 			applicationStoreTabSheet.getTab(3).setCaption("<h3 style=font-weight:400;width:90px;height:15px;>Files</h3>");
+			MainViewIconsLoad.iconsOnPhoneMode(mainView);
 		} else if(width>600 && width<=1000){
 			applicationSearch.setHeight("32px");
 			appDefaultParamSearch.setHeight("32px");
@@ -347,6 +352,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			applicationStoreTabSheet.getTab(1).setCaption("<h3 style=font-weight:400;width:120px;height:20px;>Profiles</h3>");
 			applicationStoreTabSheet.getTab(2).setCaption("<h3 style=font-weight:400;width:120px;height:20px;>Parameters</h3>");
 			applicationStoreTabSheet.getTab(3).setCaption("<h3 style=font-weight:400;width:120px;height:20px;>Files</h3>");
+			MainViewIconsLoad.iconsOnTabMode(mainView);
 		}else {
 			applicationSearch.setHeight(37, Unit.PIXELS);
 			appDefaultParamSearch.setHeight("37px");
@@ -361,6 +367,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			applicationStoreTabSheet.getTab(1).setCaption("<h3 style=font-weight:400;width:150px;height:25px;>Profiles</h3>");
 			applicationStoreTabSheet.getTab(2).setCaption("<h3 style=font-weight:400;width:150px;height:25px;>Parameters</h3>");
 			applicationStoreTabSheet.getTab(3).setCaption("<h3 style=font-weight:400;width:150px;height:25px;>Files</h3>");
+			MainViewIconsLoad.noIconsOnDesktopMode(mainView);
 		}
 		
 		if(width<=730) {

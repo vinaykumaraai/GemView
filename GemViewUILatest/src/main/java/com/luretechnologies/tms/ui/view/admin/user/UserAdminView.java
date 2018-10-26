@@ -47,7 +47,6 @@ import com.vaadin.spring.annotation.SpringView;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
 import com.luretechnologies.tms.backend.data.entity.User;
 import com.luretechnologies.tms.ui.view.admin.AbstractCrudView;
-import com.luretechnologies.tms.ui.view.admin.RoleSelect;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
@@ -65,6 +64,7 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
 
+@Deprecated
 @SpringView
 public class UserAdminView extends AbstractCrudView<User> {
 

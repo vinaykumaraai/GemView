@@ -165,7 +165,7 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 		deviceStatusBox.setSelectedItem("View All Devices");
 		deviceStatusBox.setWidth("50%");
 		
-		header = new Header(userService,navigationManager, "Heartbeat", new Label(), deviceStatusBox);
+		header = new Header(userService, roleService, navigationManager, "Heartbeat", new Label(), deviceStatusBox);
 		setSpacing(false);
 		setMargin(false);
 		setResponsive(true);
@@ -312,7 +312,7 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 				clearHistorySearch.removeStyleNames("v-button-customstyle", "audit-AuditSearchClearDesktop");
 				clearHistorySearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"odometer-OdometerSearchClearPhone");
 				mainView.getTitle().setValue(userService.getLoggedInUserName());
-				MainViewIconsLoad.noIconsOnDesktopMode(mainView);
+				MainViewIconsLoad.iconsOnPhoneMode(mainView);
 			} else if(r.getWidth()>600 && r.getWidth()<=1000) {
 				/*deviceSearch.setHeight(32, Unit.PIXELS);
 				search.setHeight("32px");
@@ -501,7 +501,7 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 			clearHistorySearch.removeStyleNames("v-button-customstyle", "audit-AuditSearchClearDesktop");
 			clearHistorySearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"odometer-OdometerSearchClearPhone");
 			mainView.getTitle().setValue(userService.getLoggedInUserName());
-			MainViewIconsLoad.noIconsOnDesktopMode(mainView);
+			MainViewIconsLoad.iconsOnPhoneMode(mainView);
 		} else if(width>600 && width<=1000){
 			/*deviceSearch.setHeight(32, Unit.PIXELS);
 			search.setHeight("32px");

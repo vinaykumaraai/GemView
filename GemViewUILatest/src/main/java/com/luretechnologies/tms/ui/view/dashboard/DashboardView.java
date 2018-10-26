@@ -50,6 +50,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.luretechnologies.tms.backend.data.entity.ConnectionStats;
 import com.luretechnologies.tms.backend.data.entity.Downloads;
 import com.luretechnologies.tms.backend.service.DashboardService;
+import com.luretechnologies.tms.backend.service.RolesService;
 import com.luretechnologies.tms.backend.service.UserService;
 import com.luretechnologies.tms.ui.MainView;
 import com.luretechnologies.tms.ui.components.MainViewIconsLoad;
@@ -134,6 +135,9 @@ public class DashboardView extends DashboardViewDesign implements View {
 	MainView mainView;
 	
 	@Autowired
+	private RolesService roleService;
+	
+	@Autowired
 	UserService userService;
 
 	@SuppressWarnings("unchecked")
@@ -156,7 +160,7 @@ public class DashboardView extends DashboardViewDesign implements View {
 //		downloads.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", 
 //				"header-Components");
 		
-		Header header = new Header(userService,navigationManager, "Dashboard");
+		Header header = new Header(userService, roleService, navigationManager, "Dashboard");
 		header.setId("header");
 		setResponsive(true);
 		grid = new Grid<>(Downloads.class);
@@ -216,7 +220,7 @@ public class DashboardView extends DashboardViewDesign implements View {
 			grid.setHeight("88%");
 			removeComponent(header);
 			board.removeStyleName("board-top");
-			MainViewIconsLoad.noIconsOnDesktopMode(mainView);
+			MainViewIconsLoad.iconsOnPhoneMode(mainView);
 		}else if(width>600 && width <=1000) {
 			grid.setHeight("86%");
 			if((getComponent(0).getId()!=null || getComponent(0).getId()!="") &&
@@ -246,7 +250,7 @@ public class DashboardView extends DashboardViewDesign implements View {
 				grid.setHeight("88%");
 				removeComponent(header);
 				board.removeStyleName("board-top");
-				MainViewIconsLoad.noIconsOnDesktopMode(mainView);
+				MainViewIconsLoad.iconsOnPhoneMode(mainView);
 			}else if(resizeListener.getWidth()>600 && resizeListener.getWidth() <=1000) {
 				grid.setHeight("86%");
 				if((getComponent(0).getId()!=null || getComponent(0).getId()!="") &&

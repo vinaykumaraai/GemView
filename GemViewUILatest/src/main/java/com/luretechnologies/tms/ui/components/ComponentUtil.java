@@ -199,6 +199,50 @@ public class ComponentUtil {
 		return true;	
 	}
 	
+	public static boolean validatorEmailId(TextField component) {
+		if (component != null) {
+			if (component.getValue() == null || component.getValue().trim().isEmpty()) {
+				if(component.getId() == "ignore"){
+					return true;
+				}else {
+				Notification.show("Enter " + component.getCaption() + " field", Type.ERROR_MESSAGE);
+				return false;
+				}
+			} else {
+				if(!component.getValue().contains("@")) {
+					Notification.show("Enter valid email Id in " + component.getCaption() + " field", Type.ERROR_MESSAGE);
+					component.focus();
+					return false;
+				}
+			}
+		}else {
+			return true;
+		}
+		return true;	
+	}
+	
+	public static boolean validateUserName(TextField component) {
+		if (component != null) {
+			if (component.getValue() == null || component.getValue().trim().isEmpty()) {
+				if(component.getId() == "ignore"){
+					return true;
+				}else {
+				Notification.show("Enter " + component.getCaption() + " field", Type.ERROR_MESSAGE);
+				return false;
+				}
+			} else {
+				if(component.getValue().contains(" ")) {
+					Notification.show("No Spaces are Allowed in " + component.getCaption() + " field", Type.ERROR_MESSAGE);
+					component.focus();
+					return false;
+				}
+			}
+		}else {
+			return true;
+		}
+		return true;	
+	}
+	
 	public static boolean validatorComboBox(ComboBox component) {
 		if (component != null) {
 			if (component.getValue() == null || component.getValue().toString().trim().isEmpty()) {

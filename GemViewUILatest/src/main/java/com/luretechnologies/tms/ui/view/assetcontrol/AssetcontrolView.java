@@ -154,7 +154,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 	private void init() {
 		try {
 		assetControlPermission = roleService.getLoggedInUserRolePermissions().stream().filter(check -> check.getPageName().equals("ASSET")).findFirst().get();
-		header = new Header(userService, navigationManager, "Asset", new Label());
+		header = new Header(userService, roleService, navigationManager, "Asset", new Label());
 		
 		setSpacing(false);
 		setMargin(false);
@@ -238,10 +238,14 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		assestControlTreeGridMenu.addMenuItems(createEntity,editEntity,deleteEntity, copyEntity, pasteEntity);
 		nodeTree.addContextClickListener(click->{
 			UI.getCurrent().getWindows().forEach(Window::close);
-			assestControlTreeGridMenu.setPosition(click.getClientX(), click.getClientY());
+			if(click.getClientY() > 750) {
+				assestControlTreeGridMenu.setPosition(click.getClientX(), click.getClientY()-220);
+			}else {
+				assestControlTreeGridMenu.setPosition(click.getClientX(), click.getClientY());
+			}
 			UI.getCurrent().addWindow(assestControlTreeGridMenu);
-			EntityOperations.entityOperations(nodeTree, createEntity, editEntity, deleteEntity, copyEntity, pasteEntity, treeDataNodeService, personalizationService, assestControlTreeGridMenu);
 		});
+		EntityOperations.entityOperations(nodeTree, createEntity, editEntity, deleteEntity, copyEntity, pasteEntity, treeDataNodeService, personalizationService, assestControlTreeGridMenu);
 		
 		treeSearchPanelLayout.addComponent(nodeTree);
 		treeSearchPanelLayout.setExpandRatio(nodeTree, 14);
@@ -287,7 +291,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 				assetTabSheet.getTab(2).setCaption("<h3 style=font-weight:400;width:90px;height:15px;>Debug</h3>");
 				removeComponent(header);
 				mainView.getTitle().setValue(userService.getLoggedInUserName());
-				MainViewIconsLoad.noIconsOnDesktopMode(mainView);
+				MainViewIconsLoad.iconsOnPhoneMode(mainView);
 			} else if(r.getWidth()>600 && r.getWidth()<=1000){
 				treeNodeSearch.setHeight(32, Unit.PIXELS);
 				historySearch.setHeight("32px");
@@ -360,7 +364,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 			assetTabSheet.getTab(0).setCaption("<h3 style=font-weight:400;width:90px;height:15px;>AssetLog</h3>");
 			assetTabSheet.getTab(1).setCaption("<h3 style=font-weight:400;width:90px;height:15px;>Alert</h3>");
 			assetTabSheet.getTab(2).setCaption("<h3 style=font-weight:400;width:90px;height:15px;>Debug</h3>");
-			MainViewIconsLoad.noIconsOnDesktopMode(mainView);
+			MainViewIconsLoad.iconsOnPhoneMode(mainView);
 			removeComponent(header);
 			mainView.getTitle().setValue(userService.getLoggedInUserName());
 		} else if(width>600 && width<=1000){

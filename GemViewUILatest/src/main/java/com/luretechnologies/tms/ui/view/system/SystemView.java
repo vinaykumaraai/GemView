@@ -31,7 +31,6 @@
  */
 package com.luretechnologies.tms.ui.view.system;
 
-import java.beans.ParameterDescriptor;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -53,7 +52,6 @@ import com.luretechnologies.tms.backend.service.UserService;
 import com.luretechnologies.tms.ui.MainView;
 import com.luretechnologies.tms.ui.components.ComponentUtil;
 import com.luretechnologies.tms.ui.components.ConfirmDialogFactory;
-import com.luretechnologies.tms.ui.components.FormFieldType;
 import com.luretechnologies.tms.ui.components.MainViewIconsLoad;
 import com.luretechnologies.tms.ui.components.NotificationUtil;
 import com.luretechnologies.tms.ui.navigation.NavigationManager;
@@ -61,7 +59,6 @@ import com.luretechnologies.tms.ui.view.ContextMenuWindow;
 import com.luretechnologies.tms.ui.view.Header;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
-import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.server.Page;
 import com.vaadin.spring.annotation.SpringView;
@@ -106,6 +103,7 @@ public class SystemView extends VerticalLayout implements Serializable, View {
 	private ContextMenuWindow createWindow;
 	private ContextMenuWindow paramContextWindow ;
 	private ContextMenuWindow editWindow;
+	private Button createSystemGridMenu, editSystemGridMenu, deleteSystemGridMenu;
 
 	@Autowired
 	public ConfirmDialogFactory confirmDialogFactory;
@@ -133,7 +131,7 @@ public class SystemView extends VerticalLayout implements Serializable, View {
 	@PostConstruct
 	private void inti() {
 		try {
-			header = new Header(userService, navigationManager, "System", new Label());
+			header = new Header(userService, roleService, navigationManager, "System", new Label());
 			setHeight("100%");
 			setSpacing(false);
 			setMargin(false);
@@ -171,8 +169,8 @@ public class SystemView extends VerticalLayout implements Serializable, View {
 					.filter(per -> per.getPageName().equals("SYSTEM")).findFirst().get();
 
 			disableAllComponents();
-			/*allowAccessBasedOnPermission(appStorePermission.getAdd(), appStorePermission.getEdit(),
-					appStorePermission.getDelete());*/
+			allowAccessBasedOnPermission(appStorePermission.getAdd(), appStorePermission.getEdit(),
+					appStorePermission.getDelete());
 
 			Page.getCurrent().addBrowserWindowResizeListener(r -> {
 				System.out.println("Height " + r.getHeight() + "Width:  " + r.getWidth() + " in pixel");
@@ -303,21 +301,21 @@ public class SystemView extends VerticalLayout implements Serializable, View {
 	}
 
 	private void disableAllComponents() throws Exception {
-//		create.setEnabled(false);
-//		edit.setEnabled(false);
-//		delete.setEnabled(false);
-//		save.setEnabled(false);
-//		cancel.setEnabled(false);
+		createSystemGridMenu.setEnabled(false);
+		editSystemGridMenu.setEnabled(false);
+		deleteSystemGridMenu.setEnabled(false);
+		save.setEnabled(false);
+		cancel.setEnabled(false);
 	}
 
-	/*private void allowAccessBasedOnPermission(Boolean addBoolean, Boolean editBoolean, Boolean deleteBoolean) {
-		create.setEnabled(addBoolean);
-		edit.setEnabled(editBoolean);
-		delete.setEnabled(deleteBoolean);
+	private void allowAccessBasedOnPermission(Boolean addBoolean, Boolean editBoolean, Boolean deleteBoolean) {
+		createSystemGridMenu.setEnabled(addBoolean);
+		editSystemGridMenu.setEnabled(editBoolean);
+		deleteSystemGridMenu.setEnabled(deleteBoolean);
 		save.setEnabled(editBoolean || addBoolean);
 		cancel.setEnabled(editBoolean || addBoolean);
 	}
-*/
+
 	public Panel getAndLoadSystemPanel() {
 		Panel panel = new Panel();
 		panel.setHeight("100%");
@@ -589,7 +587,7 @@ public class SystemView extends VerticalLayout implements Serializable, View {
 //		buttonGroup.addComponent(edit);
 //		buttonGroup.addComponent(delete);
 
-		Button createSystemGridMenu = new Button("Create Parameter", click -> {
+		createSystemGridMenu = new Button("Create Parameter", click -> {
 			systemGrid.deselectAll();
 			selectedSystem = new Systems();
 			createWindow = new ContextMenuWindow();
@@ -609,7 +607,7 @@ public class SystemView extends VerticalLayout implements Serializable, View {
 			});
 		});
 		createSystemGridMenu.addStyleName(ValoTheme.BUTTON_BORDERLESS);
-		Button editSystemGridMenu = new Button("Edit Parameter", click -> {
+		editSystemGridMenu = new Button("Edit Parameter", click -> {
 			if (selectedSystem == null || selectedSystem.getId() == null) {
 				Notification.show(NotificationUtil.SYSTEM_EDIT, Notification.Type.ERROR_MESSAGE);
 			} else {
@@ -634,7 +632,7 @@ public class SystemView extends VerticalLayout implements Serializable, View {
 		editSystemGridMenu.addStyleName(ValoTheme.BUTTON_BORDERLESS);
 		editSystemGridMenu.setEnabled(false);
 		
-		Button deleteSystemGridMenu = new Button("Delete Parameter", click -> {
+		deleteSystemGridMenu = new Button("Delete Parameter", click -> {
 			paramContextWindow.close();
 			Set<Systems> systemList = systemGrid.getSelectedItems();
 			if (systemList == null || systemList.isEmpty()) {

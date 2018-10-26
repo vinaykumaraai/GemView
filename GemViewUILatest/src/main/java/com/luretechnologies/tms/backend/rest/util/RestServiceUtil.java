@@ -66,4 +66,21 @@ public class RestServiceUtil {
 		}
 	}
 	
+	public void resendPassword(String emailId){
+		try {
+			client.getAuthApi().forgotPassword(emailId);
+			Notification.show("Password sucessfully sent", Type.ERROR_MESSAGE);
+		}catch (ApiException ae) {
+			if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			sessionLogger.error("API Error Occured while updating password",ae);
+			RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
+		} catch (Exception e) {
+			sessionLogger.error("Error Occured while updating password",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+		}
+	}
+	
 }

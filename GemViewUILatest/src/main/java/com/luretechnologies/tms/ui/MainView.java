@@ -40,13 +40,8 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.client.restlib.service.model.UserSession;
@@ -59,7 +54,6 @@ import com.luretechnologies.tms.backend.service.RolesService;
 import com.luretechnologies.tms.backend.service.UserService;
 import com.luretechnologies.tms.ui.navigation.NavigationManager;
 import com.luretechnologies.tms.ui.view.admin.roles.RolesView;
-import com.luretechnologies.tms.ui.view.admin.user.UserAdminView;
 import com.luretechnologies.tms.ui.view.applicationstore.ApplicationStoreView;
 import com.luretechnologies.tms.ui.view.assetcontrol.AssetcontrolView;
 import com.luretechnologies.tms.ui.view.audit.AuditView;
@@ -81,6 +75,7 @@ import com.vaadin.spring.access.SecuredViewAccessControl;
 import com.vaadin.spring.annotation.SpringViewDisplay;
 import com.vaadin.spring.annotation.UIScope;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
 
@@ -373,6 +368,10 @@ public class MainView extends MainViewDesign implements ViewDisplay {
 	
 	public Button getLogout() {
 		return logout;
+	}
+	
+	public CssLayout getMenubar() {
+		return menubar;
 	}
 	
 	private String getAbsoluteUrl(String url) {
