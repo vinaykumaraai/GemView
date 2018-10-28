@@ -39,6 +39,7 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.dialogs.ConfirmDialog;
 import org.vaadin.grid.cellrenderers.editoraware.CheckboxRenderer;
@@ -239,20 +240,23 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 		roleInfoFormLayout.addComponent(descriptions);
 		roleInfoFormLayout.addComponent(activeCheck);
 		roleInfoFormLayout.setStyleName("role-gridLayout");
-		GridLayout permissionGridLayout = new GridLayout(2, 7);
-		permissionGridLayout.addComponent(getPermissionCheckBoxLayout("DashBoard"), 0, 0);
-		permissionGridLayout.addComponent(getPermissionCheckBoxLayout("AppStore"), 0, 1);
-		permissionGridLayout.addComponent(getPermissionCheckBoxLayout("Personalization"), 0, 2);
-		permissionGridLayout.addComponent(getPermissionCheckBoxLayout("HeartBeat"), 0, 3);
-		permissionGridLayout.addComponent(getPermissionCheckBoxLayout("Asset"), 0, 4);
-		permissionGridLayout.addComponent(getPermissionCheckBoxLayout("Odometer"), 0, 5);
-		permissionGridLayout.addComponent(getPermissionCheckBoxLayout("Audit"), 0, 6);
-		permissionGridLayout.addComponent(getPermissionCheckBoxLayout("User"), 1, 0);
-		permissionGridLayout.addComponent(getPermissionCheckBoxLayout("Role"), 1, 1);
-		permissionGridLayout.addComponent(getPermissionCheckBoxLayout("System"), 1, 2);
-		permissionGridLayout.addComponent(getPermissionCheckBoxLayout("Schedule"), 1, 3);
-		permissionGridLayout.addComponent(getPermissionCheckBoxLayout("Boarding"), 1, 4);
-		permissionGridLayout.addComponent(getPermissionCheckBoxLayout("Transactions"), 1, 5);
+		
+		GridLayout permissionGridLayout = new GridLayout(2, 8);
+		permissionGridLayout.addComponent(getLabelForPermission(),0,0);
+		permissionGridLayout.addComponent(getLabelForPermission(),1,0);
+		permissionGridLayout.addComponent(getPermissionCheckBoxLayout("DashBoard"), 0, 1);
+		permissionGridLayout.addComponent(getPermissionCheckBoxLayout("AppStore"), 0, 2);
+		permissionGridLayout.addComponent(getPermissionCheckBoxLayout("Personalization"), 0, 3);
+		permissionGridLayout.addComponent(getPermissionCheckBoxLayout("HeartBeat"), 0, 4);
+		permissionGridLayout.addComponent(getPermissionCheckBoxLayout("Asset"), 0, 5);
+		permissionGridLayout.addComponent(getPermissionCheckBoxLayout("Odometer"), 0, 6);
+		permissionGridLayout.addComponent(getPermissionCheckBoxLayout("Audit"), 0, 7);
+		permissionGridLayout.addComponent(getPermissionCheckBoxLayout("User"), 1, 1);
+		permissionGridLayout.addComponent(getPermissionCheckBoxLayout("Role"), 1, 2);
+		permissionGridLayout.addComponent(getPermissionCheckBoxLayout("System"), 1, 3);
+		permissionGridLayout.addComponent(getPermissionCheckBoxLayout("Schedule"), 1, 4);
+		permissionGridLayout.addComponent(getPermissionCheckBoxLayout("Boarding"), 1, 5);
+		permissionGridLayout.addComponent(getPermissionCheckBoxLayout("Transactions"), 1, 6);
 		roleInfoFormLayout.addComponent(permissionGridLayout);
 		Button cancel = new Button("Cancel");
 		cancel.addStyleName(ValoTheme.BUTTON_FRIENDLY);
@@ -289,10 +293,12 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 			List<Permission> listOfPermission = new ArrayList<>();
 			permissionGridLayout.forEach(component -> {
 				HorizontalLayout layout = ((HorizontalLayout) component);
+				if(StringUtils.isNotBlank(layout.getId())){
 				Permission pagePermission = new Permission(((Label) layout.getComponent(0)).getValue(),
 						((CheckBox) layout.getComponent(1)).getValue(), ((CheckBox) layout.getComponent(2)).getValue(),
 						((CheckBox) layout.getComponent(3)).getValue(), ((CheckBox) layout.getComponent(4)).getValue());
 				listOfPermission.add(pagePermission);
+				}
 			});
 
 			selectedRole.setPermissions(listOfPermission);
@@ -585,6 +591,13 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 				});
 	}
 
+	private HorizontalLayout getLabelForPermission() {
+		Label view = new Label("View");
+		Label add = new Label("Add");
+		Label edit = new Label("Edit");
+		Label delete = new Label("Delete");
+		return new HorizontalLayout(view,add,edit,delete);
+	}
 	private HorizontalLayout getPermissionCheckBoxLayout(String permissionPage) {
 		HorizontalLayout horizontalLayout = new HorizontalLayout();
 		horizontalLayout.setId(permissionPage.toLowerCase());
