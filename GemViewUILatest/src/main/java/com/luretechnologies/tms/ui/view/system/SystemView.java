@@ -91,7 +91,7 @@ public class SystemView extends VerticalLayout implements Serializable, View {
 	public static final String VIEW_NAME = "system";
 
 	Map<Integer, Systems> systemRepo = new LinkedHashMap<>();
-	Grid<Systems> systemGrid = new Grid<Systems>();
+	Grid<Systems> systemGrid;
 	private volatile Systems selectedSystem;
 	private static TextField systemDescription;
 	private static TextField parameterName;
@@ -104,6 +104,7 @@ public class SystemView extends VerticalLayout implements Serializable, View {
 	private ContextMenuWindow paramContextWindow ;
 	private ContextMenuWindow editWindow;
 	private Button createSystemGridMenu, editSystemGridMenu, deleteSystemGridMenu;
+	private boolean add, edit , delete;
 
 	@Autowired
 	public ConfirmDialogFactory confirmDialogFactory;
@@ -143,7 +144,6 @@ public class SystemView extends VerticalLayout implements Serializable, View {
 			verticalLayout.setSpacing(false);
 			verticalLayout.setMargin(false);
 			verticalLayout.setHeight("100%");
-			getSystemGrid(verticalLayout);
 			
 			parameterName = new TextField("Parameter Name");
 			parameterName.addStyleNames("v-textfield-font","textfiled-height");
@@ -164,13 +164,19 @@ public class SystemView extends VerticalLayout implements Serializable, View {
 			cancel = new Button("Cancel");
 			cancel.addStyleName(ValoTheme.BUTTON_FRIENDLY);
 			cancel.addStyleName("v-button-customstyle");
+			
+			getSystemGrid(verticalLayout);
 
 			Permission appStorePermission = roleService.getLoggedInUserRolePermissions().stream()
 					.filter(per -> per.getPageName().equals("SYSTEM")).findFirst().get();
 
 			disableAllComponents();
-			allowAccessBasedOnPermission(appStorePermission.getAdd(), appStorePermission.getEdit(),
-					appStorePermission.getDelete());
+			add = appStorePermission.getAdd();
+			edit = appStorePermission.getEdit();
+			delete = appStorePermission.getDelete();
+			
+			allowAccessBasedOnPermission(add,edit,
+					delete);
 
 			Page.getCurrent().addBrowserWindowResizeListener(r -> {
 				System.out.println("Height " + r.getHeight() + "Width:  " + r.getWidth() + " in pixel");
@@ -184,6 +190,19 @@ public class SystemView extends VerticalLayout implements Serializable, View {
 					systemValue.setHeight("27px");
 					save.setHeight("27px");
 					cancel.setHeight("27px");
+					
+					createSystemGridMenu.setHeight("27px");
+					createSystemGridMenu.removeStyleNames("button-TabFont", "button-DesktopFont");
+					createSystemGridMenu.addStyleName("button-PhoneFont");
+					
+					editSystemGridMenu.setHeight("27px");
+					editSystemGridMenu.removeStyleNames("button-TabFont", "button-DesktopFont");
+					editSystemGridMenu.addStyleName("button-PhoneFont");
+					
+					deleteSystemGridMenu.setHeight("27px");
+					deleteSystemGridMenu.removeStyleNames("button-TabFont", "button-DesktopFont");
+					deleteSystemGridMenu.addStyleName("button-PhoneFont");
+					
 					if(createWindow!=null) {
 						createWindow.setPosition(180, 220);
 						createWindow.setWidth("180px");
@@ -192,7 +211,7 @@ public class SystemView extends VerticalLayout implements Serializable, View {
 						editWindow.setPosition(180, 220);
 						editWindow.setWidth("180px");
 					}
-					MainViewIconsLoad.noIconsOnDesktopMode(mainView);
+					MainViewIconsLoad.iconsOnPhoneMode(mainView);
 				} else if (r.getWidth() > 600 && r.getWidth() <= 1000) {
 					addComponentAsFirst(header);
 					mainView.getTitle().setValue("gemView");
@@ -202,6 +221,20 @@ public class SystemView extends VerticalLayout implements Serializable, View {
 					systemValue.setHeight("32px");
 					save.setHeight("32px");
 					cancel.setHeight("32px");
+					
+					createSystemGridMenu.setHeight("32px");
+					createSystemGridMenu.removeStyleNames("button-DesktopFont", "button-PhoneFont");
+					createSystemGridMenu.addStyleName("button-TabFont");
+					
+					editSystemGridMenu.setHeight("32px");
+					editSystemGridMenu.removeStyleNames("button-PhoneFont", "button-DesktopFont");
+					editSystemGridMenu.addStyleName("button-TabFont");
+					
+					deleteSystemGridMenu.setHeight("32px");
+					deleteSystemGridMenu.removeStyleNames("button-PhoneFont", "button-DesktopFont");
+					deleteSystemGridMenu.addStyleName("button-TabFont");
+					
+					
 					if(createWindow!=null) {
 						createWindow.center();
 						createWindow.setWidth("30%");
@@ -221,6 +254,19 @@ public class SystemView extends VerticalLayout implements Serializable, View {
 					systemValue.setHeight("37px");
 					save.setHeight("37px");
 					cancel.setHeight("37px");
+					
+					createSystemGridMenu.setHeight("37px");
+					createSystemGridMenu.removeStyleNames("button-TabFont", "button-PhoneFont");
+					createSystemGridMenu.addStyleName("button-DesktopFont");
+					
+					editSystemGridMenu.setHeight("37px");
+					editSystemGridMenu.removeStyleNames("button-PhoneFont", "button-TabFont");
+					editSystemGridMenu.addStyleName("button-DesktopFont");
+					
+					deleteSystemGridMenu.setHeight("37px");
+					deleteSystemGridMenu.removeStyleNames("button-PhoneFont", "button-TabFont");
+					deleteSystemGridMenu.addStyleName("button-DesktopFont");
+					
 					if(createWindow!=null) {
 						createWindow.center();
 						createWindow.setWidth("30%");
@@ -244,6 +290,20 @@ public class SystemView extends VerticalLayout implements Serializable, View {
 				systemValue.setHeight("27px");
 				save.setHeight("27px");
 				cancel.setHeight("27px");
+				
+				createSystemGridMenu.setHeight("27px");
+				createSystemGridMenu.removeStyleNames("button-TabFont", "button-DesktopFont");
+				createSystemGridMenu.addStyleName("button-PhoneFont");
+				
+				editSystemGridMenu.setHeight("27px");
+				editSystemGridMenu.removeStyleNames("button-TabFont", "button-DesktopFont");
+				editSystemGridMenu.addStyleName("button-PhoneFont");
+				
+				deleteSystemGridMenu.setHeight("27px");
+				deleteSystemGridMenu.removeStyleNames("button-TabFont", "button-DesktopFont");
+				deleteSystemGridMenu.addStyleName("button-PhoneFont");
+				
+				
 				if(createWindow!=null) {
 					createWindow.setPosition(180, 220);
 					createWindow.setWidth("180px");
@@ -252,7 +312,7 @@ public class SystemView extends VerticalLayout implements Serializable, View {
 					editWindow.setPosition(180, 220);
 					editWindow.setWidth("180px");
 				}
-				MainViewIconsLoad.noIconsOnDesktopMode(mainView);
+				MainViewIconsLoad.iconsOnPhoneMode(mainView);
 			} else if (width > 600 && width <= 1000) {
 				addComponentAsFirst(header);
 				mainView.getTitle().setValue("gemView");
@@ -262,6 +322,19 @@ public class SystemView extends VerticalLayout implements Serializable, View {
 				systemValue.setHeight("32px");
 				save.setHeight("32px");
 				cancel.setHeight("32px");
+				
+				createSystemGridMenu.setHeight("32px");
+				createSystemGridMenu.removeStyleNames("button-DesktopFont", "button-PhoneFont");
+				createSystemGridMenu.addStyleName("button-TabFont");
+				
+				editSystemGridMenu.setHeight("32px");
+				editSystemGridMenu.removeStyleNames("button-PhoneFont", "button-DesktopFont");
+				editSystemGridMenu.addStyleName("button-TabFont");
+				
+				deleteSystemGridMenu.setHeight("32px");
+				deleteSystemGridMenu.removeStyleNames("button-PhoneFont", "button-DesktopFont");
+				deleteSystemGridMenu.addStyleName("button-TabFont");
+				
 				if(createWindow!=null) {
 					createWindow.setWidth("30%");
 					createWindow.setHeight("42%");
@@ -281,6 +354,19 @@ public class SystemView extends VerticalLayout implements Serializable, View {
 				systemValue.setHeight("37px");
 				save.setHeight("37px");
 				cancel.setHeight("37px");
+				
+				createSystemGridMenu.setHeight("37px");
+				createSystemGridMenu.removeStyleNames("button-TabFont", "button-PhoneFont");
+				createSystemGridMenu.addStyleName("button-DesktopFont");
+				
+				editSystemGridMenu.setHeight("37px");
+				editSystemGridMenu.removeStyleNames("button-PhoneFont", "button-TabFont");
+				editSystemGridMenu.addStyleName("button-DesktopFont");
+				
+				deleteSystemGridMenu.setHeight("37px");
+				deleteSystemGridMenu.removeStyleNames("button-PhoneFont", "button-TabFont");
+				deleteSystemGridMenu.addStyleName("button-DesktopFont");
+				
 				if(createWindow!=null) {
 					createWindow.center();
 					createWindow.setWidth("30%");
@@ -455,6 +541,9 @@ public class SystemView extends VerticalLayout implements Serializable, View {
 		});
 		layout2.addComponent(cancel);
 		
+		save = new Button("Save");
+		save.addStyleName(ValoTheme.BUTTON_FRIENDLY);
+		save.addStyleName("v-button-customstyle");
 		save.setResponsive(true);
 		save.setId("systemSave");
 		save.setDescription("Save");
@@ -485,7 +574,7 @@ public class SystemView extends VerticalLayout implements Serializable, View {
 							systemGrid.setDataProvider(data);
 							clearParamComponents();
 //							getAndLoadSystemForm(systemInfoLayout, false);
-							systemGrid.select(selectedSystem);
+							//systemGrid.select(selectedSystem);
 						}
 					} else {
 						if (!checkParamNameInList(parametername)) {
@@ -493,7 +582,7 @@ public class SystemView extends VerticalLayout implements Serializable, View {
 									type);
 							DataProvider data = new ListDataProvider(systemService.getAllSystemParam());
 							systemGrid.setDataProvider(data);
-							systemGrid.select(selectedSystem);
+							//systemGrid.select(selectedSystem);
 							//systemInfoLayout.removeAllComponents();
 							clearParamComponents();
 //							getAndLoadSystemForm(systemInfoLayout, false);
@@ -523,6 +612,11 @@ public class SystemView extends VerticalLayout implements Serializable, View {
 	
 	private Focusable getFirstFormField() {
 		return parameterName;
+	}
+	
+	private void window() {
+		
+		
 	}
 
 	private void getSystemGrid(VerticalLayout verticalLayout) throws ApiException {
@@ -586,50 +680,54 @@ public class SystemView extends VerticalLayout implements Serializable, View {
 //		buttonGroup.addComponent(create);
 //		buttonGroup.addComponent(edit);
 //		buttonGroup.addComponent(delete);
-
-		createSystemGridMenu = new Button("Create Parameter", click -> {
-			systemGrid.deselectAll();
+		
+		createSystemGridMenu = new Button("Create Parameter");
+		createSystemGridMenu.addClickListener(listener->{
 			selectedSystem = new Systems();
+			systemGrid.deselectAll();
 			createWindow = new ContextMenuWindow();
 			createWindow.addMenuItems(getAndLoadSystemForm(true));
 			createWindow.center();
 			createWindow.setWidth("30%");
 			createWindow.setHeight("42%");
-			UI.getCurrent().getWindows().forEach(Window::close);
-			UI.getCurrent().addWindow(createWindow);
-			parameterName.focus();
 			createWindow.setResizable(true);
 			createWindow.setClosable(true);
 			createWindow.setDraggable(true);
 			
-			createWindow.addCloseListener(listener->{
-				systemGrid.deselectAll();
-			});
+			UI.getCurrent().getWindows().forEach(Window::close);
+			UI.getCurrent().addWindow(createWindow);
+			parameterName.focus();
+			
+//			createWindow.addCloseListener(listener1->{
+//				systemGrid.deselectAll();
+//			});
 		});
-		createSystemGridMenu.addStyleName(ValoTheme.BUTTON_BORDERLESS);
-		editSystemGridMenu = new Button("Edit Parameter", click -> {
+		createSystemGridMenu.addStyleNames(ValoTheme.BUTTON_BORDERLESS, "v-textfield-font");
+		
+		editSystemGridMenu = new Button("Edit Parameter");
+		editSystemGridMenu.addClickListener(listener-> {
 			if (selectedSystem == null || selectedSystem.getId() == null) {
 				Notification.show(NotificationUtil.SYSTEM_EDIT, Notification.Type.ERROR_MESSAGE);
 			} else {
-				
 				editWindow = new ContextMenuWindow();
 				editWindow.addMenuItems(getAndLoadSystemForm(true));
 				editWindow.center();
 				editWindow.setWidth("30%");
 				editWindow.setHeight("42%");
-				UI.getCurrent().getWindows().forEach(Window::close);
-				UI.getCurrent().addWindow(editWindow);
-				parameterName.setEnabled(false);
 				editWindow.setResizable(true);
 				editWindow.setClosable(true);
 				editWindow.setDraggable(true);
 				
-				editWindow.addCloseListener(listener->{
-					systemGrid.deselectAll();
-				});
+				UI.getCurrent().getWindows().forEach(Window::close);
+				UI.getCurrent().addWindow(editWindow);
+				parameterName.setEnabled(false);
+				
+//				editWindow.addCloseListener(listener1->{
+//					systemGrid.deselectAll();
+//				});
 			}
 		});
-		editSystemGridMenu.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+		editSystemGridMenu.addStyleNames(ValoTheme.BUTTON_BORDERLESS, "v-textfield-font");
 		editSystemGridMenu.setEnabled(false);
 		
 		deleteSystemGridMenu = new Button("Delete Parameter", click -> {
@@ -641,28 +739,13 @@ public class SystemView extends VerticalLayout implements Serializable, View {
 				confirmDialog( systemList);
 			}
 		});
+		deleteSystemGridMenu.setStyleName("v-textfield-font");
 		deleteSystemGridMenu.addStyleName(ValoTheme.BUTTON_BORDERLESS);
 		deleteSystemGridMenu.setEnabled(false);
 		
 		
 		paramContextWindow = new ContextMenuWindow();
 		paramContextWindow.addMenuItems(createSystemGridMenu, editSystemGridMenu, deleteSystemGridMenu);
-		systemGrid.addContextClickListener(click -> {
-			if(systemGrid.getSelectedItems().size()>0) {
-				deleteSystemGridMenu.setEnabled(true);
-			}else {
-				deleteSystemGridMenu.setEnabled(false);
-			}
-			if(systemGrid.getSelectedItems().size()==1) {
-				editSystemGridMenu.setEnabled(true);
-			}else {
-				editSystemGridMenu.setEnabled(false);
-			}
-			UI.getCurrent().getWindows().forEach(Window::close);
-			paramContextWindow.setPosition(click.getClientX(), click.getClientY());
-			UI.getCurrent().addWindow(paramContextWindow);
-			//systemGrid.deselectAll();
-		});
 
 		UI.getCurrent().addClickListener(Listener -> {
 			if(paramContextWindow!=null) {
@@ -672,6 +755,8 @@ public class SystemView extends VerticalLayout implements Serializable, View {
 				createWindow.close();
 			}
 		});
+				
+		systemGrid  = new Grid<Systems>();
 		systemGrid.setCaptionAsHtml(true);
 		systemGrid.addStyleName("v-grid-cell-fontSize");
 		systemGrid.setId("systemGrid");
@@ -703,6 +788,24 @@ public class SystemView extends VerticalLayout implements Serializable, View {
 				clearParamComponents();
 			}
 		});
+		
+		systemGrid.addContextClickListener(click -> {
+			if(systemGrid.getSelectedItems().size()>0 && delete) {
+				deleteSystemGridMenu.setEnabled(true);
+			}else {
+				deleteSystemGridMenu.setEnabled(false);
+			}
+			if(systemGrid.getSelectedItems().size()==1 && edit) {
+				editSystemGridMenu.setEnabled(true);
+			}else {
+				editSystemGridMenu.setEnabled(false);
+			}
+			UI.getCurrent().getWindows().forEach(Window::close);
+			paramContextWindow.setPosition(click.getClientX(), click.getClientY());
+			UI.getCurrent().addWindow(paramContextWindow);
+			//systemGrid.deselectAll();
+		});
+		
 		VerticalLayout systemGridLayout = new VerticalLayout();
 		systemGridLayout.setHeight("100%");
 		systemGridLayout.addStyleName("system-GridAlignment");

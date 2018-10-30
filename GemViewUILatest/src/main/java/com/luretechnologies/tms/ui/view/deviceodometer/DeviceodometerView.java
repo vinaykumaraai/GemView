@@ -119,6 +119,8 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 	private static HorizontalLayout header;
 	private static HorizontalLayout panelTools;
 	private ContextMenuWindow deleteContextWindow;
+	private Button deleteOdometerGrid;
+	private boolean deleteRow;
 
 	@Autowired
 	public NavigationManager navigationManager; 
@@ -343,7 +345,8 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 		
 		Permission appStorePermission = roleService.getLoggedInUserRolePermissions().stream().filter(per -> per.getPageName().equals("ODOMETER")).findFirst().get();
 			disableAllComponents();
-		allowAccessBasedOnPermission(appStorePermission.getAdd(),appStorePermission.getEdit(),appStorePermission.getDelete());
+		deleteRow = appStorePermission.getDelete();
+			allowAccessBasedOnPermission(appStorePermission.getAdd(),appStorePermission.getEdit(),appStorePermission.getDelete());
 		} catch(Exception ex) {
 			odometerDeviceService.logOdometerScreenErrors(ex);
 		}
@@ -352,11 +355,11 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 	}
 
 	private void disableAllComponents() throws Exception {
-		deleteGridRow.setEnabled(false);
+		deleteOdometerGrid.setEnabled(false);
 	}
 
 	private void allowAccessBasedOnPermission(Boolean addBoolean, Boolean editBoolean, Boolean deleteBoolean) {
-		deleteGridRow.setEnabled(deleteBoolean);
+		deleteOdometerGrid.setEnabled(deleteBoolean);
 	}
 
 	public Panel getAndLoadOdometerPanel() {
@@ -501,7 +504,7 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 		odometerDeviceGrid.setSelectionMode(SelectionMode.MULTI);
 		odometerDeviceGrid.setColumns("statusType", "description", "statistics");
 		
-		Button deleteOdometerGrid = new Button("Delete Record/s", click -> {
+		deleteOdometerGrid = new Button("Delete Record/s", click -> {
 			deleteContextWindow.close();
 			Set<DeviceOdometer> odometerList = odometerDeviceGrid.getSelectedItems();
 			
@@ -520,7 +523,7 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 		deleteContextWindow.addMenuItems(deleteOdometerGrid);
 		odometerDeviceGrid.addContextClickListener(click->{
 			if(odometerDeviceGrid.getSelectedItems().size()>0) {
-				deleteOdometerGrid.setEnabled(true);
+				deleteOdometerGrid.setEnabled(deleteRow);
 			}else {
 				deleteOdometerGrid.setEnabled(false);
 			}

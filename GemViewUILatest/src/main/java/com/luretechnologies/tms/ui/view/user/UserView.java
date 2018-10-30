@@ -46,6 +46,7 @@ import org.jsoup.safety.Whitelist;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.dialogs.ConfirmDialog;
 
+import com.luretechnologies.tms.backend.data.entity.Permission;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
 import com.luretechnologies.tms.backend.data.entity.User;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
@@ -109,6 +110,8 @@ public class UserView extends VerticalLayout implements Serializable, View {
 	private HorizontalLayout firstAndLastNameHL, passwordAndIPAddressHL, buttonLayout;
 	private VerticalLayout firstAndLastNameVL, passwordAndIPAddressVL, profileFormLayout;
 	private User selectedUser;
+	private boolean  addEntity, updateEntity, accessEntity, removeEntity;
+	private Permission userPermission ;
 
 	private Button createEntity, editEntity, deleteEntity, copyEntity, pasteEntity, createUser, editUser, deleteUser;
 
@@ -264,6 +267,14 @@ public class UserView extends VerticalLayout implements Serializable, View {
 			clearSearch = new Button(VaadinIcons.CLOSE);
 			clearSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 			configureTreeNodeSearch();
+			
+
+			Permission EntityPermission = roleService.getLoggedInUserRolePermissions().stream()
+					.filter(per -> per.getPageName().equals("ENTITY")).findFirst().get();
+			addEntity = EntityPermission.getAdd();
+			updateEntity = EntityPermission.getEdit();
+			accessEntity = EntityPermission.getAccess();
+			removeEntity = EntityPermission.getDelete();
 
 			Panel panel = getAndLoadAuditPanel();
 			VerticalLayout verticalPanelLayout = new VerticalLayout();
@@ -310,15 +321,19 @@ public class UserView extends VerticalLayout implements Serializable, View {
 			
 			createEntity = new Button("Add Entity");
 			createEntity.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+			createEntity.setEnabled(addEntity);
 			
 			editEntity = new Button("Edit Entity");
 			editEntity.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+			editEntity.setEnabled(updateEntity);
 			
 			deleteEntity = new Button("Delete Entity");
 			deleteEntity.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+			deleteEntity.setEnabled(removeEntity);
 			
 			copyEntity = new Button("Copy Entity");
 			copyEntity.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+			copyEntity.setEnabled(addEntity || updateEntity);
 			
 			pasteEntity = new Button("Paste Entity");
 			pasteEntity.addStyleName(ValoTheme.BUTTON_BORDERLESS);
@@ -457,11 +472,11 @@ public class UserView extends VerticalLayout implements Serializable, View {
 				
 			}
 
-//			Permission appStorePermission = roleService.getLoggedInUserRolePermissions().stream()
-//					.filter(per -> per.getPageName().equals("AUDIT")).findFirst().get();
-//			disableAllComponents();
-//			allowAccessBasedOnPermission(appStorePermission.getAdd(), appStorePermission.getEdit(),
-//					appStorePermission.getDelete());
+			userPermission = roleService.getLoggedInUserRolePermissions().stream()
+					.filter(per -> per.getPageName().equals("USER")).findFirst().get();
+			disableAllComponents();
+			allowAccessBasedOnPermission(userPermission.getAdd(), userPermission.getEdit(),
+					userPermission.getDelete());
 		} catch (Exception ex) {
 			auditService.logAuditScreenErrors(ex);
 		}
@@ -470,11 +485,15 @@ public class UserView extends VerticalLayout implements Serializable, View {
 	}
 
 	private void disableAllComponents() throws Exception {
-		deleteGridRow.setEnabled(false);
+		createUser.setEnabled(false); 
+		editUser.setEnabled(false);
+		deleteUser.setEnabled(false);
 	}
 
 	private void allowAccessBasedOnPermission(Boolean addBoolean, Boolean editBoolean, Boolean deleteBoolean) {
-		deleteGridRow.setEnabled(deleteBoolean);
+		createUser.setEnabled(addBoolean); 
+		editUser.setEnabled(editBoolean);
+		deleteUser.setEnabled(deleteBoolean);
 	}
 
 	private void tabMode() {
@@ -677,7 +696,7 @@ public class UserView extends VerticalLayout implements Serializable, View {
 
 		});
 		editUser.addStyleName(ValoTheme.BUTTON_BORDERLESS);
-		editUser.setEnabled(false);
+		
 		
 		deleteUser = new Button("Delete User", click -> {
 			UI.getCurrent().getWindows().forEach(Window::close);
@@ -685,17 +704,25 @@ public class UserView extends VerticalLayout implements Serializable, View {
 			confirmDialog(userGrid.getSelectedItems());
 		});
 		deleteUser.addStyleName(ValoTheme.BUTTON_BORDERLESS);
-		deleteUser.setEnabled(false);
+		
 		
 		userMenuContextWindow = new ContextMenuWindow();
 		userMenuContextWindow.addMenuItems(createUser, editUser, deleteUser);
 		userGrid.addContextClickListener(click->{
-			if(userGrid.getSelectedItems().size()>0) {
-				editUser.setEnabled(true);
+			deleteUser.setEnabled(userPermission.getDelete());
+			editUser.setEnabled(userPermission.getEdit());
+			createUser.setEnabled(userPermission.getAdd());
+			
+			if(userGrid.getSelectedItems().size()>0 && deleteUser.isEnabled()) {
 				deleteUser.setEnabled(true);
 			}else {
-				editUser.setEnabled(false);
 				deleteUser.setEnabled(false);
+			}
+			
+			if(userGrid.getSelectedItems().size()==1 && editUser.isEnabled()) {
+				editUser.setEnabled(true);
+			}else {
+				editUser.setEnabled(false);
 			}
 	
 			UI.getCurrent().getWindows().forEach(Window::close);

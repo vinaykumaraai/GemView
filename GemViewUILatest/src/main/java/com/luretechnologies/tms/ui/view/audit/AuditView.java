@@ -118,6 +118,8 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 	private static final String warn = "warn";
 	private static final String info = "info";
 	private ContextMenuWindow deleteContextWindow;
+	private Button deleteAuditGrid;
+	private boolean deleteRow, addEntity, updateEntity, accessEntity, removeEntity;
 
 	private  Button createEntity, editEntity, deleteEntity, copyEntity, pasteEntity;
 	
@@ -211,6 +213,13 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 			clearSearch = new Button(VaadinIcons.CLOSE);
 			clearSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 			configureTreeNodeSearch();
+			
+			Permission EntityPermission = roleService.getLoggedInUserRolePermissions().stream()
+					.filter(per -> per.getPageName().equals("ENTITY")).findFirst().get();
+			addEntity = EntityPermission.getAdd();
+			updateEntity = EntityPermission.getEdit();
+			accessEntity = EntityPermission.getAccess();
+			removeEntity = EntityPermission.getDelete();
 
 			Panel panel = getAndLoadAuditPanel();
 			VerticalLayout verticalPanelLayout = new VerticalLayout();
@@ -257,15 +266,19 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 			
 			createEntity = new Button("Add Entity");
 			createEntity.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+			createEntity.setEnabled(addEntity);
 			
 			editEntity = new Button("Edit Entity");
 			editEntity.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+			editEntity.setEnabled(updateEntity);
 			
 			deleteEntity = new Button("Delete Entity");
 			deleteEntity.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+			deleteEntity.setEnabled(removeEntity);
 			
 			copyEntity = new Button("Copy Entity");
 			copyEntity.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+			copyEntity.setEnabled(addEntity || updateEntity);
 			
 			pasteEntity = new Button("Paste Entity");
 			pasteEntity.addStyleName(ValoTheme.BUTTON_BORDERLESS);
@@ -345,8 +358,9 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 			Permission appStorePermission = roleService.getLoggedInUserRolePermissions().stream()
 					.filter(per -> per.getPageName().equals("AUDIT")).findFirst().get();
 			disableAllComponents();
+			deleteRow = appStorePermission.getDelete();
 			allowAccessBasedOnPermission(appStorePermission.getAdd(), appStorePermission.getEdit(),
-					appStorePermission.getDelete());
+					deleteRow);
 		} catch (Exception ex) {
 			auditService.logAuditScreenErrors(ex);
 		}
@@ -355,11 +369,11 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 	}
 
 	private void disableAllComponents() throws Exception {
-		deleteGridRow.setEnabled(false);
+		deleteAuditGrid.setEnabled(false);
 	}
 
 	private void allowAccessBasedOnPermission(Boolean addBoolean, Boolean editBoolean, Boolean deleteBoolean) {
-		deleteGridRow.setEnabled(deleteBoolean);
+		deleteAuditGrid.setEnabled(deleteBoolean);
 	}
 
 	private void tabMode() {
@@ -524,7 +538,7 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 			}
 		});
 		
-		Button deleteAuditGrid = new Button("Delete Record/s", click -> {
+		deleteAuditGrid = new Button("Delete Record/s", click -> {
 			deleteContextWindow.close();
 			Set<Audit> auditList = debugGrid.getSelectedItems();
 			
@@ -542,7 +556,7 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 		deleteContextWindow.addMenuItems(deleteAuditGrid);
 		debugGrid.addContextClickListener(click->{
 			if(debugGrid.getSelectedItems().size()>0) {
-				deleteAuditGrid.setEnabled(true);
+				deleteAuditGrid.setEnabled(deleteRow);
 			}else {
 				deleteAuditGrid.setEnabled(false);
 			}

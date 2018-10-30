@@ -58,7 +58,7 @@ public class Permission  {
  * @param add - This means add no edit no delete.
  * if every thing is true.. means access, delete , edit and add are true.. enable all buttons as per page.
  */
-	public Permission(String pageName, Boolean access, Boolean add, Boolean edit, Boolean delete) {
+	public Permission(String pageName, Boolean access, Boolean edit, Boolean delete, Boolean add) {
 		super();
 		this.pageName = pageName;
 		this.read = access;

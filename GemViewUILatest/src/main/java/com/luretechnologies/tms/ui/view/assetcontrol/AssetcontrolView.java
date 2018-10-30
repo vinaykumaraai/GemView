@@ -41,6 +41,7 @@ import com.luretechnologies.tms.ui.components.NotificationUtil;
 import com.luretechnologies.tms.ui.navigation.NavigationManager;
 import com.luretechnologies.tms.ui.view.ContextMenuWindow;
 import com.luretechnologies.tms.ui.view.Header;
+import com.vaadin.addon.onoffswitch.OnOffSwitch;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.event.ShortcutAction.KeyCode;
@@ -52,6 +53,7 @@ import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.DateField;
 import com.vaadin.ui.FormLayout;
@@ -121,7 +123,8 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 	private Header header;
 	private ContextMenuWindow paramContextWindow ;
 	private static Slider debugActivateSlider;
-	private Switch s;
+	private boolean addEntity, updateEntity, accessEntity, removeEntity;
+	private OnOffSwitch  s;
 	
 	@Autowired
 	public AssetcontrolView() {
@@ -218,17 +221,28 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		
 		nodeTree.setColumns("entity","serialNum");
 		
+		Permission EntityPermission = roleService.getLoggedInUserRolePermissions().stream()
+				.filter(per -> per.getPageName().equals("ENTITY")).findFirst().get();
+		addEntity = EntityPermission.getAdd();
+		updateEntity = EntityPermission.getEdit();
+		accessEntity = EntityPermission.getAccess();
+		removeEntity = EntityPermission.getDelete();
+		
 		createEntity = new Button("Add Entity");
 		createEntity.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+		createEntity.setEnabled(addEntity);
 		
 		editEntity = new Button("Edit Entity");
 		editEntity.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+		editEntity.setEnabled(updateEntity);
 		
 		deleteEntity = new Button("Delete Entity");
 		deleteEntity.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+		deleteEntity.setEnabled(removeEntity);
 		
 		copyEntity = new Button("Copy Entity");
 		copyEntity.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+		copyEntity.setEnabled(addEntity || updateEntity);
 		
 		pasteEntity = new Button("Paste Entity");
 		pasteEntity.addStyleName(ValoTheme.BUTTON_BORDERLESS);
@@ -258,6 +272,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		splitScreen.addComponent(getTabSheet());
 		splitScreen.setHeight("100%");
 		panel.setContent(splitScreen);
+		clearGridData();
 		
 		Page.getCurrent().addBrowserWindowResizeListener(r->{
 			if(r.getWidth()<=1575 && r.getWidth()>855) {
@@ -783,13 +798,16 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 			}
 			paramContextWindow.close();
 		});
-		deleteHistoryGridRow.setEnabled(assetControlPermission.getDelete());
+		deleteHistoryGridRow.setEnabled(false);
 		
 		paramContextWindow = new ContextMenuWindow();
 		paramContextWindow.addMenuItems(deleteHistoryGridRow);
 		debugGrid.addContextClickListener(click -> {
 			UI.getCurrent().getWindows().forEach(Window::close);
 			paramContextWindow.setPosition(click.getClientX(), click.getClientY());
+			if(debugGrid.getSelectedItems().size()>0) {
+				deleteHistoryGridRow.setEnabled(assetControlPermission.getDelete());
+			}
 			UI.getCurrent().addWindow(paramContextWindow);
 		});
 		
@@ -965,16 +983,19 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 					if(nodeTree.getSelectedItems().iterator().next().getType().name().equalsIgnoreCase("Terminal")) {
 						TerminalClient terminal = assetControlService.getTerminal(nodeTree.getSelectedItems().iterator().next().getEntityId());
 						if(terminal!=null) {
-							s.setEnabled(true);
-							s.setValue(terminal.isDebugActive());
-							if(s.getValue()) {
-								deviceDebugDuration.setEnabled(true);
-								String date = terminal.getDuration();
-								LocalDate localDate = LocalDate.parse(date);
-								deviceDebugDuration.setValue(localDate);
-							}else {
-								deviceDebugDuration.clear();
-								deviceDebugDuration.setEnabled(false);
+							if(assetControlPermission.getAdd() || assetControlPermission.getEdit() || 
+									assetControlPermission.getDelete()) {
+								s.setEnabled(true);
+								s.setValue(terminal.isDebugActive());
+								if(s.getValue()) {
+									deviceDebugDuration.setEnabled(true);
+									String date = terminal.getDuration();
+									LocalDate localDate = LocalDate.parse(date);
+									deviceDebugDuration.setValue(localDate);
+								}else {
+									deviceDebugDuration.clear();
+									deviceDebugDuration.setEnabled(false);
+								}
 							}
 						}
 						
@@ -1025,11 +1046,9 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		HorizontalLayout debugLabel = new HorizontalLayout();
 		HorizontalLayout debugMonitoringLabel = new HorizontalLayout();
 		
-		//debugLayout.addStyleName("heartbeat-verticalLayout");
-		s = new Switch("Activate Debug");
+		s = new OnOffSwitch ();
 		s.setValue(false);
-		s.setAnimationEnabled(true);
-		s.addStyleName("assetDebug-Switch");
+		s.setCaption("Activate Debug");
 		s.setEnabled(false);
 		
 		Label entityInformation = new Label("Entity Information");
@@ -1038,8 +1057,6 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		debugLabel.setWidth("100%");
 		debugLabel.addComponent(entityInformation);
 		
-		
-		//debugLayout.addComponent(entityInformation);
 		deviceDebugFormLayout = new FormLayout();
 		deviceDebugFormLayout.addStyleNames("heartbeat-verticalLayout", "asset-debugSFormLayout","system-LabelAlignment");
 		deviceDebugFormLayout.addComponent(ComponentUtil.getFormFieldWithLabel("Entity Type", FormFieldType.TEXTBOX));
@@ -1048,22 +1065,20 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		deviceDebugFormLayout.addComponent(ComponentUtil.getFormFieldWithLabel("Entity Active", FormFieldType.HORIZONTALLAYOUT));
 		deviceDebugFormLayout.addComponent(ComponentUtil.getFormFieldWithLabel("Serial Num.", FormFieldType.TEXTBOX));
 		deviceDebugFormLayout.addComponent(ComponentUtil.getFormFieldWithLabel("Receive Debug", FormFieldType.HORIZONTALLAYOUT));
-		//deviceDebugFormLayout.addComponent(ComponentUtil.getFormFieldWithLabel("Debug Duration", FormFieldType.TEXTBOX));
 		
 		deviceDebugDuration =  new DateField();
 		
 		deviceDebugDuration.setResponsive(true);
 		deviceDebugDuration.setDateFormat(DATE_FORMAT);
-		//deviceDebugDuration.setRangeStart(LocalDateTime.now().toLocalDate());
 		deviceDebugDuration.setPlaceholder("End Date");
 		deviceDebugDuration.addStyleNames("v-textfield-font", "personlization-formAlignment");
 		deviceDebugDuration.setCaptionAsHtml(true);
 		deviceDebugDuration.setCaption("Debug Duration");
 		deviceDebugDuration.setEnabled(false);
+		deviceDebugDuration.setRangeStart(localTimeNow.toLocalDate().plusDays(1));
 
 		deviceDebugFormLayout.addComponent(deviceDebugDuration);
-		deviceDebugFormLayout.setComponentAlignment(deviceDebugDuration, Alignment.TOP_RIGHT); // FIXME : alignment issue
-		//debugLayout.addComponent(deviceDebugFormLayout);
+		deviceDebugFormLayout.setComponentAlignment(deviceDebugDuration, Alignment.TOP_RIGHT);
 		Label debugMonitoring = new Label("Device Debug Monitoring");
 		debugMonitoring.addStyleNames(ValoTheme.LABEL_BOLD, ValoTheme.LABEL_H3);
 		debugMonitoring.addStyleName("label-style");

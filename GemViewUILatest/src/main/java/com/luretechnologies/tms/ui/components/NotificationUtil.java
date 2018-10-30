@@ -100,6 +100,8 @@ public class NotificationUtil {
 	
 	public static final String ASSET_DEBUG_SELECTNODE = "Please select any Entity to filter the data";
 	
+	public static final String ASSET_DEBUG_SWITCH= "Please select any Entity to activate debig switch";
+	
 	public static final String HEARTBEAT_DELETE = "Please select any heartbeat history to DELETE";
 	
 	public static final String HEARTBEAT_STARTDATE = "Please select start date to filter the data";

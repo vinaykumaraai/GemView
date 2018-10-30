@@ -61,7 +61,7 @@ import com.vaadin.ui.Notification.Type;
 public class RolesService {
 	private final static Logger rolesLogger = Logger.getLogger(RolesService.class);
 	private List<String> screen = Arrays.asList("DASHBOARD", "APPSTORE", "PERSONALIZATION", "HEARTBEAT",
-			"ASSET", "ODOMETER", "AUDIT", "USER", "ROLE", "SYSTEM");
+			"ASSET", "ODOMETER", "AUDIT", "USER", "ROLE", "SYSTEM", "ENTITY");
 	private static final String CREATE ="CREATE";
 	private static final String UPDATE ="UPDATE";
 	private static final String READ ="READ";

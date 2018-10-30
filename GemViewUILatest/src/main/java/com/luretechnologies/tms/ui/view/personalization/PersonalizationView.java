@@ -340,11 +340,10 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 			
 			entityLayout.setEnabled(false);
 			selectedNode = selection.getFirstSelectedItem().get();
-			appDropDown.setDataProvider(new ListDataProvider<>(appStoreService.getAppListForGrid()));
+			appDropDown.setDataProvider(new ListDataProvider<>(appStoreService.getAppListForEntityId(selectedNode.getId())));
 //			appDropDownParam.setDataProvider(new ListDataProvider<>(personalizationService.getAppListByLoggedUserEntity(selectedNode.getId())));
 //			appGrid.setDataProvider(new ListDataProvider<>(personalizationService.getAppListByLoggedUserEntity(selectedNode.getId())));
 			entityLayout.setEnabled(false);
-			appDropDown.setDataProvider(new ListDataProvider<>(appStoreService.getAppListForGrid()));
 //			appDropDownParam.setDataProvider(new ListDataProvider<>(personalizationService.getAppListByLoggedUserEntity(selectedNode.getId())));
 //			appGrid.setDataProvider(new ListDataProvider<>(personalizationService.getAppListByLoggedUserEntity(selectedNode.getId())));
 			if (selectedNode.getType().toString()!=null && !selectedNode.getType().toString().isEmpty()

@@ -56,6 +56,7 @@ $app-background-color: #145A32;
 	z-index: 10000 !important;
 }
 
+
 .app-shell[width-range~="601px-1000px"] .navigation-bar-container .navigation .v-button .v-button-caption {
 	font-size: 9.0px !important;
 	margin: 0;
@@ -172,9 +173,26 @@ $app-background-color: #145A32;
 }
 
 .role-createdeleteButtonLayout{
-	margin-right:20px;
+	margin-top:10px;
 }
 
+.role-lableLayout{
+	margin-top:-10px;
+	left:115px;
+	position:absolute;
+}
+
+.role-pageLabel{
+	margin-top:-14px;
+}
+
+.role-checkBoxes{
+	margin-top:4px;
+}
+
+.role-checkBoxLayout{
+	margin-left:36px;
+}
 
 .form-layout{
 	margin-left:50px !important;
@@ -614,6 +632,7 @@ $app-background-color: #145A32;
     background:transparent;
     color:inherit;
     padding-top:3px;
+
 	}
 
 	.v-heartbeat-Button:hover{
@@ -736,6 +755,7 @@ $app-background-color: #145A32;
  		line-height:45px !important;
 	
 	}
+
 	.label-style{
 		font-size: 22px !important;
 		//color:#216C2A !important;
@@ -1504,6 +1524,48 @@ $app-background-color: #145A32;
 	border-radius: 15px !important;
 }
 
+.onoffswitch-slider:before {
+    content: "" !important;
+    display: block !important;
+    width: 12px !important;
+    margin: 0px !important;
+    background: #FFFFFF !important;
+    position: absolute !important;
+    top: 7.4px !important;
+    bottom: 3px !important;
+    right: 35px !important;
+    border: 2px solid #CCCCCC !important;
+    border-radius: 27px !important;
+    transition: all 0.3s ease-in 0s !important;
+}
+
+.onoffswitch-slider {
+    display: block !important;
+    overflow: hidden !important;
+    cursor: pointer !important;
+    height: 18px !important;
+    padding: 0 !important;
+    line-height: 27px !important;
+    border: 2px solid #CCCCCC !important;
+    border-radius: 24px !important;
+    background-color: #FFFFFF !important;
+    transition: background-color 0.3s ease-in !important;
+    margin-top: 4px !important;
+    width:46px !important;
+}
+
+.onoffswitch-slider.on {
+    background-color: #216c2a !important;
+    border-color: #216c2a !important;
+}
+
+.onoffswitch-slider.on:before {
+    border-color: #216c2a !important;
+    -webkit-transform: translateX(27px) !important;
+    -ms-transform: translateX(27px) !important;
+    transform: translateX(27px) !important;
+}
+
 .app-shell[width-range~="1000px-1150px"]{
 	.header-Components{
   		margin-bottom:30px !important;
@@ -1571,6 +1633,18 @@ $app-background-color: #145A32;
 
 .apptheme .v-window-outerheader{
 	background: #216c2a !important;
+}
+
+.button-PhoneFont{
+	font-size: 12px !important;
+}
+
+.button-TabFont{
+	font-size: 14px !important;
+}
+
+.button-DesktopFont{
+	font-size: 16px !important;
 }
 
 @import '../valo/valo.scss';

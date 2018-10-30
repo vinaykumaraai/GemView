@@ -642,43 +642,16 @@ public class PersonalizationService extends CommonService {
 			}
 }
 
-public void updateOverRideParam(AppClient app, AppDefaultParam param) {
-	try {
-		if(RestServiceUtil.getSESSION()!=null) {
-			AppParam appParam = new AppParam();
-			appParam.setAppId(app.getId());
-			appParam.setName(param.getParameter());
-			appParam.setDescription(param.getDescription());
-			appParam.setDefaultValue(param.getValue());
-			RestServiceUtil.getInstance().getClient().getAppApi().updateAppParam(app.getId(), appParam);
-		}
-	}catch (ApiException e) {
-		if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-			Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
-			ComponentUtil.sessionExpired(notification);
-		}else {
-			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" updating the override param in the Personlization Screen",Type.ERROR_MESSAGE);
-			ComponentUtil.sessionExpired(notification);
-		}
-		personlizationServiceLogger.error("API Error has occured while updating the override param in the Personlization Screen",e);
-		RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
-	}
-		catch (Exception e) {
-			personlizationServiceLogger.error("Error occured while updating the override param in the Personlization Screen",e);
-			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
-			Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" updating the override param in the Personlization Screen",Type.ERROR_MESSAGE);
-			ComponentUtil.sessionExpired(notification);
-		}
-}
-
-	private TerminalClient getTerminalByEntityId(String entityId) {
+	public void updateOverRideParam(AppClient app, AppDefaultParam param) {
 		try {
-			terminalForPV = RestServiceUtil.getInstance().getClient().getTerminalApi()
-					.getTerminal(entityId);
-			TerminalClient terminal = new TerminalClient(terminalForPV.getId(), terminalForPV.getType().name(), terminalForPV.getName(), terminalForPV.getDescription(),
-					terminalForPV.getSerialNumber(), terminalForPV.getAvailable(),terminalForPV.isHeartbeat(), terminalForPV.getDebugActive(),
-					terminalForPV.getFrequency(), terminalForPV.getLastContact().toString(), terminalForPV.getEntityId());
-			return terminal;
+			if(RestServiceUtil.getSESSION()!=null) {
+				AppParam appParam = new AppParam();
+				appParam.setAppId(app.getId());
+				appParam.setName(param.getParameter());
+				appParam.setDescription(param.getDescription());
+				appParam.setDefaultValue(param.getValue());
+				RestServiceUtil.getInstance().getClient().getAppApi().updateAppParam(app.getId(), appParam);
+			}
 		}catch (ApiException e) {
 			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
 				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
@@ -687,16 +660,49 @@ public void updateOverRideParam(AppClient app, AppDefaultParam param) {
 				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" updating the override param in the Personlization Screen",Type.ERROR_MESSAGE);
 				ComponentUtil.sessionExpired(notification);
 			}
-			personlizationServiceLogger.error("API Error has occured while retrieving Terminal by Entity ID in the Personlization Screen",e);
+			personlizationServiceLogger.error("API Error has occured while updating the override param in the Personlization Screen",e);
 			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
 			catch (Exception e) {
-				personlizationServiceLogger.error("Error occured while retrieving Terminal by Entity ID in the Personlization Screen",e);
+				personlizationServiceLogger.error("Error occured while updating the override param in the Personlization Screen",e);
 				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" updating the override param in the Personlization Screen",Type.ERROR_MESSAGE);
 				ComponentUtil.sessionExpired(notification);
-				
 			}
+}
+
+	private TerminalClient getTerminalByEntityId(String entityId) {
+		try {
+			terminalForPV = RestServiceUtil.getInstance().getClient().getTerminalApi().getTerminal(entityId);
+			TerminalClient terminal = new TerminalClient(terminalForPV.getId(), terminalForPV.getType().name(),
+					terminalForPV.getName(), terminalForPV.getDescription(), terminalForPV.getSerialNumber(),
+					terminalForPV.getAvailable(), terminalForPV.isHeartbeat(), terminalForPV.getDebugActive(),
+					terminalForPV.getFrequency(), terminalForPV.getLastContact().toString(),
+					terminalForPV.getEntityId());
+			return terminal;
+		} catch (ApiException e) {
+			if (e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED, Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			} else {
+				Notification notification = Notification.show(
+						NotificationUtil.SERVER_EXCEPTION + " updating the override param in the Personlization Screen",
+						Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			personlizationServiceLogger.error(
+					"API Error has occured while retrieving Terminal by Entity ID in the Personlization Screen", e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+		} catch (Exception e) {
+			personlizationServiceLogger
+					.error("Error occured while retrieving Terminal by Entity ID in the Personlization Screen", e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			Notification notification = Notification.show(
+					NotificationUtil.SERVER_EXCEPTION + " updating the override param in the Personlization Screen",
+					Type.ERROR_MESSAGE);
+			ComponentUtil.sessionExpired(notification);
+
+		}
 
 		return null;
 	}

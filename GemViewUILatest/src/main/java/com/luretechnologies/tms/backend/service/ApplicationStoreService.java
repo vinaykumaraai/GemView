@@ -109,6 +109,43 @@ public class ApplicationStoreService {
 			}
 		return appClientList;
 	}
+	
+	public List<AppClient> getAppListForEntityId(Long id) {
+		List<AppClient> appClientList = new ArrayList<>();
+		try {
+			if (RestServiceUtil.getSESSION() != null) {
+//				String username = provider.loggedInUserName();
+//				User user = RestServiceUtil.getInstance().getClient().getUserApi().getUserByUserName(username);
+//				Long entityId = user.getEntity().getId();
+				List<App> appsList = RestServiceUtil.getInstance().getClient().getAppApi().getAppsByEntityHierarchy(id);
+				for (App app : appsList) {
+					AppClient appClient = new AppClient(app.getId(), app.getName(), app.getDescription(),
+							app.getVersion(), app.getAvailable(), app.getActive(),getAppDefaultParamList(app.getAppParamCollection()),
+							null, getOwner(app.getOwnerId()), getAppProfileList(app.getAppprofileCollection()),
+							getApplicationFileList(app.getAppfileCollection()));
+					appClientList.add(appClient);
+				}
+				return appClientList;
+			}
+		} catch (ApiException e) {
+			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" getting the App List",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			aplicationStoreServiceLogger.error("API Error has occured while retrieving the App List",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+		}
+			catch (Exception e) {
+				aplicationStoreServiceLogger.error("Error occured while retrieving the App List",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" getting the App List",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+		return appClientList;
+	}
 
 	private List<AppDefaultParam> getAppDefaultParamList(List<AppParam> appParamList) {
 		List<AppDefaultParam> appDefaultParamList = new ArrayList<>();

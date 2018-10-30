@@ -139,12 +139,14 @@ public class DashboardService {
 				 DashboardWidget dashboardWidget = RestServiceUtil.getInstance().getClient().getDashboardApi().getDashboardWidget();
 				 currentDownloadsDataServer = dashboardWidget.getCurrentDownLoadsDisplays();
 				 dashboardWidget.getHeartbeatPerHour();
-				 for(DashboardCurrentDownLoads dashboardCurrentDownLoads : currentDownloadsDataServer) {
-					 Downloads download = new Downloads(dashboardCurrentDownLoads.getSerialTerminal(),
+				 if(currentDownloadsDataServer!=null) {
+					 for(DashboardCurrentDownLoads dashboardCurrentDownLoads : currentDownloadsDataServer) {
+						 Downloads download = new Downloads(dashboardCurrentDownLoads.getSerialTerminal(),
 							 				dashboardCurrentDownLoads.getOrganization(), dashboardCurrentDownLoads.getOperatingSystem(),
 							 				dashboardCurrentDownLoads.getIp(), dashboardCurrentDownLoads.getDevice(), 
 							 				dashboardCurrentDownLoads.getCompletion().toString()+"%");
-					 currentDownloadsData.add(download);
+						 currentDownloadsData.add(download);
+					 }
 				 }
 				 return currentDownloadsData;
 			}

@@ -255,6 +255,7 @@ public class AlertTab {
 			}
 		});
 		createAlertGridRowMenu.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+		
 		Button editAlertGridRowMenu = new Button("Edit Alert", click->{
 			UI.getCurrent().getWindows().forEach(Window::close);
 			if (alertGrid.getSelectedItems().size() == 0) {
@@ -265,7 +266,6 @@ public class AlertTab {
 			}
 		});
 		editAlertGridRowMenu.addStyleName(ValoTheme.BUTTON_BORDERLESS);
-		editAlertGridRowMenu.setEnabled(false);
 		
 		Button deleteAlertGridRowMenu = new Button("Delete Alert", click-> {
 			UI.getCurrent().getWindows().forEach(Window::close);
@@ -290,17 +290,20 @@ public class AlertTab {
 			}
 		});
 		deleteAlertGridRowMenu.addStyleName(ValoTheme.BUTTON_BORDERLESS);
-		deleteAlertGridRowMenu.setEnabled(false);
 		
 		assestControlAlertGridMenu.addMenuItems(createAlertGridRowMenu,editAlertGridRowMenu,deleteAlertGridRowMenu);
 		alertGrid.addContextClickListener(click->{
-			if(alertGrid.getSelectedItems().size()>0) {
+			deleteAlertGridRowMenu.setEnabled(assetControlPermission.getDelete());
+			editAlertGridRowMenu.setEnabled(assetControlPermission.getEdit());
+			createAlertGridRowMenu.setEnabled(assetControlPermission.getAdd());
+			
+			if(alertGrid.getSelectedItems().size()>0 && deleteAlertGridRowMenu.isEnabled()) {
 				deleteAlertGridRowMenu.setEnabled(true);
 			}else {
 				deleteAlertGridRowMenu.setEnabled(false);
 			}
 			
-			if(alertGrid.getSelectedItems().size()==1) {
+			if(alertGrid.getSelectedItems().size()==1 && editAlertGridRowMenu.isEnabled()) {
 				editAlertGridRowMenu.setEnabled(true);
 			}else {
 				editAlertGridRowMenu.setEnabled(false);
@@ -335,7 +338,7 @@ public class AlertTab {
 					ComponentUtil.validatorTextField(name) &&
 					ComponentUtil.validatorTextField(description)  &&
 					ComponentUtil.validatorCheckBox(activeCheckBox) &&
-					ComponentUtil.validatorTextField(email))) {
+					ComponentUtil.validatorEmailId(email))) {
 			}else {
 				
 		saveAlertForm.addStyleName("v-button-customstyle");
