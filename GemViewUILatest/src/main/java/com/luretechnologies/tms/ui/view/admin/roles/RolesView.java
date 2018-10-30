@@ -68,6 +68,7 @@ import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.GridLayout;
@@ -500,8 +501,8 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 		rolesWindow = new ContextMenuWindow();
 		rolesWindow.addMenuItems(roleInfoFormLayout);
 		rolesWindow.center();
-		rolesWindow.setWidth("20%");
-		rolesWindow.setHeight("55%");
+		rolesWindow.setWidth("60%");
+		rolesWindow.setHeight("70%");
 		rolesWindow.setResizable(true);
 		rolesWindow.setClosable(true);
 		rolesWindow.setDraggable(true);
@@ -526,6 +527,7 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 			else {
 				selectedRole = roleGrid.getSelectedItems().iterator().next();
 				assignValues(selectedRole);
+				rolesWindow.setContent(roleInfoFormLayout);
 				UI.getCurrent().addWindow(rolesWindow);
 			}
 		});
@@ -568,17 +570,17 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 				this.selectedRole = selectedRole;
 				getAndLoadPermissionGrid(dynamicVerticalLayout, false);
 				((GridLayout) roleInfoFormLayout.getComponent(2)).iterator().forEachRemaining(layout->{
-					((HorizontalLayout) layout).iterator().forEachRemaining(layout1 -> {
-						if(layout1 instanceof HorizontalLayout) {
-							String pageName = layout1.getId();
+					((HorizontalLayout) layout).iterator().forEachRemaining(subLayout -> {
+						if(subLayout instanceof HorizontalLayout) {
+							HorizontalLayout permissionLayout = ((HorizontalLayout) subLayout);
+							String pageName = subLayout.getId();
 							if(pageName!=null && !pageName.isEmpty()) {
 								pagePermission = selectedRole.getPermissions().stream()
 									.filter(perm -> perm.getPageName().equalsIgnoreCase(pageName)).findFirst().get();
 							}
-							
-							((HorizontalLayout) layout1).iterator().forEachRemaining(component->{
-								if (component instanceof CheckBox) {
-									CheckBox permissionCheck = ((CheckBox) component);
+							for(int i = 0 ; i<permissionLayout.getComponentCount(); i++) {
+								if(permissionLayout.getComponent(i) instanceof CheckBox) {
+									CheckBox permissionCheck = ((CheckBox) permissionLayout.getComponent(i));
 									switch (permissionCheck.getId()) {
 									case "view":
 										permissionCheck.setValue(pagePermission.getAccess());
@@ -597,7 +599,7 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 										break;
 									}
 								}
-							});
+							}
 						}
 						
 						
