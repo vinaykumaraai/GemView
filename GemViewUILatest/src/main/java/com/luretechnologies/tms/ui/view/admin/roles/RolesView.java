@@ -111,7 +111,7 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 	private HorizontalLayout labelLayoutRight;
 	private Button save, cancel;
 	private Permission pagePermission = null;
-	
+
 	@Autowired
 	public ConfirmDialogFactory confirmDialogFactory;
 
@@ -137,7 +137,7 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 			rolesViewPermission = rolesService.getLoggedInUserRolePermissions().stream()
 					.filter(perm -> perm.getPageName().equals("ROLE")).findFirst().get();
 			header = new Header(userService, rolesService, navigationManager, "Roles", new Label());
-			
+
 			Page.getCurrent().addBrowserWindowResizeListener(r -> {
 
 				if (r.getWidth() <= 600) {
@@ -154,7 +154,7 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 					MainViewIconsLoad.noIconsOnDesktopMode(mainView);
 				}
 			});
-			
+
 			setSpacing(true);
 			setMargin(false);
 			setResponsive(true);
@@ -179,7 +179,7 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 			dynamicVerticalLayout.setMargin(false);
 			dynamicVerticalLayout.setSpacing(true);
 
-			 getAndLoadPermissionGrid(dynamicVerticalLayout, false);
+			getAndLoadPermissionGrid(dynamicVerticalLayout, false);
 
 			getAndLoadRolesGrid(verticalLayout, dynamicVerticalLayout);
 		} catch (Exception e) {
@@ -264,13 +264,13 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 			}
 		});
 		roleInfoFormLayout.addComponent(descriptions);
-		//roleInfoFormLayout.addComponent(activeCheck);
+		// roleInfoFormLayout.addComponent(activeCheck);
 		roleInfoFormLayout.setStyleName("role-gridLayout");
-		
+
 		GridLayout permissionGridLayout = new GridLayout(1, 11);
-		//permissionGridLayout.setWidth("90%");
+		// permissionGridLayout.setWidth("90%");
 		permissionGridLayout.addStyleName("role-createdeleteButtonLayout");
-		permissionGridLayout.addComponent(getLabelForPermissionLeft(),0,0);
+		permissionGridLayout.addComponent(getLabelForPermissionLeft(), 0, 0);
 //		permissionGridLayout.addComponent(getLabelForPermissionRight(),1,0);
 		permissionGridLayout.addComponent(getPermissionCheckBoxLayout("DashBoard"), 0, 1);
 		permissionGridLayout.addComponent(getPermissionCheckBoxLayout("AppStore"), 0, 2);
@@ -285,8 +285,10 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 //		permissionGridLayout.addComponent(getPermissionCheckBoxLayout("Schedule"), 1, 4);
 //		permissionGridLayout.addComponent(getPermissionCheckBoxLayout("Boarding"), 1, 5);
 //		permissionGridLayout.addComponent(getPermissionCheckBoxLayout("Transactions"), 1, 6);
-		//permissionGridLayout.setComponentAlignment(labelLayoutLeft, Alignment.TOP_RIGHT);
-		//permissionGridLayout.setComponentAlignment(labelLayoutRight, Alignment.TOP_RIGHT);
+		// permissionGridLayout.setComponentAlignment(labelLayoutLeft,
+		// Alignment.TOP_RIGHT);
+		// permissionGridLayout.setComponentAlignment(labelLayoutRight,
+		// Alignment.TOP_RIGHT);
 		roleInfoFormLayout.addComponent(permissionGridLayout);
 		cancel = new Button("Cancel");
 		cancel.addStyleName(ValoTheme.BUTTON_FRIENDLY);
@@ -299,14 +301,13 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 			clearAllComponents();
 			permissionGridLayout.iterator().forEachRemaining(layout -> {
 				((HorizontalLayout) layout).iterator().forEachRemaining(layout1 -> {
-					if(layout1 instanceof HorizontalLayout) {
-						((HorizontalLayout) layout1).iterator().forEachRemaining(component->{
+					if (layout1 instanceof HorizontalLayout) {
+						((HorizontalLayout) layout1).iterator().forEachRemaining(component -> {
 							if (component instanceof CheckBox)
 								((CheckBox) component).clear();
 						});
 					}
-					
-					
+
 				});
 			});
 		});
@@ -327,15 +328,18 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 			selectedRole.setName(rolename);
 			selectedRole.setAvailable(activeValue);
 			List<Permission> listOfPermission = new ArrayList<>();
-			permissionGridLayout.forEach(component -> {
-				HorizontalLayout layout = ((HorizontalLayout) component);
-				if(StringUtils.isNotBlank(layout.getId())){
-				Permission pagePermission = new Permission(((Label) layout.getComponent(0)).getValue(),
-						((CheckBox) layout.getComponent(1)).getValue(), ((CheckBox) layout.getComponent(2)).getValue(),
-						((CheckBox) layout.getComponent(3)).getValue(), ((CheckBox) layout.getComponent(4)).getValue());
-				listOfPermission.add(pagePermission);
+			for (int i = 1; i < permissionGridLayout.getComponentCount(); i++) {
+				HorizontalLayout layout = (HorizontalLayout) ((HorizontalLayout) permissionGridLayout.getComponent(0,
+						i)).getComponent(1);
+				if (StringUtils.isNotBlank(layout.getId())) {
+					Permission pagePermission = new Permission(layout.getId(),
+							((CheckBox) layout.getComponent(0)).getValue(),
+							((CheckBox) layout.getComponent(1)).getValue(),
+							((CheckBox) layout.getComponent(2)).getValue(),
+							((CheckBox) layout.getComponent(3)).getValue());
+					listOfPermission.add(pagePermission);
 				}
-			});
+			}
 
 			selectedRole.setPermissions(listOfPermission);
 			if (!(ComponentUtil.validatorTextField(roleName) && ComponentUtil.validatorTextField(descriptions)
@@ -345,7 +349,9 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 				if (roleGrid.getSelectedItems().size() <= 0) {
 					rolesService.createUpdateRole(selectedRole);
 				} else {
-					rolesService.createUpdateRole(roleGrid.getSelectedItems().iterator().next());
+					Role toSaveRole = roleGrid.getSelectionModel().getFirstSelectedItem().get();
+					toSaveRole.setPermissions(listOfPermission);
+					rolesService.createUpdateRole(toSaveRole);
 				}
 				DataProvider data = new ListDataProvider(rolesService.getRoleList());
 				roleGrid.setDataProvider(data);
@@ -353,7 +359,7 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 				selectedRole = new Role();
 
 			}
-			
+
 			rolesWindow.close();
 		});
 		save.setResponsive(true);
@@ -369,6 +375,24 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 
 //		verticalLayout.addComponent(roleInfoFormLayout);
 		List<Permission> beanList = new ArrayList<>(selectedRole.getPermissions());
+		if (beanList.size() > 0) {
+			for (int i = 1; i < permissionGridLayout.getComponentCount(); i++) {
+				HorizontalLayout layout = (HorizontalLayout) ((HorizontalLayout) permissionGridLayout.getComponent(0,
+						i)).getComponent(1);
+				outerloop:
+				if (StringUtils.isNotBlank(layout.getId())) {
+					for (Permission permission : beanList) {
+						if (permission.getPageName().equalsIgnoreCase(layout.getId())) {
+							((CheckBox) layout.getComponent(0)).setValue(permission.getAccess());
+							((CheckBox) layout.getComponent(1)).setValue(permission.getAdd());
+							((CheckBox) layout.getComponent(2)).setValue(permission.getEdit());
+							((CheckBox) layout.getComponent(3)).setValue(permission.getDelete());
+							break outerloop;
+						}
+					}
+				}
+			}
+		}
 		permissionGrid.setHeightByRows(10);
 		permissionGrid.addStyleName(ValoTheme.TABLE_BORDERLESS);
 		permissionGrid.addStyleName(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
@@ -427,8 +451,9 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 //		});
 		permissionGrid.setWidth("100%");
 		permissionGrid.setItems(beanList);
-		//verticalLayout.addComponent(permissionGrid);
-		//verticalLayout.setComponentAlignment(permissionGrid, Alignment.MIDDLE_CENTER);
+		// verticalLayout.addComponent(permissionGrid);
+		// verticalLayout.setComponentAlignment(permissionGrid,
+		// Alignment.MIDDLE_CENTER);
 	}
 
 	public void getAndLoadRolesGrid(VerticalLayout verticalLayout, VerticalLayout dynamicVerticalLayout) {
@@ -506,15 +531,17 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 		rolesWindow.setResizable(true);
 		rolesWindow.setClosable(true);
 		rolesWindow.setDraggable(true);
-		
+
 		createRoleMenu = new Button("Create Role", click -> {
 			UI.getCurrent().getWindows().forEach(Window::close);
-			roleInfoFormLayout.iterator().forEachRemaining(component -> {
+			for (int i = 0; i < roleInfoFormLayout.getComponentCount(); i++) {
+				Component component = roleInfoFormLayout.getComponent(i);
 				if (component instanceof TextField)
 					((TextField) component).clear();
 				if (component instanceof CheckBox)
 					((CheckBox) component).clear();
-			});
+
+			}
 			UI.getCurrent().addWindow(rolesWindow);
 
 		});
@@ -540,46 +567,47 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 		deleteRoleMenu.addStyleName(ValoTheme.BUTTON_BORDERLESS);
 		ContextMenuWindow roleGridContextMenuWindow = new ContextMenuWindow();
 		roleGridContextMenuWindow.addMenuItems(createRoleMenu, editRoleMenu, deleteRoleMenu);
-	
+
 		roleGrid.addContextClickListener(click -> {
 			UI.getCurrent().getWindows().forEach(Window::close);
 			roleGridContextMenuWindow.setPosition(click.getClientX(), click.getClientY());
 			UI.getCurrent().addWindow(roleGridContextMenuWindow);
 		});
 
-		UI.getCurrent().addClickListener(listener->{
-			if(rolesWindow!=null) {
+		UI.getCurrent().addClickListener(listener -> {
+			if (rolesWindow != null) {
 				rolesWindow.close();
 			}
-			
-			if(roleGridContextMenuWindow!=null) {
+
+			if (roleGridContextMenuWindow != null) {
 				roleGridContextMenuWindow.close();
 			}
 		});
-		
+
 		roleGrid.addSelectionListener(e -> {
 			if (!e.isUserOriginated()) {
 				return;
 			}
 
 			if (e.getFirstSelectedItem().isPresent()) {
-				
+
 				// Load and update the data in permission grid.
 				dynamicVerticalLayout.removeAllComponents();
 				Role selectedRole = e.getFirstSelectedItem().get();
 				this.selectedRole = selectedRole;
 				getAndLoadPermissionGrid(dynamicVerticalLayout, false);
-				((GridLayout) roleInfoFormLayout.getComponent(2)).iterator().forEachRemaining(layout->{
+				((GridLayout) roleInfoFormLayout.getComponent(2)).iterator().forEachRemaining(layout -> {
 					((HorizontalLayout) layout).iterator().forEachRemaining(subLayout -> {
-						if(subLayout instanceof HorizontalLayout) {
+						if (subLayout instanceof HorizontalLayout) {
 							HorizontalLayout permissionLayout = ((HorizontalLayout) subLayout);
 							String pageName = subLayout.getId();
-							if(pageName!=null && !pageName.isEmpty()) {
+							if (pageName != null && !pageName.isEmpty()) {
 								pagePermission = selectedRole.getPermissions().stream()
-									.filter(perm -> perm.getPageName().equalsIgnoreCase(pageName)).findFirst().get();
+										.filter(perm -> perm.getPageName().equalsIgnoreCase(pageName)).findFirst()
+										.get();
 							}
-							for(int i = 0 ; i<permissionLayout.getComponentCount(); i++) {
-								if(permissionLayout.getComponent(i) instanceof CheckBox) {
+							for (int i = 0; i < permissionLayout.getComponentCount(); i++) {
+								if (permissionLayout.getComponent(i) instanceof CheckBox) {
 									CheckBox permissionCheck = ((CheckBox) permissionLayout.getComponent(i));
 									switch (permissionCheck.getId()) {
 									case "view":
@@ -601,12 +629,10 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 								}
 							}
 						}
-						
-						
+
 					});
 				});
-				
-				
+
 //				((GridLayout) roleInfoFormLayout.getComponent(2)).forEach(component -> {
 //					String pageName = ((HorizontalLayout) component).getComponent(0).getId();
 //					Permission pagePermission = selectedRole.getPermissions().stream()
@@ -646,13 +672,13 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 		roleGridLayout.addComponent(roleGrid);
 		verticalLayout.addComponent(roleGridLayout);
 	}
-	
+
 	private void clearAllComponents() {
 		roleName.clear();
 		activeBox.clear();
 		descriptions.clear();
 	}
-	
+
 	private void assignValues(Role selectRole) {
 		roleName.setValue(selectRole.getName());
 		activeBox.setValue(selectRole.isAvailable());
@@ -685,30 +711,31 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 		Label add = new Label("Add");
 		Label edit = new Label("Edit");
 		Label delete = new Label("Del.");
-		labelLayoutLeft.addComponents(view,add,edit,delete);
+		labelLayoutLeft.addComponents(view, add, edit, delete);
 		labelLayoutLeft.setDefaultComponentAlignment(Alignment.TOP_RIGHT);
 		labelLayoutLeft.addStyleName("role-lableLayout");
 		return labelLayoutLeft;
 	}
-	
+
 	private HorizontalLayout getLabelForPermissionRight() {
 		labelLayoutRight = new HorizontalLayout();
 		Label view = new Label("View");
 		Label add = new Label("Add");
 		Label edit = new Label("Edit");
 		Label delete = new Label("Del.");
-		labelLayoutRight.addComponents(view,add,edit,delete);
+		labelLayoutRight.addComponents(view, add, edit, delete);
 		labelLayoutRight.setDefaultComponentAlignment(Alignment.TOP_RIGHT);
 		labelLayoutRight.addStyleName("role-lableLayout");
 		return labelLayoutRight;
 	}
+
 	private HorizontalLayout getPermissionCheckBoxLayout(String permissionPage) {
 		HorizontalLayout horizontalLayout = new HorizontalLayout();
 		horizontalLayout.setWidth("100%");
 		HorizontalLayout horizontallabelLayout = new HorizontalLayout();
 		HorizontalLayout horizontalCheckBoxLayout = new HorizontalLayout();
 		horizontalCheckBoxLayout.addStyleName("role-checkBoxLayout");
-		horizontallabelLayout.setId(permissionPage.toLowerCase());
+		horizontalCheckBoxLayout.setId(permissionPage.toLowerCase());
 		Label pageLabel = new Label(permissionPage);
 		pageLabel.addStyleName("role-pageLabel");
 		CheckBox viewPermission = new CheckBox();
@@ -720,12 +747,12 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 		addPermission.setId("add");
 		editPermission.setId("edit");
 		deletePermission.setId("delete");
-		
+
 		viewPermission.addStyleName("role-checkBoxes");
 		addPermission.addStyleName("role-checkBoxes");
 		editPermission.addStyleName("role-checkBoxes");
 		deletePermission.addStyleName("role-checkBoxes");
-		
+
 		addPermission.addValueChangeListener(value -> {
 			if (!viewPermission.getValue())
 				viewPermission.setValue(value.getValue());

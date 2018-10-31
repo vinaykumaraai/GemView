@@ -390,7 +390,7 @@ public class RolesService {
 		boolean delete = permissionClient.getDelete();
 		boolean edit = permissionClient.getEdit();
 		
-		switch(permissionClient.getPageName()) {
+		switch(permissionClient.getPageName().toUpperCase()) {
 		case "DASHBOARD":
 			permissionsListServer.add(PermissionEnum.READ_DASHBOARD);
 			break;
