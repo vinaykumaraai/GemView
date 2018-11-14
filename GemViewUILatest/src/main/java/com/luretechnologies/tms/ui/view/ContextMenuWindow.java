@@ -4,6 +4,12 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
+/**
+ * 
+ * @author Vinay
+ *
+ */
+
 public class ContextMenuWindow extends Window {
 
 	private VerticalLayout menuLayout;

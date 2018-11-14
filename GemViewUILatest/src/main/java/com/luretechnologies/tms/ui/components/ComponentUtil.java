@@ -35,19 +35,11 @@ import javax.servlet.ServletContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.tms.app.Application;
 import com.luretechnologies.tms.ui.MainView;
-import com.luretechnologies.tms.ui.navigation.NavigationManager;
-import com.vaadin.data.ValidationResult;
-import com.vaadin.data.Validator;
-import com.vaadin.data.ValueContext;
 import com.vaadin.server.Page;
-import com.vaadin.server.UserError;
 import com.vaadin.shared.Position;
 import com.vaadin.spring.annotation.SpringComponent;
-import com.vaadin.spring.navigator.SpringViewProvider;
-import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
@@ -58,7 +50,6 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.Notification.CloseEvent;
 import com.vaadin.ui.Notification.CloseListener;
 import com.vaadin.ui.Notification.Type;
-import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * @author Vinay
@@ -110,7 +101,6 @@ public class ComponentUtil {
 				activeCheckBox.setCaption(labelName);
 				activeCheckBox.addStyleName("v-textfield-font");
 				activeBoxLayout.addComponents(active, activeCheckBox);
-				//activeBoxLayout.setStyleName("role-activeLable");
 				activeBoxLayout.addStyleName("asset-alertActiveLayout");
 				activeBoxLayout.setEnabled(false);
 				component =activeBoxLayout;
@@ -123,7 +113,6 @@ public class ComponentUtil {
 				activeCheckBox.setCaption(labelName);
 				activeCheckBox.addStyleName("v-textfield-font");
 				activeBoxLayout.addComponents(active, activeCheckBox);
-				//activeBoxLayout.setStyleName("role-activeLable");
 				activeBoxLayout.addStyleName("asset-debugCheckboxLayout");
 				activeBoxLayout.setEnabled(true);
 				component =activeBoxLayout;
@@ -156,19 +145,6 @@ public class ComponentUtil {
 		}
 		return component;
 	}
-	
-	public static void addValidator(AbstractField field, Validator validator) {
-        field.addValueChangeListener(event -> {
-            ValidationResult result = validator.apply(event.getValue(), new ValueContext(field));
-
-            if (result.isError()) {
-                UserError error = new UserError(result.getErrorMessage());
-                field.setComponentError(error);
-            } else {
-                field.setComponentError(null);
-            }
-        });
-    }
 	
 	public static void sessionExpired(Notification notification) {
 		notification.setPosition(Position.TOP_CENTER);

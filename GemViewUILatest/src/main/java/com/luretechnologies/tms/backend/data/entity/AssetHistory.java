@@ -33,6 +33,12 @@ package com.luretechnologies.tms.backend.data.entity;
 
 import java.util.Objects;
 
+/**
+ * 
+ * @author Vinay
+ *
+ */
+
 public class AssetHistory {
 	
 	private String type, description;

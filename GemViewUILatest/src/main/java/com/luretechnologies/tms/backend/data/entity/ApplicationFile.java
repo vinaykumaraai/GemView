@@ -47,27 +47,22 @@ public class ApplicationFile extends File {
 
 	public ApplicationFile(File parent, String child) {
 		super(parent, child);
-		// TODO Auto-generated constructor stub
 	}
 
 	public ApplicationFile(String parent, String child) {
 		super(parent, child);
-		// TODO Auto-generated constructor stub
 	}
 
 	public ApplicationFile(String pathname) {
 		super(pathname);
-		// TODO Auto-generated constructor stub
 	}
 
 	public ApplicationFile(URI uri) {
 		super(uri);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
 	public String toString() {
-		// TODO Auto-generated method stub
 		return name;
 	}
 public ApplicationFile(Long id,String name,String description,String value) {

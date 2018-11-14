@@ -33,7 +33,6 @@ package com.luretechnologies.tms.backend.service;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -45,18 +44,11 @@ import org.springframework.stereotype.Service;
 
 import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.client.restlib.service.model.AlertAction;
-import com.luretechnologies.client.restlib.service.model.AuditUserLog;
 import com.luretechnologies.client.restlib.service.model.DebugItem;
-import com.luretechnologies.client.restlib.service.model.Device;
-import com.luretechnologies.client.restlib.service.model.Heartbeat;
-import com.luretechnologies.client.restlib.service.model.HeartbeatAlert;
 import com.luretechnologies.client.restlib.service.model.HeartbeatAudit;
-import com.luretechnologies.client.restlib.service.model.HeartbeatOdometer;
 import com.luretechnologies.tms.backend.data.entity.Alert;
 import com.luretechnologies.tms.backend.data.entity.AssetHistory;
-import com.luretechnologies.tms.backend.data.entity.Audit;
 import com.luretechnologies.tms.backend.data.entity.DebugItems;
-import com.luretechnologies.tms.backend.data.entity.DeviceOdometer;
 import com.luretechnologies.tms.backend.data.entity.TerminalClient;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
 import com.luretechnologies.tms.backend.rest.util.RestClient;
@@ -66,6 +58,12 @@ import com.luretechnologies.tms.ui.components.NotificationUtil;
 import com.vaadin.data.TreeData;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
+
+/**
+ * 
+ * @author Vinay
+ *
+ */
 
 @Service
 public class AssetControlService {

@@ -39,10 +39,8 @@ import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import com.luretechnologies.client.restlib.common.ApiException;
-import com.luretechnologies.client.restlib.service.model.AuditUserLog;
 import com.luretechnologies.client.restlib.service.model.SystemParam;
 import com.luretechnologies.tms.backend.data.entity.Systems;
-import com.luretechnologies.tms.backend.data.entity.TreeNode;
 import com.luretechnologies.tms.backend.rest.util.RestClient;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
 import com.luretechnologies.tms.ui.components.ComponentUtil;
@@ -50,7 +48,6 @@ import com.luretechnologies.tms.ui.components.NotificationUtil;
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
-import com.vaadin.ui.Tree.ItemClick;
 
 @SpringComponent
 @Service

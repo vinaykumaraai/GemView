@@ -32,7 +32,6 @@
 package com.luretechnologies.tms.ui.view.heartbeat;
 
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -57,27 +56,21 @@ import com.luretechnologies.tms.ui.components.MainViewIconsLoad;
 import com.luretechnologies.tms.ui.components.NotificationUtil;
 import com.luretechnologies.tms.ui.navigation.NavigationManager;
 import com.luretechnologies.tms.ui.view.Header;
-import com.luretechnologies.tms.ui.view.personalization.PersonalizationView;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.event.ShortcutListener;
 import com.vaadin.event.ShortcutAction.KeyCode;
-import com.vaadin.external.org.slf4j.Logger;
-import com.vaadin.external.org.slf4j.LoggerFactory;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
-import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Page;
 import com.vaadin.server.ThemeResource;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.DateField;
-import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
@@ -86,18 +79,25 @@ import com.vaadin.ui.Notification;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.themes.ValoTheme;
 
+/**
+ * 
+ * @author Vinay
+ *
+ */
+
 @SpringView(name = HeartbeatView.VIEW_NAME)
 public class HeartbeatView extends VerticalLayout implements Serializable, View {
 
 	private static final LocalDateTime localTimeNow = LocalDateTime.now();
-	private static final SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
 	private static final DateTimeFormatter  dateFormatter1 = DateTimeFormatter.ofPattern("yyMMdd");
 	private static final String DATE_FORMAT = "dd/MM/yyyy";
 	private static final long serialVersionUID = 4663357355780258257L;
@@ -108,7 +108,6 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 	private static TextField deviceSerialNumber;
 	private static TextField deviceFrequency;
 	private static TextField deviceLastSeen;
-	private static CheckBox activateHeartBeatBox;
 	private  List<TerminalClient> terminalList = new LinkedList<TerminalClient>();
 	private static TerminalClient selectedTerminal;
 	private static TextField search, deviceSearch;
@@ -191,12 +190,6 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 		deviceSearch.setMaxLength(50);
 		clearSearch = new Button(VaadinIcons.ERASER);
 		
-		//addDeviceLabel(secondPanelLayout);
-		//secondPanelLayout.addComponent(getTabSheet());
-		//addDeviceHistoryLabel(secondPanelLayout);
-		//getSearchAndDelete(secondPanelLayout);
-		//getHBHistoryGrid(secondPanelLayout);
-		
 		horizontalPanel.setHeight("100%");
 		terminalButtonList = getTerminals(verticalDeviceFormLayout,terminalList);
 		HLListButtons = getButtonsLayout(terminalButtonList, 3);
@@ -274,7 +267,7 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 		});
 		
 		Page.getCurrent().addBrowserWindowResizeListener(r->{
-			System.out.println("Height "+ r.getHeight() + "Width:  " + r.getWidth()+ " in pixel");
+			UI.getCurrent().getWindows().forEach(Window::close);
 			if(r.getWidth()< 1600 && r.getWidth() > 1150) {
 				List<HorizontalLayout> HLList = getButtonsLayout(terminalButtonList,2);
 				desktopMode(HLList, heartbeatTabSheet,false);
@@ -302,41 +295,35 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 			}
 			
 			if(r.getWidth()<=600) {
-				/*deviceSearch.setHeight(28, Unit.PIXELS);
-				search.setHeight("28px");
-				startDateField.setHeight("28px");
-				endDateField.setHeight("28px");*/
 				deviceSearch.setHeight(28, Unit.PIXELS);
 				search.setHeight("28px");
 				removeComponent(header);
 				clearHistorySearch.removeStyleNames("v-button-customstyle", "audit-AuditSearchClearDesktop");
 				clearHistorySearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"odometer-OdometerSearchClearPhone");
 				mainView.getTitle().setValue(userService.getLoggedInUserName());
+				heartbeatTabSheet.getTab(0).setCaption("<h3 style=font-weight:400;width:90px;height:15px;>Device</h3>");
+				heartbeatTabSheet.getTab(1).setCaption("<h3 style=font-weight:400;width:90px;height:15px;>History</h3>");
 				MainViewIconsLoad.iconsOnPhoneMode(mainView);
 			} else if(r.getWidth()>600 && r.getWidth()<=1000) {
-				/*deviceSearch.setHeight(32, Unit.PIXELS);
-				search.setHeight("32px");
-				startDateField.setHeight("32px");
-				endDateField.setHeight("32px");*/
 				deviceSearch.setHeight(32, Unit.PIXELS);
 				search.setHeight("32px");
 				addComponentAsFirst(header);
 				clearHistorySearch.removeStyleNames("audit-AuditSearchClearDesktop", "odometer-OdometerSearchClearPhone");
 				clearHistorySearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"v-button-customstyle");
-				mainView.getTitle().setValue("gemView"/*+ userService.getLoggedInUserName()*/);
+				mainView.getTitle().setValue("gemView");
 				MainViewIconsLoad.iconsOnTabMode(mainView);
+				heartbeatTabSheet.getTab(0).setCaption("<h3 style=font-weight:400;width:120px;height:20px;>Device</h3>");
+				heartbeatTabSheet.getTab(1).setCaption("<h3 style=font-weight:400;width:120px;height:20px;>History</h3>");
 			}else {
-				/*deviceSearch.setHeight(37, Unit.PIXELS);
-				search.setHeight("37px");
-				startDateField.setHeight("37px");
-				endDateField.setHeight("37px");*/
 				search.setHeight("37px");
 				deviceSearch.setHeight(37, Unit.PIXELS);
 				addComponentAsFirst(header);
 				clearHistorySearch.removeStyleNames("audit-AuditSearchClearPhone", "v-button-customstyle");
 				clearHistorySearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearDesktop");
-				mainView.getTitle().setValue("gemView"/*+ userService.getLoggedInUserName()*/);
+				mainView.getTitle().setValue("gemView");
 				MainViewIconsLoad.noIconsOnDesktopMode(mainView);
+				heartbeatTabSheet.getTab(0).setCaption("<h3 style=font-weight:400;width:150px;height:25px;>Device</h3>");
+				heartbeatTabSheet.getTab(1).setCaption("<h3 style=font-weight:400;width:150px;height:25px;>History</h3>");
 			}
 		});
 		
@@ -364,6 +351,16 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 		Permission appStorePermission = roleService.getLoggedInUserRolePermissions().stream().filter(per -> per.getPageName().equals("SYSTEM")).findFirst().get();
 			disableAllComponents();
 		allowAccessBasedOnPermission(appStorePermission.getAdd(),appStorePermission.getEdit(),appStorePermission.getDelete());
+	  
+		Page.getCurrent().getUI().addShortcutListener(new ShortcutListener("", KeyCode.ENTER, null) {
+			
+			@Override
+			public void handleAction(Object sender, Object target) {
+				deviceSearch.focus();
+				
+			}
+		});
+	  
 	  }catch(Exception ex) {
 		 heartBeatService.logHeartbeatScreenErrors(ex);
 	  }
@@ -449,52 +446,28 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 			List<HorizontalLayout> HLList1 = getButtonsLayout(terminalList,2);
 			desktopMode(HLList1, heartbeatTabSheet,isSearchMode);
 			deletCalendarTabMode();
-			/*deviceSearch.setHeight(37, Unit.PIXELS)*/;
 			deviceSearch.setWidth("100%");
-			/*search.setHeight("37px");
-			startDateField.setHeight("37px");
-			endDateField.setHeight("37px");*/
 			endDateField.setWidth("90%");
 		}else if(width<=1150 && width> 1000){
 			List<HorizontalLayout> HLList1 = getButtonsLayout(terminalList, 1);
 			desktopMode(HLList1, heartbeatTabSheet,isSearchMode);
 			deletCalendarPhoneMode();
-			/*deviceSearch.setHeight(37, Unit.PIXELS);
-			search.setHeight("37px");
-			startDateField.setHeight("37px");
-			endDateField.setHeight("37px");*/
 		} else if(width<=900 && width>600){
 			List<HorizontalLayout> HLList1 = getButtonsLayout(terminalList, 1);
 			desktopMode(HLList1, heartbeatTabSheet,isSearchMode);
 			deletCalendarPhoneMode();
-			/*deviceSearch.setHeight(37, Unit.PIXELS);
-			search.setHeight("37px");
-			startDateField.setHeight("37px");
-			endDateField.setHeight("37px");*/
 		}else if(width<=600 && width>0) {
 			List<HorizontalLayout> HLList1 = getButtonsLayout(terminalList, 1);
 			desktopMode(HLList1, heartbeatTabSheet,isSearchMode);
 			deletCalendarPhoneMode();
-			/*deviceSearch.setHeight(28, Unit.PIXELS);
-			search.setHeight("28px");
-			startDateField.setHeight("28px");
-			endDateField.setHeight("28px");*/
 		}else {
 			List<HorizontalLayout> HLList1 = getButtonsLayout(terminalList,3);
 			desktopMode(HLList1, heartbeatTabSheet,isSearchMode);
 			deleteCalendarDesktopMode();
-			/*deviceSearch.setHeight(37, Unit.PIXELS);
-			search.setHeight("37px");
-			startDateField.setHeight("37px");
-			endDateField.setHeight("37px");*/
 			endDateField.setWidth("90%");
 		}
 		
 		if(width<=600) {
-			/*deviceSearch.setHeight(28, Unit.PIXELS);
-			search.setHeight("28px");
-			startDateField.setHeight("28px");
-			endDateField.setHeight("28px");*/
 			deviceSearch.setHeight(28, Unit.PIXELS);
 			search.setHeight("28px");
 			removeComponent(header);
@@ -502,30 +475,28 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 			clearHistorySearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"odometer-OdometerSearchClearPhone");
 			mainView.getTitle().setValue(userService.getLoggedInUserName());
 			MainViewIconsLoad.iconsOnPhoneMode(mainView);
+			heartbeatTabSheet.getTab(0).setCaption("<h3 style=font-weight:400;width:120px;height:15px;>Device</h3>");
+			heartbeatTabSheet.getTab(1).setCaption("<h3 style=font-weight:400;width:120px;height:15px;>History</h3>");
 		} else if(width>600 && width<=1000){
-			/*deviceSearch.setHeight(32, Unit.PIXELS);
-			search.setHeight("32px");
-			startDateField.setHeight("32px");
-			endDateField.setHeight("32px");*/
 			search.setHeight("32px");
 			startDateField.setHeight("32px");
 			addComponentAsFirst(header);
 			clearHistorySearch.removeStyleNames("audit-AuditSearchClearDesktop", "odometer-OdometerSearchClearPhone");
 			clearHistorySearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"v-button-customstyle");
-			mainView.getTitle().setValue("gemView"/*+ userService.getLoggedInUserName()*/);
+			mainView.getTitle().setValue("gemView");
 			MainViewIconsLoad.iconsOnTabMode(mainView);
+			heartbeatTabSheet.getTab(0).setCaption("<h3 style=font-weight:400;width:120px;height:20px;>Device</h3>");
+			heartbeatTabSheet.getTab(1).setCaption("<h3 style=font-weight:400;width:120px;height:20px;>History</h3>");
 		}else {
-			/*deviceSearch.setHeight(37, Unit.PIXELS);
-			search.setHeight("37px");
-			startDateField.setHeight("37px");
-			endDateField.setHeight("37px");*/
 			deviceSearch.setHeight(37, Unit.PIXELS);
 			search.setHeight("37px");
 			addComponentAsFirst(header);
 			clearHistorySearch.removeStyleNames("audit-AuditSearchClearPhone", "v-button-customstyle");
 			clearHistorySearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"audit-AuditSearchClearDesktop");
-			mainView.getTitle().setValue("gemView"/*+ userService.getLoggedInUserName()*/);
+			mainView.getTitle().setValue("gemView");
 			MainViewIconsLoad.noIconsOnDesktopMode(mainView);
+			heartbeatTabSheet.getTab(0).setCaption("<h3 style=font-weight:400;width:150px;height:25px;>Device</h3>");
+			heartbeatTabSheet.getTab(1).setCaption("<h3 style=font-weight:400;width:150px;height:25px;>History</h3>");
 		}
 	}
 	
@@ -623,12 +594,12 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 	
 		private TabSheet getTabSheet() throws ApiException {
 		heartbeatTabSheet = new TabSheet();
-		//heartbeatTabSheet.setHeight("100%");
 		heartbeatTabSheet.addStyleName("applicationStore-TabLayout");
-		heartbeatTabSheet.addStyleNames(ValoTheme.TABSHEET_EQUAL_WIDTH_TABS, ValoTheme.TABSHEET_CENTERED_TABS,
-				ValoTheme.TABSHEET_ICONS_ON_TOP, ValoTheme.TABSHEET_COMPACT_TABBAR, ValoTheme.TABSHEET_PADDED_TABBAR);
-		heartbeatTabSheet.addTab(getDeviceFromLayout(verticalDeviceFormLayout,selectedTerminal, false ), "Device");
-		heartbeatTabSheet.addTab(getSearchAndDelete(verticalSearchLayout),"History");
+		heartbeatTabSheet.setCaptionAsHtml(true);
+		heartbeatTabSheet.setTabCaptionsAsHtml(true);
+		heartbeatTabSheet.addStyleNames(ValoTheme.TABSHEET_FRAMED, ValoTheme.TABSHEET_PADDED_TABBAR);
+		heartbeatTabSheet.addTab(getDeviceFromLayout(verticalDeviceFormLayout,selectedTerminal, false ));
+		heartbeatTabSheet.addTab(getSearchAndDelete(verticalSearchLayout));
 		
 		return heartbeatTabSheet;
 	}
@@ -648,16 +619,6 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
        return panel;
 	}
 	
-	private void addDeviceLabel(VerticalLayout layout) {
-		HorizontalLayout horizontalLayout = new HorizontalLayout();
-		horizontalLayout.setStyleName("heartbeat-horizontalLayout-DeviceLabel");
-		Label deviceInformation = new Label("Device Information", ContentMode.HTML);
-		deviceInformation.addStyleName("label-style");
-		horizontalLayout.addComponent(deviceInformation);
-		layout.addComponent(horizontalLayout);
-		layout.setComponentAlignment(horizontalLayout, Alignment.TOP_LEFT);
-	}
-	
 	private void confirmDialog() {
 		ConfirmDialog.show(this.getUI(), "Please Confirm:", "Are you sure you want to delete?",
 		        "Ok", "Cancel", new ConfirmDialog.Listener() {
@@ -665,9 +626,6 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 		            public void onClose(ConfirmDialog dialog) {
 		                if (dialog.isConfirmed()) {
 		                    // Confirmed to continue
-		                		//List<Heartbeat> heartbeatHistortListServer = heartBeatService.deleteHeartbeat(hbHistoryGrid.getSelectedItems().iterator().next().getId());
-								//DataProvider data = new ListDataProvider(heartbeatHistortListServer);
-								//hbHistoryGrid.setDataProvider(data);	
 								search.clear();
 			                	hbHistoryGrid.getDataProvider().refreshAll();
 			    				clearCalenderDates();
@@ -901,18 +859,6 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 		hbHistoryGrid.setDataProvider(data);
 	}
 	
-	private void addDeviceHistoryLabel(VerticalLayout layout) {
-		HorizontalLayout horizontalLayout = new HorizontalLayout();
-		horizontalLayout.addStyleName("heartbeat-historyLabel");
-		horizontalLayout.addStyleName("horizontalLayout");
-		Label deviceInformation = new Label("Heartbeat History", ContentMode.HTML);
-		deviceInformation.addStyleName("label-style");
-		horizontalLayout.addComponent(deviceInformation);
-		layout.addComponent(horizontalLayout);
-		layout.setComponentAlignment(horizontalLayout, Alignment.TOP_LEFT);
-	}
-	
-	
 	private List<Button> getActiveTerminals(VerticalLayout verticalDeviceFormLayout, List<TerminalClient> terminalList){
 		List<Button> buttons = new ArrayList<Button>();
 		verticalDeviceFormLayout.addLayoutClickListener(listener->{
@@ -1058,43 +1004,6 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 		
 	}
 	
-
-	private List<HorizontalLayout> getButtonsLayoutSecondMode(List<Button> terminalButtons) {
-		
-		List<HorizontalLayout> hLList = new ArrayList<HorizontalLayout>();
-		HorizontalLayout hL = new HorizontalLayout();
-		for(Button button:terminalButtons) {
-			if(hL.getComponentCount()<2) {
-				hL.addComponents(button);
-			} else if(hL.getComponentCount()==2) {
-				hLList.add(hL);
-				hL=new HorizontalLayout();
-				hL.addComponents(button);
-			}
-		}
-		hLList.add(hL);
-		return hLList;
-		
-	}
-	
-private List<HorizontalLayout> getButtonsLayoutThirdMode(List<Button> terminalButtons) {
-		
-		List<HorizontalLayout> hLList = new ArrayList<HorizontalLayout>();
-		HorizontalLayout hL = new HorizontalLayout();
-		for(Button button:terminalButtons) {
-			if(hL.getComponentCount()<1) {
-				hL.addComponents(button);
-			} else if(hL.getComponentCount()==1) {
-				hLList.add(hL);
-				hL=new HorizontalLayout();
-				hL.addComponents(button);
-			}
-		}
-		hLList.add(hL);
-		return hLList;
-		
-	}
-	
 	private VerticalLayout getDeviceFromLayout(VerticalLayout layout,TerminalClient terminal, boolean isEditableOnly) {
 		
 		VerticalLayout deviceFormLayout = new VerticalLayout();
@@ -1126,10 +1035,7 @@ private List<HorizontalLayout> getButtonsLayoutThirdMode(List<Button> terminalBu
 		String entityType = terminal.getType()!= null ? terminal.getType(): "";
 		entityTypeTextFiled = new TextField("Entity Type", entityType);
 		terminal.setType(entityTypeTextFiled.getValue());
-		//entityTypeTextFiled.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
 		entityTypeTextFiled.setWidth("100%");
-		//entityTypeTextFiled.setStyleName("role-textbox");
-		//entityTypeTextFiled.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
 		entityTypeTextFiled.addStyleName("v-textfield-font");
 		entityTypeTextFiled.setEnabled(isEditableOnly);
 		entityTypeTextFiled.addStyleName("textfiled-height");
@@ -1140,10 +1046,7 @@ private List<HorizontalLayout> getButtonsLayoutThirdMode(List<Button> terminalBu
 		String name = terminal.getLabel() != null ? terminal.getLabel(): "";
 		deviceName = new TextField("Name", name);
 		terminal.setLabel(deviceName.getValue());
-		//deviceName.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
 		deviceName.setWidth("100%");
-		//deviceName.setStyleName("role-textbox");
-		//deviceName.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
 		deviceName.addStyleName("v-textfield-font");
 		deviceName.setEnabled(isEditableOnly);
 		deviceName.addStyleName("textfiled-height");
@@ -1154,10 +1057,7 @@ private List<HorizontalLayout> getButtonsLayoutThirdMode(List<Button> terminalBu
 		String description = terminal.getDescription() != null ? terminal.getDescription(): "";
 		deviceDescription = new TextField("Description", description);
 		terminal.setDescription(deviceDescription.getValue());
-		//deviceDescription.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
 		deviceDescription.setWidth("100%");
-		//deviceDescription.setStyleName("role-textbox");
-		//deviceDescription.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
 		deviceDescription.addStyleName("v-textfield-font");
 		deviceDescription.setEnabled(isEditableOnly);
 		deviceDescription.addStyleName("textfiled-height");
@@ -1187,10 +1087,7 @@ private List<HorizontalLayout> getButtonsLayoutThirdMode(List<Button> terminalBu
 		String serailNumber = terminal.getSerialNumber() != null ? terminal.getSerialNumber(): "";
 		deviceSerialNumber = new TextField("Serial Number", serailNumber);
 		terminal.setSerialNumber(deviceSerialNumber.getValue());
-		//deviceSerialNumber.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
 		deviceSerialNumber.setWidth("100%");
-		//deviceSerialNumber.setStyleName("role-textbox");
-		//deviceSerialNumber.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
 		deviceSerialNumber.addStyleName("v-textfield-font");
 		deviceSerialNumber.setEnabled(isEditableOnly);
 		deviceSerialNumber.addStyleName("textfiled-height");
@@ -1216,10 +1113,7 @@ private List<HorizontalLayout> getButtonsLayoutThirdMode(List<Button> terminalBu
 		
 		String freqncy = terminal.getFrequency() != null ? terminal.getFrequency().toString(): "";
 		deviceFrequency = new TextField("Frequency", freqncy.toString());
-		//deviceFrequency.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
 		deviceFrequency.setWidth("100%");
-		//deviceFrequency.setStyleName("role-textbox");
-		//deviceFrequency.addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
 		deviceFrequency.addStyleName("v-textfield-font");
 		deviceFrequency.setEnabled(isEditableOnly);
 		deviceFrequency.addStyleName("textfiled-height");
@@ -1230,10 +1124,7 @@ private List<HorizontalLayout> getButtonsLayoutThirdMode(List<Button> terminalBu
 		String lastSeen = terminal.getLastSeen() != null ? terminal.getLastSeen(): "";
 		deviceLastSeen = new TextField("Last Seen", lastSeen);
 		terminal.setLastSeen(deviceLastSeen.getValue());
-		//deviceLastSeen.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
 		deviceLastSeen.setWidth("100%");
-		//deviceLastSeen.setStyleName("role-textbox");
-		//deviceLastSeen.addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS);
 		deviceLastSeen.addStyleName("v-textfield-font");
 		deviceLastSeen.setEnabled(isEditableOnly);
 		deviceLastSeen.addStyleName("textfiled-height");

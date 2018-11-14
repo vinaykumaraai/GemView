@@ -39,11 +39,8 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.luretechnologies.client.restlib.common.ApiException;
-import com.luretechnologies.client.restlib.service.model.AuditUserLog;
-import com.luretechnologies.client.restlib.service.model.Heartbeat;
 import com.luretechnologies.client.restlib.service.model.HeartbeatAudit;
 import com.luretechnologies.tms.backend.data.entity.AssetHistory;
-import com.luretechnologies.tms.backend.data.entity.Audit;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
 import com.luretechnologies.tms.backend.rest.util.RestClient;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
@@ -52,6 +49,12 @@ import com.luretechnologies.tms.ui.components.NotificationUtil;
 import com.vaadin.data.TreeData;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
+
+/**
+ * 
+ * @author Vinay
+ *
+ */
 
 public class AssetControlHistoryService {
 private static final Logger assetControlHistoryLogger = Logger.getLogger(AssetControlHistoryService.class);

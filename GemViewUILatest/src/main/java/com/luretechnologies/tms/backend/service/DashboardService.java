@@ -36,12 +36,10 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.luretechnologies.client.restlib.common.ApiException;
@@ -56,15 +54,23 @@ import com.luretechnologies.tms.ui.components.NotificationUtil;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 
+/**
+ * 
+ * @author Vinay
+ *
+ */
+
 @Service
 public class DashboardService {
 
 	private final static Logger dashboardServiceLogger = Logger.getLogger(DashboardService.class);
+	private static DashboardWidget dashboardWidget;
 	public ConnectionStats getLabelData(){
 		final String CURRENT_CONNECTIONS = "currentConnectionsData";
 		final String SUCESSFUL_DOWNLOADS = "successfulDownloads";
 		final String REQUEST_PER_SECOND = "requestPerSecond";
 		final String DOWNLOAD_FAILURE = "downloadFailure";
+		
 		ConnectionStats labelData = new ConnectionStats();
 		List<String> labelDataList = new ArrayList<>();
 		Integer currentConnections = null, successfulDownloads = null, requestPerSecond = null, downloadFailure = null;
@@ -72,7 +78,6 @@ public class DashboardService {
 		labelDataList.add(DOWNLOAD_FAILURE);
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
-				 DashboardWidget dashboardWidget = RestServiceUtil.getInstance().getClient().getDashboardApi().getDashboardWidget();
 				for(String string: labelDataList) {
 					switch(string)	{
 					case CURRENT_CONNECTIONS:
@@ -110,17 +115,7 @@ public class DashboardService {
 					}
 				}
 			}
-		} catch (ApiException e) {
-			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
-				ComponentUtil.sessionExpired(notification);
-			}else {
-				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving the Dashboard Label Data",Type.ERROR_MESSAGE);
-				ComponentUtil.sessionExpired(notification);
-			}
-			dashboardServiceLogger.error("API Error has occured while retrieving the Label Data in the Dashboard Screen",e);
-			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
-		}
+		} 
 			catch (Exception e) {
 				dashboardServiceLogger.error("Error occured while retrieving the Label Data in the Dashboard Screen",e);
 				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
@@ -136,7 +131,7 @@ public class DashboardService {
 		List<Downloads> currentDownloadsData = new ArrayList<>();
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
-				 DashboardWidget dashboardWidget = RestServiceUtil.getInstance().getClient().getDashboardApi().getDashboardWidget();
+				 dashboardWidget = RestServiceUtil.getInstance().getClient().getDashboardApi().getDashboardWidget();
 				 currentDownloadsDataServer = dashboardWidget.getCurrentDownLoadsDisplays();
 				 dashboardWidget.getHeartbeatPerHour();
 				 if(currentDownloadsDataServer!=null) {
@@ -144,7 +139,7 @@ public class DashboardService {
 						 Downloads download = new Downloads(dashboardCurrentDownLoads.getSerialTerminal(),
 							 				dashboardCurrentDownLoads.getOrganization(), dashboardCurrentDownLoads.getOperatingSystem(),
 							 				dashboardCurrentDownLoads.getIp(), dashboardCurrentDownLoads.getDevice(), 
-							 				dashboardCurrentDownLoads.getCompletion().toString()+"%");
+							 				dashboardCurrentDownLoads.getCompletion().toString()+" secs");
 						 currentDownloadsData.add(download);
 					 }
 				 }
@@ -176,7 +171,6 @@ public class DashboardService {
 		List<Number> heartBeatPerDay = new ArrayList<>();
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
-				 DashboardWidget dashboardWidget = RestServiceUtil.getInstance().getClient().getDashboardApi().getDashboardWidget();
 				 heartBeatPerDayLong = dashboardWidget.getHeartbeatPerHour();
 				 for(Long value: heartBeatPerDayLong) {
 					 Number number = value.intValue();
@@ -184,17 +178,7 @@ public class DashboardService {
 				 }
 				 return heartBeatPerDay;
 			}
-		} catch (ApiException e) {
-			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
-				ComponentUtil.sessionExpired(notification);
-			}else {
-				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving the Dashboard Heartbeat Data per day",Type.ERROR_MESSAGE);
-				ComponentUtil.sessionExpired(notification);
-			}
-			dashboardServiceLogger.error("API Error has occured while retrieving the Hearbeat Data Per day in the Dashboard Screen",e);
-			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
-		}
+		} 
 			catch (Exception e) {
 				dashboardServiceLogger.error("Error occured while retrieving the Hearbeat Data Per day in the Dashboard Screen",e);
 				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
@@ -210,9 +194,7 @@ public class DashboardService {
 		Map<String, Number> heartBeatPerWeek = new HashMap<>();
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
-				 DashboardWidget dashboardWidget = RestServiceUtil.getInstance().getClient().getDashboardApi().getDashboardWidget();
 				 heartBeatPerWeekLong = dashboardWidget.getHeartbeatPerWeekDays();
-				 List<Integer> valueList = new ArrayList<>();
 				 
 				 for (Map.Entry<String, Long> entry : heartBeatPerWeekLong.entrySet()) {
 					 Number number = entry.getValue().intValue();
@@ -224,18 +206,7 @@ public class DashboardService {
 			                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1,e2) -> e1, LinkedHashMap::new));
 				 return newMapSortedByKey;
 			}
-		} catch (ApiException e) {
-			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
-				ComponentUtil.sessionExpired(notification);
-			}else {
-				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving the Dashboard Heartbeat Data per week",Type.ERROR_MESSAGE);
-				ComponentUtil.sessionExpired(notification);
-			}
-			dashboardServiceLogger.error("API Error has occured while retrieving the Hearbeat data Per week in the Dashboard Screen",e);
-			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
-		}
-			catch (Exception e) {
+		} catch (Exception e) {
 				dashboardServiceLogger.error("Error occured while retrieving the Hearbeat data Per week in the Dashboard Screen",e);
 				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving the Dashboard Heartbeat Data per week",Type.ERROR_MESSAGE);
@@ -250,7 +221,6 @@ public class DashboardService {
 		List<Number> downloadPerDay = new ArrayList<>();
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
-				 DashboardWidget dashboardWidget = RestServiceUtil.getInstance().getClient().getDashboardApi().getDashboardWidget();
 				 downloadPerDayLong = dashboardWidget.getDownloadPerHour();
 				 for(Long value: downloadPerDayLong) {
 					 Number number = value.intValue();
@@ -258,18 +228,7 @@ public class DashboardService {
 				 }
 				 return downloadPerDay;
 			}
-		} catch (ApiException e) {
-			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
-				ComponentUtil.sessionExpired(notification);
-			}else {
-				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving the Dashboard download Data per day",Type.ERROR_MESSAGE);
-				ComponentUtil.sessionExpired(notification);
-			}
-			dashboardServiceLogger.error("API Error has occured while retrieving the download data Per day in the Dashboard Screen",e);
-			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
-		}
-			catch (Exception e) {
+		} catch (Exception e) {
 				dashboardServiceLogger.error("Error occured while retrieving the download data Per day in the Dashboard Screen",e);
 				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving the Dashboard download Data per day",Type.ERROR_MESSAGE);
@@ -283,7 +242,6 @@ public class DashboardService {
 		Map<String, Number> downloadDataPerWeek = new HashMap<>();
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
-				 DashboardWidget dashboardWidget = RestServiceUtil.getInstance().getClient().getDashboardApi().getDashboardWidget();
 				 downloadDataPerWeekLong = dashboardWidget.getHeartbeatPerWeekDays();
 				 for (Map.Entry<String, Long> entry : downloadDataPerWeekLong.entrySet()) {
 					 Number number = entry.getValue().intValue();
@@ -295,18 +253,7 @@ public class DashboardService {
 			                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1,e2) -> e1, LinkedHashMap::new));
 				 return newMapSortedByKey;
 			}
-		} catch (ApiException e) {
-			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
-				ComponentUtil.sessionExpired(notification);
-			}else {
-				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving the Dashboard download Data per week",Type.ERROR_MESSAGE);
-				ComponentUtil.sessionExpired(notification);
-			}
-			dashboardServiceLogger.error("API Error has occured while retrieving the download data Per week in the Dashboard Screen",e);
-			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
-		}
-			catch (Exception e) {
+		} catch (Exception e) {
 				dashboardServiceLogger.error("Error occured while retrieving the download data Per week in the Dashboard Screen",e);
 				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving the Dashboard download Data per week",Type.ERROR_MESSAGE);

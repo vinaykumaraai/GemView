@@ -42,7 +42,6 @@ import com.luretechnologies.tms.backend.service.TreeDataNodeService;
 import com.luretechnologies.tms.ui.view.ContextMenuWindow;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.server.Page;
-import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -56,6 +55,12 @@ import com.vaadin.ui.Window;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.TreeGrid;
 import com.vaadin.ui.themes.ValoTheme;
+
+/**
+ * 
+ * @author Vinay
+ *
+ */
 
 @SpringComponent
 public class EntityOperations {
@@ -192,21 +197,11 @@ public class EntityOperations {
 		});
 		
 		UI.getCurrent().addClickListener(listener->{
-			treeContextMenuWindow.close();
-			
-			if(createEntityWindow!=null) {
-				createEntityWindow.close();
-			}
-			
-			if(editEntityWindow!=null) {
-				editEntityWindow.close();
-			}
-			
-			
+			UI.getCurrent().getWindows().forEach(Window::close);
 	});
 		
 		Page.getCurrent().addBrowserWindowResizeListener(r->{
-			
+			UI.getCurrent().getWindows().forEach(Window::close);
 			if (r.getWidth() <= 600) {
 				if(createEntityWindow!=null) {
 					createEntityWindow.setPosition(180, 200);
@@ -395,7 +390,7 @@ public class EntityOperations {
 							}
 							selectedNode.setDescription(entityDescription.getValue());
 							selectedNode.setLabel(entityName.getValue());
-							commonService.updateEntity(selectedNode);
+							commonService.updateEntity(selectedNode, null);
 							nodeTree.setTreeData(commonService.getTreeData());
 							entityWindow.close();
 
@@ -537,8 +532,6 @@ public class EntityOperations {
 							if (nodeTree.getSelectedItems().size() == 1) {
 									commonService.deleteEntity(selectedNode);
 									nodeTree.setTreeData(commonService.getTreeData());
-								/*ClearAllComponents();
-								ClearGrid();*/
 							}
 						} else {
 							// User did not confirm

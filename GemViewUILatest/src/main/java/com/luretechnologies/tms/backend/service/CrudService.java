@@ -33,11 +33,16 @@ package com.luretechnologies.tms.backend.service;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 import com.luretechnologies.tms.backend.data.entity.AbstractEntity;
 import com.vaadin.data.provider.Query;
+
+/**
+ * 
+ * @author Vinay
+ *
+ */
 
 public abstract class CrudService<T extends AbstractEntity> {
 

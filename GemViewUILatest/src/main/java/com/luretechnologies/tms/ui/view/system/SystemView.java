@@ -81,6 +81,12 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 
+/**
+ * 
+ * @author Vinay
+ *
+ */
+
 @SpringView(name = SystemView.VIEW_NAME)
 public class SystemView extends VerticalLayout implements Serializable, View {
 
@@ -573,8 +579,6 @@ public class SystemView extends VerticalLayout implements Serializable, View {
 							DataProvider data = new ListDataProvider(systemService.getAllSystemParam());
 							systemGrid.setDataProvider(data);
 							clearParamComponents();
-//							getAndLoadSystemForm(systemInfoLayout, false);
-							//systemGrid.select(selectedSystem);
 						}
 					} else {
 						if (!checkParamNameInList(parametername)) {
@@ -582,10 +586,7 @@ public class SystemView extends VerticalLayout implements Serializable, View {
 									type);
 							DataProvider data = new ListDataProvider(systemService.getAllSystemParam());
 							systemGrid.setDataProvider(data);
-							//systemGrid.select(selectedSystem);
-							//systemInfoLayout.removeAllComponents();
 							clearParamComponents();
-//							getAndLoadSystemForm(systemInfoLayout, false);
 						} else {
 							Notification.show(NotificationUtil.SYSTEM_PARAM_EXIST, Type.ERROR_MESSAGE);
 							parameterName.focus();
@@ -620,66 +621,6 @@ public class SystemView extends VerticalLayout implements Serializable, View {
 	}
 
 	private void getSystemGrid(VerticalLayout verticalLayout) throws ApiException {
-//		create = new Button(VaadinIcons.FOLDER_ADD);
-//		create.addStyleName(ValoTheme.BUTTON_FRIENDLY);
-//		create.addStyleName("v-button-customstyle");
-//		create.setDescription("Create System Parameter");
-//		create.addClickListener(new ClickListener() {
-//			public void buttonClick(ClickEvent event) {
-//				systemGrid.deselectAll();
-//				systemInfoLayout.removeAllComponents();
-//				selectedSystem = new Systems();
-//				getAndLoadSystemForm(systemInfoLayout, true);
-//				getFirstFormField().focus();
-//			}
-//		});
-//		
-//		edit = new Button(VaadinIcons.EDIT);
-//		edit.addStyleName(ValoTheme.BUTTON_FRIENDLY);
-//		edit.addStyleName("v-button-customstyle");
-//		edit.setDescription("Edit System Parameter");
-//		edit.addClickListener(new ClickListener() {
-//			public void buttonClick(ClickEvent event) {
-//				//parameterName.focus();
-//				if(systemDescription.getValue()==null || systemDescription.getValue().isEmpty() || 
-//						parameterName.getValue()==null ||  parameterName.getValue().isEmpty() ||
-//								comboBoxType.getValue()==null ||  comboBoxType.getValue().isEmpty() ||
-//								systemValue.getValue()==null ||  systemValue.getValue().isEmpty()) {
-//					Notification.show(NotificationUtil.SYSTEM_EDIT, Notification.Type.ERROR_MESSAGE);
-//				}else {
-//					systemInfoLayout.removeAllComponents();
-//					getAndLoadSystemForm(systemInfoLayout, true);	
-//					getFirstFormField().focus();
-//				}
-//			}
-//		});
-//		
-//		delete = new Button(VaadinIcons.TRASH);
-//		delete.addStyleName(ValoTheme.BUTTON_FRIENDLY);
-//		delete.addStyleName("v-button-customstyle");
-//		delete.setDescription("Delete System Parameter");
-//		delete.addClickListener(new ClickListener() {
-//			
-//			@Override
-//			public void buttonClick(ClickEvent event) {
-//				if(systemDescription.getValue()==null || systemDescription.getValue().isEmpty() || 
-//						parameterName.getValue()==null ||  parameterName.getValue().isEmpty() ||
-//								comboBoxType.getValue()==null ||  comboBoxType.getValue().isEmpty() ||
-//						systemValue.getValue()==null ||  systemValue.getValue().isEmpty()) {
-//					Notification.show(NotificationUtil.SYSTEM_DELETE, Notification.Type.ERROR_MESSAGE);
-//				}else {
-//				
-//				confirmDialog( systemInfoLayout, selectedSystem);
-//				}
-//			}
-//		});
-//		
-//		HorizontalLayout buttonGroup =  new HorizontalLayout();
-//		buttonGroup.addStyleName("system-ButtonLayout");
-//		buttonGroup.setDefaultComponentAlignment(Alignment.MIDDLE_RIGHT);
-//		buttonGroup.addComponent(create);
-//		buttonGroup.addComponent(edit);
-//		buttonGroup.addComponent(delete);
 		
 		createSystemGridMenu = new Button("Create Parameter");
 		createSystemGridMenu.addClickListener(listener->{
@@ -697,10 +638,6 @@ public class SystemView extends VerticalLayout implements Serializable, View {
 			UI.getCurrent().getWindows().forEach(Window::close);
 			UI.getCurrent().addWindow(createWindow);
 			parameterName.focus();
-			
-//			createWindow.addCloseListener(listener1->{
-//				systemGrid.deselectAll();
-//			});
 		});
 		createSystemGridMenu.addStyleNames(ValoTheme.BUTTON_BORDERLESS, "v-textfield-font");
 		
@@ -721,10 +658,6 @@ public class SystemView extends VerticalLayout implements Serializable, View {
 				UI.getCurrent().getWindows().forEach(Window::close);
 				UI.getCurrent().addWindow(editWindow);
 				parameterName.setEnabled(false);
-				
-//				editWindow.addCloseListener(listener1->{
-//					systemGrid.deselectAll();
-//				});
 			}
 		});
 		editSystemGridMenu.addStyleNames(ValoTheme.BUTTON_BORDERLESS, "v-textfield-font");
@@ -779,11 +712,8 @@ public class SystemView extends VerticalLayout implements Serializable, View {
 			}
 
 			if (e.getFirstSelectedItem().isPresent()) {
-				// Load and update the data in permission grid.
-//				systemInfoLayout.removeAllComponents();
 				Systems selectedSystem = e.getFirstSelectedItem().get();
 				this.selectedSystem = selectedSystem;
-//				getAndLoadSystemForm(systemInfoLayout, false);
 			} else {
 				clearParamComponents();
 			}
@@ -803,14 +733,11 @@ public class SystemView extends VerticalLayout implements Serializable, View {
 			UI.getCurrent().getWindows().forEach(Window::close);
 			paramContextWindow.setPosition(click.getClientX(), click.getClientY());
 			UI.getCurrent().addWindow(paramContextWindow);
-			//systemGrid.deselectAll();
 		});
 		
 		VerticalLayout systemGridLayout = new VerticalLayout();
 		systemGridLayout.setHeight("100%");
 		systemGridLayout.addStyleName("system-GridAlignment");
-		//systemGridLayout.setDefaultComponentAlignment(Alignment.MIDDLE_RIGHT);
-//		systemGridLayout.addComponent(buttonGroup);
 		systemGridLayout.addComponent(systemGrid);
 		verticalLayout.addComponent(systemGridLayout);
 	}
@@ -829,7 +756,6 @@ public class SystemView extends VerticalLayout implements Serializable, View {
 								systemGrid.setDataProvider(data);
 								selectedSystem = new Systems();
 								systemGrid.getDataProvider().refreshAll();
-//			                	getAndLoadSystemForm(systemInfoLayout, false);
 						} else {
 							// User did not confirm
 

@@ -48,6 +48,7 @@ import com.luretechnologies.client.restlib.service.model.Region;
 import com.luretechnologies.client.restlib.service.model.Terminal;
 import com.luretechnologies.tms.backend.data.entity.Audit;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
+import com.luretechnologies.tms.backend.data.entity.User;
 import com.luretechnologies.tms.backend.rest.util.RestClient;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
 import com.luretechnologies.tms.ui.components.ComponentUtil;
@@ -57,6 +58,12 @@ import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 
+/**
+ * 
+ * @author Vinay
+ *
+ */
+
 @SpringComponent
 @Service
 public class AuditService extends CommonService {
@@ -64,6 +71,10 @@ public class AuditService extends CommonService {
 	
 	@Autowired
 	TreeDataNodeService treeDataNodeService;
+	
+	@Autowired
+	UserService userService;
+	
 	@Override
 	public TreeData<TreeNode> getTreeData(){
 		try {
@@ -294,7 +305,7 @@ public class AuditService extends CommonService {
 			}
 	}
 	@Override
-	public void updateEntity(TreeNode node) {
+	public void updateEntity(TreeNode node, Long frequency) {
 		try {
 			if(RestServiceUtil.getSESSION() != null) {
 				switch (node.getType()) {
@@ -328,8 +339,8 @@ public class AuditService extends CommonService {
 					terminal.setAvailable(node.isActive());
 					terminal.setDescription(node.getDescription());
 					terminal.setName(node.getLabel());
-					if(node.getFrequency()!=null) {
-						terminal.setFrequency(Long.parseLong(node.getFrequency()));
+					if(frequency!=null) {
+						terminal.setFrequency(frequency);
 					}
 					terminal.setHeartbeat(node.isHeartBeat());
 					terminal.setSerialNumber(node.getSerialNum());

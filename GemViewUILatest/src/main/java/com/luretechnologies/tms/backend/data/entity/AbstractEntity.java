@@ -34,6 +34,12 @@ package com.luretechnologies.tms.backend.data.entity;
 
 import java.io.Serializable;
 
+/**
+ * 
+ * @author Vinay
+ *
+ */
+
 public class AbstractEntity implements Serializable {
 
 	private Long id;

@@ -34,7 +34,6 @@ package com.luretechnologies.tms.backend.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
@@ -57,8 +56,8 @@ import com.luretechnologies.client.restlib.service.model.Region;
 import com.luretechnologies.client.restlib.service.model.Terminal;
 import com.luretechnologies.tms.backend.data.entity.AppClient;
 import com.luretechnologies.tms.backend.data.entity.AppDefaultParam;
-import com.luretechnologies.tms.backend.data.entity.ApplicationFile;
 import com.luretechnologies.tms.backend.data.entity.Devices;
+import com.luretechnologies.tms.backend.data.entity.EntityAppProfileInfo;
 import com.luretechnologies.tms.backend.data.entity.Profile;
 import com.luretechnologies.tms.backend.data.entity.TerminalClient;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
@@ -70,6 +69,12 @@ import com.vaadin.data.TreeData;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
+
+/**
+ * 
+ * @author Vinay
+ *
+ */
 
 @Service
 public class PersonalizationService extends CommonService {
@@ -196,7 +201,7 @@ public class PersonalizationService extends CommonService {
 	}
 
 	
-	public void updateEntity(TreeNode node) {
+	public void updateEntity(TreeNode node, Long frequency) {
 		try {
 			if(RestServiceUtil.getSESSION() != null) {
 				switch (node.getType()) {
@@ -230,8 +235,8 @@ public class PersonalizationService extends CommonService {
 					terminal.setAvailable(node.isActive());
 					terminal.setDescription(node.getDescription());
 					terminal.setName(node.getLabel());
-					if(node.getFrequency()!=null) {
-						terminal.setFrequency(Long.parseLong(node.getFrequency()));
+					if(frequency!=null) {
+						terminal.setFrequency(frequency);
 					}
 					terminal.setHeartbeat(node.isHeartBeat());
 					terminal.setSerialNumber(node.getSerialNum());
@@ -471,6 +476,36 @@ public class PersonalizationService extends CommonService {
 		return profileList;
 	}
 	
+	public List<AppDefaultParam> searchEntityParam(Long appProfileId, String filter){
+		List<AppDefaultParam> searchList = new ArrayList<>();
+		try {
+			if (RestServiceUtil.getSESSION() != null) {
+				for(AppParam appParamServer : RestServiceUtil.getInstance().getClient().getAppProfileApi().searchAppParamByProfile(appProfileId, filter, null, null))
+					searchList.add(new AppDefaultParam(appParamServer.getId() ,appParamServer.getName(), appParamServer.getDescription(), appParamServer.getAppParamFormat().getName(),
+						appParamServer.getDefaultValue()));
+				}
+
+		} catch (ApiException e) {
+			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving search param list with entity in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			personlizationServiceLogger.error("API Error has occured while retrieving search param list with entity in the Personlization Screen",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+		}
+			catch (Exception e) {
+				personlizationServiceLogger.error("Error occured while retrieving search param list with entity in the Personlization Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving search param list with entity in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+
+		return searchList;
+	}
+	
 	public List<AppDefaultParam> getFileListWithEntity(Long appProfileId, Long entityId){
 		List<AppDefaultParam> fileList = new ArrayList<>();
 		try {
@@ -505,7 +540,6 @@ public class PersonalizationService extends CommonService {
 		List<AppDefaultParam> fileList = new ArrayList<>();
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
-				List<AppParam> appParamList = RestServiceUtil.getInstance().getClient().getAppProfileApi().getAppFileListWithoutAppProfile(appProfileId);
 				for(AppParam appParamServer : RestServiceUtil.getInstance().getClient().getAppProfileApi().getAppFileListWithoutEntity(appProfileId, entityId))
 				fileList.add(new AppDefaultParam(appParamServer.getId() ,appParamServer.getName(), appParamServer.getDescription(), appParamServer.getAppParamFormat().getName(),
 						appParamServer.getDefaultValue()));
@@ -550,7 +584,7 @@ public class PersonalizationService extends CommonService {
 		return null;
 	}
 
-	public Long getFrequencyByEntityId(String entityId) {
+	public Long getTerminalFrequencyByEntityId(String entityId) {
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
 				TerminalClient terminalClient = getTerminalByEntityId(entityId);
@@ -593,7 +627,7 @@ public class PersonalizationService extends CommonService {
 			for(App app : RestServiceUtil.getInstance().getClient().getAppApi().getAppsByEntityHierarchy(id)) {
 				allAppList.add(new AppClient(app.getId(), app.getName(), app.getDescription(),
 						app.getVersion(), app.getAvailable(), app.getActive(),getAppDefaultParamList(app.getAppParamCollection()),
-						null, getOwner(app.getOwnerId()), getAppProfileList(app.getAppprofileCollection()),
+						null, app.getOwnerId(), getAppProfileList(app.getAppprofileCollection()),
 						getApplicationFileList(app.getAppfileCollection())));
 			}
 		}
@@ -671,13 +705,13 @@ public class PersonalizationService extends CommonService {
 			}
 }
 
-	private TerminalClient getTerminalByEntityId(String entityId) {
+	public TerminalClient getTerminalByEntityId(String entityId) {
 		try {
 			terminalForPV = RestServiceUtil.getInstance().getClient().getTerminalApi().getTerminal(entityId);
 			TerminalClient terminal = new TerminalClient(terminalForPV.getId(), terminalForPV.getType().name(),
 					terminalForPV.getName(), terminalForPV.getDescription(), terminalForPV.getSerialNumber(),
 					terminalForPV.getAvailable(), terminalForPV.isHeartbeat(), terminalForPV.getDebugActive(),
-					terminalForPV.getFrequency(), terminalForPV.getLastContact().toString(),
+					terminalForPV.getFrequency(), terminalForPV.getLastContact()==null ? "" : terminalForPV.getLastContact().toString(),
 					terminalForPV.getEntityId());
 			return terminal;
 		} catch (ApiException e) {
@@ -865,7 +899,7 @@ public class PersonalizationService extends CommonService {
 		return new ListDataProvider<>(profileList);
 	}
 	
-	public void saveProfileForEntity(List<Profile> profileListClient,Long entityId, Long appId) {
+	/*public void saveProfileForEntity(List<Profile> profileListClient,Long entityId, Long appId) {
 		List<Profile> profileList = new ArrayList<>();
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
@@ -901,14 +935,38 @@ public class PersonalizationService extends CommonService {
 				ComponentUtil.sessionExpired(notification);
 			}
 
-	}
+	}*/
 	
-	public void saveFileForEntity(Long appProfileId, List<AppDefaultParam> fileList,Long entityId) {
+	public void saveProfileForEntity(Long profileId, Long entityId) {
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
-				for(AppDefaultParam appDefaultParamFile : fileList) {
-					RestServiceUtil.getInstance().getClient().getAppProfileApi().addEntityAppProfileParam(appProfileId, entityId, appDefaultParamFile.getId());
-				}
+				RestServiceUtil.getInstance().getClient().getAppProfileApi().addEntityAppProfile(profileId, entityId);
+			}
+
+		} catch (ApiException e) {
+			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" saving profile for entity in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			personlizationServiceLogger.error("API Error has occured while saving profile for entity  in the Personlization Screen",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+		}
+			catch (Exception e) {
+				personlizationServiceLogger.error("Error occured while saving profile for entity in the Personlization Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" saving profile for entity in the Personlization Screen",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+
+	}
+	
+	public void saveFileForEntity(Long appProfileId, AppDefaultParam file,Long entityId) {
+		try {
+			if (RestServiceUtil.getSESSION() != null) {
+					RestServiceUtil.getInstance().getClient().getAppProfileApi().addEntityAppProfileParam(appProfileId, entityId, file.getId());
 			}
 
 		} catch (ApiException e) {
@@ -976,11 +1034,11 @@ public class PersonalizationService extends CommonService {
 			}
 	}
 	
-	public void deleteProfileForEntity(List<Profile> profileList,Long entityId) {
+	public void deleteProfileForEntity(Set<EntityAppProfileInfo> profileList,Long entityId) {
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
-				for(Profile profile : profileList) {
-					RestServiceUtil.getInstance().getClient().getAppProfileApi().deleteEntityAppProfile(profile.getId(), entityId);
+				for(EntityAppProfileInfo entityAppProfileInfo : profileList) {
+					RestServiceUtil.getInstance().getClient().getAppProfileApi().deleteEntityAppProfile(entityAppProfileInfo.getProfileId(), entityId);
 				}
 			}
 

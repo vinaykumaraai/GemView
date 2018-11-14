@@ -47,6 +47,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import com.luretechnologies.tms.app.Application;
 import com.luretechnologies.tms.backend.data.entity.Role;
 
+/**
+ * 
+ * @author Vinay
+ *
+ */
+
 @EnableWebSecurity
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter implements Serializable{

@@ -32,7 +32,12 @@
 
 package com.luretechnologies.tms.backend.data.entity;
 
-import java.util.Date;
+/**
+ * 
+ * @author Vinay
+ *
+ */
+
 import java.util.List;
 import java.util.Objects;
 

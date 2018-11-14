@@ -32,10 +32,8 @@
 
 package com.luretechnologies.tms.app;
 
-import java.io.IOException;
 import java.util.Properties;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -43,6 +41,12 @@ import org.springframework.boot.web.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.ComponentScan;
 import org.vaadin.spring.events.annotation.EnableEventBus;
 import com.luretechnologies.tms.ui.AppUI;
+
+/**
+ * 
+ * @author Vinay
+ *
+ */
 
 @SpringBootApplication(scanBasePackageClasses = { AppUI.class, Application.class})
 @ComponentScan(basePackages={"com.luretechnologies"})
@@ -61,14 +65,6 @@ public class Application extends SpringBootServletInitializer {
 
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
-		/*try {
-			applicationProperties.load(Application.class.getClassLoader().getResourceAsStream("application.properties"));
-			System.out.println(
-					"File location : " + Application.applicationProperties.getProperty("upload.file.location"));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
 	}
 
 	@Override

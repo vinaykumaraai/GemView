@@ -32,11 +32,12 @@
 package com.luretechnologies.tms.backend.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -57,13 +58,16 @@ import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 
+/**
+ * 
+ * @author Vinay
+ *
+ */
+
 @SpringComponent
 @Service
 public class TreeDataNodeService {
 	private final static Logger treeDataLogger = Logger.getLogger(TreeDataNodeService.class);
-	
-	@Autowired
-	private PersonalizationService personalizationService;
 	
 	public TreeData<TreeNode> getTreeData(){
 		
@@ -73,7 +77,8 @@ public class TreeDataNodeService {
 				Entity entity = RestServiceUtil.getInstance().getClient().getEntityApi().getEntityHierarchy();
 				TreeNode node = new TreeNode(entity.getName(), entity.getId(), entity.getType(), entity.getEntityId(), entity.getDescription(),entity.getChildrenEntities(),entity.getSerialNumber(),
 						 true);
-				List<TreeNode> treeNodeChildList = getChildNodes(entity.getChildrenEntities());		
+				List<TreeNode> treeNodeChildList = getChildNodes(entity.getChildrenEntities());	
+				Collections.sort(treeNodeChildList, Comparator.comparing(TreeNode::getLabel));
 				treeData.addItems(null, node);
 				treeData.addItems(node, treeNodeChildList);
 				treeDataRecursive(treeNodeChildList, treeData);
@@ -137,11 +142,7 @@ public class TreeDataNodeService {
 		}
 		return nodeChildList;
 	}
-	/**
-	 * @param filterTextInLower
-	 * @param node
-	 * @return
-	 */
+	
 	private boolean checkIfLabelStartsWith(String filterTextInLower, TreeNode node) {
 		return StringUtils.startsWithIgnoreCase(node.getLabel().toLowerCase(), filterTextInLower);
 	}

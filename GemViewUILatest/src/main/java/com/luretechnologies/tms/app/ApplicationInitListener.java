@@ -44,6 +44,13 @@ import com.vaadin.server.VaadinServiceInitListener;
  * Uses a bootstrap listener to modify the bootstrap HTML page and include icons
  * for home screen for mobile devices.
  */
+
+/**
+ * 
+ * @author Vinay
+ *
+ */
+
 @Component
 public class ApplicationInitListener implements VaadinServiceInitListener {
 

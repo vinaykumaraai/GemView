@@ -57,6 +57,12 @@ import com.luretechnologies.tms.ui.components.NotificationUtil;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 
+/**
+ * 
+ * @author Vinay
+ *
+ */
+
 @Service
 public class RolesService {
 	private final static Logger rolesLogger = Logger.getLogger(RolesService.class);
@@ -244,7 +250,7 @@ public class RolesService {
 		switch(permissionAccessEnum.toString()) {
 		case UPDATE:
 			if(permission.getPageName()==null) {
-				permission= new Permission(permissionGroupEnum.toString(), false, true, false, false);
+				permission= new Permission(permissionGroupEnum.toString(), false, false, true, false);
 			}else {
 				permission.setEdit(true);
 			}
@@ -258,14 +264,14 @@ public class RolesService {
 			break;
 		case CREATE:
 			if(permission.getPageName()==null) {
-				permission= new Permission(permissionGroupEnum.toString(), false, false, false, true);
+				permission= new Permission(permissionGroupEnum.toString(), false, true, false, false);
 			}else {
 				permission.setAdd(true);
 			}
 			break;
 		case DELETE:
 			if(permission.getPageName()==null) {
-				permission= new Permission(permissionGroupEnum.toString(), false, false, true, false);
+				permission= new Permission(permissionGroupEnum.toString(), false, false, false, true);
 			}else {
 				permission.setDelete(true);
 			}
@@ -300,7 +306,11 @@ public class RolesService {
 					permissionsListServer.addAll(entityPermission);
 					roleServer.setPermissions(permissionsListServer);
 					if(role.getId()==null) {
-						RestServiceUtil.getInstance().getClient().getRoleApi().createRole(roleServer);
+						if(getRoleList().toString().contains(role.toString())) {
+							Notification.show("Role name already exsits", Type.ERROR_MESSAGE);
+						}else {
+							RestServiceUtil.getInstance().getClient().getRoleApi().createRole(roleServer);
+						}
 					}else {
 						RestServiceUtil.getInstance().getClient().getRoleApi().updateRole(role.getId(), roleServer);
 					}
@@ -420,6 +430,9 @@ public class RolesService {
 			break;
 		case "SYSTEM":
 			addPermissionsToRole("SYSTEM", permissionsListServer, add, access, delete, edit);
+			break;
+		case "ENTITY":
+			addPermissionsToRole("ENTITY", permissionsListServer, add, access, delete, edit);
 			break;
 		default:
 			break;

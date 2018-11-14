@@ -6,7 +6,6 @@ import org.apache.log4j.Logger;
 import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.client.restlib.service.RestClientService;
 import com.luretechnologies.client.restlib.service.model.UserSession;
-import com.luretechnologies.tms.backend.service.RolesService;
 import com.luretechnologies.tms.ui.components.ComponentUtil;
 import com.luretechnologies.tms.ui.components.NotificationUtil;
 import com.vaadin.ui.Notification;

@@ -41,7 +41,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.client.restlib.service.model.UserSession;
 import com.luretechnologies.tms.app.Application;
-import com.luretechnologies.tms.app.HasLogger;
 import com.luretechnologies.tms.backend.data.entity.User;
 import com.luretechnologies.tms.backend.rest.util.RestClient;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
@@ -86,7 +85,7 @@ import com.vaadin.ui.themes.ValoTheme;
 @Viewport("width=device-width,initial-scale=1.0,user-scalable=no")
 @Title("Gem View")
 @SpringView
-public class UpdatePasswordUI extends UI implements HasLogger, View{
+public class UpdatePasswordUI extends UI implements View{
 
 	private static final long serialVersionUID = 1L;
 	public static final String VIEW_NAME = "updatepassword";
@@ -138,7 +137,6 @@ public class UpdatePasswordUI extends UI implements HasLogger, View{
 		
 		setErrorHandler(event -> {
 			Throwable t = DefaultErrorHandler.findRelevantThrowable(event.getThrowable());
-			getLogger().error("Error during request", t);
 		});
 
 		viewProvider.setAccessDeniedViewClass(AccessDeniedView.class);

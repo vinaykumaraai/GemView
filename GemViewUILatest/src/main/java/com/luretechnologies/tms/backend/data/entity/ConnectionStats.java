@@ -32,6 +32,12 @@
 
 package com.luretechnologies.tms.backend.data.entity;
 
+/**
+ * 
+ * @author Vinay
+ *
+ */
+
 public class ConnectionStats {
 	
 	public ConnectionStats() {

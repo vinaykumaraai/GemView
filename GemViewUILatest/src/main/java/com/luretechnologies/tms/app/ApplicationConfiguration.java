@@ -39,6 +39,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.vaadin.spring.access.SecuredViewAccessControl;
 
+
+/**
+ * 
+ * @author Vinay
+ *
+ */
+
 @Configuration
 public class ApplicationConfiguration {
 	/**

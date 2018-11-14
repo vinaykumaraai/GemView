@@ -32,7 +32,6 @@
 
 package com.luretechnologies.tms.ui;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -45,9 +44,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.client.restlib.service.model.UserSession;
-import com.luretechnologies.common.enums.PermissionEnum;
 import com.luretechnologies.tms.app.Application;
-import com.luretechnologies.tms.app.security.RedirectAuthenticationSuccessHandler;
 import com.luretechnologies.tms.backend.data.entity.Permission;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
 import com.luretechnologies.tms.backend.service.RolesService;
@@ -65,12 +62,10 @@ import com.luretechnologies.tms.ui.view.system.SystemView;
 import com.luretechnologies.tms.ui.view.user.UserView;
 import com.vaadin.external.org.slf4j.Logger;
 import com.vaadin.external.org.slf4j.LoggerFactory;
-import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewDisplay;
 import com.vaadin.navigator.ViewLeaveAction;
 import com.vaadin.server.Page;
-import com.vaadin.server.VaadinSession;
 import com.vaadin.spring.access.SecuredViewAccessControl;
 import com.vaadin.spring.annotation.SpringViewDisplay;
 import com.vaadin.spring.annotation.UIScope;
@@ -78,6 +73,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
+import com.vaadin.ui.Window;
 
 /**
  * The main view containing the menu and the content area where actual views are
@@ -87,6 +83,13 @@ import com.vaadin.ui.UI;
  * pattern like MVP would add much overhead for little gain. If more complexity
  * is added to the class, you should consider splitting out a presenter.
  */
+
+/**
+ * 
+ * @author Vinay
+ *
+ */
+
 @SpringViewDisplay
 @UIScope
 public class MainView extends MainViewDesign implements ViewDisplay {
@@ -189,7 +192,6 @@ public class MainView extends MainViewDesign implements ViewDisplay {
 				if(permission.getAccess()) {
 				users.setVisible(true);
 				users.setDisableOnClick(true);
-				//administrationButton.setVisible(true);
 				users.addStyleName("menu-ButtonsLabelSize");
 				attachNavigation(users, UserView.class);
 				}
@@ -216,21 +218,6 @@ public class MainView extends MainViewDesign implements ViewDisplay {
 				break;
 		}
 	}
-		
-		/*menubar.setVisible(true);
-		administrationButton.addStyleName("submenuIconUp");
-		administrationButton.addClickListener(e->{
-			if(menubar.isVisible() && Page.getCurrent().getBrowserWindowWidth() > 1000) {
-				menubar.setVisible(false);
-			administrationButton.removeStyleName("submenuIconUp");
-			administrationButton.addStyleName("submenuIconDown");
-			}
-			else {
-				menubar.setVisible(true);
-			administrationButton.removeStyleName("submenuIconDown");
-			administrationButton.addStyleName("submenuIconUp");
-			}
-		});*/
 		
 		gemViewTitle.setCaptionAsHtml(true);
 		gemViewTitle.addStyleNames("v-caption-logo");
@@ -270,6 +257,9 @@ public class MainView extends MainViewDesign implements ViewDisplay {
 	 *            the view to navigate to when the user clicks the button
 	 */
 	public void attachNavigation(Button navigationButton, Class<? extends View> targetView) {
+		if(UI.getCurrent()!=null) {
+			UI.getCurrent().getWindows().forEach(Window::close);
+		}
 		boolean hasAccessToView = viewAccessControl.isAccessGranted(targetView);
 		navigationButton.setVisible(hasAccessToView);
 

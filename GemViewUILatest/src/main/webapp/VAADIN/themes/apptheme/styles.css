@@ -256,11 +256,6 @@
 	margin-left: -23px;
 }
 
-.applicationStore-VerticalLayout {
-	padding: 37px 37px 0px 15px !important;
-	margin-top: -60px !important;
-}
-
 .applicationStore-ApplicationDetailsLayout {
 	padding: 20px 37px 0px 15px !important;
 	background: #fff;
@@ -295,7 +290,8 @@
 }
 
 .applicationStore-UploadButton {
-	top: 0px !important;
+	margin-top: 10px !important;
+	margin-left: 10px !important;
 }
 
 .applicationStore-GridLayoutOverflow {
@@ -461,6 +457,10 @@
 	background: white;
 }
 
+.personlization-applicationSaveCancel {
+	float: right;
+}
+
 .personlization-Parameters {
 	padding: 37px 37px 37px 37px !important;
 }
@@ -470,7 +470,11 @@
 }
 
 .personlization-OverRideParameters {
-	padding: 37px 0px 0px 0px !important;
+	padding: 10px 0px 0px 0px !important;
+}
+
+.personlization-OverRideParametersWindow {
+	padding: 30px 0px 0px 0px !important;
 }
 
 .personlization-ParametersComboBox {
@@ -493,7 +497,6 @@
 
 .personlization-paramButtonLayout {
 	margin-left: 12px;
-	margin-top: -23px;
 }
 
 .personlization-overRideParamLabelLayout {
@@ -552,11 +555,6 @@
 
 .dashboard-gridBackground {
 	background-color: white !important;
-}
-
-.app-shell[width-range~="-1300px"] .applicationStore-VerticalLayout {
-	padding: 20px 37px 0px 15px !important;
-	margin-top: -40px !important;
 }
 
 .app-shell[width-range~="1001px-"] .v-heartbeat-Button {
@@ -1190,7 +1188,7 @@
 }
 
 .user-activeBox {
-	margin-left: 7px !important;
+	margin-top: 32px !important;
 }
 
 .user-passFreqncyLayout {
@@ -1398,6 +1396,10 @@
 	margin-top: -40px;
 }
 
+.v-button-customstyleUplaod {
+	height: 20px !important;
+}
+
 .header-label {
 	margin-left: 40px;
 	Font-size: 30px !important;
@@ -1447,6 +1449,18 @@
 
 .assetDebug-Switch {
 	border-radius: 15px !important;
+}
+
+.button-fontSizePhone {
+	font-size: 14px !important;
+}
+
+.button-fontSizeTab {
+	font-size: 15px !important;
+}
+
+.button-fontSizeDesktop {
+	font-size: 16px !important;
 }
 
 .onoffswitch-slider:before {
@@ -1544,6 +1558,11 @@
 	color: green;
 }
 
+.apptheme .debug {
+	font-weight: bolder;
+	color: yellow;
+}
+
 .apptheme .v-window-header {
 	color: #fff !important;
 	background: #216c2a !important;
@@ -1568,6 +1587,11 @@
 
 .button-DesktopFont {
 	font-size: 16px !important;
+}
+
+.v-filterselect-item-select-profile span:before {
+	content: "Select Profile";
+	font: italic;
 }
 
 /**

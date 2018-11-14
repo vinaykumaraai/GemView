@@ -15,22 +15,22 @@ public class AppClient extends AbstractEntity {
 	private Devices device;
 	private List<Profile> profileList;
 	private List<AppDefaultParam> appFileList;
-	private TreeNode owner;
+	private Long ownerId;
 	private Profile profile;
+	
 	public AppClient() {
-		// TODO Auto-generated constructor stub
 		super(false);
 	}
-//Add the device and owner to it App
+	
 	public AppClient(Long id, String packageName, String description, String packageVersion, boolean available, boolean active,
-			List<AppDefaultParam> appDefaultParamList,Devices device,TreeNode owner, List<Profile> profileList, List<AppDefaultParam> appFileList) {
+			List<AppDefaultParam> appDefaultParamList,Devices device,Long ownerId, List<Profile> profileList, List<AppDefaultParam> appFileList) {
 		Objects.requireNonNull(packageName);
 		Objects.requireNonNull(description);
 		Objects.requireNonNull(packageVersion);
 		Objects.requireNonNull(available);
 		Objects.requireNonNull(appDefaultParamList);
 		Objects.requireNonNull(active);
-		Objects.requireNonNull(owner);
+		Objects.requireNonNull(ownerId);
 		this.packageName = packageName;
 		this.description = description;
 		this.packageVersion = packageVersion;
@@ -38,7 +38,7 @@ public class AppClient extends AbstractEntity {
 		this.active=active;
 		this.appDefaultParamList = appDefaultParamList;
 		this.device = device;
-		this.owner = owner;
+		this.ownerId = ownerId;
 		this.profileList = profileList;
 		this.setId(id);
 		this.appFileList = appFileList;
@@ -90,11 +90,11 @@ public class AppClient extends AbstractEntity {
 	public void setDevice(Devices device) {
 		this.device = device;
 	}
-	public TreeNode getOwner() {
-		return owner;
+	public Long getOwnerId() {
+		return ownerId;
 	}
-	public void setOwner(TreeNode treeNode) {
-		this.owner = treeNode;
+	public void setOwnerId(Long treeNode) {
+		this.ownerId = treeNode;
 	}
 	public List<Profile> getProfileList() {
 		return profileList;

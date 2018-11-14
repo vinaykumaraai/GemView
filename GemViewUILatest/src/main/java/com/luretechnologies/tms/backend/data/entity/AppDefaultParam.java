@@ -11,17 +11,12 @@ public class AppDefaultParam extends AbstractEntity {
 	private String parameter, description;
 	private String type;
 	private String value;
-	//Add the value And App Formats
+	
 	public AppDefaultParam() {
-		// TODO Auto-generated constructor stub
 		super(false);
 	}
 
 	public AppDefaultParam(Long id, String parameter, String description, String type, String value) {
-		/*Objects.requireNonNull(parameter);
-		Objects.requireNonNull(description);
-		Objects.requireNonNull(type);
-		Objects.requireNonNull(value);*/
 		this.parameter = parameter;
 		this.description = description;
 		this.type = type;

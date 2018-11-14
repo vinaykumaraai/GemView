@@ -38,7 +38,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.luretechnologies.client.restlib.service.model.UserSession;
 import com.luretechnologies.tms.app.Application;
-import com.luretechnologies.tms.app.HasLogger;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
 import com.luretechnologies.tms.ui.navigation.NavigationManager;
 import com.luretechnologies.tms.ui.view.AccessDeniedView;
@@ -77,7 +76,7 @@ import com.vaadin.ui.themes.ValoTheme;
 @Viewport("width=device-width,initial-scale=1.0,user-scalable=no")
 @Title("Gem View")
 @SpringView
-public class ForgotPasswordUI extends UI implements HasLogger, View{
+public class ForgotPasswordUI extends UI implements View{
 	
 	/**
 	 * 
@@ -125,7 +124,6 @@ public class ForgotPasswordUI extends UI implements HasLogger, View{
 		
 		setErrorHandler(event -> {
 			Throwable t = DefaultErrorHandler.findRelevantThrowable(event.getThrowable());
-			getLogger().error("Error during request", t);
 		});
 
 		viewProvider.setAccessDeniedViewClass(AccessDeniedView.class);

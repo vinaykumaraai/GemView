@@ -37,6 +37,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 
+/**
+ * 
+ * @author Vinay
+ *
+ */
+
 @Configuration
 @ComponentScan(basePackageClasses = {RestClient.class})
 @PropertySource("classpath:application.properties")

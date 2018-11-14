@@ -52,11 +52,9 @@ import com.luretechnologies.client.restlib.service.model.AppProfileParamValue;
 import com.luretechnologies.client.restlib.service.model.Device;
 import com.luretechnologies.client.restlib.service.model.Entity;
 import com.luretechnologies.client.restlib.service.model.EntityLevel;
-import com.luretechnologies.client.restlib.service.model.User;
 import com.luretechnologies.tms.app.security.BackendAuthenticationProvider;
 import com.luretechnologies.tms.backend.data.entity.AppClient;
 import com.luretechnologies.tms.backend.data.entity.AppDefaultParam;
-import com.luretechnologies.tms.backend.data.entity.ApplicationFile;
 import com.luretechnologies.tms.backend.data.entity.Devices;
 import com.luretechnologies.tms.backend.data.entity.Profile;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
@@ -64,9 +62,17 @@ import com.luretechnologies.tms.backend.rest.util.RestClient;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
 import com.luretechnologies.tms.ui.components.ComponentUtil;
 import com.luretechnologies.tms.ui.components.NotificationUtil;
+import com.vaadin.data.TreeData;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
+
+/**
+ * 
+ * @author Vinay
+ *
+ */
+
 
 @Service
 public class ApplicationStoreService {
@@ -77,14 +83,11 @@ public class ApplicationStoreService {
 		List<AppClient> appClientList = new ArrayList<>();
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
-//				String username = provider.loggedInUserName();
-//				User user = RestServiceUtil.getInstance().getClient().getUserApi().getUserByUserName(username);
-//				Long entityId = user.getEntity().getId();
 				List<App> appsList = RestServiceUtil.getInstance().getClient().getAppApi().getAppListByEntityChildren();
 				for (App app : appsList) {
 					AppClient appClient = new AppClient(app.getId(), app.getName(), app.getDescription(),
 							app.getVersion(), app.getAvailable(), app.getActive(),getAppDefaultParamList(app.getAppParamCollection()),
-							null, getOwner(app.getOwnerId()), getAppProfileList(app.getAppprofileCollection()),
+							null, app.getOwnerId(), getAppProfileList(app.getAppprofileCollection()),
 							getApplicationFileList(app.getAppfileCollection()));
 					appClientList.add(appClient);
 				}
@@ -110,18 +113,45 @@ public class ApplicationStoreService {
 		return appClientList;
 	}
 	
+	public AppClient getAppById(Long id){
+		AppClient appClient = new AppClient();
+		try {
+		if (RestServiceUtil.getSESSION() != null) {
+			App appService = RestServiceUtil.getInstance().getClient().getAppApi().getApp(id);
+			appClient = new AppClient(appService.getId(), appService.getName(), appService.getDescription(),
+					appService.getVersion(), appService.getAvailable(), appService.getActive(),getAppDefaultParamList(appService.getAppParamCollection()),
+					null, appService.getOwnerId(), getAppProfileList(appService.getAppprofileCollection()),
+					getApplicationFileList(appService.getAppfileCollection()));
+		}
+		}catch (ApiException e) {
+			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}else {
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving the App by APP ID",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+			aplicationStoreServiceLogger.error("API Error has occured while rretrieving the App by APP ID",e);
+			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+		}
+			catch (Exception e) {
+				aplicationStoreServiceLogger.error("Error occured while retrieving the App by APP ID",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving the App by APP ID",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+		return appClient;
+	}	
+	
 	public List<AppClient> getAppListForEntityId(Long id) {
 		List<AppClient> appClientList = new ArrayList<>();
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
-//				String username = provider.loggedInUserName();
-//				User user = RestServiceUtil.getInstance().getClient().getUserApi().getUserByUserName(username);
-//				Long entityId = user.getEntity().getId();
 				List<App> appsList = RestServiceUtil.getInstance().getClient().getAppApi().getAppsByEntityHierarchy(id);
 				for (App app : appsList) {
 					AppClient appClient = new AppClient(app.getId(), app.getName(), app.getDescription(),
 							app.getVersion(), app.getAvailable(), app.getActive(),getAppDefaultParamList(app.getAppParamCollection()),
-							null, getOwner(app.getOwnerId()), getAppProfileList(app.getAppprofileCollection()),
+							null, app.getOwnerId(), getAppProfileList(app.getAppprofileCollection()),
 							getApplicationFileList(app.getAppfileCollection()));
 					appClientList.add(appClient);
 				}
@@ -196,7 +226,6 @@ public class ApplicationStoreService {
 	public List<AppDefaultParam> getAppParamListByAppProfileId(Long id){
 		List<AppDefaultParam> appDefaultParamList = new ArrayList<>();
 		try {
-		List<AppParam> appParamList = new ArrayList<>();
 		if (RestServiceUtil.getSESSION() != null) {
 		List<AppParam> appParamService = RestServiceUtil.getInstance().getClient().getAppProfileApi().getAppParamListByAppProfile(id);
 			for (AppParam appParam : appParamService) {
@@ -228,28 +257,15 @@ public class ApplicationStoreService {
 	
 	public List<TreeNode> getOwnerList() {
 		List<TreeNode> nodeChildList = new ArrayList<>();
-		String username=null;
 		Long entityId=null;
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
-				username = provider.loggedInUserName();
-				com.luretechnologies.client.restlib.service.model.User user = RestServiceUtil.getInstance().getClient().getUserApi().getUserByUserName(username);
-				entityId = user.getEntity().getId();
+				entityId = RestServiceUtil.getSESSION().getEntityId();
 				if(entityId!=null ) {
 					nodeChildList = getOwnerListByEntityId(entityId);
 					return nodeChildList;
 				}
 			}
-		} catch (ApiException e) {
-			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
-				ComponentUtil.sessionExpired(notification);
-			}else {
-				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" retrieving the owners list in Application Store Screen",Type.ERROR_MESSAGE);
-				ComponentUtil.sessionExpired(notification);
-			}
-			aplicationStoreServiceLogger.error("API Error has occured while retrieving the owners list in Application Store Screen",e);
-			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
 			catch (Exception e) {
 				aplicationStoreServiceLogger.error("Error occured while retrieving the owners list in Application Store Screen",e);
@@ -261,7 +277,7 @@ public class ApplicationStoreService {
 		return nodeChildList;
 	}
 	
-	private TreeNode getOwner(Long id) {
+	public TreeNode getOwner(Long id) {
 		TreeNode owner = null;
 		try {
 			if (RestServiceUtil.getSESSION() != null && id!=null) {
@@ -294,14 +310,14 @@ public class ApplicationStoreService {
 		List<TreeNode> nodeChildList = new ArrayList<>();
 		try {
 			if (RestServiceUtil.getSESSION() != null) {
-				Entity entity = RestServiceUtil.getInstance().getClient().getEntityApi().getEntityById(id);
-				List<Entity> entityList = RestServiceUtil.getInstance().getClient().getEntityApi().getEntityChildren(entity.getId());
-				entityList.add(entity);
-				for(Entity entityNew : entityList) {
-					TreeNode node = new TreeNode(entityNew.getName(), entityNew.getId(), entityNew.getType(), entityNew.getEntityId(), entityNew.getDescription(), entity.getChildrenEntities()
+				Entity entity = RestServiceUtil.getInstance().getClient().getEntityApi().getEntityHierarchy(id);
+				List<Entity> entityList = entity.getChildrenEntities();
+					TreeNode node = new TreeNode(entity.getName(), entity.getId(), entity.getType(), entity.getEntityId(), entity.getDescription(), entity.getChildrenEntities()
 							, entity.getSerialNumber(),true);
+					List<TreeNode> childList = getChildNodes(entityList);
+					nodeChildList.addAll(childList);
+					ownerListRecursive(childList, nodeChildList);
 					nodeChildList.add(node);
-				}
 
 			}
 		}  catch (ApiException e) {
@@ -324,16 +340,39 @@ public class ApplicationStoreService {
 		return nodeChildList;
 
 	}
+	
+	private void ownerListRecursive(List<TreeNode> entityList, List<TreeNode> nodeList) {
+		for(TreeNode entity : entityList) {
+			List<Entity> entityListSub;
+			try {
+				entityListSub = entity.getEntityChildrenList();				
+				if(entityListSub!=null && !entityListSub.isEmpty()) {
+					List<TreeNode> subChildList = getChildNodes(entityListSub);
+					nodeList.addAll(subChildList);
+					ownerListRecursive(subChildList, nodeList);
+				}
+			} catch (Exception e) {
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" doing tree data recursion",Type.ERROR_MESSAGE);
+				ComponentUtil.sessionExpired(notification);
+			}
+		}
+	}
+	
+	private List<TreeNode> getChildNodes(List<Entity> entityList) throws ApiException{
+		List<TreeNode> nodeChildList = new ArrayList<>();
+		for(Entity entity : entityList) {
+			TreeNode node = new TreeNode(entity.getName(), entity.getId(), entity.getType(), entity.getEntityId(), entity.getDescription(), entity.getChildrenEntities(), entity.getSerialNumber(),
+					true);
+			nodeChildList.add(node);
+		}
+		return nodeChildList;
+	}
 
 	private List<Profile> getAppProfileList(List<AppProfile> appProfileList) {
 		List<Profile> profileList = new ArrayList<>();
 		if(appProfileList!=null) {
 			for (AppProfile appProfile : appProfileList) {
-				/*for(AppProfileParamValue appProfileParamValue : appProfile.getAppProfileParamValueCollection()) {
-					AppProfileParamValueClient appProfileParamValueClient = new AppProfileParamValueClient(appProfileParamValue.getId(), appProfileParamValue.getDefaultValue(),
-							appProfileParamValue.getForceUpdate(), appProfileParamValue.getAppParamId(), appProfileParamValue.getAppParamId());
-					appProfileParamValueClientList.add(appProfileParamValueClient);
-				}*/
 				Profile profile = new Profile(appProfile.getId(), appProfile.getName(), appProfile.getAppProfileParamValueCollection());
 				profileList.add(profile);
 			}
@@ -498,7 +537,6 @@ public class ApplicationStoreService {
 	public ListDataProvider<AppClient> getAppListDataProvider() {
 		ListDataProvider<AppClient> appDataProvider = null;
 			appDataProvider = new ListDataProvider<>(getSortedAppClientList(getAppListForGrid()));
-			// TODO Auto-generated catch block
 		return appDataProvider;
 	}
 
@@ -517,16 +555,14 @@ public class ApplicationStoreService {
 					serverApp.setName(appClient.getPackageName());
 					serverApp.setDescription(appClient.getDescription());
 					serverApp.setVersion(appClient.getPackageVersion());
-					serverApp.setOwnerId(appClient.getOwner().getId());
+					serverApp.setOwnerId(appClient.getOwnerId());
 					serverApp.setActive(appClient.isActive());
-					// set the lists e.g appFile, appProfile
 					List<AppParam> appParamList = new ArrayList<>();
 					for (AppDefaultParam appDefaultParam : appClient.getAppDefaultParamList()) {
 						AppParam appParam = new AppParam();
 						appParam.setId(appDefaultParam.getId());
 						appParam.setDescription(appDefaultParam.getDescription());
 						appParam.setName(appDefaultParam.getParameter());
-						// Add action and other params .. how to get them for UI
 						if(isOld) {
 							for(AppParam oldAppParam : oldServerApp.getAppParamCollection()) {
 								if(oldAppParam.getId() != appParam.getId()) {
@@ -555,8 +591,6 @@ public class ApplicationStoreService {
 						}
 					}
 					serverApp.setAppprofileCollection(appProfileList);
-					// Add all the other attributes. //FIXME: figure out how and what are the
-					// required attributes to be set
 					if(isOld) {
 						serverApp.setActive(oldServerApp.getActive());
 						RestServiceUtil.getInstance().getClient().getAppApi().updateApp(serverApp.getId(), serverApp);
@@ -699,7 +733,6 @@ public class ApplicationStoreService {
 					serverProfile.setAppId(appClient.getId());
 					serverProfile.setName(profile.getName());
 					serverProfile.setActive(true);
-					//serverProfile.setAppProfileParamValueCollection(profile.getAppprofileparamvalueCollection());
 					
 					RestServiceUtil.getInstance().getClient().getAppApi().addAppProfile(appClient.getId(), serverProfile);
 				}
@@ -723,10 +756,38 @@ public class ApplicationStoreService {
 		}
 	}
 	
+	public void updateAppProfile(String name, Profile profile) {
+		if (profile != null) {
+			try {
+				if (RestServiceUtil.getSESSION() != null) {
+					AppProfile serverProfile = RestServiceUtil.getInstance().getClient().getAppProfileApi().getAppProfile(profile.getId());
+					serverProfile.setName(name);
+					
+					RestServiceUtil.getInstance().getClient().getAppProfileApi().updateAppProfile(serverProfile.getId(), serverProfile);
+				}
+			}catch (ApiException e) {
+				if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
+					Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}else {
+					Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" updating the App profile in Application Store Screen",Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}
+				aplicationStoreServiceLogger.error("API Error has occured while updating the App profile in Application Store Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			}
+				catch (Exception e) {
+					aplicationStoreServiceLogger.error("Error occured while updating the App Profile in Application Store Screen",e);
+					RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+					Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" updating the App profile in Application Store Screen",Type.ERROR_MESSAGE);
+					ComponentUtil.sessionExpired(notification);
+				}
+		}
+	}
+	
 	public void removeAppProfile(Long appId, Long profileId) {
 			try {
 				if (RestServiceUtil.getSESSION() != null) {
-					//FIXME: find the correct app profile remove method
 					List<AppDefaultParam> appDefaultParamList = getAppDefaultParamListByAppId(appId);
 					for(AppDefaultParam appDefaultParam:appDefaultParamList) {
 						RestServiceUtil.getInstance().getClient().getAppProfileApi().deleteAppProfileParamValue(profileId, appDefaultParam.getId());
@@ -975,12 +1036,11 @@ public class ApplicationStoreService {
 		List<AppClient> appClientList = new ArrayList<>();
 			try {
 				if (RestServiceUtil.getSESSION() != null) {
-					//FIXME: No delete Param api is available
 					List<App> appList = RestServiceUtil.getInstance().getClient().getAppApi().searchApps(filter, null, null);
 					for (App app : appList) {
 						AppClient appClient = new AppClient(app.getId(), app.getName(), app.getDescription(),
 								app.getVersion(), app.getAvailable(), app.getActive(),getAppDefaultParamList(app.getAppParamCollection()),
-								null, getOwner(app.getOwnerId()), getAppProfileList(app.getAppprofileCollection()),
+								null, app.getOwnerId(), getAppProfileList(app.getAppprofileCollection()),
 								getApplicationFileList(app.getAppfileCollection()));
 						appClientList.add(appClient);
 					}

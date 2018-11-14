@@ -29,7 +29,9 @@
  * Inquiries should be made to legal@luretechnologies.com
  *
  */
-package com.luretechnologies.tms.backend.data.entity;
+package com.luretechnologies.tms.ui.components;
+
+import com.vaadin.ui.Button;
 
 /**
  * 
@@ -37,54 +39,34 @@ package com.luretechnologies.tms.backend.data.entity;
  *
  */
 
-import java.util.Objects;
+public class ButtonsHeight {
 
-public class Audit {
-	private String type, description, dateTime;
-	private Long id;
-	
-	public Audit(Long id, String type, String description, String dateTime) {
-		super();
-		Objects.requireNonNull(id);
-		Objects.requireNonNull(type);
-		Objects.requireNonNull(description);
-		Objects.requireNonNull(dateTime);
-		this.id = id;
-		this.type = type;
-		this.description = description;
-		this.dateTime = dateTime;
+	public static void setButtonsHeight(int width, Button[] buttons) {
+		
+		if(width<=600) {
+			for(Button button : buttons) {
+				if(button!=null){
+					button.setHeight("28px");
+					button.removeStyleNames("button-fontSizeTab","button-fontSizeDesktop");
+					button.addStyleName("button-fontSizePhone");
+				}
+			}
+		}else if(width>600 && width<=1000) {
+			for(Button button : buttons) {
+				if(button!=null){
+					button.setHeight("32px");
+					button.removeStyleNames("button-fontSizePhone","button-fontSizeDesktop");
+					button.addStyleName("button-fontSizeTab");
+				}
+			}
+		}else {
+			for(Button button : buttons) {
+				if(button!=null){
+					button.setHeight("37px");
+					button.removeStyleNames("button-fontSizePhone","button-fontSizeTab");
+					button.addStyleName("button-fontSizeDesktop");
+				}
+			}
+		}
 	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public String getType() {
-		return type;
-	}
-
-	public void setType(String type) {
-		this.type = type;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public String getDateTime() {
-		return dateTime;
-	}
-
-	public void setDateTime(String dateTime) {
-		this.dateTime = dateTime;
-	} 
-	
 }

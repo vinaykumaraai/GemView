@@ -42,13 +42,10 @@ import com.luretechnologies.tms.backend.data.entity.Permission;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
 import com.luretechnologies.tms.backend.service.AssetControlService;
 import com.luretechnologies.tms.ui.components.ComponentUtil;
-import com.luretechnologies.tms.ui.components.FormFieldType;
-import com.luretechnologies.tms.ui.components.MainViewIconsLoad;
 import com.luretechnologies.tms.ui.components.NotificationUtil;
 import com.luretechnologies.tms.ui.view.ContextMenuWindow;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
-import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.Page;
 import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.Alignment;
@@ -56,8 +53,6 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.HorizontalLayout;
@@ -89,11 +84,7 @@ public class AlertTab {
 		this.assetControlUI = assetControlUI;
 		this.assetControlService = assetControlService;
 		this.assetControlPermission = assetControlpermission;
-		
 	}
-
-	@Autowired
-	public AssetcontrolView assetView ;
 	
 	public VerticalLayout getAlert() {
 		
@@ -162,13 +153,6 @@ public class AlertTab {
 		saveCancelLayout.setStyleName("save-cancelButtonsAlignment");
 		saveCancelLayout.setComponentAlignment(cancelAlertForm, Alignment.BOTTOM_RIGHT);
 		saveCancelLayout.setComponentAlignment(saveAlertForm, Alignment.BOTTOM_RIGHT);
-				
-//		Component[] alertFormComponentArray = {
-//				ComponentUtil.getFormFieldWithLabel("Alert Type", FormFieldType.TEXTBOX),
-//				ComponentUtil.getFormFieldWithLabel("Name", FormFieldType.TEXTBOX),
-//				ComponentUtil.getFormFieldWithLabel("Description", FormFieldType.TEXTBOX),
-//				ComponentUtil.getFormFieldWithLabel("", FormFieldType.HORIZONTALLAYOUT),
-//				ComponentUtil.getFormFieldWithLabel("Email to:", FormFieldType.TEXTBOX) };
 		
 		alertType = new TextField("Alert Type");
 		alertType.setWidth("100%");
@@ -210,11 +194,6 @@ public class AlertTab {
 		alertFormLayout.addStyleName("system-LabelAlignment");
 		formLayout.addComponents(alertFormLayout, saveCancelLayout);
 		
-		// Add,Delete,Edit Button Layout
-//		alertVerticalButtonLayout.addComponent(getAlertGridButtonLayout(alertFormComponentArray));
-		//alertLayout.addComponent(alertVerticalButtonLayout);
-		//alertLayout.setComponentAlignment(alertLayout.getComponent(1), Alignment.TOP_RIGHT);
-		
 		// Alert Grid
 		alertLayout.addComponent(getAlertGrid());
 		
@@ -222,8 +201,6 @@ public class AlertTab {
 			assestControlAlertGridMenu.close();
 			if (selection.getAllSelectedItems().size()==1) {
 			Alert selectedAlert = alertGrid.getSelectedItems().iterator().next();
-//				editAlertGridRow.setEnabled(assetControlPermission.getEdit());
-//				deleteAlertGridRow.setEnabled(assetControlPermission.getDelete());
 				cancelAlertForm.setEnabled(true);
 				saveAlertForm.setEnabled(true);
 				
@@ -234,9 +211,6 @@ public class AlertTab {
 				email.setValue(selectedAlert.getEmail());
 			} else {
 				clearAllComponents();
-//				createAlertGridRow.setEnabled(assetControlPermission.getAdd());
-//				editAlertGridRow.setEnabled(assetControlPermission.getEdit());
-//				deleteAlertGridRow.setEnabled(assetControlPermission.getDelete());
 				cancelAlertForm.setEnabled(true);
 				saveAlertForm.setEnabled(true);
 			}
@@ -325,10 +299,6 @@ public class AlertTab {
 		
 		cancelAlertForm.setEnabled(assetControlPermission.getAdd() || assetControlPermission.getEdit());
 		saveAlertForm.setEnabled(assetControlPermission.getAdd() || assetControlPermission.getEdit());
-//		createAlertGridRow.setEnabled(assetControlPermission.getAdd());
-//		editAlertGridRow.setEnabled(assetControlPermission.getEdit());
-//		deleteAlertGridRow.setEnabled(assetControlPermission.getDelete());
-		//getAlertGridButtonLayout(alertFormComponentArray, alertFormWindow);
 		
 		saveAlertForm.addClickListener(listener-> {
 			alertFormWindow.setModal(true);
@@ -349,8 +319,6 @@ public class AlertTab {
 		alert.setAvailable(activeCheckBox.getValue());
 		alert.setEmail(email.getValue());
 		cancelAlertForm.setEnabled(true);
-//		editAlertGridRow.setEnabled(assetControlPermission.getEdit());
-//		deleteAlertGridRow.setEnabled(assetControlPermission.getDelete());
 		saveAlertForm.setEnabled(true);
 		
 		Alert gridAlert = new Alert();
@@ -378,8 +346,6 @@ public class AlertTab {
 			alertGrid.deselectAll();
 		}
 		cancelAlertForm.setEnabled(true);
-//		editAlertGridRow.setEnabled(assetControlPermission.getEdit());
-//		deleteAlertGridRow.setEnabled(assetControlPermission.getDelete());
 		saveAlertForm.setEnabled(true);
 		}
 	});
@@ -470,13 +436,5 @@ public class AlertTab {
 		alertGrid.getColumn("type").setCaption("Alert Type");
 
 		return alertGrid;
-	}
-
-	private void getAlertGridButtonLayout(Component[] componentArray, ContextMenuWindow alertFormWindow) {
-		
-//		alertGridButtonLayout.addComponent(createAlertGridRow);
-//		alertGridButtonLayout.addComponent(editAlertGridRow);
-//		alertGridButtonLayout.addComponent(deleteAlertGridRow);
-	
 	}
 }

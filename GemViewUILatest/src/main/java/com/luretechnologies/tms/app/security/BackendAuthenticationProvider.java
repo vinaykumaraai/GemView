@@ -2,7 +2,6 @@ package com.luretechnologies.tms.app.security;
 
 import java.util.Collections;
 
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -14,7 +13,6 @@ import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.client.restlib.service.model.UserSession;
 import com.luretechnologies.tms.backend.data.entity.Role;
 import com.luretechnologies.tms.backend.data.entity.User;
-import com.luretechnologies.tms.backend.rest.util.RestClient;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
 import com.luretechnologies.tms.ui.components.NotificationUtil;
 import com.vaadin.ui.Notification;
@@ -41,17 +39,14 @@ public class BackendAuthenticationProvider implements AuthenticationProvider {
 			User user = new User(1L,"test@test.com", "Admin", Role.ADMIN, "Test", "Test", true, 1, Long.valueOf(3), "192.10.1.13"); 
 			return new UsernamePasswordAuthenticationToken(username,password, Collections.singletonList(new SimpleGrantedAuthority(user.getRole())));
 		} catch (ApiException e) {
-			// TODO Auto-generated catch block
 			if(e.getMessage().contains("INVALID LOGIN CREDENTIALS")) {
 				backendAuthenicationLogger.error("Bad Credential for: "+username);
 			}
 			
 			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
-//				backendAuthenicationLogger.error("User Session Expired for  "+username);
 				Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
 			}
 			backendAuthenicationLogger.error("Error in Authentication",e);
-			//RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 			e.printStackTrace();
 			return null;
 		}
@@ -60,7 +55,6 @@ public class BackendAuthenticationProvider implements AuthenticationProvider {
 
 	@Override
 	public boolean supports(Class<? extends Object> authentication) {
-		// TODO Auto-generated method stub
 		return  (UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication));
 	}
 	

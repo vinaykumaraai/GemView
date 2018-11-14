@@ -50,6 +50,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+/**
+ * 
+ * @author Vinay
+ *
+ */
+
 @PropertySource("classpath:application.properties")
 public class RestClient {
 	private static final Logger restClientLogger = Logger.getLogger(RestClient.class);

@@ -33,11 +33,13 @@
 package com.luretechnologies.tms.backend.data.entity;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
-import com.luretechnologies.common.enums.PermissionEnum;
+/**
+ * 
+ * @author Vinay
+ *
+ */
 
 public class Role {
 	public static final String IT = "IT";
@@ -61,6 +63,7 @@ public class Role {
 		permissions.add( new Permission("USER",false, false, false, false));
 		permissions.add( new Permission("ROLE",false, false, false, false));
 		permissions.add( new Permission("SYSTEM", false, false, false, false));
+		permissions.add( new Permission("ENTITY", false, false, false, false));
 	}
 	
 	

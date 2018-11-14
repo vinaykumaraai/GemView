@@ -32,6 +32,12 @@
 
 package com.luretechnologies.tms.backend.data.entity;
 
+/**
+ * 
+ * @author Vinay
+ *
+ */
+
 public class Downloads {
 
 	private String serialNumber;

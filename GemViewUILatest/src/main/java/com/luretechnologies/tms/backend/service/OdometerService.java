@@ -40,7 +40,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.luretechnologies.client.restlib.common.ApiException;
-import com.luretechnologies.client.restlib.service.model.AuditUserLog;
 import com.luretechnologies.client.restlib.service.model.Device;
 import com.luretechnologies.client.restlib.service.model.HeartbeatOdometer;
 import com.luretechnologies.client.restlib.service.model.Merchant;
@@ -54,12 +53,15 @@ import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
 import com.luretechnologies.tms.ui.components.ComponentUtil;
 import com.luretechnologies.tms.ui.components.NotificationUtil;
 import com.vaadin.data.TreeData;
-import com.vaadin.data.provider.DataProvider;
-import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
-import com.vaadin.ui.Tree.ItemClick;
+
+/**
+ * 
+ * @author Vinay
+ *
+ */
 
 @SpringComponent
 @Service
@@ -310,7 +312,7 @@ public class OdometerService extends CommonService{
 			}
 	}
 	@Override
-	public void updateEntity(TreeNode node) {
+	public void updateEntity(TreeNode node, Long frequency) {
 		try {
 			if(RestServiceUtil.getSESSION() != null) {
 				switch (node.getType()) {
@@ -344,8 +346,8 @@ public class OdometerService extends CommonService{
 					terminal.setAvailable(node.isActive());
 					terminal.setDescription(node.getDescription());
 					terminal.setName(node.getLabel());
-					if(node.getFrequency()!=null) {
-						terminal.setFrequency(Long.parseLong(node.getFrequency()));
+					if(frequency!=null) {
+						terminal.setFrequency(frequency);
 					}
 					terminal.setHeartbeat(node.isHeartBeat());
 					terminal.setSerialNumber(node.getSerialNum());

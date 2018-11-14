@@ -33,8 +33,6 @@
 package com.luretechnologies.tms.ui;
 
 import org.springframework.beans.factory.annotation.Autowired;
-
-import com.luretechnologies.tms.app.HasLogger;
 import com.luretechnologies.tms.ui.components.NotificationUtil;
 import com.luretechnologies.tms.ui.navigation.NavigationManager;
 import com.luretechnologies.tms.ui.view.AccessDeniedView;
@@ -43,17 +41,23 @@ import com.vaadin.annotations.Title;
 import com.vaadin.annotations.Viewport;
 import com.vaadin.server.DefaultErrorHandler;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.VaadinSession;
 import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.spring.navigator.SpringViewProvider;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.UI;
+import com.vaadin.ui.Notification.Type;
+
+/**
+ * 
+ * @author Vinay
+ *
+ */
 
 @Theme("apptheme")
 @SpringUI(path = AppUI.HOME_VIEW)
 @Viewport("width=device-width,initial-scale=1.0,user-scalable=no")
 @Title("gemView")
-public class AppUI extends UI implements HasLogger {
+public class AppUI extends UI {
 
 	/**
 	 * 
@@ -79,7 +83,6 @@ public class AppUI extends UI implements HasLogger {
 	protected void init(VaadinRequest vaadinRequest) {
 		setErrorHandler(event -> {
 			Throwable t = DefaultErrorHandler.findRelevantThrowable(event.getThrowable());
-			getLogger().error("Error during request", t);
 		});
 
 		viewProvider.setAccessDeniedViewClass(AccessDeniedView.class);
@@ -92,7 +95,7 @@ public class AppUI extends UI implements HasLogger {
 	@Override
 	public void close() {
 		
-		Notification.show(NotificationUtil.SESSION_EXPIRED, Notification.TYPE_HUMANIZED_MESSAGE);
+		//Notification.show(NotificationUtil.SESSION_EXPIRED, Type.ERROR_MESSAGE);
 	
 	}
 }

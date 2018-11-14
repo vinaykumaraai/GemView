@@ -37,54 +37,82 @@ package com.luretechnologies.tms.backend.data.entity;
  *
  */
 
-import java.util.Objects;
-
-public class Audit {
-	private String type, description, dateTime;
-	private Long id;
+public class EntityAppProfileInfo {
 	
-	public Audit(Long id, String type, String description, String dateTime) {
-		super();
-		Objects.requireNonNull(id);
-		Objects.requireNonNull(type);
-		Objects.requireNonNull(description);
-		Objects.requireNonNull(dateTime);
-		this.id = id;
-		this.type = type;
-		this.description = description;
-		this.dateTime = dateTime;
+	String appName;
+	
+	String appDescription;
+	
+	String version;
+	
+	String profileName;
+	
+	Long appId;
+	
+	Long profileId;
+	
+	public EntityAppProfileInfo(String appName, String appDescription, String version, String profileName, Long appId, Long profileId) {
+		this.appName=appName;
+		this.appDescription=appDescription;
+		this.version = version;
+		this.profileName = profileName;
+		this.appId = appId;
+		this.profileId=profileId;
+		
 	}
 
-	public Long getId() {
-		return id;
+	public String getAppName() {
+		return appName;
 	}
 
-	public void setId(Long id) {
-		this.id = id;
+	public void setAppName(String appName) {
+		this.appName = appName;
 	}
 
-	public String getType() {
-		return type;
+	public String getAppDescription() {
+		return appDescription;
 	}
 
-	public void setType(String type) {
-		this.type = type;
+	public void setAppDescription(String appDescription) {
+		this.appDescription = appDescription;
 	}
 
-	public String getDescription() {
-		return description;
+	public String getVersion() {
+		return version;
 	}
 
-	public void setDescription(String description) {
-		this.description = description;
+	public void setVersion(String version) {
+		this.version = version;
 	}
 
-	public String getDateTime() {
-		return dateTime;
+	public String getProfileName() {
+		return profileName;
 	}
 
-	public void setDateTime(String dateTime) {
-		this.dateTime = dateTime;
-	} 
+	public void setProfileName(String profileName) {
+		this.profileName = profileName;
+	}
+
+	public Long getAppId() {
+		return appId;
+	}
+
+	public void setAppId(Long appId) {
+		this.appId = appId;
+	}
+
+	public Long getProfileId() {
+		return profileId;
+	}
+
+	public void setProfileId(Long profileId) {
+		this.profileId = profileId;
+	}
+
+	@Override
+	public String toString() {
+		return "EntityAppProfileInfo [profileName=" + profileName + "]";
+	}
+
 	
 }

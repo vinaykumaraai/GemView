@@ -291,8 +291,8 @@ $app-background-color: #145A32;
 }
 
 .applicationStore-VerticalLayout{
-	padding: 37px 37px 0px 15px !important;
-	margin-top:-60px !important;
+// 	padding: 37px 37px 0px 15px !important;
+// 	margin-top:-30px !important;
 }
 
 .applicationStore-ApplicationDetailsLayout{
@@ -329,7 +329,8 @@ $app-background-color: #145A32;
 }
 
 .applicationStore-UploadButton{
-	top:0px !important;
+	margin-top:10px !important;
+	margin-left:10px !important;
 }
 
 .applicationStore-GridLayoutOverflow{
@@ -503,6 +504,10 @@ $app-background-color: #145A32;
 	background:white;
 }
 
+.personlization-applicationSaveCancel{
+	float:right;
+}
+
 .personlization-Parameters{
 	padding: 37px 37px 37px 37px !important;
 }
@@ -512,7 +517,11 @@ $app-background-color: #145A32;
 }
 
 .personlization-OverRideParameters{
-	padding: 37px 0px 0px 0px !important;
+	padding: 10px 0px 0px 0px !important;
+}
+
+.personlization-OverRideParametersWindow{
+	padding: 30px 0px 0px 0px !important;
 }
 
 .personlization-ParametersComboBox{
@@ -535,7 +544,6 @@ $app-background-color: #145A32;
 
 .personlization-paramButtonLayout{
 	margin-left:12px;
-	margin-top:-23px;
 }
 
 .personlization-overRideParamLabelLayout{
@@ -598,10 +606,10 @@ $app-background-color: #145A32;
 }
 
 .app-shell[width-range~="-1300px"] {
-	.applicationStore-VerticalLayout{
-		padding: 20px 37px 0px 15px !important;
-		margin-top:-40px !important;
-	}
+// 	.applicationStore-VerticalLayout{
+// 		padding: 20px 37px 0px 15px !important;
+// 		margin-top:-40px !important;
+// 	}
 }
 
 // .apptheme h4, .apptheme .v-label-h4, .apptheme vaadin-board text.highcharts-title{
@@ -1263,7 +1271,7 @@ $app-background-color: #145A32;
 
 
 .user-activeBox{
-	margin-left: 7px !important;
+	margin-top: 32px !important;
 }
 
 .user-passFreqncyLayout{
@@ -1472,6 +1480,10 @@ $app-background-color: #145A32;
 	margin-top:-40px
 }
 
+.v-button-customstyleUplaod{
+	height:20px !important;
+}
+
 .header-label{
 	margin-left: 40px;
     Font-size: 30px !important;
@@ -1522,6 +1534,18 @@ $app-background-color: #145A32;
 
 .assetDebug-Switch{
 	border-radius: 15px !important;
+}
+
+.button-fontSizePhone{
+	font-size:14px !important;
+}
+
+.button-fontSizeTab{
+	font-size:15px !important;
+}
+
+.button-fontSizeDesktop{
+	font-size:16px !important;
 }
 
 .onoffswitch-slider:before {
@@ -1621,6 +1645,11 @@ $app-background-color: #145A32;
 	font-weight : bolder;
 	color : green;
 }
+
+.apptheme .debug{
+	font-weight : bolder;
+	color : yellow;
+}
 .apptheme .v-window-header{
 	color: #fff !important;
 	background: #216c2a !important;
@@ -1646,6 +1675,11 @@ $app-background-color: #145A32;
 .button-DesktopFont{
 	font-size: 16px !important;
 }
+
+.v-filterselect-item-select-profile span:before { 
+	content: 'Select Profile';
+	font: italic;
+ }
 
 @import '../valo/valo.scss';
 @import 'dashboardview';

@@ -37,6 +37,12 @@ import com.luretechnologies.client.restlib.service.model.EntityTypeEnum;
 
 import com.luretechnologies.client.restlib.service.model.Entity;
 
+/**
+ * 
+ * @author Vinay
+ *
+ */
+
 public class TreeNode {
 	
 	private String label;

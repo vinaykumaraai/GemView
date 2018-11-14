@@ -39,9 +39,7 @@ import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import com.luretechnologies.client.restlib.common.ApiException;
-import com.luretechnologies.client.restlib.service.model.App;
 import com.luretechnologies.client.restlib.service.model.Heartbeat;
-import com.luretechnologies.tms.backend.data.entity.AppClient;
 import com.luretechnologies.tms.backend.data.entity.TerminalClient;
 import com.luretechnologies.tms.backend.rest.util.RestClient;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
@@ -49,6 +47,12 @@ import com.luretechnologies.tms.ui.components.ComponentUtil;
 import com.luretechnologies.tms.ui.components.NotificationUtil;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
+
+/**
+ * 
+ * @author Vinay
+ *
+ */
 
 @Service
 public class HeartbeatService {
@@ -95,7 +99,7 @@ public class HeartbeatService {
 					TerminalClient terminal = new TerminalClient(terminalServer.getId(), terminalServer.getType().name(), terminalServer.getName(), terminalServer.getDescription(),
 							terminalServer.getSerialNumber(), terminalServer.getAvailable(),terminalServer.isHeartbeat(),
 							terminalServer.getDebugActive(),
-							terminalServer.getFrequency(), terminalServer.getLastContact().toString(), terminalServer.getEntityId());
+							terminalServer.getFrequency(), terminalServer.getLastContact()==null ? "" : terminalServer.getLastContact().toString(), terminalServer.getEntityId());
 					terminalList.add(terminal);
 				}
 				return terminalList;
@@ -196,6 +200,8 @@ public class HeartbeatService {
 		}
 		return heartbeatHistortListServer;
 	}
+	
+	/* We can you the below Service for future use */
 	
 	/*public List<Heartbeat> deleteHeartbeat(Long id) {
 		List<Heartbeat> heartbeatHistortListServer = new ArrayList<>();

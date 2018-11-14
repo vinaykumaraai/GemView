@@ -44,7 +44,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.client.restlib.service.model.UserSession;
 import com.luretechnologies.tms.app.Application;
-import com.luretechnologies.tms.app.HasLogger;
 import com.luretechnologies.tms.backend.rest.util.RestClient;
 import com.luretechnologies.tms.backend.rest.util.RestServiceUtil;
 import com.luretechnologies.tms.backend.service.UserService;
@@ -73,15 +72,10 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
-import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.VerticalSplitPanel;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.Notification.CloseEvent;
-import com.vaadin.ui.Notification.CloseListener;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -90,7 +84,7 @@ import com.vaadin.ui.themes.ValoTheme;
 @Viewport("width=device-width,initial-scale=1.0,user-scalable=no")
 @Title("Gem View")
 @SpringView
-public class TwoFactorAuthenticationUI extends UI implements HasLogger, View{
+public class TwoFactorAuthenticationUI extends UI implements  View{
 
 	/**
 	 * 
@@ -135,7 +129,6 @@ public class TwoFactorAuthenticationUI extends UI implements HasLogger, View{
 		
 		setErrorHandler(event -> {
 			Throwable t = DefaultErrorHandler.findRelevantThrowable(event.getThrowable());
-			getLogger().error("Error during request", t);
 		});
 
 		viewProvider.setAccessDeniedViewClass(AccessDeniedView.class);

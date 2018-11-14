@@ -42,7 +42,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.vaadin.dialogs.ConfirmDialog;
 
 import com.luretechnologies.client.restlib.common.ApiException;
-import com.luretechnologies.tms.app.HasLogger;
 import com.luretechnologies.tms.backend.data.entity.AbstractEntity;
 import com.luretechnologies.tms.backend.data.entity.AppClient;
 import com.luretechnologies.tms.backend.data.entity.Permission;
@@ -119,7 +118,7 @@ import com.vaadin.ui.themes.ValoTheme;
  */
 
 @Deprecated
-public abstract class AbstractCrudView<T extends AbstractEntity> extends VerticalLayout implements Serializable, View, HasLogger {
+public abstract class AbstractCrudView<T extends AbstractEntity> extends VerticalLayout implements Serializable, View {
 
 	public static final String CAPTION_DISCARD = "Cancel";
 	public static final String CAPTION_CANCEL = "Cancel";
@@ -611,7 +610,6 @@ public abstract class AbstractCrudView<T extends AbstractEntity> extends Vertica
 		if (field instanceof Focusable) {
 			((Focusable) field).focus();
 		} else {
-			getLogger().warn("Unable to focus field of type " + field.getClass().getName());
 		}
 	}
 	

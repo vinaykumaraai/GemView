@@ -31,11 +31,9 @@
  */
 package com.luretechnologies.tms.ui.view.dashboard;
 
-import java.sql.Array;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.Year;
-import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -57,32 +55,31 @@ import com.luretechnologies.tms.ui.components.MainViewIconsLoad;
 import com.luretechnologies.tms.ui.navigation.NavigationManager;
 import com.luretechnologies.tms.ui.view.Header;
 import com.vaadin.addon.charts.Chart;
+import com.vaadin.addon.charts.model.AxisTitle;
 import com.vaadin.addon.charts.model.ChartType;
 import com.vaadin.addon.charts.model.Configuration;
 import com.vaadin.addon.charts.model.DataSeries;
 import com.vaadin.addon.charts.model.DataSeriesItem;
+import com.vaadin.addon.charts.model.Labels;
 import com.vaadin.addon.charts.model.ListSeries;
 import com.vaadin.addon.charts.model.Marker;
 import com.vaadin.addon.charts.model.PlotOptionsColumn;
 import com.vaadin.addon.charts.model.PlotOptionsLine;
+import com.vaadin.addon.charts.model.PlotOptionsSpline;
 import com.vaadin.addon.charts.model.Title;
 import com.vaadin.addon.charts.model.Tooltip;
 import com.vaadin.addon.charts.model.XAxis;
 import com.vaadin.addon.charts.model.YAxis;
 import com.vaadin.board.Row;
 import com.vaadin.data.provider.ListDataProvider;
-import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.Page;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.spring.annotation.SpringView;
-import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.UI;
 import com.vaadin.ui.Grid.SelectionMode;
-import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * The dashboard view showing statistics about sales and deliveries.
@@ -94,8 +91,6 @@ import com.vaadin.ui.themes.ValoTheme;
 @SpringView
 public class DashboardView extends DashboardViewDesign implements View {
 
-	
-	private static final DateTimeFormatter  dateFormatter = DateTimeFormatter.ofPattern("MM-dd-yyyy");
 	private final NavigationManager navigationManager;
 	private ListSeries[] callsPerPeriod;
 	
@@ -106,14 +101,12 @@ public class DashboardView extends DashboardViewDesign implements View {
 	private final BoardLabel requestPerSecondLabel = new BoardLabel("REQUESTS PER SECOND", "", "request per second");
 	private final BoardLabel downloadFailuresLabel = new BoardLabel("DOWNLOAD FAILURES (24 HOURS)", "", "download failures (24 hours)");
 	private final BoardBox downloadFailuresBox = new BoardBox(downloadFailuresLabel);
-	private final Label currentDownloadsLabel = new Label("CURRENT DOWNLOADS");
 
 	private final Chart incomingRequestCallsPerWeek = new Chart(ChartType.COLUMN);
 	private final Chart incomingServiceCallsArea = new Chart(ChartType.AREA);
 	private final Chart incomingServiceCallsPie = new Chart(ChartType.PIE);
 	private  Grid<Downloads> grid ;
 	
-	private DataSeries serviceCalls;
 	private DataSeries incomingCallsSeries;
 	private DataSeries heartBeatServicesPerWeek;
 	private DataSeries downloadServicesPerWeek;
@@ -143,6 +136,9 @@ public class DashboardView extends DashboardViewDesign implements View {
 	@SuppressWarnings("unchecked")
 	@PostConstruct
 	public void init() {
+		
+		// This code will be used for future. 
+		
 //		ComboBox refresh = new ComboBox();
 //		refresh.setItems("Refresh 30 secs","Refresh 1 min","Refresh 5 mins","Refresh 30 mins","Refresh 1 hr");
 //		refresh.setPlaceholder("Select Time");
@@ -185,17 +181,10 @@ public class DashboardView extends DashboardViewDesign implements View {
 		heartBeatPerWeek = dashBoardService.getHeartBeatDataPerWeek();
 		downloadDataPerWeek = dashBoardService.getDownloadDataPerWeek();
 		
-		/*Header header = new Header(userService,navigationManager, "Dashboard", new Label());
-		row = board.addRow(header);
-		row.addStyleName("board-row-group");*/
 		board.addStyleNames("board-top");
 		Row row1 = board.addRow(new BoardBox(currentConnectionsLabel),new BoardBox(successfulDownloadsLabel),
 				new BoardBox(requestPerSecondLabel), downloadFailuresBox);
 		row1.addStyleName("board-row-group");
-		
-		
-		/*row = board.addRow(new BoardBox(incomingServiceCalls));
-		row.addStyleName("board-row-panels");*/
 		
 		row = board.addRow();
 		row.addStyleName("board-row-panels");
@@ -308,21 +297,66 @@ public class DashboardView extends DashboardViewDesign implements View {
 		title.setUseHTML(true);
 		title.setText("<span style=color:#0000008f !important;>Incoming Request Calls Per Day</span>");
 		conf.setTitle(title);
-		//conf.getxAxis().setCategories(getMonthNames());
 		conf.getChart().setMarginBottom(6);
+		
+		YAxis y1 = new YAxis();
+        AxisTitle titleHeartbeat = new AxisTitle("Heartbeats");
+        y1.setTitle(titleHeartbeat);
+        conf.addyAxis(y1);
+        
+        YAxis y2 = new YAxis();
+        y2.setOpposite(true);
+        AxisTitle titleDownload = new AxisTitle("Downloads");
+        y2.setTitle(titleDownload);
+        conf.addyAxis(y2);
 
 		PlotOptionsLine options = new PlotOptionsLine();
 		options.setMarker(new Marker(false));
 		options.setShadow(true);
 		conf.setPlotOptions(options);
-
-		callsPerPeriod = new ListSeries[2];
-		for (int i = 0; i < callsPerPeriod.length; i++) {
-			callsPerPeriod[i] = new ListSeries(list.get(i));
-			callsPerPeriod[i].setPlotOptions(new PlotOptionsLineWithZIndex(list.get(i)));
-			conf.addSeries(callsPerPeriod[i]);
-		}
-		conf.getyAxis().setTitle("");
+		
+		String[] hoursList = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
+				"11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23"};
+		Number[] heartbeatData = {dashBoardService.getHeartBeatDataPerDay().get(0), dashBoardService.getHeartBeatDataPerDay().get(1),
+        		dashBoardService.getHeartBeatDataPerDay().get(2), dashBoardService.getHeartBeatDataPerDay().get(3),
+        		dashBoardService.getHeartBeatDataPerDay().get(4), dashBoardService.getHeartBeatDataPerDay().get(5),
+        		dashBoardService.getHeartBeatDataPerDay().get(6), dashBoardService.getHeartBeatDataPerDay().get(7), 
+        		dashBoardService.getHeartBeatDataPerDay().get(8), dashBoardService.getHeartBeatDataPerDay().get(9),
+        		dashBoardService.getHeartBeatDataPerDay().get(10), dashBoardService.getHeartBeatDataPerDay().get(11),
+        		dashBoardService.getHeartBeatDataPerDay().get(12), dashBoardService.getHeartBeatDataPerDay().get(13),
+        		dashBoardService.getHeartBeatDataPerDay().get(14), dashBoardService.getHeartBeatDataPerDay().get(15),
+        		dashBoardService.getHeartBeatDataPerDay().get(16), dashBoardService.getHeartBeatDataPerDay().get(17),
+        		dashBoardService.getHeartBeatDataPerDay().get(18), dashBoardService.getHeartBeatDataPerDay().get(19),
+        		dashBoardService.getHeartBeatDataPerDay().get(20), dashBoardService.getHeartBeatDataPerDay().get(21),
+        		dashBoardService.getHeartBeatDataPerDay().get(22), dashBoardService.getHeartBeatDataPerDay().get(23)};
+		
+		DataSeries series = new DataSeries();
+        PlotOptionsColumn plotOptionsColumn = new PlotOptionsColumn();
+        series.setPlotOptions(plotOptionsColumn);
+        series.setName("Heartbeats");
+        series.setData(hoursList, heartbeatData);
+        conf.addSeries(series);
+        
+        Number[] downloadsData = {dashBoardService.getDownloadDataPerDay().get(0),dashBoardService.getDownloadDataPerDay().get(1),
+        		dashBoardService.getDownloadDataPerDay().get(2), dashBoardService.getDownloadDataPerDay().get(3),
+        		dashBoardService.getDownloadDataPerDay().get(4), dashBoardService.getDownloadDataPerDay().get(5),
+        		dashBoardService.getDownloadDataPerDay().get(6), dashBoardService.getDownloadDataPerDay().get(7), 
+        		dashBoardService.getDownloadDataPerDay().get(8), dashBoardService.getDownloadDataPerDay().get(9),
+        		dashBoardService.getDownloadDataPerDay().get(10), dashBoardService.getDownloadDataPerDay().get(11),
+        		dashBoardService.getDownloadDataPerDay().get(12), dashBoardService.getDownloadDataPerDay().get(13),
+        		dashBoardService.getDownloadDataPerDay().get(14), dashBoardService.getDownloadDataPerDay().get(15),
+        		dashBoardService.getDownloadDataPerDay().get(16), dashBoardService.getDownloadDataPerDay().get(17),
+        		dashBoardService.getDownloadDataPerDay().get(18), dashBoardService.getDownloadDataPerDay().get(19),
+        		dashBoardService.getDownloadDataPerDay().get(20), dashBoardService.getDownloadDataPerDay().get(21),
+        		dashBoardService.getDownloadDataPerDay().get(22), dashBoardService.getDownloadDataPerDay().get(23)};
+        
+        series = new DataSeries();
+        PlotOptionsSpline plotOptionsSpline = new PlotOptionsSpline();
+        series.setPlotOptions(plotOptionsSpline);
+        series.setName("Downloads");
+        series.setyAxis(1);
+        series.setData(hoursList, downloadsData);
+        conf.addSeries(series);
 
 	}
 	
@@ -348,11 +382,7 @@ public class DashboardView extends DashboardViewDesign implements View {
 	
 	
 	private void updateGraphs() {
-		//serviceCalls.addData(new Number[][]{{0, 1}, {2, 2}, {3,8},{5,6},{10, 3}});
-		
-		callsPerPeriod[0].setData(dashBoardService.getHeartBeatDataPerDay());
-		callsPerPeriod[1].setData(dashBoardService.getDownloadDataPerDay());
-		
+
 		for (Map.Entry<String, Number> entry : heartBeatPerWeek.entrySet()) {
 			heartBeatServicesPerWeek.add(new DataSeriesItem("Heartbeat", entry.getValue()));
 		}
@@ -403,46 +433,21 @@ public class DashboardView extends DashboardViewDesign implements View {
         Tooltip tooltip = new Tooltip();
         tooltip.setFormatter("function() { return ''+ this.series.name +': '+ this.y +'';}");
         Conf.setTooltip(tooltip);
-		
-		//String thisMonth = today.getMonth().getDisplayName(TextStyle.FULL, Locale.US);
-		
-		//monthConf.getChart().setMarginBottom(6);
 		Conf.getLegend().setEnabled(false);
 		heartBeatServicesPerWeek = new DataSeries("Heartbeat Calls");
 		downloadServicesPerWeek= new DataSeries("Download Calls");
-		//heartBeatServicesPerWeek.setPlotOptions(new PlotOptionsLineWithZIndex(list.get(0)));
-		//downloadServicesPerWeek.setPlotOptions(new PlotOptionsLineWithZIndex(list.get(1)));
 		Conf.addSeries(heartBeatServicesPerWeek);
 		Conf.addSeries(downloadServicesPerWeek);
 		configureColumnSeries(heartBeatServicesPerWeek);
 		configureColumnSeries(downloadServicesPerWeek);
-/*
-		int daysInMonth = YearMonth.of(today.getYear(), today.getMonthValue()).lengthOfMonth();
-		String[] categories = IntStream.rangeClosed(1, daysInMonth).mapToObj(Integer::toString)
-				.toArray(size -> new String[size]);
-		Conf.getxAxis().setCategories(categories);
-		Conf.getxAxis().setLabels(new Labels(false));*/
+
 	}
 
 	protected void configureColumnSeries(DataSeries series) {
 		PlotOptionsColumn options = new PlotOptionsColumn();
 		options.setPointPadding(0.2);
 		options.setBorderWidth(0);
-		/*options.setPointWidth(100);
-		Color color = SolidColor.GREEN;
-		options.setBorderWidth(1);
-		options.setGroupPadding(0);
-		options.setColor(color);
-		series.setPlotOptions(options);*/
 
-		/*YAxis yaxis = series.getConfiguration().getyAxis();
-		yaxis.setGridLineWidth(0);
-		yaxis.setLabels(new Labels(false));
-		yaxis.setTitle("Range");
-		
-		XAxis xaxis = series.getConfiguration().getxAxis();
-		xaxis.setGridLineWidth(0);
-		xaxis.setTitle("HeartBeat");*/
 	}
 }
 

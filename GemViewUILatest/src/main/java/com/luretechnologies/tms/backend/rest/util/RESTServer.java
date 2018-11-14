@@ -31,6 +31,12 @@
  */
 package com.luretechnologies.tms.backend.rest.util;
 
+/**
+ * 
+ * @author Vinay
+ *
+ */
+
 public class RESTServer {
 	 private String user;
 	    private String password;

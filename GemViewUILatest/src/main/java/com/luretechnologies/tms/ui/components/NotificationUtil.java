@@ -31,8 +31,11 @@
  */
 package com.luretechnologies.tms.ui.components;
 
-import com.vaadin.ui.Notification;
-import com.vaadin.ui.Notification.Type;
+/**
+ * 
+ * @author Vinay
+ *
+ */
 
 public class NotificationUtil {
 

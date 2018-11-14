@@ -34,7 +34,6 @@ package com.luretechnologies.tms.backend.data.entity;
 
 import java.util.Objects;
 
-// "User" is a reserved word in some SQL implementations
 /**
  * @author Vinay
  *

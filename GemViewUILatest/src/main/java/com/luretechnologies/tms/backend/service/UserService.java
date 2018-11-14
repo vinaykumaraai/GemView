@@ -58,6 +58,12 @@ import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 
+/**
+ * 
+ * @author Vinay
+ *
+ */
+
 @Service
 @SpringComponent
 public class UserService extends CrudService<User>{
@@ -112,7 +118,6 @@ public class UserService extends CrudService<User>{
 				List<com.luretechnologies.client.restlib.service.model.User> userList = RestServiceUtil.getInstance().getClient().getUserApi().getUsersByEntity(entityId);
 				for (com.luretechnologies.client.restlib.service.model.User user : userList) {
 					User clientUser = new User(user.getId(),user.getEmail(),user.getUsername(),user.getRole().getName(),user.getFirstName(), user.getLastName(),user.getAvailable(), user.getPasswordFrequency(), user.getEntity().getId(), user.getAssignedIP());
-					clientUser.setLocked(true);
 					users.add(clientUser);
 				}
 				return users;
@@ -249,28 +254,34 @@ public class UserService extends CrudService<User>{
 				userServer.setEmail(user.getEmail());
 				userServer.setAvailable(user.isActive());
 				userServer.setEntity(entityServer);
+				userServer.setAssignedIP(user.getIpAddress());
 				
 				if(user.getId()!=null) {
 					com.luretechnologies.client.restlib.service.model.User updatedUser  = RestServiceUtil.getInstance().getClient().getUserApi().updateUser(user.getId(), userServer);
 					clientUser = new User(updatedUser.getId(),updatedUser.getEmail(),updatedUser.getUsername(),updatedUser.getRole().getName(),updatedUser.getFirstName(), updatedUser.getLastName(),updatedUser.getAvailable(), updatedUser.getPasswordFrequency(),updatedUser.getEntity().getId(), updatedUser.getAssignedIP());
-					clientUser.setLocked(true);	
 				}else {
 					com.luretechnologies.client.restlib.service.model.User savedUser  = RestServiceUtil.getInstance().getClient().getUserApi().createUser(userServer);
 					
 					clientUser = new User(savedUser.getId(),savedUser.getEmail(),savedUser.getUsername(),savedUser.getRole().getName(),savedUser.getFirstName(), savedUser.getLastName(),savedUser.getAvailable(), savedUser.getPasswordFrequency(), savedUser.getEntity().getId(), savedUser.getAssignedIP());
-					clientUser.setLocked(true);	
 				}
 					
 			} catch (ApiException ae) {
 				if(ae.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
 					Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
 					ComponentUtil.sessionExpired(notification);
+				}if(ae.getMessage().contains("USERNAME INVALID DATA ENTRY")) {
+					Notification.show(NotificationUtil.USER_NAME_CHECK1, Type.ERROR_MESSAGE);
+				}else if(ae.getMessage().contains("EMAIL INVALID DATA ENTRY")) {
+					Notification.show(NotificationUtil.USER_NAME_CHECK2, Type.ERROR_MESSAGE);
+				}else if(ae.getMessage().contains("DATA INTEGRITY VIOLATION")) {
+					Notification.show(NotificationUtil.USER_NAME_CHECK3, Type.ERROR_MESSAGE);
 				}else {
 					Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+"  creating user",Type.ERROR_MESSAGE);
 					ComponentUtil.sessionExpired(notification);
 				}
 				userLogger.error("API Error Occured while creating user",ae);
 				RestClient.sendMessage(ae.getMessage(), ExceptionUtils.getStackTrace(ae));
+				
 			} catch (Exception e) {
 				userLogger.error("Error Occured while creating user",e);
 				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));

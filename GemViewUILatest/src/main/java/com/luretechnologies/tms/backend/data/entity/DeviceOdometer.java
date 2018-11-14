@@ -33,6 +33,12 @@ package com.luretechnologies.tms.backend.data.entity;
 
 import java.util.Objects;
 
+/**
+ * 
+ * @author Vinay
+ *
+ */
+
 public class DeviceOdometer {
 	private Long id;
 	private String statusType, description, statistics;

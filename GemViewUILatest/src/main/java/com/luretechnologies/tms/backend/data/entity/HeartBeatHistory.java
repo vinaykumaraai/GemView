@@ -33,11 +33,14 @@ package com.luretechnologies.tms.backend.data.entity;
 
 import java.util.Date;
 
-public class HeartBeatHistory extends AbstractEntity{
+/**
+ * 
+ * @author Vinay
+ *
+ */
 
-	/**
-	 * 
-	 */
+public class HeartBeatHistory extends AbstractEntity{
+	
 	private static final long serialVersionUID = 1L;
 
 	private String ip;

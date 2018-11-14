@@ -31,14 +31,19 @@
  */
 package com.luretechnologies.tms.ui.view.personalization;
 
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -56,6 +61,7 @@ import com.luretechnologies.tms.backend.data.entity.AppClient;
 import com.luretechnologies.tms.backend.data.entity.AppDefaultParam;
 import com.luretechnologies.tms.backend.data.entity.ApplicationFile;
 import com.luretechnologies.tms.backend.data.entity.Devices;
+import com.luretechnologies.tms.backend.data.entity.EntityAppProfileInfo;
 import com.luretechnologies.tms.backend.data.entity.Permission;
 import com.luretechnologies.tms.backend.data.entity.Profile;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
@@ -72,10 +78,13 @@ import com.luretechnologies.tms.ui.navigation.NavigationManager;
 import com.luretechnologies.tms.ui.view.ContextMenuWindow;
 import com.luretechnologies.tms.ui.view.Header;
 import com.luretechnologies.tms.ui.view.applicationstore.ApplicationStoreView;
-import com.vaadin.data.TreeData;
+import com.vaadin.addon.charts.shared.MouseEventDetails;
+import com.vaadin.addon.charts.shared.MouseEventDetails.MouseButton;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.data.provider.Query;
+import com.vaadin.event.Action;
+import com.vaadin.event.MouseEvents;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.external.org.slf4j.Logger;
 import com.vaadin.external.org.slf4j.LoggerFactory;
@@ -83,15 +92,11 @@ import com.vaadin.event.ShortcutListener;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.server.Page;
-import com.vaadin.server.Sizeable.Unit;
-import com.vaadin.shared.Position;
-import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.Component;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Grid;
@@ -99,17 +104,12 @@ import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.Notification;
-import com.vaadin.ui.Notification.CloseEvent;
-import com.vaadin.ui.Notification.CloseListener;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TextField;
-import com.vaadin.ui.Tree;
-import com.vaadin.ui.Tree.TreeContextClickEvent;
 import com.vaadin.ui.TreeGrid;
 import com.vaadin.ui.Upload.FailedEvent;
 import com.vaadin.ui.Upload.FinishedEvent;
@@ -123,6 +123,12 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 
+/**
+ * 
+ * @author Vinay
+ *
+ */
+
 @SpringView(name = PersonalizationView.VIEW_NAME)
 public class PersonalizationView extends VerticalLayout implements Serializable, View {
 
@@ -133,20 +139,17 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 	private static Devices emptyDevice;
 	private static HorizontalSplitPanel splitScreen;
 	private static Button createEntity, copyEntity, editEntity, deleteEntity, pasteEntity, addParam, editParam,
-			deleteParam, save, cancel, selectProfile, selectFile,clearSearch, clearParamSearch;
+			deleteParam, save, cancel,clearSearch, clearParamSearch;
 	private static TextField entityName, entityDescription;
 	private static TextField entitySerialNum ;
 	private static ComboBox<Devices> deviceDropDown;
 	private static ComboBox<AppClient> appDropDown;
 	private static ComboBox<Profile> profileDropDown;
-	private static ComboBox<String> updateDropDown;
-	private static ComboBox<AppDefaultParam> addtnlFilesDropDown;
 	private static ComboBox<String> frequencyDropDown;
-	private static CheckBox activeCheckbox, activateHeartbeat;
+	private static CheckBox activateHeartbeat;
 	private static Grid<AppDefaultParam> overRideParamGrid;
 	private static TreeNode selectedNode, selectedNodeForCopy;
 	private static ComboBox<EntityTypeEnum> entityType;
-	private static ComboBox<EntityTypeEnum> entityTypeTree;
 	private static ComboBox<Boolean> activeBox;
 	private static VerticalLayout entityLayout;
 	private static VerticalLayout entityGridLayout;
@@ -161,30 +164,29 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 	private static Window overRideParamWindow;
 	private static AppClient selectedApp;
 	private static Profile selectedProfile;
-	private boolean deleteProfileValue = false;
-	private boolean addProfileValue = false;
-	private boolean deleteFileValue = false;
-	private boolean addFileValue = false;
-	private List<Profile> existingAppProfileEntityList;
-	private List<Profile> existingAppProfileList;
-	private List<AppDefaultParam> existingProfileFileEntityList;
-	private List<AppDefaultParam> existingProfileFileList;
 	private CssLayout treeClearSearchLayout;
 	private CssLayout overrideParamSearchCSSLayout;
 	private TabSheet personlizationTabSheet;
 	private Header header;
 	private final NavigationManager navigationManager;
-	private Grid<AppClient> appGrid;
+	private Grid<EntityAppProfileInfo> appGrid;
 	private Grid<AppDefaultParam> appFileGrid;
 	private Button fileButton;
 	private HorizontalLayout fileButtonLayout;
-	private ComboBox<Profile> profileListPersonlization = new ComboBox<Profile>("Profile");
 	private ComboBox<AppClient> appDropDownParam;
+	private ComboBox<AppClient> appDropDownFile;
 	private ComboBox<Profile> profileDropDownParam;
-	private ContextMenuWindow openProfileListWindow;
+	private ComboBox<Profile> profileDropDownFile;
+	private ComboBox<AppDefaultParam> fileDropDown;
+	private Button addApplication, deleteApplication, saveNode, cancelNode, deleteAppFileGridRowMenu, addAppFileGridRowMenu;
+	private ContextMenuWindow applicationWindow, openProfileParamGridWindow, fileWindow;
+	private Button saveAppWithProfile, cancelAppWithProfile, saveFileWithProfile, cancelFileWithProfile;
+	private Long frequency;
+	private boolean add , delete, edit, access, addEntity, updateEntity, accessEntity, removeEntity;
 	Logger logger = LoggerFactory.getLogger(PersonalizationView.class);
 	
 	private static final String FILE_CHOOSE_LIST = "fileChooseList";
+	private static List<AppDefaultParam> appParamWithEntity = new ArrayList<>();
 
 	@Autowired
 	public TreeDataNodeService treeDataNodeService;
@@ -224,6 +226,21 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 	private void inti() {
 	  try {
 		  header = new Header(userService, roleService, navigationManager, "Personlization", new Label());
+		  Permission personalizationPermission = roleService.getLoggedInUserRolePermissions().stream().filter(check -> check.getPageName().equals("PERSONALIZATION")).findFirst().get();
+
+			add = personalizationPermission.getAdd();
+			edit = personalizationPermission.getEdit();
+			delete = personalizationPermission.getDelete();
+			access = personalizationPermission.getAccess();
+			
+			Permission EntityPermission = roleService.getLoggedInUserRolePermissions().stream()
+					.filter(per -> per.getPageName().equals("ENTITY")).findFirst().get();
+			addEntity = EntityPermission.getAdd();
+			updateEntity = EntityPermission.getEdit();
+			accessEntity = EntityPermission.getAccess();
+			removeEntity = EntityPermission.getDelete();
+		  
+		  
 		Page.getCurrent().addBrowserWindowResizeListener(r -> {
 			if (r.getWidth() <= 600) {
 				treeNodeSearch.setHeight(28, Unit.PIXELS);
@@ -232,9 +249,24 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 				clearParamSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"odometer-OdometerSearchClearPhone");
 				removeComponent(header);
 				mainView.getTitle().setValue(userService.getLoggedInUserName());
-				if(openProfileListWindow!=null) {
-					openProfileListWindow.setPosition(180, 200);
-					openProfileListWindow.setWidth("180px");
+				personlizationTabSheet.getTab(0).setCaption("<h3 style=font-weight:400;width:90px;height:15px;>Details</h3>");
+				personlizationTabSheet.getTab(1).setCaption("<h3 style=font-weight:400;width:90px;height:15px;>Applications</h3>");
+				personlizationTabSheet.getTab(2).setCaption("<h3 style=font-weight:400;width:90px;height:15px;>Parameters</h3>");
+				personlizationTabSheet.getTab(3).setCaption("<h3 style=font-weight:400;width:90px;height:15px;>Files</h3>");
+				if(applicationWindow!=null) {
+					applicationWindow.setPosition(180, 200);
+					applicationWindow.setWidth("180px");
+					saveAppWithProfile.setHeight(28, Unit.PIXELS);
+					cancelAppWithProfile.setHeight(28, Unit.PIXELS);
+					appDropDown.setHeight(28, Unit.PIXELS);
+					profileDropDown.setHeight(28, Unit.PIXELS);
+				}
+				
+				if(openProfileParamGridWindow!=null) {
+					openProfileParamGridWindow.setPosition(180, 200);
+					openProfileParamGridWindow.setWidth("220px");
+					saveNode.setHeight(28, Unit.PIXELS);
+					cancelNode.setHeight(28, Unit.PIXELS);
 				}
 				MainViewIconsLoad.iconsOnPhoneMode(mainView);
 			} else if (r.getWidth() > 600 && r.getWidth() <= 1000) {
@@ -245,10 +277,25 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 				addComponentAsFirst(header);
 				mainView.getTitle().setValue("gemView");
 				MainViewIconsLoad.iconsOnTabMode(mainView);
-				if(openProfileListWindow!=null) {
-					openProfileListWindow.center();
-					openProfileListWindow.setWidth("30%");
-					openProfileListWindow.setHeight("40%");
+				personlizationTabSheet.getTab(0).setCaption("<h3 style=font-weight:400;width:120px;height:20px;>Details</h3>");
+				personlizationTabSheet.getTab(1).setCaption("<h3 style=font-weight:400;width:120px;height:20px;>Profiles</h3>");
+				personlizationTabSheet.getTab(2).setCaption("<h3 style=font-weight:400;width:120px;height:20px;>Parameters</h3>");
+				personlizationTabSheet.getTab(3).setCaption("<h3 style=font-weight:400;width:120px;height:20px;>Files</h3>");
+				if(applicationWindow!=null) {
+					applicationWindow.center();
+					applicationWindow.setWidth("35%");
+					applicationWindow.setHeight("30%");
+					saveAppWithProfile.setHeight(32, Unit.PIXELS);
+					cancelAppWithProfile.setHeight(32, Unit.PIXELS);
+					appDropDown.setHeight(32, Unit.PIXELS);
+					profileDropDown.setHeight(32, Unit.PIXELS);
+				}
+				
+				if(openProfileParamGridWindow!=null) {
+					openProfileParamGridWindow.center();
+					openProfileParamGridWindow.setWidth(32, Unit.PERCENTAGE);
+					saveNode.setHeight(32, Unit.PIXELS);
+					cancelNode.setHeight(32, Unit.PIXELS);
 				}
 				
 			} else {
@@ -259,10 +306,26 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 				addComponentAsFirst(header);
 				mainView.getTitle().setValue("gemView");
 				MainViewIconsLoad.noIconsOnDesktopMode(mainView);
-				if(openProfileListWindow!=null) {
-					openProfileListWindow.center();
-					openProfileListWindow.setWidth("30%");
-					openProfileListWindow.setHeight("40%");
+				personlizationTabSheet.getTab(0).setCaption("<h3 style=font-weight:400;width:150px;height:25px;>Details</h3>");
+				personlizationTabSheet.getTab(1).setCaption("<h3 style=font-weight:400;width:150px;height:25px;>Profiles</h3>");
+				personlizationTabSheet.getTab(2).setCaption("<h3 style=font-weight:400;width:150px;height:25px;>Parameters</h3>");
+				personlizationTabSheet.getTab(3).setCaption("<h3 style=font-weight:400;width:150px;height:25px;>Files</h3>");
+
+				if(applicationWindow!=null) {
+					applicationWindow.center();
+					applicationWindow.setWidth("25%");
+					applicationWindow.setHeight("25%");
+					saveAppWithProfile.setHeight(37, Unit.PIXELS);
+					cancelAppWithProfile.setHeight(37, Unit.PIXELS);
+					appDropDown.setHeight(37, Unit.PIXELS);
+					profileDropDown.setHeight(37, Unit.PIXELS);
+				}
+				
+				if(openProfileParamGridWindow!=null) {
+					openProfileParamGridWindow.center();
+					openProfileParamGridWindow.setWidth(32, Unit.PERCENTAGE);
+					saveNode.setHeight(37, Unit.PIXELS);
+					cancelNode.setHeight(37, Unit.PIXELS);
 				}
 			}
 		});
@@ -282,8 +345,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		treeNodeSearch.setMaxLength(50);
 		clearSearch = new Button(VaadinIcons.CLOSE);
 		clearSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"v-button-customstyle");
-		configureTreeNodeSearch();
-
+	
 		Panel panel = getAndLoadPersonlizationPanel();
 		treeSearchLayout = new HorizontalLayout();
 		treeSearchLayout.setWidth("100%");
@@ -333,19 +395,20 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 			UI.getCurrent().getWindows().forEach(Window::close);
 			appDropDown.clear();
 			appDropDownParam.clear();
+			appDropDownFile.clear();
 			if(!selection.getFirstSelectedItem().isPresent()) {
 				ClearAllComponents();
 				ClearGrid();
+				appGrid.setDataProvider(new ListDataProvider<>(Collections.EMPTY_LIST));
 			}else {
 			
 			entityLayout.setEnabled(false);
 			selectedNode = selection.getFirstSelectedItem().get();
-			appDropDown.setDataProvider(new ListDataProvider<>(appStoreService.getAppListForEntityId(selectedNode.getId())));
-//			appDropDownParam.setDataProvider(new ListDataProvider<>(personalizationService.getAppListByLoggedUserEntity(selectedNode.getId())));
-//			appGrid.setDataProvider(new ListDataProvider<>(personalizationService.getAppListByLoggedUserEntity(selectedNode.getId())));
+			List<AppClient> appClient = appStoreService.getAppListForEntityId(selectedNode.getId());
+			appDropDown.setDataProvider(new ListDataProvider<>(appClient));
+			appDropDownParam.setDataProvider(new ListDataProvider<>(appClient));
+			appDropDownFile.setDataProvider(new ListDataProvider<>(appClient));
 			entityLayout.setEnabled(false);
-//			appDropDownParam.setDataProvider(new ListDataProvider<>(personalizationService.getAppListByLoggedUserEntity(selectedNode.getId())));
-//			appGrid.setDataProvider(new ListDataProvider<>(personalizationService.getAppListByLoggedUserEntity(selectedNode.getId())));
 			if (selectedNode.getType().toString()!=null && !selectedNode.getType().toString().isEmpty()
 					&& selectedNode.getLabel()!=null && !selectedNode.getLabel().isEmpty()) {
 				entityType.setValue(selectedNode.getType());
@@ -359,18 +422,17 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 				if (selectedNode.getType().equals(EntityTypeEnum.TERMINAL)) {
 					entitySerialNum.setEnabled(true);
 					activateHeartbeat.setEnabled(true);
-					frequencyDropDown.setEnabled(true);
-//					selectedNode.setSerialNum(personalizationService.getTerminalSerialNumberByEntityId(selectedNode.getEntityId()));
+					
 					entitySerialNum.setValue(selectedNode.getSerialNum());
-					activateHeartbeat
-							.setValue(personalizationService.getHeartbeatByEntityId(selectedNode.getEntityId()));
-					frequencyDropDown.setValue(
-							personalizationService.getFrequencyByEntityId(selectedNode.getEntityId()).toString());
+					activateHeartbeat.setValue(personalizationService.getHeartbeatByEntityId(selectedNode.getEntityId()));
+					frequencyDropDown.setValue(setFrequecnyConversion(personalizationService.getTerminalFrequencyByEntityId(selectedNode.getEntityId())));
+					
 				}
 				else if (selectedNode.getType().equals(EntityTypeEnum.DEVICE)) {
 					entitySerialNum.setValue(selectedNode.getSerialNum());
-					activateHeartbeat.setEnabled(false);
+					activateHeartbeat.setEnabled(true);
 					frequencyDropDown.setEnabled(false);
+					activateHeartbeat.setValue(personalizationService.getDevicesByEntityId(selectedNode.getEntityId()).isHeartBeat());
 				}else {
 					entitySerialNum.clear();
 					activateHeartbeat.clear();
@@ -391,6 +453,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 			}
 
 		});
+		
 		
 		pasteEntity = new Button("Paste Entity");
 		pasteEntity.setEnabled(false);
@@ -416,6 +479,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 				}
 			});
 			createEntity.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+			createEntity.setEnabled(addEntity);
 			
 			editEntity = new Button("Edit Entity", click -> {
 				UI.getCurrent().getWindows().forEach(Window::close);
@@ -425,9 +489,15 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 				} else {
 					entityLayout.setEnabled(true);
 					overRideParamGrid.setEnabled(true);
+					if(activateHeartbeat.getValue()) {
+						frequencyDropDown.setEnabled(true);
+					}else {
+						frequencyDropDown.setEnabled(false);
+					}
 				}
 			});
 			editEntity.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+			editEntity.setEnabled(updateEntity);
 			
 
 			deleteEntity = new Button("Delete Entity", click -> {
@@ -440,6 +510,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 				}
 			});
 			deleteEntity.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+			deleteEntity.setEnabled(removeEntity);
 			
 			copyEntity = new Button("Copy Entity", click -> {
 				//  Copy new entity
@@ -459,6 +530,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 			});
 			
 			copyEntity.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+			copyEntity.setEnabled(addEntity || updateEntity);
 			
 			pasteEntity.addClickListener(listener-> {
 				//  Paste new entity
@@ -528,12 +600,6 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 			pasteEntity.addStyleName(ValoTheme.BUTTON_BORDERLESS);
 			treeContextMenuWindow.addMenuItems(createEntity,editEntity,deleteEntity,copyEntity,pasteEntity);
 			UI.getCurrent().addWindow(treeContextMenuWindow);
-			
-			UI.getCurrent().addClickListener(listener->{
-				treeContextMenuWindow.close();
-			});
-			
-
 		});
 		treeLayoutWithButtons.addComponent(nodeTree);
 		treeLayoutWithButtons.setExpandRatio(nodeTree, 14);
@@ -552,10 +618,8 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 
 		entityLayout.setEnabled(false);
 		deviceDropDown.setVisible(true);
-		//overRideParamGrid.setEnabled(false);
 		if (nodeTree.getSelectedItems().isEmpty()) {
 			entityLayout.setEnabled(false);
-			//overRideParamGrid.setEnabled(false);
 			ClearAllComponents();
 			ClearGrid();
 		}
@@ -569,9 +633,23 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 			mainView.getTitle().setValue(userService.getLoggedInUserName());
 			removeComponent(header);
 			MainViewIconsLoad.iconsOnPhoneMode(mainView);
-			if(openProfileListWindow!=null) {
-				openProfileListWindow.setPosition(180, 200);
-				openProfileListWindow.setWidth("180px");
+			personlizationTabSheet.getTab(0).setCaption("<h3 style=font-weight:400;width:90px;height:15px;>Details</h3>");
+			personlizationTabSheet.getTab(1).setCaption("<h3 style=font-weight:400;width:90px;height:15px;>Applications</h3>");
+			personlizationTabSheet.getTab(2).setCaption("<h3 style=font-weight:400;width:90px;height:15px;>Parameters</h3>");
+			personlizationTabSheet.getTab(3).setCaption("<h3 style=font-weight:400;width:90px;height:15px;>Files</h3>");
+			if(applicationWindow!=null) {
+				applicationWindow.setPosition(180, 200);
+				applicationWindow.setWidth("180px");
+				saveAppWithProfile.setHeight(28, Unit.PIXELS);
+				cancelAppWithProfile.setHeight(28, Unit.PIXELS);
+				appDropDown.setHeight(28, Unit.PIXELS);
+				profileDropDown.setHeight(28, Unit.PIXELS);
+			}
+			if(openProfileParamGridWindow!=null) {
+				openProfileParamGridWindow.setPosition(180, 200);
+				openProfileParamGridWindow.setWidth("220px");
+				saveNode.setHeight(28, Unit.PIXELS);
+				cancelNode.setHeight(28, Unit.PIXELS);
 			}
 		} else if (width > 600 && width <= 1000) {
 			treeNodeSearch.setHeight(32, Unit.PIXELS);
@@ -581,10 +659,25 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 			mainView.getTitle().setValue("gemView");
 			addComponentAsFirst(header);
 			MainViewIconsLoad.iconsOnTabMode(mainView);
-			if(openProfileListWindow!=null) {
-				openProfileListWindow.center();
-				openProfileListWindow.setWidth("30%");
-				openProfileListWindow.setHeight("40%");
+			personlizationTabSheet.getTab(0).setCaption("<h3 style=font-weight:400;width:120px;height:20px;>Details</h3>");
+			personlizationTabSheet.getTab(1).setCaption("<h3 style=font-weight:400;width:120px;height:20px;>Profiles</h3>");
+			personlizationTabSheet.getTab(2).setCaption("<h3 style=font-weight:400;width:120px;height:20px;>Parameters</h3>");
+			personlizationTabSheet.getTab(3).setCaption("<h3 style=font-weight:400;width:120px;height:20px;>Files</h3>");
+			if(applicationWindow!=null) {
+				applicationWindow.center();
+				applicationWindow.setWidth("35%");
+				applicationWindow.setHeight("30%");
+				saveAppWithProfile.setHeight(32, Unit.PIXELS);
+				cancelAppWithProfile.setHeight(32, Unit.PIXELS);
+				appDropDown.setHeight(32, Unit.PIXELS);
+				profileDropDown.setHeight(32, Unit.PIXELS);
+			}
+			
+			if(openProfileParamGridWindow!=null) {
+				openProfileParamGridWindow.center();
+				openProfileParamGridWindow.setWidth(32, Unit.PERCENTAGE);
+				saveNode.setHeight(32, Unit.PIXELS);
+				cancelNode.setHeight(32, Unit.PIXELS);
 			}
 		} else {
 			treeNodeSearch.setHeight(37, Unit.PIXELS);
@@ -594,35 +687,77 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 			mainView.getTitle().setValue("gemView");
 			addComponentAsFirst(header);
 			MainViewIconsLoad.noIconsOnDesktopMode(mainView);
-			if(openProfileListWindow!=null) {
-				openProfileListWindow.center();
-				openProfileListWindow.setWidth("30%");
-				openProfileListWindow.setHeight("40%");
+			personlizationTabSheet.getTab(0).setCaption("<h3 style=font-weight:400;width:150px;height:25px;>Details</h3>");
+			personlizationTabSheet.getTab(1).setCaption("<h3 style=font-weight:400;width:150px;height:25px;>Profiles</h3>");
+			personlizationTabSheet.getTab(2).setCaption("<h3 style=font-weight:400;width:150px;height:25px;>Parameters</h3>");
+			personlizationTabSheet.getTab(3).setCaption("<h3 style=font-weight:400;width:150px;height:25px;>Files</h3>");
+			if(applicationWindow!=null) {
+				applicationWindow.center();
+				applicationWindow.setWidth("25%");
+				applicationWindow.setHeight("25%");
+				saveAppWithProfile.setHeight(37, Unit.PIXELS);
+				cancelAppWithProfile.setHeight(37, Unit.PIXELS);
+				appDropDown.setHeight(37, Unit.PIXELS);
+				profileDropDown.setHeight(37, Unit.PIXELS);
+			}
+			
+			if(openProfileParamGridWindow!=null) {
+				openProfileParamGridWindow.center();
+				openProfileParamGridWindow.setWidth(32, Unit.PERCENTAGE);
+				saveNode.setHeight(37, Unit.PIXELS);
+				cancelNode.setHeight(37, Unit.PIXELS);
 			}
 		}
 		
-		configureTreeNodeSearch();
+		save.setEnabled(personalizationPermission.getAdd() || personalizationPermission.getEdit());
+		cancel.setEnabled(personalizationPermission.getAdd() || personalizationPermission.getEdit());
 		
-			Permission personalizationPermission = roleService.getLoggedInUserRolePermissions().stream().filter(check -> check.getPageName().equals("PERSONALIZATION")).findFirst().get();
-			/*createEntity.setEnabled(personalizationPermission.getAdd());
-			copyEntity.setEnabled(personalizationPermission.getEdit());
-			editEntity.setEnabled(personalizationPermission.getEdit());
-			deleteEntity.setEnabled(personalizationPermission.getDelete());*/
-			save.setEnabled(personalizationPermission.getAdd() || personalizationPermission.getEdit());
-			cancel.setEnabled(personalizationPermission.getAdd() || personalizationPermission.getEdit());
+		UI.getCurrent().addShortcutListener(new ShortcutListener("Scroll", MouseWheelEvent.WHEEL_UNIT_SCROLL, null) {
 			
-//			personlizationTabSheet.addSelectedTabChangeListener(listener->{
-//				if(listener.getTabSheet().getCaption().equals("Parameters")) {
-//					appDropDownParam.setValue(selectedApp);
-//					profileDropDownParam.setValue(selectedProfile);
-//				}
-//			});
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void handleAction(Object sender, Object target) {
+				UI.getCurrent().getWindows().forEach(Window::close);
+				
+			}
+		});
+		
+		configureTreeNodeSearch();
 			
 	  }catch(Exception ex){
 		  personalizationService.logPersonlizationStoreScreenErrors(ex);
 	  }
 	  
 	  mainView.getPersonlization().setEnabled(true);
+	}
+	
+	private String setFrequecnyConversion(Long seconds) {
+		String value = null;
+			switch(seconds.intValue()) {
+			case 60:
+				value = "1 min";
+				break;
+			case 300:
+				value = "5 mins";
+				break;
+			case 600:
+				value = "10 mins";
+				break;
+			case 1800:
+				value = "30 mins";
+				break;
+			case 3600:
+				value = "60 mins";
+				break;
+			default:
+				break;	
+			}
+		
+		return value;
 	}
 
 	private void configureTreeNodeSearch() {
@@ -687,7 +822,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 	private void getEntityInformation(HorizontalSplitPanel splitScreen) throws ApiException {
 		VerticalLayout entityInformationLayout = new VerticalLayout();
 		entityInformationLayout.addStyleName("personlization-verticalFormLayout");
-		entityInformationLayout.setWidth("100%");
+		entityInformationLayout.setSizeFull();
 		HorizontalLayout saveCancelEntityInfoLabelLayout = new HorizontalLayout();
 		HorizontalLayout saveCancelButtonLayout = new HorizontalLayout();
 		saveCancelEntityInfoLabelLayout.setSizeFull();
@@ -739,25 +874,19 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 					node.setType(entityType.getValue());
 					node.setLabel(entityName.getValue());
 					node.setHeartBeat(activateHeartbeat.getValue());
-					node.setFrequency(frequencyDropDown.getValue());
-					//node.setApp(appDropDown.getValue());
 					node.setProfile(profileDropDown.getValue());
 					node.setDescription(entityDescription.getValue());
 					node.setActive(activeBox.getValue());
 					node.setSerialNum(entitySerialNum.getValue());
-					node.setOverRideParamList(
-							overRideParamGrid.getDataProvider().fetch(new Query<>()).collect(Collectors.toList()));
-					overRideParamGrid.setDataProvider(new ListDataProvider<>(node.getOverRideParamList()));
-					overRideParamGrid.getDataProvider().refreshAll();
-					overRideParamGrid.deselectAll();
 					
 					// Calling the service
-					personalizationService.updateEntity(node);
+					personalizationService.updateEntity(node, frequency);
 					entityLayout.setEnabled(false);
 					nodeTree.deselectAll();
 					nodeTree.getDataProvider().refreshAll();
 					
 				}
+				
 			} else {
 				node = new TreeNode();
 			
@@ -772,8 +901,6 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 				node.setType(entityType.getValue());
 				node.setLabel(entityName.getValue());
 				node.setHeartBeat(activateHeartbeat.getValue());
-				node.setFrequency(frequencyDropDown.getValue());
-				//node.setApp(appDropDown.getValue());
 				node.setProfile(profileDropDown.getValue());
 				node.setDescription(entityDescription.getValue());
 				node.setActive(activeBox.getValue());
@@ -785,7 +912,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 				overRideParamGrid.deselectAll();
 				
 				// Calling the service
-				personalizationService.updateEntity(node);
+				personalizationService.updateEntity(node, frequency);
 				entityLayout.setEnabled(false);
 				} 
 			}
@@ -801,7 +928,10 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		saveCancelButtonLayout.setStyleName("save-cancelButtonsAlignment");
 		saveCancelEntityInfoLabelLayout.addComponent(saveCancelButtonLayout);
 
-		entityInformationLayout.addComponents(saveCancelEntityInfoLabelLayout, getTabSheet());
+		TabSheet tabSheet = getTabSheet();
+		entityInformationLayout.addComponents(saveCancelEntityInfoLabelLayout, tabSheet);
+		entityInformationLayout.setExpandRatio(saveCancelEntityInfoLabelLayout, 1);
+		entityInformationLayout.setExpandRatio(tabSheet, 14);
 
 		splitScreen.addComponent(entityInformationLayout);
 		splitScreen.addStyleName("personlization-SplitBackground");
@@ -809,14 +939,28 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 	
 	private TabSheet getTabSheet() throws ApiException {
 		personlizationTabSheet = new TabSheet();
-		//heartbeatTabSheet.setHeight("100%");
+		
+		personlizationTabSheet.setCaptionAsHtml(true);
+		personlizationTabSheet.setTabCaptionsAsHtml(true);
 		personlizationTabSheet.addStyleName("applicationStore-TabLayout");
-		personlizationTabSheet.addStyleNames(ValoTheme.TABSHEET_EQUAL_WIDTH_TABS, ValoTheme.TABSHEET_CENTERED_TABS,
-				ValoTheme.TABSHEET_ICONS_ON_TOP, ValoTheme.TABSHEET_COMPACT_TABBAR, ValoTheme.TABSHEET_PADDED_TABBAR);
+		personlizationTabSheet.addStyleNames(ValoTheme.TABSHEET_FRAMED, ValoTheme.TABSHEET_PADDED_TABBAR);
+		personlizationTabSheet.setHeight("100%");
 		personlizationTabSheet.addTab(getEntityLayout(entityLayout), "Details");
 		personlizationTabSheet.addTab(getApplicationSelection(entityApplicationLayout),"Applications");
 		personlizationTabSheet.addTab(getOverRideParamGrid(entityGridLayout, selectedApp, selectedProfile),"Parameters");
-		personlizationTabSheet.addTab(getFileSelection(entityFileLayout),"Files");
+		personlizationTabSheet.addTab(getFileSelection(entityFileLayout, selectedApp, selectedProfile),"Files");
+		
+		personlizationTabSheet.addSelectedTabChangeListener(listener->{
+			if(listener.getTabSheet().getCaption()==null)
+			appDropDown.clear();
+			profileDropDown.clear();
+			appDropDownParam.clear();
+			profileDropDownParam.clear();
+			appDropDownFile.clear();
+			profileDropDownFile.clear();
+			fileDropDown.clear();
+			nodeTree.deselectAll();
+		});
 		
 		return personlizationTabSheet;
 	}
@@ -838,10 +982,6 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		getEntityHeartBeat(entityLayout);
 
 		getEntityFrequency(entityLayout);
-
-		/*getApplicationSelection(entityLayout);
-
-		getScheduleUpdate(entityLayout);*/
 		
 		return entityLayout;
 	}
@@ -855,6 +995,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 						EntityTypeEnum.TERMINAL, EntityTypeEnum.DEVICE, EntityTypeEnum.ORGANIZATION)));
 		entityType.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", "textfiled-height");
 		entityType.setEnabled(false);
+		entityType.setRequiredIndicatorVisible(true);
 
 		entityFormLayout.addComponent(entityType);
 	}
@@ -865,6 +1006,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		entityName.setWidth("100%");
 		entityName.addStyleNames("v-textfield-font", "textfiled-height");
 		entityName.setMaxLength(50);
+		entityName.setRequiredIndicatorVisible(true);
 		entityName.addValueChangeListener(listener->{
 			if(listener.getValue().length()==50) {
 			Notification.show(NotificationUtil.TEXTFIELD_LIMIT, Type.ERROR_MESSAGE);
@@ -878,7 +1020,6 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		deviceDropDown = new ComboBox<Devices>();
 		deviceDropDown.setCaption("Devices");
 		deviceDropDown.setPlaceholder("Select Device");
-		deviceDropDown.setDataProvider(personalizationService.getAllDevices());
 		deviceDropDown.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size",
 				"personlization-formAlignment", "small");
 	}
@@ -889,6 +1030,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		entityDescription.addStyleNames("v-textfield-font", "textfiled-height");
 		entityDescription.setWidth("100%");
 		entityDescription.setMaxLength(50);
+		entityDescription.setRequiredIndicatorVisible(true);
 		entityDescription.addValueChangeListener(listener->{
 			if(listener.getValue().length()==50) {
 				Notification.show(NotificationUtil.TEXTFIELD_LIMIT, Type.ERROR_MESSAGE);
@@ -899,24 +1041,12 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 	}
 
 	private void getEntityActive(VerticalLayout entityFormLayout) {
-
-		/*HorizontalLayout entityActiveLayout = new HorizontalLayout();
-		Label active = new Label("Active");
-		active.setStyleName("role-activeLable");
-		active.addStyleNames("v-textfield-font", "role-activeLabel");
-		activeCheckbox = new CheckBox();
-		activeCheckbox.setCaption("Entity Active");
-		activeCheckbox.addStyleNames("v-textfield-font", "personlization-activeCheckbox");
-
-		entityActiveLayout.addComponents(active, activeCheckbox);
-		entityActiveLayout.setStyleName("role-activeLable");
-		entityActiveLayout.addStyleNames("assetAlert-activeCheckBox", "personlization-formAlignment",
-				"personlization-activeLayout");*/
 		
 		activeBox = new ComboBox<>();
 		activeBox.setCaption("Active");
 		activeBox.setWidth("100%");
 		activeBox.setItems(true, false);
+		activeBox.setRequiredIndicatorVisible(true);
 		activeBox.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", "textfiled-height");
 
 		entityFormLayout.addComponent(activeBox);
@@ -927,6 +1057,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		entitySerialNum.addStyleNames("v-textfield-font", "textfiled-height");
 		entitySerialNum.setWidth("100%");
 		entitySerialNum.setMaxLength(50);
+		entitySerialNum.setRequiredIndicatorVisible(true);
 		entitySerialNum.addValueChangeListener(listener->{
 			if(listener.getValue().length()==50) {
 				Notification.show(NotificationUtil.TEXTFIELD_LIMIT, Type.ERROR_MESSAGE);
@@ -958,23 +1089,65 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 
 		frequencyDropDown = new ComboBox<>();
 		frequencyDropDown.setDataProvider(new ListDataProvider<>(
-				Arrays.asList("120 Seconds", "90 Seconds", " 30 Seconds", "Daily", "Monthly", "Never")));
+				Arrays.asList("1 min", "5 mins", "10 mins", "30 mins", "60 mins")));
 		frequencyDropDown.setCaption("Frequency");
 		frequencyDropDown.setWidth("100%");
 		frequencyDropDown.setPlaceholder("Frequency");
 		frequencyDropDown.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", "textfiled-height");
+		frequencyDropDown.setRequiredIndicatorVisible(true);
+		frequencyDropDown.setEmptySelectionAllowed(true);
+		frequencyDropDown.setEmptySelectionCaption("(Select Frequency)");
+		
+		frequencyDropDown.addSelectionListener(listener->{
+			if(listener.getValue()!=null) {
+				switch(listener.getValue()) {
+					case "1 min":
+						frequency = (long) 60;
+						break;
+					case "5 mins":
+						frequency = (long) 300;
+						break;
+					case "10 mins":
+						frequency = (long) 600;
+						break;
+					case "30 mins":
+						frequency = (long) 1800;
+						break;
+					case "60 mins":
+						frequency = (long) 3600;
+						break;
+					default:
+						break;
+				}
+			}
+		});
+		
+		activateHeartbeat.addValueChangeListener(value->{
+			if(value.getValue()) {
+				frequencyDropDown.setEnabled(true);
+			}else {
+				frequencyDropDown.clear();
+				frequencyDropDown.setEnabled(false);
+			}
+		});
 
 		entityFormLayout.addComponent(frequencyDropDown);
 	}
 
 	private VerticalLayout getApplicationSelection(VerticalLayout entityFormLayout) {
-
-		HorizontalLayout entityApplicationSelection = new HorizontalLayout();
-		entityApplicationSelection.addStyleNames("personlization-AppAndProfileAlignment");
+		
+		
+		VerticalLayout appProfileSaveCancelLayout = new VerticalLayout();
+		appProfileSaveCancelLayout.addStyleName("role-gridLayout");
+		
+		HorizontalLayout saveCancelLayout = new HorizontalLayout();
+	
 		appDropDown = new ComboBox<AppClient>();
-		appDropDown.setCaption("");
-		appDropDown.setPlaceholder("Application");
+		appDropDown.setCaption("Application");
 		appDropDown.setWidth("100%");
+		appDropDown.setRequiredIndicatorVisible(true);
+		appDropDown.setEmptySelectionAllowed(true);
+		appDropDown.setEmptySelectionCaption("(Select Application)");
 		appDropDown.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", "textfiled-height");
 		
 		appDropDown.addSelectionListener(selected -> {
@@ -985,86 +1158,138 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 			profileDropDown.clear();
 			selectedProfile=null;
 			if(selectedApp!=null) {
-				profileDropDown.setDataProvider(new ListDataProvider<>(personalizationService.getProfileListForEntity(selectedApp.getId(), selectedNode.getId())));
-				parameterType.setDataProvider(new ListDataProvider<>(appStoreService.getAppParamTypeList(selectedApp.getId())));
+				profileDropDown.setDataProvider(new ListDataProvider<>(personalizationService.getProfileListWithOutEntity(selectedApp.getId(), selectedNode.getId())));
+				List<EntityAppProfileInfo> appProfileInfoList = getAppProfileInfoList(selectedApp.getId(), selectedNode.getId() );
+				DataProvider data = new ListDataProvider(appProfileInfoList);
+				appGrid.setDataProvider(data);
 			}else {
 				profileDropDown.setItems(new ArrayList());
+				DataProvider data = new ListDataProvider(new ArrayList());
+				appGrid.setDataProvider(data);
 			}
 			}
 		});
-		
-		/*addtnlFilesDropDown = new ComboBox<>();
-		addtnlFilesDropDown.setCaption("");
-		addtnlFilesDropDown.setPlaceholder("Additional Files");
-		addtnlFilesDropDown.setDescription("Select Files");
-		addtnlFilesDropDown.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", "small");*/
 
 		profileDropDown = new ComboBox<Profile>();
-		profileDropDown.setCaption("");
-		profileDropDown.setPlaceholder("Default Profile");
-		profileDropDown.setDescription("Select Profile");
+		profileDropDown.setCaption("Profile");
 		profileDropDown.setWidth("100%");
+		profileDropDown.setRequiredIndicatorVisible(true);
+		profileDropDown.setEmptySelectionAllowed(true);
+		profileDropDown.setEmptySelectionCaption("(Select Profile)");
 		profileDropDown.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", "textfiled-height");
 		
-		selectProfile = new Button("", VaadinIcons.TWIN_COL_SELECT);
-		selectProfile.addStyleNames("v-button-customstyle", ValoTheme.BUTTON_FRIENDLY, "personlization-plusButtons");
-		selectProfile.setDescription("Select Profiles");
-		selectFile = new Button("", VaadinIcons.TWIN_COL_SELECT);
-		selectFile.addStyleNames("v-button-customstyle", ValoTheme.BUTTON_FRIENDLY, "personlization-plusButtons");
-		selectFile.setDescription("Select Files");
-		
-		selectProfile.addClickListener(click ->{
-			if(selectedApp != null) {
-				selectedProfile=null;
-				UI.getCurrent().addWindow(openProfileTwinListToAddWindow());
+		saveAppWithProfile = new Button("Save", click->{
+			
+			if(appDropDown.getValue()!=null && profileDropDown.getValue()!=null && selectedNode!=null){
+				personalizationService.saveProfileForEntity(profileDropDown.getValue().getId(), selectedNode.getId());
+				List<EntityAppProfileInfo> appProfileInfoList = getAppProfileInfoList(appDropDown.getValue().getId(), selectedNode.getId() );
+				DataProvider data = new ListDataProvider(appProfileInfoList);
+				appGrid.setDataProvider(data);
 				profileDropDown.clear();
+				profileDropDown.setDataProvider(new ListDataProvider<>(personalizationService.getProfileListWithOutEntity(appDropDown.getValue().getId(), selectedNode.getId())));
+				applicationWindow.close();
+				
+			}
+			
+		});
+		
+		saveAppWithProfile.addStyleName(ValoTheme.BUTTON_FRIENDLY);
+		saveAppWithProfile.addStyleName("v-button-customstyle");
+		saveAppWithProfile.setDescription("Save");
+		
+		
+		cancelAppWithProfile = new Button("Cancel", click->{
+			appDropDown.clear();
+			profileDropDown.clear();
+		});
+		
+		cancelAppWithProfile.addStyleName(ValoTheme.BUTTON_FRIENDLY);
+		cancelAppWithProfile.addStyleName("v-button-customstyle");
+		cancelAppWithProfile.setDescription("Cancel");
+		
+		saveCancelLayout.addComponents(saveAppWithProfile, cancelAppWithProfile);
+		saveCancelLayout.addStyleName("personlization-applicationSaveCancel");
+		
+		appProfileSaveCancelLayout.addComponents(appDropDown, profileDropDown, saveCancelLayout);
+		
+		ContextMenuWindow appGridContextMenuWindow = new ContextMenuWindow();
+		addApplication = new Button("Add Application Profile", click -> {
+			if(nodeTree.getSelectedItems().size()>0) {
+				UI.getCurrent().getWindows().forEach(Window::close);
+				UI.getCurrent().addWindow(applicationWindow);
+				if(appDropDown.getValue()!=null) {
+					profileDropDown.setDataProvider(new ListDataProvider<>(personalizationService.getProfileListWithOutEntity(appDropDown.getValue().getId(), selectedNode.getId())));
+				}
 			}else {
-				Notification.show("Please select app to add profile to entity", Type.ERROR_MESSAGE);
+				appGridContextMenuWindow.close();
+				Notification.show("Please select any entity to add profile", Type.ERROR_MESSAGE);
+				
 			}
 		});
-		
-		/*selectFile.addClickListener(click ->{
-			if(selectedProfile!=null) {
-				UI.getCurrent().addWindow(openProfileTwinListToAddWindow());
-				addtnlFilesDropDown.clear();
-			}
-		});*/
-		
-		
-		profileDropDown.addSelectionListener(listener->{
-			if(profileDropDown.getSelectedItem().isPresent()) {
-			/*selectedProfile = profileDropDown.getSelectedItem().get();
-			addParam.setEnabled(true);
-			deleteParam.setEnabled(true);
-			List<AppDefaultParam> fileListWithEntityForDropDown = personalizationService.getFileListWithEntity(selectedProfile.getId(), selectedNode.getId());
-			DataProvider dataFromEntityForDropDown = new ListDataProvider<>(fileListWithEntityForDropDown);
-			addtnlFilesDropDown.clear();
-			addtnlFilesDropDown.setDataProvider(dataFromEntityForDropDown);
-			overRideParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(personalizationService.getAppDefaultParamListWithEntity(selectedProfile.getId(),selectedNode.getId())));*/
-			}
-		});
-		entityApplicationSelection.addComponents(appDropDown, selectProfile, profileDropDown);
-		entityFormLayout.addComponent(entityApplicationSelection);
-		
-		
+		addApplication.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+		addApplication.setEnabled(add);
 
-		appGrid = new Grid<>(AppClient.class);
+		deleteApplication = new Button("Delete Application Profile", click -> {
+			UI.getCurrent().getWindows().forEach(Window::close);
+			confirmDeleteAppProfileForEntity(appGrid.getSelectedItems());
+		});
+		deleteApplication.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+		deleteApplication.setEnabled(delete);
+		
+		appGridContextMenuWindow.addMenuItems(addApplication, deleteApplication);
+	
+		applicationWindow = new ContextMenuWindow();
+		applicationWindow.addMenuItems(appProfileSaveCancelLayout);
+		applicationWindow.center();
+		applicationWindow.setWidth("25%");
+		applicationWindow.setHeight("25%");
+		applicationWindow.setResizable(true);
+		applicationWindow.setClosable(true);
+		applicationWindow.setDraggable(true);
+
+		appGrid = new Grid<>(EntityAppProfileInfo.class);
 		appGrid.setWidth("100%");
-		appGrid.setColumns("packageName", "description", "packageVersion", "profile");
-		appGrid.getColumn("packageName").setCaption("Name");
-		appGrid.getColumn("description").setCaption("Description");
-		appGrid.getColumn("packageVersion").setCaption("Version");
-		appGrid.getColumn("profile").setCaption("Profile");
-		appGrid.getColumn("profile").setEditorComponent(profileListPersonlization);
-		appGrid.setHeightByRows(20);
+		appGrid.setColumns("appName", "appDescription", "version", "profileName");
+		appGrid.getColumn("appName").setCaption("Name");
+		appGrid.getColumn("appDescription").setCaption("Description");
+		appGrid.getColumn("version").setCaption("Version");
+		appGrid.getColumn("profileName").setCaption("Profile");
+		appGrid.setHeight("100%");
 		appGrid.setSelectionMode(SelectionMode.MULTI);
+		
+		appGrid.addContextClickListener(click->{
+			UI.getCurrent().getWindows().forEach(Window::close);
+			if(appGrid.getSelectedItems().size()>0 && delete) {
+				deleteApplication.setEnabled(delete);
+			}else {
+				deleteApplication.setEnabled(false);
+			}
+			
+			if(click.getClientY() > 750) {
+				appGridContextMenuWindow.setPosition(click.getClientX(), click.getClientY()-220);
+			}else {
+				appGridContextMenuWindow.setPosition(click.getClientX(), click.getClientY());
+			}
+			UI.getCurrent().addWindow(appGridContextMenuWindow);
+		});
+		
+		UI.getCurrent().addClickListener(listener->{
+			UI.getCurrent().getWindows().forEach(Window::close);
+		});
+		
 		entityFormLayout.addComponent(appGrid);
 		
 		return entityFormLayout;
 	}
 	
-	private VerticalLayout getFileSelection(VerticalLayout entityFormLayout) {
-
+	private VerticalLayout getFileSelection(VerticalLayout entityFormLayout, AppClient app, Profile profile) {
+		
+		VerticalLayout appFileSaveCancelLayout = new VerticalLayout();
+		appFileSaveCancelLayout.setHeight("100%");
+		appFileSaveCancelLayout.addStyleName("role-gridLayout");
+		
+		HorizontalLayout saveCancelLayout = new HorizontalLayout();
+		
 		fileButton = new Button("Files", VaadinIcons.UPLOAD);
 		fileButton.addStyleNames("v-button-customstyle", ValoTheme.BUTTON_FRIENDLY);
 		fileButton.setDescription("Upload Files");
@@ -1089,13 +1314,133 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 	
 		appFileGrid = new Grid<>(AppDefaultParam.class);
 		appFileGrid.addStyleName("applicationStore-horizontalAlignment");
-		appFileGrid.setColumns("parameter", "description");
-		appFileGrid.setWidth("100%");
-		appFileGrid.setHeightByRows(18);
+		appFileGrid.setColumns("parameter");
+		appFileGrid.getColumn("parameter").setCaption("File Name");
+		appFileGrid.setSizeFull();
 		appFileGrid.setSelectionMode(SelectionMode.MULTI);
-		Button deleteAppFileGridRowMenu = new Button("Delete File", clicked -> {
+		
+		appDropDownFile = new ComboBox<AppClient>();
+		if(appDropDownFile!=null) {
+			appDropDownFile.clear();
+		}
+		appDropDownFile.setCaption("Select Application");
+		appDropDownFile.setEmptySelectionAllowed(true);
+		appDropDownFile.setEmptySelectionCaption("(Select App)");
+		appDropDownFile.setWidth("100%");
+		appDropDownFile.setValue(app);
+		appDropDownFile.setRequiredIndicatorVisible(true);
+		appDropDownFile.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", "textfiled-height");
+		
+		profileDropDownFile = new ComboBox<Profile>();
+		profileDropDownFile.setCaption("Select Profile");
+		profileDropDownFile.setEmptySelectionAllowed(true);
+		profileDropDownFile.setEmptySelectionCaption("(Select Profile)");
+		profileDropDownFile.setRequiredIndicatorVisible(true);
+		profileDropDownFile.setWidth("100%");
+		profileDropDownFile.setValue(profile);
+		profileDropDownFile.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", "textfiled-height");
+		
+		fileDropDown = new ComboBox<AppDefaultParam>();
+		fileDropDown.setCaption("Select File");
+		fileDropDown.setEmptySelectionAllowed(true);
+		fileDropDown.setEmptySelectionCaption("(Select File)");
+		fileDropDown.setRequiredIndicatorVisible(true);
+		fileDropDown.setWidth("100%");
+		fileDropDown.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", "textfiled-height");
+		
+		appDropDownFile.addSelectionListener(selected -> {
+			
+			selectedApp = (AppClient) selected.getValue();
+			profileDropDownFile.clear();
+			selectedProfile=null;
+			if(selectedApp!=null) {
+				profileDropDownFile.setDataProvider(new ListDataProvider<>(personalizationService.getProfileListForEntity(selectedApp.getId(), selectedNode.getId())));
+				parameterType.setDataProvider(new ListDataProvider<>(appStoreService.getAppParamTypeList(selectedApp.getId())));
+			}else {
+				profileDropDownFile.setItems(new ArrayList());
+				fileDropDown.setDataProvider(new ListDataProvider<AppDefaultParam>(Collections.EMPTY_LIST));
+				appFileGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(Collections.EMPTY_LIST));
+			}
+		});
+		
+		profileDropDownFile.addSelectionListener(listener->{
+			if(profileDropDownFile.getSelectedItem().isPresent()) {
+			selectedProfile = profileDropDownFile.getSelectedItem().get();
+			fileDropDown.setDataProvider(new ListDataProvider<AppDefaultParam>(personalizationService.getFileListWithOutEntity(selectedProfile.getId(),selectedNode.getId())));
+			appFileGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(personalizationService.getFileListWithEntity(selectedProfile.getId(),selectedNode.getId())));
+			}else {
+				fileDropDown.setDataProvider(new ListDataProvider<AppDefaultParam>(Collections.EMPTY_LIST));
+				appFileGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(Collections.EMPTY_LIST));
+			}
+		});
+		
+			saveFileWithProfile = new Button("Save", click->{
+			
+			if(appDropDownFile.getValue()!=null && profileDropDownFile.getValue()!=null && selectedNode!=null && fileDropDown.getValue()!=null){
+				personalizationService.saveFileForEntity(selectedProfile.getId(), fileDropDown.getValue(),selectedNode.getId());
+				List<AppDefaultParam> fileListWithEntity = personalizationService.getFileListWithEntity(selectedProfile.getId(), selectedNode.getId());
+				DataProvider data = new ListDataProvider<>(fileListWithEntity);
+				appFileGrid.setDataProvider(data);
+				fileWindow.close();
+			}else {
+				if(profileDropDownFile.getValue()==null) {
+					Notification.show("Select Profile Value", Type.ERROR_MESSAGE);
+				}else if(fileDropDown.getValue()==null) {
+					Notification.show("Select File", Type.ERROR_MESSAGE);
+				}
+			}
+			
+		});
+		
+			saveFileWithProfile.addStyleName(ValoTheme.BUTTON_FRIENDLY);
+			saveFileWithProfile.addStyleName("v-button-customstyle");
+			saveFileWithProfile.setDescription("Save");
+		
+		
+		cancelFileWithProfile = new Button("Cancel", click->{
+			appDropDownFile.clear();
+			profileDropDownFile.clear();
+			fileDropDown.clear();
+		});
+		
+		cancelFileWithProfile.addStyleName(ValoTheme.BUTTON_FRIENDLY);
+		cancelFileWithProfile.addStyleName("v-button-customstyle");
+		cancelFileWithProfile.setDescription("Cancel");
+		
+		saveCancelLayout.addComponents(saveFileWithProfile, cancelFileWithProfile);
+		saveCancelLayout.addStyleName("personlization-applicationSaveCancel");
+		
+		appFileSaveCancelLayout.addComponents(appDropDownFile, profileDropDownFile, fileDropDown, saveCancelLayout);
+		
+		
+		fileWindow = new ContextMenuWindow();
+		fileWindow.addMenuItems(appFileSaveCancelLayout);
+		fileWindow.center();
+		fileWindow.setWidth("25%");
+		fileWindow.setHeight("33%");
+		fileWindow.setResizable(true);
+		fileWindow.setClosable(true);
+		fileWindow.setDraggable(true);
+		
+		addAppFileGridRowMenu = new Button("Add File", clicked -> {
 			UI.getCurrent().getWindows().forEach(Window::close);
-			if (appGrid.getSelectedItems().isEmpty() || appFileGrid.getSelectedItems().isEmpty()) {
+			if(nodeTree.getSelectedItems().size()>0) {
+				fileDropDown.clear();
+				if(appDropDownFile.getValue()!=null && profileDropDownFile.getValue()!=null) {
+					fileDropDown.setDataProvider(new ListDataProvider<AppDefaultParam>(personalizationService.getFileListWithOutEntity(selectedProfile.getId(),selectedNode.getId())));
+				}
+					UI.getCurrent().addWindow(fileWindow);
+			}else {
+				Notification.show("Select any entity to add files", Type.ERROR_MESSAGE);
+			}
+
+		});
+		addAppFileGridRowMenu.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+		addAppFileGridRowMenu.setEnabled(add);
+		
+		deleteAppFileGridRowMenu = new Button("Delete File/s", clicked -> {
+			UI.getCurrent().getWindows().forEach(Window::close);
+			if (appFileGrid.getSelectedItems().isEmpty()) {
 				Notification.show(NotificationUtil.APPLICATIONSTORE_DELETE, Notification.Type.ERROR_MESSAGE);
 			} else {
 				confirmDeleteAppProfileFiles();
@@ -1103,19 +1448,27 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 
 		});
 		deleteAppFileGridRowMenu.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+		deleteAppFileGridRowMenu.setEnabled(delete);
 		ContextMenuWindow paramContextWindow = new ContextMenuWindow();
-		paramContextWindow.addMenuItems(deleteAppFileGridRowMenu);
+		paramContextWindow.addMenuItems(addAppFileGridRowMenu, deleteAppFileGridRowMenu);
+		
 		appFileGrid.addContextClickListener(click ->{
+			
+			if(appFileGrid.getSelectedItems().size()>0) {
+				deleteAppFileGridRowMenu.setEnabled(true);
+			}else {
+				deleteAppFileGridRowMenu.setEnabled(false);
+			}
 			UI.getCurrent().getWindows().forEach(Window::close);
-			paramContextWindow.setPosition(click.getClientX(), click.getClientY());
+			
+			if(click.getClientY() > 750) {
+				paramContextWindow.setPosition(click.getClientX(), click.getClientY()-220);
+			}else {
+				paramContextWindow.setPosition(click.getClientX(), click.getClientY());
+			}
 			UI.getCurrent().addWindow(paramContextWindow);
 		});
-		
-		UI.getCurrent().addClickListener(listener->{
-			paramContextWindow.close();
-		});
-		
-		entityFormLayout.addComponents(fileButtonLayout, appFileGrid);
+		entityFormLayout.addComponents(appFileGrid);
 		return entityFormLayout;
 		
 	}
@@ -1155,228 +1508,8 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		return fileUploadWindow;
 	}
 	
-	private ContextMenuWindow openProfileTwinListToAddWindow() {
-		
-		if(selectedProfile!=null) {
-			/*ContextMenuWindow openProfileListWindow = new ContextMenuWindow();
-			
-			ListSelect<AppDefaultParam> optionListFromProfile = new ListSelect<>();
-			optionListFromProfile.setRows(8);
-			optionListFromProfile.setResponsive(true);
-			optionListFromProfile.setWidth("280px");
-			optionListFromProfile.setCaption("Files of Selected Profile");
-			List<AppDefaultParam> fileListWithOutEntity = personalizationService.getFileListWithOutEntity(selectedProfile.getId(), selectedNode.getId());
-			DataProvider data = new ListDataProvider<>(fileListWithOutEntity);
-			optionListFromProfile.setDataProvider(data);
-			
-			ListSelect<AppDefaultParam> optionListFromEntity = new ListSelect<>();
-			optionListFromEntity.setRows(8);
-			optionListFromEntity.setResponsive(true);
-			optionListFromEntity.setWidth("280px");
-			optionListFromEntity.setCaption("Files of Selected Entity");
-			List<AppDefaultParam> fileListWithEntity = personalizationService.getFileListWithEntity(selectedProfile.getId(), selectedNode.getId());
-			DataProvider dataFromEntity = new ListDataProvider<>(fileListWithEntity);
-			optionListFromEntity.setDataProvider(dataFromEntity);
-			Button rightArrow = new Button("",click ->  {
-				if (optionListFromProfile.getSelectedItems().size() > 0) {
-					addFileValue=true;
-					existingProfileFileList = optionListFromProfile.getSelectedItems().stream().collect(Collectors.toList());
-					fileListWithEntity.addAll(existingProfileFileList);
-					optionListFromEntity.setDataProvider(new ListDataProvider<>(fileListWithEntity));
-					fileListWithOutEntity.removeAll(existingProfileFileList);
-					DataProvider dataNew = new ListDataProvider<>(fileListWithOutEntity);
-					optionListFromProfile.setDataProvider(dataNew);
-				}
-			});
-			rightArrow.setIcon(VaadinIcons.ANGLE_RIGHT);
-			rightArrow.setEnabled(false);
-			Button leftArrow = new Button("",click-> {
-				if(optionListFromEntity.getSelectedItems().size() >0) {
-					deleteFileValue=true;
-					existingProfileFileEntityList = optionListFromEntity.getSelectedItems().stream().collect(Collectors.toList());
-					fileListWithOutEntity.addAll(existingProfileFileEntityList);
-					optionListFromProfile.setDataProvider(new ListDataProvider<>(fileListWithOutEntity));
-					fileListWithEntity.removeAll(existingProfileFileEntityList);
-					optionListFromEntity.setDataProvider(new ListDataProvider<>(fileListWithEntity));
-				}
-			});
-			leftArrow.setIcon(VaadinIcons.ANGLE_LEFT);
-			leftArrow.setEnabled(false);
-			VerticalLayout arrowCol = new VerticalLayout(rightArrow,leftArrow);
-			arrowCol.addStyleNames("personlization-leftAndRightArrowButtons");
-			HorizontalLayout twinColLayout = new HorizontalLayout(optionListFromProfile,arrowCol,optionListFromEntity);
-			
-			optionListFromEntity.addSelectionListener(listener->{
-				leftArrow.setEnabled(true);
-				rightArrow.setEnabled(false);
-			});
-			
-			optionListFromProfile.addSelectionListener(listener->{
-				leftArrow.setEnabled(false);
-				rightArrow.setEnabled(true);
-			});
-			
-			Button saveNode = new Button("Save", click -> {
-				if(!addFileValue &&! deleteFileValue){
-					Notification notification =  Notification.show(NotificationUtil.PERSONALIZATION_DUMMY_SAVE, Type.ERROR_MESSAGE);
-					notification.setPosition(Position.TOP_CENTER);
-				}
-				
-				if(deleteFileValue) {
-					personalizationService.deleteFileForEntity(selectedProfile.getId(), existingProfileFileEntityList, selectedNode.getId());
-					List<AppDefaultParam> fileListWithEntityForDropDown = personalizationService.getFileListWithEntity(selectedProfile.getId(), selectedNode.getId());
-					DataProvider dataFromEntityForDropDown = new ListDataProvider<>(fileListWithEntityForDropDown);
-					addtnlFilesDropDown.setDataProvider(dataFromEntityForDropDown);
-					deleteFileValue=false;
-					openProfileListWindow.close();
-				} 
-				
-				if(addProfileValue  && optionListFromEntity.getSelectedItems().isEmpty()) {
-					Notification notification =  Notification.show(NotificationUtil.PERSONALIZATION_ADDING_FILES, Type.ERROR_MESSAGE);
-					notification.setPosition(Position.TOP_CENTER);
-				}else if(addFileValue){
-					List<AppDefaultParam> fileListForUpdate = optionListFromEntity.getValue().stream().collect(Collectors.toList());
-					personalizationService.saveFileForEntity(selectedProfile.getId(), fileListForUpdate,selectedNode.getId());
-					List<AppDefaultParam> fileListWithEntityForDropDown = personalizationService.getFileListWithEntity(selectedProfile.getId(), selectedNode.getId());
-					DataProvider dataFromEntityForDropDown = new ListDataProvider<>(fileListWithEntityForDropDown);
-					addtnlFilesDropDown.setDataProvider(dataFromEntityForDropDown);
-					addFileValue=false;
-					openProfileListWindow.close();
-				}
-			});
-
-			saveNode.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
-
-			Button cancelNode = new Button("Cancel", click -> {
-				openProfileListWindow.close();
-			});
-			cancelNode.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
-			HorizontalLayout buttonLayout = new HorizontalLayout(saveNode, cancelNode);
-			FormLayout profileFormLayout = new FormLayout(twinColLayout);
-
-			// Window Setup
-			openProfileListWindow.setContent(new VerticalLayout(profileFormLayout, buttonLayout));
-			openProfileListWindow.center();
-			openProfileListWindow.setModal(true);
-			openProfileListWindow.setClosable(true);
-			openProfileListWindow.setWidth(37, Unit.PERCENTAGE);
-			return openProfileListWindow;*/
-			return null;
-		}else {
-		openProfileListWindow = new ContextMenuWindow();
-		
-		ListSelect<Profile> optionListFromApp = new ListSelect<>();
-		optionListFromApp.setRows(8);
-		optionListFromApp.setResponsive(true);
-		optionListFromApp.setWidth("150px");
-		optionListFromApp.setCaption("Profiles of Selected App");
-		List<Profile> profileListWithOutEntity = personalizationService.getProfileListWithOutEntity(selectedApp.getId(), selectedNode.getId());
-		DataProvider data = new ListDataProvider<>(profileListWithOutEntity);
-		optionListFromApp.setDataProvider(data);
-		
-		ListSelect<Profile> optionListFromEntity = new ListSelect<>();
-		optionListFromEntity.setRows(8);
-		optionListFromEntity.setResponsive(true);
-		optionListFromEntity.setWidth("150px");
-		optionListFromEntity.setCaption("Profiles of Selected Entity");
-		List<Profile> profileListWithEntity = personalizationService.getProfileListForEntity(selectedApp.getId(), selectedNode.getId());
-		DataProvider dataFromEntity = new ListDataProvider<>(profileListWithEntity);
-		optionListFromEntity.setDataProvider(dataFromEntity);
-		Button rightArrow = new Button("",click ->  {
-			if (optionListFromApp.getSelectedItems().size() > 0) {
-				addProfileValue=true;
-				existingAppProfileList = optionListFromApp.getSelectedItems().stream().collect(Collectors.toList());
-				profileListWithEntity.addAll(existingAppProfileList);
-				optionListFromEntity.setDataProvider(new ListDataProvider<>(profileListWithEntity));
-				profileListWithOutEntity.removeAll(existingAppProfileList);
-				DataProvider dataNew = new ListDataProvider<>(profileListWithOutEntity);
-				optionListFromApp.setDataProvider(dataNew);
-			}
-		});
-		rightArrow.setIcon(VaadinIcons.ANGLE_RIGHT);
-		rightArrow.setEnabled(false);
-		Button leftArrow = new Button("",click-> {
-			if(optionListFromEntity.getSelectedItems().size() >0) {
-				deleteProfileValue=true;
-				existingAppProfileEntityList = optionListFromEntity.getSelectedItems().stream().collect(Collectors.toList());
-				profileListWithOutEntity.addAll(existingAppProfileEntityList);
-				optionListFromApp.setDataProvider(new ListDataProvider<>(profileListWithOutEntity));
-				profileListWithEntity.removeAll(existingAppProfileEntityList);
-				optionListFromEntity.setDataProvider(new ListDataProvider<>(profileListWithEntity));
-			}
-		});
-		leftArrow.setEnabled(false);
-		leftArrow.setIcon(VaadinIcons.ANGLE_LEFT);
-		VerticalLayout arrowCol = new VerticalLayout(rightArrow,leftArrow);
-		arrowCol.addStyleNames("personlization-leftAndRightArrowButtons");
-		HorizontalLayout twinColLayout = new HorizontalLayout(optionListFromApp,arrowCol,optionListFromEntity);
-		
-		optionListFromEntity.addSelectionListener(listener->{
-			leftArrow.setEnabled(true);
-			rightArrow.setEnabled(false);
-		});
-		
-		optionListFromApp.addSelectionListener(listener->{
-			leftArrow.setEnabled(false);
-			rightArrow.setEnabled(true);
-		});
-		
-		Button saveNode = new Button("Save", click -> {
-			if(!addProfileValue &&! deleteProfileValue){
-				Notification notification =  Notification.show(NotificationUtil.PERSONALIZATION_DUMMY_SAVE, Type.ERROR_MESSAGE);
-				notification.setPosition(Position.TOP_CENTER);
-			}
-			
-			if(deleteProfileValue) {
-				personalizationService.deleteProfileForEntity(existingAppProfileEntityList, selectedNode.getId());
-				List<Profile> profileListWithEntityForDropDown = personalizationService.getProfileListForEntity(selectedApp.getId(), selectedNode.getId());
-				DataProvider dataFromEntityForDropDown = new ListDataProvider<>(profileListWithEntityForDropDown);
-				profileDropDown.setDataProvider(dataFromEntityForDropDown);
-				deleteProfileValue=false;
-				openProfileListWindow.close();
-			} 
-			
-			/*if(addProfileValue && optionListFromEntity.getSelectedItems().isEmpty()) {
-				Notification notification =  Notification.show(NotificationUtil.PERSONALIZATION_ADDING_PROFILES, Type.ERROR_MESSAGE);
-				notification.setPosition(Position.TOP_CENTER);
-				
-			}else*/ if(addProfileValue){
-				if(existingAppProfileList.contains(existingAppProfileEntityList)) {
-					existingAppProfileList.remove(existingAppProfileEntityList);
-				}
-					//List<Profile> profileListForUpdate = optionListFromEntity.getValue().stream().collect(Collectors.toList());
-					personalizationService.saveProfileForEntity(existingAppProfileList,selectedNode.getId(), selectedApp.getId());
-					List<Profile> profileListWithEntityForDropDown = personalizationService.getProfileListForEntity(selectedApp.getId(), selectedNode.getId());
-					DataProvider dataFromEntityForDropDown = new ListDataProvider<>(profileListWithEntityForDropDown);
-					profileDropDown.setDataProvider(dataFromEntityForDropDown);
-					addProfileValue=false;
-					openProfileListWindow.close();
-			}
-		});
-
-		saveNode.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
-
-		Button cancelNode = new Button("Cancel", click -> {
-			openProfileListWindow.close();
-		});
-		cancelNode.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
-		HorizontalLayout buttonLayout = new HorizontalLayout(saveNode, cancelNode);
-		FormLayout profileFormLayout = new FormLayout(twinColLayout);
-
-		// Window Setup
-		openProfileListWindow.setContent(new VerticalLayout(profileFormLayout, buttonLayout));
-		openProfileListWindow.center();
-		openProfileListWindow.setResizable(true);
-		openProfileListWindow.setClosable(true);
-		openProfileListWindow.setDraggable(true);
-		openProfileListWindow.setWidth("30%");
-		openProfileListWindow.setHeight("40%");
-		return openProfileListWindow;
-	}
-}
-	
-	private Window openProfileParamGridAddWindow() {
-		Window openProfileParamGridWindow =  new Window("App Profile Param Grid");
+	private ContextMenuWindow openProfileParamGridAddWindow() {
+		 openProfileParamGridWindow =  new ContextMenuWindow();
 		
 		Grid<AppDefaultParam> profileParamGrid = new Grid<>(AppDefaultParam.class);
 			profileParamGrid.setDataProvider(new ListDataProvider<>(personalizationService.getAppDefaultParamListWithoutEntity(selectedProfile.getId(), selectedNode.getId())));
@@ -1386,7 +1519,8 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		profileParamGrid.getColumn("description").setEditorComponent(new TextField());
 		profileParamGrid.getColumn("value").setEditorComponent(new TextField());
 		profileParamGrid.getColumn("type").setEditorComponent(parameterType);
-		Button saveNode = new Button("Save", click -> {
+		profileParamGrid.setWidth("100%");
+		saveNode = new Button("Save", click -> {
 			if (profileParamGrid.getSelectedItems().size() > 0) {
 					Set<AppDefaultParam> selectedParamSet = profileParamGrid.getSelectedItems();
 					personalizationService.addProfileParam(selectedProfile.getId(), selectedNode.getId(), selectedParamSet);
@@ -1401,42 +1535,26 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 
 		saveNode.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 
-		Button cancelNode = new Button("Cancel", click -> {
+	cancelNode = new Button("Cancel", click -> {
 			openProfileParamGridWindow.close();
 		});
 		cancelNode.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
-		HorizontalLayout buttonLayout = new HorizontalLayout(saveNode, cancelNode);
-		buttonLayout.addStyleNames("personlization-horizontalLayout");
-		FormLayout profileFormLayout = new FormLayout(profileParamGrid);
+		HorizontalLayout buttonLayout = new HorizontalLayout(cancelNode, saveNode);
+		buttonLayout.addStyleNames("personlization-applicationSaveCancel");
 
 		// Window Setup
 		VerticalLayout gridLayout = new VerticalLayout();
-		gridLayout.addStyleNames("personlization-verticalFormLayout");
-		gridLayout.addComponents(profileFormLayout, buttonLayout);
-		openProfileParamGridWindow.setContent(gridLayout);
+		gridLayout.addStyleNames("personlization-OverRideParametersWindow");
+		gridLayout.addComponents(profileParamGrid, buttonLayout);
+		openProfileParamGridWindow.addMenuItems(gridLayout);
 		openProfileParamGridWindow.center();
-		openProfileParamGridWindow.setModal(true);
 		openProfileParamGridWindow.setClosable(true);
-		openProfileParamGridWindow.setWidth(28, Unit.PERCENTAGE);
+		openProfileParamGridWindow.setResizable(true);
+		openProfileParamGridWindow.setWidth(32, Unit.PERCENTAGE);
 		return openProfileParamGridWindow;
 	}
 
-
-	private void getScheduleUpdate(FormLayout entityFormLayout) {
-
-		updateDropDown = new ComboBox<>();
-		updateDropDown.setDataProvider(
-				new ListDataProvider<>(Arrays.asList("Update 1", "Update 2", "Update 3", "Update 4", "Update 5")));
-		updateDropDown.setCaption("Schedule Update");
-		updateDropDown.setPlaceholder("Update");
-		updateDropDown.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size",
-				"personlization-formAlignment", "small");
-
-		entityFormLayout.addComponent(updateDropDown);
-	}
-
 	private VerticalLayout getOverRideParamGrid(VerticalLayout entityGridLayout, AppClient app, Profile profile) {
-		entityGridLayout.setHeight("100%");
 		HorizontalLayout overRideParamLabelLayout = new HorizontalLayout();
 		overRideParamLabelLayout.addStyleName("personlization-overRideParamLabelLayout");
 		HorizontalLayout overRideParamSearchButtonLayout = new HorizontalLayout();
@@ -1452,6 +1570,8 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		overRideParamLabel.addStyleName("label-style");
 		overRideParamLabel.addStyleNames(ValoTheme.LABEL_BOLD, ValoTheme.LABEL_H3);
 		overRideParamLabelLayout.addComponent(overRideParamLabel);
+		
+		ContextMenuWindow paramContextMenuWindow = new ContextMenuWindow();
 
 		overRideParamSearch = new TextField();
 		overRideParamSearch.setWidth("100%");
@@ -1473,19 +1593,6 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		});
 		overrideParamSearchCSSLayout.addComponents(overRideParamSearch, clearParamSearch);
 		
-		addParam = new Button("", VaadinIcons.GRID);
-		addParam.addStyleNames("v-button-customstyle", ValoTheme.BUTTON_FRIENDLY);
-		addParam.setDescription("Select Profiles");
-		addParam.setEnabled(true);
-		
-		addParam.addClickListener(click ->{
-			if(selectedProfile != null) {
-				UI.getCurrent().addWindow(openProfileParamGridAddWindow());
-			}else {
-				Notification.show("Select any Profile to add Override Parameters", Type.ERROR_MESSAGE);
-			}
-		});
-		
 		overRideParamSearchLayout.addComponents(overrideParamSearchCSSLayout);
 		
 		appDropDownParam = new ComboBox<AppClient>();
@@ -1493,16 +1600,19 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 			appDropDownParam.clear();
 		}
 		appDropDownParam.setCaption("");
-		appDropDownParam.setPlaceholder("Application");
+		appDropDownParam.setEmptySelectionAllowed(true);
+		appDropDownParam.setEmptySelectionCaption("(Select App)");
 		appDropDownParam.setWidth("100%");
+		appDropDownParam.setRequiredIndicatorVisible(true);
 		appDropDownParam.setValue(app);
 		appDropDownParam.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", "textfiled-height"
 				, "personlization-ParametersComboBox");
 		
 		profileDropDownParam = new ComboBox<Profile>();
 		profileDropDownParam.setCaption("");
-		profileDropDownParam.setPlaceholder("Default Profile");
-		profileDropDownParam.setDescription("Select Profile");
+		profileDropDownParam.setEmptySelectionAllowed(true);
+		profileDropDownParam.setEmptySelectionCaption("(Select Profile)");
+		profileDropDownParam.setRequiredIndicatorVisible(true);
 		profileDropDownParam.setWidth("100%");
 		profileDropDownParam.setValue(profile);
 		profileDropDownParam.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", "textfiled-height",
@@ -1514,7 +1624,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 			profileDropDownParam.clear();
 			selectedProfile=null;
 			if(selectedApp!=null) {
-				profileDropDownParam.setDataProvider(new ListDataProvider<>(personalizationService.getProfileListWithOutEntity(selectedApp.getId(), selectedNode.getId())));
+				profileDropDownParam.setDataProvider(new ListDataProvider<>(personalizationService.getProfileListForEntity(selectedApp.getId(), selectedNode.getId())));
 				parameterType.setDataProvider(new ListDataProvider<>(appStoreService.getAppParamTypeList(selectedApp.getId())));
 			}else {
 				profileDropDownParam.setItems(new ArrayList());
@@ -1523,34 +1633,24 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		
 		profileDropDownParam.addSelectionListener(listener->{
 			if(profileDropDownParam.getSelectedItem().isPresent()) {
-			selectedProfile = profileDropDown.getSelectedItem().get();
-			/*addParam.setEnabled(true);
-			deleteParam.setEnabled(true);
-			List<AppDefaultParam> fileListWithEntityForDropDown = personalizationService.getFileListWithEntity(selectedProfile.getId(), selectedNode.getId());
-			DataProvider dataFromEntityForDropDown = new ListDataProvider<>(fileListWithEntityForDropDown);
-			addtnlFilesDropDown.clear();
-			addtnlFilesDropDown.setDataProvider(dataFromEntityForDropDown);
-			overRideParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(personalizationService.getAppDefaultParamListWithEntity(selectedProfile.getId(),selectedNode.getId())));*/
+			selectedProfile = profileDropDownParam.getSelectedItem().get();
+			appParamWithEntity = personalizationService.getAppDefaultParamListWithEntity(selectedProfile.getId(),selectedNode.getId());
+			overRideParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(appParamWithEntity));
+			}else {
+				overRideParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(Collections.EMPTY_LIST));
+			}
+			
+			if(profileDropDownParam.getSelectedItem().isPresent() && edit) {
+				overRideParamGrid.getEditor().setEnabled(true);
 			}
 		});
 		
 		appDropDownParam.addStyleName("personlization-ParametersAppDropDown");
-		overRideParamAppAndParamLayout.addComponents(appDropDownParam, addParam);
-
-		deleteParam = new Button(VaadinIcons.TRASH, click -> {
-			if (nodeTree.getSelectedItems().size() == 0) {
-				Notification.show(NotificationUtil.PERSONALIZATION_DELETE, Notification.Type.ERROR_MESSAGE);
-			} else if (overRideParamGrid.getSelectedItems().isEmpty()) {
-				Notification.show(NotificationUtil.PERSONALIZATION_PARAM_DELETE, Notification.Type.ERROR_MESSAGE);
-			} else {
-				confirmDeleteOverRideParam(overRideParamGrid, overRideParamSearch);
-			}
-		});
-		deleteParam.setEnabled(false);
-		deleteParam.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
-		deleteParam.setDescription("Delete Params", ContentMode.HTML);
+		profileDropDownParam.addStyleName("personlization-ParametersAppDropDown");
+		overRideParamAppAndParamLayout.addComponents(appDropDownParam, profileDropDownParam);
 
 		overRideParamSearchButtonLayout.addComponents(overRideParamSearchLayout, overRideParamAppAndParamLayout);
+		
 
 		overRideParamGrid = new Grid<>(AppDefaultParam.class);
 		overRideParamGrid.addStyleNames("personlization-gridHeight");
@@ -1563,7 +1663,8 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		overRideParamGrid.getColumn("description").setEditorComponent(new TextField());
 		overRideParamGrid.getColumn("value").setEditorComponent(new TextField());
 		overRideParamGrid.getColumn("type").setEditorComponent(parameterType);
-		overRideParamGrid.getEditor().setEnabled(true).addSaveListener(save -> {
+		overRideParamGrid.setSelectionMode(SelectionMode.MULTI);
+		overRideParamGrid.getEditor().addSaveListener(save -> {
 			if(selectedProfile.getId()!=null) {
 			AppDefaultParam param = save.getBean();
 				AppParamFormat appParamFormat = appStoreService.getAppParamFormatByType(parameterType.getValue());
@@ -1571,6 +1672,47 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 				overRideParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(personalizationService.getAppDefaultParamListWithEntity(selectedProfile.getId(),selectedNode.getId())));
 			}
 		});
+		
+		addParam = new Button("Add Parameters");
+		addParam.addStyleNames(ValoTheme.BUTTON_BORDERLESS);
+		
+		addParam.addClickListener(click ->{
+			if(selectedProfile != null ) {
+				UI.getCurrent().addWindow(openProfileParamGridAddWindow());
+			}else {
+				Notification.show("Select any Profile to add Override Parameters", Type.ERROR_MESSAGE);
+			}
+			paramContextMenuWindow.close();
+		});
+		addParam.setEnabled(add);
+		
+		editParam = new Button("Edit Parameter", click -> {
+			if (nodeTree.getSelectedItems().size() == 0) {
+				Notification.show(NotificationUtil.PERSONALIZATION_DELETE, Notification.Type.ERROR_MESSAGE);
+			} else if (overRideParamGrid.getSelectedItems().isEmpty()) {
+				Notification.show(NotificationUtil.PERSONALIZATION_PARAM_DELETE, Notification.Type.ERROR_MESSAGE);
+			} else {
+				 List<AppDefaultParam> items = overRideParamGrid.getDataCommunicator().fetchItemsWithRange(0,overRideParamGrid.getDataCommunicator().getDataProviderSize());
+				 int rowNumber = items.indexOf(overRideParamGrid.getSelectedItems().iterator().next());
+				overRideParamGrid.getEditor().editRow(rowNumber);
+				paramContextMenuWindow.close();
+			}
+		});
+		editParam.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+		editParam.setEnabled(edit);
+		
+		deleteParam = new Button("Delete Parameters", click -> {
+			if (nodeTree.getSelectedItems().size() == 0) {
+				Notification.show(NotificationUtil.PERSONALIZATION_DELETE, Notification.Type.ERROR_MESSAGE);
+			} else if (overRideParamGrid.getSelectedItems().isEmpty()) {
+				Notification.show(NotificationUtil.PERSONALIZATION_PARAM_DELETE, Notification.Type.ERROR_MESSAGE);
+			} else {
+				confirmDeleteOverRideParam(overRideParamGrid, overRideParamSearch);
+				paramContextMenuWindow.close();
+			}
+		});
+		deleteParam.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+		deleteParam.setEnabled(delete);
 		
 		overRideParamGrid.addItemClickListener(event->{
 			if(overRideParamGrid.getEditor().isEnabled()) {
@@ -1580,7 +1722,31 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 			}
 		});
 		
-
+		paramContextMenuWindow.addMenuItems(addParam, editParam, deleteParam);
+		
+		overRideParamGrid.addContextClickListener(click -> {
+			
+			UI.getCurrent().getWindows().forEach(Window::close);
+			if(overRideParamGrid.getSelectedItems().size()>0 && delete) {
+				deleteParam.setEnabled(delete);
+			}else {
+				deleteParam.setEnabled(false);
+			}
+			
+			if(overRideParamGrid.getSelectedItems().size()==1 && edit) {
+				editParam.setEnabled(edit);
+			}else {
+				editParam.setEnabled(false);
+			}
+			
+			if(click.getClientY() > 750) {
+				paramContextMenuWindow.setPosition(click.getClientX(), click.getClientY()-220);
+			}else {
+				paramContextMenuWindow.setPosition(click.getClientX(), click.getClientY());
+			}
+			UI.getCurrent().addWindow(paramContextMenuWindow);
+		});
+		
 		overRideParamSearch.addValueChangeListener(valueChange -> {
 			if(valueChange.getValue().length()==50) {
 				Notification search = Notification.show(NotificationUtil.TEXTFIELD_LIMIT, Type.ERROR_MESSAGE);
@@ -1593,73 +1759,30 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 					}
 				});
 			}else {
-				if(selectedApp!=null) {
+				if(selectedProfile!=null) {
 					String valueInLower = valueChange.getValue().toLowerCase();
-					List<AppDefaultParam> appDefaultParamList = appStoreService.searchParams(selectedApp.getId(), valueInLower);
-					DataProvider data = new ListDataProvider(appDefaultParamList);
-					overRideParamGrid.setDataProvider(data);
+					List<AppDefaultParam> appDefaultParamList = personalizationService.searchEntityParam(selectedProfile.getId(), valueInLower);
+					if(appParamWithEntity.containsAll(appDefaultParamList)) {
+						DataProvider data = new ListDataProvider(appDefaultParamList);
+						overRideParamGrid.setDataProvider(data);
+					}else if(valueInLower.isEmpty()){
+						DataProvider data = new ListDataProvider(appParamWithEntity);
+						overRideParamGrid.setDataProvider(data);
+					}
+					else {
+						DataProvider data = new ListDataProvider(Collections.EMPTY_LIST);
+						overRideParamGrid.setDataProvider(data);
+					}
 				}
 			}
-			
-			/*ListDataProvider<AppDefaultParam> paramDataProvider = (ListDataProvider<AppDefaultParam>) overRideParamGrid
-					.getDataProvider();
-			paramDataProvider.setFilter(filter -> {
-				String parameterInLower = filter.getParameter().toLowerCase();
-				String descriptionInLower = filter.getDescription().toLowerCase();
-				String typeLower = filter.getType().toLowerCase();
-				String value = filter.getValue().toLowerCase();
-				return descriptionInLower.equals(valueInLower) || parameterInLower.contains(valueInLower)
-						|| typeLower.contains(valueInLower) || value.contains(valueInLower);
-			});*/
 		});
 
 		entityGridLayout.addComponents(overRideParamSearchButtonLayout,
 				overRideParamGrid);
+		entityGridLayout.setExpandRatio(overRideParamSearchButtonLayout, 1);
+		entityGridLayout.setExpandRatio(overRideParamGrid, 16);
 		
 		return entityGridLayout;
-	}
-
-	private Window openTreeNodeEditWindow(TreeNode nodeToEdit) {
-		Window nodeEditWindow = new Window("Edit Node");
-		String label = nodeToEdit.getLabel();
-		TextField nodeName = new TextField("Name", nodeToEdit.getLabel());
-		nodeName.addStyleNames(ValoTheme.TEXTFIELD_BORDERLESS, "role-textbox", "v-textfield-font", "v-grid-cell");
-		Button saveNode = new Button("Save", click -> {
-			if (StringUtils.isNotEmpty(nodeName.getValue())) {
-				nodeToEdit.setLabel(nodeName.getValue());
-				entityName.setValue(nodeName.getValue());
-				nodeTree.getDataProvider().refreshAll();
-				nodeEditWindow.close();
-			} else {
-				Notification notification = Notification.show(NotificationUtil.PERSONALIZATION_EDIT_ENTITY_NAME,
-						Type.ERROR_MESSAGE);
-				notification.addCloseListener(new CloseListener() {
-
-					@Override
-					public void notificationClose(CloseEvent e) {
-						nodeName.setValue(label);
-
-					}
-				});
-			}
-		});
-
-		saveNode.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
-
-		Button cancelNode = new Button("Cancel", click -> {
-			nodeEditWindow.close();
-		});
-		cancelNode.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
-		HorizontalLayout buttonLayout = new HorizontalLayout(saveNode, cancelNode);
-		FormLayout profileFormLayout = new FormLayout(nodeName);
-
-		// Window Setup
-		nodeEditWindow.setContent(new VerticalLayout(profileFormLayout, buttonLayout));
-		nodeEditWindow.center();
-		nodeEditWindow.setModal(true);
-		nodeEditWindow.setClosable(true);
-		nodeEditWindow.setWidth(30, Unit.PERCENTAGE);
-		return nodeEditWindow;
 	}
 
 	private ContextMenuWindow openEntityWindow() {
@@ -1671,20 +1794,27 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 						EntityTypeEnum.TERMINAL, EntityTypeEnum.DEVICE)));
 		entityTypeTree.addStyleNames(ValoTheme.LABEL_LIGHT, "v-textfield-font", "v-combobox-size", "textfiled-height");
 		entityTypeTree.setWidth("100%");
+		entityTypeTree.setRequiredIndicatorVisible(true);
 		
 		TextField entityName = new TextField("Name");
 		entityName.addStyleNames("v-textfield-font", "textfiled-height");
 		entityName.focus();
 		entityName.setWidth("100%");
+		entityName.setMaxLength(50);
+		entityName.setRequiredIndicatorVisible(true);
 		
 		TextField entityDescription = new TextField("Description");
 		entityDescription.addStyleNames("v-textfield-font", "textfiled-height");
 		entityDescription.setWidth("100%");
+		entityDescription.setMaxLength(50);
+		entityDescription.setRequiredIndicatorVisible(true);
 		
 		TextField entitySerialNum = new TextField("Serial Number");
 		entitySerialNum.addStyleNames("v-textfield-font", "textfiled-height");
 		entitySerialNum.setWidth("100%");
 		entitySerialNum.setEnabled(false);
+		entitySerialNum.setMaxLength(50);
+		entitySerialNum.setRequiredIndicatorVisible(true);
 		
 		entityTypeTree.addSelectionListener(selected -> {
 			if(entityTypeTree.getValue().toString().equals("TERMINAL") || entityTypeTree.getValue().toString().equals("DEVICE")) {
@@ -1701,9 +1831,8 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 						ComponentUtil.validatorTextField(entitySerialNum)) {
 					TreeNode selectedNode = nodeTree.getSelectedItems().iterator().next();
 					TreeNode newNode = new TreeNode();
-					newNode.setLabel(entityName.getValue().isEmpty() ? "Child Node" : entityName.getValue());// Pick
-																												// name
-					newNode.setDescription(entityDescription.getValue()); // textfield
+					newNode.setLabel(entityName.getValue());
+					newNode.setDescription(entityDescription.getValue());
 					if (entitySerialNum != null && !entitySerialNum.isEmpty()) {
 						newNode.setSerialNum(entitySerialNum.getValue());
 					}
@@ -1736,8 +1865,6 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 							personalizationService.createEntity(selectedNode, newNode);
 							nodeTree.setTreeData(personalizationService.getTreeData());
 							entityWindow.close();
-							TreeNode node = treeDataNodeService.findEntityData(selectedNode);
-							nodeTree.expand(node);
 						}
 						break;
 					case MERCHANT:
@@ -1818,7 +1945,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		entityWindow.addMenuItems(verticalLayout);
 		entityWindow.center();
 		entityWindow.setWidth("30%");
-		entityWindow.setHeight("42%");
+		entityWindow.setHeight("50%");
 		entityWindow.setResizable(true);
 		entityWindow.setClosable(true);
 		entityWindow.setDraggable(true);
@@ -1830,15 +1957,10 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		entityDescription.clear();
 		entityType.clear();
 		deviceDropDown.clear();
-		//activeCheckbox.clear();
 		entitySerialNum.clear();
 		activateHeartbeat.clear();
 		frequencyDropDown.clear();
 		activeBox.clear();
-		//appDropDown.clear();
-		//addtnlFilesDropDown.clear();
-		//profileDropDown.clear();
-		//updateDropDown.clear();
 	}
 
 	private void ClearGrid() {
@@ -1860,6 +1982,28 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 								overRideParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(personalizationService.getAppDefaultParamListWithEntity(selectedProfile.getId(),selectedNode.getId())));
 							overRideParamGrid.getDataProvider().refreshAll();
 							overRideParamGrid.deselectAll();
+							// TODO add Grid reload
+						} else {
+							// User did not confirm
+
+						}
+					}
+				});
+	}
+	
+	private void confirmDeleteAppProfileForEntity(Set<EntityAppProfileInfo> appProfileEntityList) {
+		ConfirmDialog.show(this.getUI(), "Please Confirm:", "Are you sure you want to delete?", "Ok", "Cancel",
+				new ConfirmDialog.Listener() {
+
+					public void onClose(ConfirmDialog dialog) {
+						if (dialog.isConfirmed()) {
+							// Confirmed to continue
+							personalizationService.deleteProfileForEntity(appProfileEntityList, selectedNode.getId());
+							
+							List<EntityAppProfileInfo> appProfileInfoList = getAppProfileInfoList(appProfileEntityList.iterator().next().getAppId(), selectedNode.getId() );
+							DataProvider data = new ListDataProvider(appProfileInfoList);
+							appGrid.setDataProvider(data);
+							
 							// TODO add Grid reload
 						} else {
 							// User did not confirm
@@ -2181,7 +2325,8 @@ public void uploadFailed(final FailedEvent event) {
 					public void onClose(ConfirmDialog dialog) {
 						if (dialog.isConfirmed()) {
 							for(AppDefaultParam file : appFileGrid.getSelectedItems()) {
-								appStoreService.deleteAppFiles(appGrid.getSelectedItems().iterator().next().getId(), file.getId());
+								appStoreService.deleteAppFiles(selectedApp.getId(), file.getId());
+								appFileGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(personalizationService.getFileListWithEntity(selectedProfile.getId(),selectedNode.getId())));
 							}
 						} else {
 							// User did not confirm
@@ -2189,5 +2334,19 @@ public void uploadFailed(final FailedEvent event) {
 						}
 					}
 				});
+	}
+	
+	private List<EntityAppProfileInfo> getAppProfileInfoList(Long appId, Long entityId){
+		List<EntityAppProfileInfo> entityAppProfileInfoList = new ArrayList<>();
+		List<Profile> clientEntityProfile = personalizationService.getProfileListForEntity(appId, entityId);
+		AppClient appClient = appStoreService.getAppById(appId);
+		if(appClient!=null) {
+			for(Profile profile : clientEntityProfile) {
+				EntityAppProfileInfo entityAppProfileInfo = new EntityAppProfileInfo(appClient.getPackageName(), appClient.getDescription(),
+						appClient.getPackageVersion(), profile.getName(), appClient.getId(), profile.getId());
+				entityAppProfileInfoList.add(entityAppProfileInfo);
+			}
+		}
+		return entityAppProfileInfoList;
 	}
 }

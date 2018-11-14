@@ -36,6 +36,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * 
+ * @author Vinay
+ *
+ */
+
 public class Devices extends AbstractEntity{
 	
 	private Integer idnumber;
@@ -98,13 +104,6 @@ public class Devices extends AbstractEntity{
 		this.active = active;
 	}
 	
-	
-	/*public List<OverRideParameters> getOverRideParamList() {
-		return overRideParamList;
-	}
-	public void setOverRideParamList(List<OverRideParameters> overRideParamList) {
-		this.overRideParamList = overRideParamList;
-	}*/
 	public List<HeartBeatHistory> getHbHistoryList() {
 		return hbHistoryList;
 	}
@@ -215,13 +214,6 @@ public class Devices extends AbstractEntity{
 	public void setActive(boolean active) {
 		this.active = active;
 	}
-//	@Override
-//	public String toString() {
-//		return "Devices [deviceName=" + deviceName + ", description=" + description + ", active=" + active
-//				+ ", manufacturer=" + manufacturer + ", rki=" + rki + ", osUpdate=" + osUpdate + ", serialNumber="
-//				+ serialNumber + ", heartBeat=" + heartBeat + ", lastSeen=" + lastSeen + ", frequency=" + frequency
-//				+ ", statusType=" + statusType + ", statistics=" + statistics + ", deviceDate=" + deviceDate + "]";
-//	}
 
 	@Override
 	public String toString() {

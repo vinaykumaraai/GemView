@@ -32,7 +32,6 @@
 package com.luretechnologies.tms.ui.view.deviceodometer;
 
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -47,7 +46,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.dialogs.ConfirmDialog;
 
 import com.luretechnologies.client.restlib.service.model.HeartbeatOdometer;
-import com.luretechnologies.tms.backend.data.entity.Audit;
 import com.luretechnologies.tms.backend.data.entity.DeviceOdometer;
 import com.luretechnologies.tms.backend.data.entity.Permission;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
@@ -72,7 +70,6 @@ import com.vaadin.server.Page;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Component;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.DateField;
 import com.vaadin.ui.Grid;
@@ -85,25 +82,29 @@ import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.renderers.HtmlRenderer;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
-import com.vaadin.ui.Tree;
 import com.vaadin.ui.TreeGrid;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 
+/**
+ * 
+ * @author Vinay
+ *
+ */
+
 @SpringView(name = DeviceodometerView.VIEW_NAME)
 public class DeviceodometerView extends VerticalLayout implements Serializable, View {
 
 	private static final String DATE_FORMAT = "dd/MM/yyyy";
-	private static final SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
 	private static final DateTimeFormatter dateFormatter1 = DateTimeFormatter.ofPattern("yyMMdd");
 	private static final long serialVersionUID = -8746130479258235216L;
 	public static final String VIEW_NAME = "deviceodometer";
 	private static final LocalDateTime localTimeNow = LocalDateTime.now();
 	private static Grid<DeviceOdometer> odometerDeviceGrid;
 	private static TreeGrid<TreeNode> nodeTreeGrid;
-	private static Button deleteGridRow, clearSearch, clearOdometerSearch;
+	private static Button clearSearch, clearOdometerSearch;
 	private static TextField treeNodeSearch, odometerDeviceSearch;
 	private static HorizontalSplitPanel splitScreen;
 	private static DateField odometerStartDateField, odometerEndDateField;
@@ -117,7 +118,6 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 	private static CssLayout deviceOdometerSearchLayout;
 	private static Button createEntity, editEntity, deleteEntity, copyEntity, pasteEntity;
 	private static HorizontalLayout header;
-	private static HorizontalLayout panelTools;
 	private ContextMenuWindow deleteContextWindow;
 	private Button deleteOdometerGrid;
 	private boolean deleteRow;
@@ -347,6 +347,16 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 			disableAllComponents();
 		deleteRow = appStorePermission.getDelete();
 			allowAccessBasedOnPermission(appStorePermission.getAdd(),appStorePermission.getEdit(),appStorePermission.getDelete());
+			
+			UI.getCurrent().addShortcutListener(new ShortcutListener("", KeyCode.ENTER, null) {
+				
+				@Override
+				public void handleAction(Object sender, Object target) {
+					treeNodeSearch.focus();
+					
+				}
+			});
+			
 		} catch(Exception ex) {
 			odometerDeviceService.logOdometerScreenErrors(ex);
 		}
@@ -382,8 +392,6 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 		dateDeleteLayout.setComponentAlignment(odometerStartDateField, Alignment.TOP_RIGHT);
 		dateDeleteLayout.addComponent(odometerEndDateField);
 		dateDeleteLayout.setComponentAlignment(odometerEndDateField, Alignment.TOP_RIGHT);
-//		dateDeleteLayout.addComponent(deleteGridRow);
-//		dateDeleteLayout.setComponentAlignment(deleteGridRow, Alignment.TOP_LEFT);
 		optionsLayoutHorizontalDesktop.addComponent(dateDeleteLayout);
 		optionsLayoutVerticalTab.addComponents(odometerSearchLayout, dateDeleteLayout);
 		
@@ -406,13 +414,8 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 		optionsLayoutHorizontalDesktop.addComponent(odometerSearchLayout);
 		optionsLayoutHorizontalDesktop.setComponentAlignment(odometerSearchLayout, Alignment.MIDDLE_LEFT);
 		dateDeleteLayout.addComponent(odometerStartDateField);
-	//	dateDeleteLayout.setComponentAlignment(odometerStartDateField, Alignment.TOP_RIGHT);
 		dateDeleteLayout.addComponent(odometerEndDateField);
-		//dateDeleteLayout.setComponentAlignment(odometerEndDateField, Alignment.TOP_RIGHT);
-		//dateDeleteLayout.addComponent(deleteGridRow);
-//		dateDeleteLayout.setComponentAlignment(deleteGridRow, Alignment.TOP_LEFT);
 		optionsLayoutHorizontalDesktop.addComponent(dateDeleteLayout);
-	//	optionsLayoutHorizontalDesktop.setComponentAlignment(dateDeleteLayout, Alignment.TOP_RIGHT);
 		optionsLayoutHorizontalDesktop.setVisible(true);
 		optionsLayoutVerticalTab.setVisible(false);
 		optionsLayoutVerticalPhone.setVisible(false);
@@ -618,18 +621,6 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 			odometerDeviceSearch.clear();
 		});
 		deviceOdometerSearchLayout.addComponents(odometerDeviceSearch, clearOdometerSearch);
-		deleteGridRow = new Button(VaadinIcons.TRASH);
-		deleteGridRow.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
-		deleteGridRow.setResponsive(true);
-//		deleteGridRow.addClickListener(clicked -> {
-//			if (odometerDeviceGrid.getSelectedItems().isEmpty()) {
-//				Notification.show(NotificationUtil.ODOMETER_DELETE, Notification.Type.ERROR_MESSAGE);
-//			} else {
-//				confirmDialog(odometerDeviceGrid.getSelectedItems().iterator().next().getId(),
-//						nodeTreeGrid.getSelectedItems().iterator().next().getEntityId(),
-//						nodeTreeGrid.getSelectedItems().iterator().next().getType().name());
-//			}
-//		});
 
 		optionsLayoutHorizontalDesktop = new HorizontalLayout();
 		optionsLayoutHorizontalDesktop.setWidth("100%");
@@ -683,13 +674,8 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 		optionsLayoutHorizontalDesktop.addComponent(odometerSearchLayout);
 		optionsLayoutHorizontalDesktop.setComponentAlignment(odometerSearchLayout, Alignment.MIDDLE_LEFT);
 		dateDeleteLayout.addComponent(odometerStartDateField);
-		//dateDeleteLayout.setComponentAlignment(odometerStartDateField, Alignment.TOP_LEFT);
 		dateDeleteLayout.addComponent(odometerEndDateField);
-		//dateDeleteLayout.setComponentAlignment(odometerEndDateField, Alignment.TOP_LEFT);
-//		dateDeleteLayout.addComponent(deleteGridRow);
-//		dateDeleteLayout.setComponentAlignment(deleteGridRow, Alignment.TOP_LEFT);
 		optionsLayoutHorizontalDesktop.addComponent(dateDeleteLayout);
-		//optionsLayoutHorizontalDesktop.setComponentAlignment(dateDeleteLayout, Alignment.TOP_LEFT);
 
 		odometerDeviceLayout.addComponent(optionsLayoutHorizontalDesktop);
 		odometerDeviceLayout.setComponentAlignment(optionsLayoutHorizontalDesktop, Alignment.TOP_LEFT);

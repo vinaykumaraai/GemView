@@ -31,11 +31,15 @@
  */
 package com.luretechnologies.tms.ui.components;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.luretechnologies.tms.ui.MainView;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.spring.annotation.SpringComponent;
+
+/**
+ * 
+ * @author Vinay
+ *
+ */
 
 @SpringComponent
 public class MainViewIconsLoad {

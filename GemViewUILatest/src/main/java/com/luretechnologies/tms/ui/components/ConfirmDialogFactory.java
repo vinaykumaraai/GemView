@@ -44,6 +44,13 @@ import com.vaadin.ui.themes.ValoTheme;
  * Singleton factory for creating the "are you sure"-type confirmation dialogs
  * in the application.
  */
+
+/**
+ * 
+ * @author Vinay
+ *
+ */
+
 @SpringComponent
 public class ConfirmDialogFactory extends DefaultConfirmDialogFactory {
 

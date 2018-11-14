@@ -45,6 +45,13 @@ import com.vaadin.spring.navigator.SpringNavigator;
 /**
  * Governs view navigation of the app.
  */
+
+/**
+ * 
+ * @author Vinay
+ *
+ */
+
 @Component
 @UIScope
 public class NavigationManager extends SpringNavigator {
