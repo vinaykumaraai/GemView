@@ -641,6 +641,7 @@ public class UserView extends VerticalLayout implements Serializable, View {
 		userGirdAndSearchLayout.addStyleName("role-gridLayout");
 		
 		userSearch = new TextField();
+		userSearch.setCursorPosition(0);
 		userSearch.setWidth("100%");
 		userSearch.setIcon(VaadinIcons.SEARCH);
 		userSearch.setStyleName("small inline-icon search");

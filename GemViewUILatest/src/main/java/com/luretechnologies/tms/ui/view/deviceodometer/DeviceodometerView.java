@@ -210,6 +210,7 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 		treeNodeSearch.addStyleName("v-textfield-font");
 		treeNodeSearch.setMaxLength(50);
 		treeNodeSearch.setHeight(37, Unit.PIXELS);
+		treeNodeSearch.setCursorPosition(0);
 		clearSearch = new Button(VaadinIcons.CLOSE);
 		clearSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"v-button-customstyle");
 		configureTreeNodeSearch();

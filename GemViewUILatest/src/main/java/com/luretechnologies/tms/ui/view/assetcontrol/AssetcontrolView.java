@@ -176,6 +176,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		treeNodeSearch.addStyleNames("v-textfield-font", "searchBar-Textfield");
 		treeNodeSearch.setPlaceholder("Search");	
 		treeNodeSearch.setMaxLength(50);
+		treeNodeSearch.setCursorPosition(0);
 		clearSearch = new Button(VaadinIcons.CLOSE);
 		clearSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		configureTreeNodeSearch();

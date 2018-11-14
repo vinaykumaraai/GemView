@@ -188,6 +188,7 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 		deviceSearch.addStyleNames("v-textfield-font", "searchBar-Textfield");
 		deviceSearch.setPlaceholder("Search");
 		deviceSearch.setMaxLength(50);
+		deviceSearch.setCursorPosition(0);
 		clearSearch = new Button(VaadinIcons.ERASER);
 		
 		horizontalPanel.setHeight("100%");

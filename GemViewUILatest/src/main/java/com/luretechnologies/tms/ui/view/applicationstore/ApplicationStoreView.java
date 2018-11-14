@@ -532,6 +532,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		applicationSearch.setHeight("37px");
 		applicationSearch.setPlaceholder("Search");
 		applicationSearch.setResponsive(true);
+		applicationSearch.setCursorPosition(0);
 		applicationSearch.addShortcutListener(new ShortcutListener("Clear", KeyCode.ESCAPE, null) {
 
 			@Override

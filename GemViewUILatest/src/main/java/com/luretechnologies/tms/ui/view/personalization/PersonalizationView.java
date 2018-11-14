@@ -343,6 +343,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		treeNodeSearch.setHeight(37, Unit.PIXELS);
 		treeNodeSearch.setWidth("100%");
 		treeNodeSearch.setMaxLength(50);
+		treeNodeSearch.setCursorPosition(0);
 		clearSearch = new Button(VaadinIcons.CLOSE);
 		clearSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"v-button-customstyle");
 	
