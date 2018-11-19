@@ -45,6 +45,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.dialogs.ConfirmDialog;
+import org.vaadin.extension.gridscroll.GridScrollExtension;
 
 import com.luretechnologies.client.restlib.service.model.AuditUserLog;
 import com.luretechnologies.tms.backend.data.entity.Audit;
@@ -117,6 +118,7 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 	private static final String debug = "debug";
 	private ContextMenuWindow deleteContextWindow;
 	private Button deleteAuditGrid;
+	private GridScrollExtension extension;
 	private boolean deleteRow, addEntity, updateEntity, accessEntity, removeEntity;
 
 	private  Button createEntity, editEntity, deleteEntity, copyEntity, pasteEntity;
@@ -208,6 +210,7 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 			treeNodeSearch.addStyleName("v-textfield-font");
 			treeNodeSearch.setPlaceholder("Search");
 			treeNodeSearch.setMaxLength(50);
+			treeNodeSearch.focus();
 			clearSearch = new Button(VaadinIcons.CLOSE);
 			clearSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 			configureTreeNodeSearch();
@@ -261,6 +264,11 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 			nodeTreeGrid.setColumns("entity","serialNum");
 			nodeTreeGrid.getColumn("serialNum").setCaption("Serial");
 			nodeTreeGrid.setHierarchyColumn("entity");
+			
+			extension = new GridScrollExtension(nodeTreeGrid);
+			extension.addGridScrolledListener(event -> {
+			    UI.getCurrent().getWindows().forEach(Window::close);
+			});
 			
 			createEntity = new Button("Add Entity");
 			createEntity.addStyleName(ValoTheme.BUTTON_BORDERLESS);
@@ -526,6 +534,11 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 			default:
 				return "";
 			}
+		});
+		
+		extension = new GridScrollExtension(debugGrid);
+		extension.addGridScrolledListener(event -> {
+		    UI.getCurrent().getWindows().forEach(Window::close);
 		});
 		
 		deleteAuditGrid = new Button("Delete Record/s", click -> {

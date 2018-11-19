@@ -46,13 +46,13 @@ import javax.annotation.PostConstruct;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.dialogs.ConfirmDialog;
+import org.vaadin.extension.gridscroll.GridScrollExtension;
 
 import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.client.restlib.service.model.AppParamFormat;
 import com.luretechnologies.tms.backend.data.entity.AppClient;
 import com.luretechnologies.tms.backend.data.entity.AppDefaultParam;
 import com.luretechnologies.tms.backend.data.entity.ApplicationFile;
-import com.luretechnologies.tms.backend.data.entity.Devices;
 import com.luretechnologies.tms.backend.data.entity.Permission;
 import com.luretechnologies.tms.backend.data.entity.Profile;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
@@ -74,7 +74,6 @@ import com.vaadin.event.ShortcutListener;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.server.Page;
-import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -165,6 +164,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 	private ComboBox<String> parameterValue;
 	private ContextMenuWindow openProfileWindow, createParamGridWindow;
 	private static List<AppDefaultParam> appParamWithEntity = new ArrayList<>();
+	private GridScrollExtension extension;
 	
 	@Autowired
 	public ApplicationStoreView(NavigationManager navigationManager) {
@@ -319,15 +319,6 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		differentModesLoad();
 		disableAllComponents();
 		allowAccessBasedOnPermission(access, add, edit, delete);
-		
-		UI.getCurrent().addShortcutListener(new ShortcutListener("", KeyCode.ENTER, null) {
-			
-			@Override
-			public void handleAction(Object sender, Object target) {
-				applicationSearch.focus();
-				
-			}
-		});
 		
 		}catch(Exception ex) {
 			appStoreService.logApplicationStoreScreenErrors(ex);
@@ -523,6 +514,13 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		appGrid.setDataProvider(appStoreService.getAppListDataProvider());
 		appGrid.setSelectionMode(SelectionMode.SINGLE);
 		
+		extension = new GridScrollExtension(appGrid);
+		extension.addGridScrolledListener(event -> {
+		    UI.getCurrent().getWindows().forEach(Window::close);
+		});
+
+
+		
 		applicationSearch = new TextField();
 		applicationSearch.setWidth("100%");
 		applicationSearch.setMaxLength(50);
@@ -532,7 +530,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		applicationSearch.setHeight("37px");
 		applicationSearch.setPlaceholder("Search");
 		applicationSearch.setResponsive(true);
-		applicationSearch.setCursorPosition(0);
+		applicationSearch.focus();
 		applicationSearch.addShortcutListener(new ShortcutListener("Clear", KeyCode.ESCAPE, null) {
 
 			@Override
@@ -628,6 +626,8 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		deleteAppGridRowMenu.setEnabled(delete);
 
 		ContextMenuWindow appGridContextMenu = new ContextMenuWindow();
+		
+		
 		appGridContextMenu.addMenuItems(createAppGridRowMenu,editAppGridRowMenu,deleteAppGridRowMenu);
 		appGrid.addContextClickListener(click->{
 			UI.getCurrent().getWindows().forEach(Window::close);
@@ -866,13 +866,12 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			}
 			setApplicationFormComponentsEnable(access, false, false, false);
 			fileButton.setEnabled(true);
-			//profileDropDown.setEnabled(true);
-
-			}
-		});
+		}
+	});
 		saveForm.setDescription("Save");
 		saveForm.setEnabled(true );
 		saveForm.addStyleNames("v-button-customstyle", ValoTheme.BUTTON_FRIENDLY);
+		saveForm.setClickShortcut(KeyCode.ENTER, null);
 		cancelForm = new Button("Cancel", click -> {
 			packageName.clear();
 			description.clear();
@@ -963,6 +962,11 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			UI.getCurrent().getWindows().forEach(Window::close);
 		});
 		
+		extension = new GridScrollExtension(appFileGrid);
+		extension.addGridScrolledListener(event -> {
+		    UI.getCurrent().getWindows().forEach(Window::close);
+		});
+		
 		Button deleteAppFileGridRowMenu = new Button("Delete File", clicked -> {
 			UI.getCurrent().getWindows().forEach(Window::close);
 			if (appGrid.getSelectedItems().isEmpty() || appFileGrid.getSelectedItems().isEmpty()) {
@@ -1021,6 +1025,11 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			}
 		});
 		
+		extension = new GridScrollExtension(appDefaultParamGrid);
+		extension.addGridScrolledListener(event -> {
+		    UI.getCurrent().getWindows().forEach(Window::close);
+		});
+		
 		appDefaultParamGrid.getEditor().addSaveListener(save -> {
 			if(selectedProfile.getId()!=null) {
 					AppParamFormat appParamFormat = appStoreService.getAppParamFormatByType(parameterType.getValue());
@@ -1028,6 +1037,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 			}
 
 		});
+		
 		
 		ContextMenuWindow paramContextWindow = new ContextMenuWindow();
 		createParamGridWindow=  new ContextMenuWindow(); 
@@ -1086,7 +1096,6 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		deleteAppDefautParamGridRowMenu.setEnabled(delete);
 		
 		paramContextWindow.addMenuItems(createAppDefaultParamGridRowMenu,editAppDefaultParamGridRowMenu,deleteAppDefautParamGridRowMenu);
-		
 		
 		appDefaultParamGrid.addContextClickListener(click->{
 			UI.getCurrent().getWindows().forEach(Window::close);
@@ -1240,6 +1249,11 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 	appProfileGrid.setSelectionMode(SelectionMode.MULTI);
 	appProfileGrid.addSelectionListener(listener->{
 		UI.getCurrent().getWindows().forEach(Window::close);
+	});
+	
+	extension = new GridScrollExtension(appProfileGrid);
+	extension.addGridScrolledListener(event -> {
+	    UI.getCurrent().getWindows().forEach(Window::close);
 	});
 	
 	ContextMenuWindow profileContextWindow = new ContextMenuWindow();
@@ -1636,10 +1650,14 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 				optionList, fileUploadWindow,appStoreService);
 
 		uploadFile.addStartedListener(event -> {
-			if (uploadInfoWindow.getParent() == null) {
-				UI.getCurrent().addWindow(uploadInfoWindow);
+			if(event !=null && !event.getFilename().isEmpty()) {
+				if (uploadInfoWindow.getParent() == null) {
+					UI.getCurrent().addWindow(uploadInfoWindow);
+				}
+			}else {
+				Notification.show("Select any file to upload", Type.ERROR_MESSAGE);
 			}
-			uploadInfoWindow.setClosable(false);
+				uploadInfoWindow.setClosable(false);
 		});
 		uploadFile.addFinishedListener(event -> uploadInfoWindow.setClosable(true));
 		fileUploadWindow.addStyleName("applicationStore-UploadWindow");
@@ -1832,7 +1850,10 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 				
 				file = new ApplicationFile(System.getProperty("java.io.tmpdir")+File.separator+filename);
 				ApplicationStoreView.applicationFilePath = file.getAbsolutePath();
+				if(file.getAbsolutePath().contains("Temp")){
+			}else {
 				fos = new FileOutputStream(file);
+			}
 			} catch (final java.io.FileNotFoundException e) {
 				new Notification("Could not open file: ", e.getMessage(), Notification.Type.ERROR_MESSAGE)
 						.show(Page.getCurrent());

@@ -42,6 +42,7 @@ import javax.annotation.PostConstruct;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.dialogs.ConfirmDialog;
+import org.vaadin.extension.gridscroll.GridScrollExtension;
 
 import com.luretechnologies.tms.backend.data.entity.Permission;
 import com.luretechnologies.tms.backend.data.entity.Role;
@@ -113,6 +114,7 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 	private HorizontalLayout labelLayoutRight;
 	private Button save, cancel;
 	private Permission pagePermission = null;
+	private GridScrollExtension extension;
 
 	@Autowired
 	public ConfirmDialogFactory confirmDialogFactory;
@@ -426,6 +428,11 @@ public class RolesView extends VerticalLayout implements Serializable, View {
 		roleGrid.addColumn(Role::getName).setCaption("Role Name");
 		roleGrid.addColumn(Role::getDescription).setCaption("Description");
 		roleGrid.addColumn(Role::isAvailable).setCaption("Active");
+		
+		extension = new GridScrollExtension(roleGrid);
+		extension.addGridScrolledListener(event -> {
+		    UI.getCurrent().getWindows().forEach(Window::close);
+		});
 
 		
 		DataProvider data = new ListDataProvider(rolesService.getRoleList());

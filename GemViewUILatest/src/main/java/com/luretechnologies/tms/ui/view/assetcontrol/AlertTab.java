@@ -35,6 +35,7 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.dialogs.ConfirmDialog;
+import org.vaadin.extension.gridscroll.GridScrollExtension;
 
 import com.luretechnologies.client.restlib.service.model.AlertAction;
 import com.luretechnologies.tms.backend.data.entity.Alert;
@@ -76,6 +77,7 @@ public class AlertTab {
 	CheckBox activeCheckBox;
 	HorizontalLayout horizontalLayout;
 	ContextMenuWindow alertFormWindow ;
+	GridScrollExtension extension;
 	public AlertTab(Grid<Alert> alertGrid, TreeGrid<TreeNode> nodeTree,UI assetControlUI, AssetControlService assetControlService,Permission assetControlpermission, Button... buttons) {
 		saveAlertForm = buttons[0];
 		cancelAlertForm = buttons[1];
@@ -434,7 +436,12 @@ public class AlertTab {
 		alertGrid.setSelectionMode(SelectionMode.MULTI);
 		alertGrid.setColumns("type", "description", "active", "email");
 		alertGrid.getColumn("type").setCaption("Alert Type");
-
+		
+		extension = new GridScrollExtension(alertGrid);
+		extension.addGridScrolledListener(event -> {
+		    UI.getCurrent().getWindows().forEach(Window::close);
+		});
+		
 		return alertGrid;
 	}
 }

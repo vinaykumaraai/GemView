@@ -44,6 +44,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.dialogs.ConfirmDialog;
+import org.vaadin.extension.gridscroll.GridScrollExtension;
 
 import com.luretechnologies.client.restlib.service.model.HeartbeatOdometer;
 import com.luretechnologies.tms.backend.data.entity.DeviceOdometer;
@@ -121,6 +122,7 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 	private ContextMenuWindow deleteContextWindow;
 	private Button deleteOdometerGrid;
 	private boolean deleteRow;
+	private GridScrollExtension extension;
 
 	@Autowired
 	public NavigationManager navigationManager; 
@@ -210,7 +212,7 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 		treeNodeSearch.addStyleName("v-textfield-font");
 		treeNodeSearch.setMaxLength(50);
 		treeNodeSearch.setHeight(37, Unit.PIXELS);
-		treeNodeSearch.setCursorPosition(0);
+		treeNodeSearch.focus();
 		clearSearch = new Button(VaadinIcons.CLOSE);
 		clearSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"v-button-customstyle");
 		configureTreeNodeSearch();
@@ -257,6 +259,11 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 		nodeTreeGrid.setColumns("entity","serialNum");
 		nodeTreeGrid.getColumn("serialNum").setCaption("Serial");
 		nodeTreeGrid.setHierarchyColumn("entity");
+		
+		extension = new GridScrollExtension(nodeTreeGrid);
+		extension.addGridScrolledListener(event -> {
+		    UI.getCurrent().getWindows().forEach(Window::close);
+		});
 		
 		createEntity = new Button("Add Entity");
 		createEntity.addStyleName(ValoTheme.BUTTON_BORDERLESS);
@@ -507,6 +514,11 @@ public class DeviceodometerView extends VerticalLayout implements Serializable, 
 		odometerDeviceGrid.setResponsive(true);
 		odometerDeviceGrid.setSelectionMode(SelectionMode.MULTI);
 		odometerDeviceGrid.setColumns("statusType", "description", "statistics");
+		
+		extension = new GridScrollExtension(odometerDeviceGrid);
+		extension.addGridScrolledListener(event -> {
+		    UI.getCurrent().getWindows().forEach(Window::close);
+		});
 		
 		deleteOdometerGrid = new Button("Delete Record/s", click -> {
 			deleteContextWindow.close();

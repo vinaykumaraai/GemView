@@ -59,13 +59,19 @@ import com.luretechnologies.tms.ui.view.Header;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.event.ShortcutListener;
+import com.vaadin.event.ShortcutAction;
 import com.vaadin.event.ShortcutAction.KeyCode;
+import com.vaadin.event.ShortcutAction.ModifierKey;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.server.Page;
 import com.vaadin.server.ThemeResource;
+import com.vaadin.shared.ui.AbstractComponentContainerState;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.spring.annotation.SpringView;
+import com.vaadin.ui.AbstractComponent;
+import com.vaadin.ui.AbstractField;
+import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
@@ -152,6 +158,7 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 	@Autowired
 	UserService userService;
 	
+	@SuppressWarnings("serial")
 	@PostConstruct
 	private void inti(){
 	  try {
@@ -188,7 +195,6 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 		deviceSearch.addStyleNames("v-textfield-font", "searchBar-Textfield");
 		deviceSearch.setPlaceholder("Search");
 		deviceSearch.setMaxLength(50);
-		deviceSearch.setCursorPosition(0);
 		clearSearch = new Button(VaadinIcons.ERASER);
 		
 		horizontalPanel.setHeight("100%");
@@ -348,19 +354,9 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 		
 		differentModesLoad(terminalButtonList,false);
 		
-
 		Permission appStorePermission = roleService.getLoggedInUserRolePermissions().stream().filter(per -> per.getPageName().equals("SYSTEM")).findFirst().get();
 			disableAllComponents();
 		allowAccessBasedOnPermission(appStorePermission.getAdd(),appStorePermission.getEdit(),appStorePermission.getDelete());
-	  
-		Page.getCurrent().getUI().addShortcutListener(new ShortcutListener("", KeyCode.ENTER, null) {
-			
-			@Override
-			public void handleAction(Object sender, Object target) {
-				deviceSearch.focus();
-				
-			}
-		});
 	  
 	  }catch(Exception ex) {
 		 heartBeatService.logHeartbeatScreenErrors(ex);
@@ -512,6 +508,7 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 		searchLayoutCss.addStyleName(ValoTheme.LAYOUT_COMPONENT_GROUP);
 		String oldSearchText = deviceSearch.getValue();
 		deviceSearch = new TextField();
+		deviceSearch.focus();
 		if(isSearchMode)
 		deviceSearch.setValue(oldSearchText);
 		

@@ -15,6 +15,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.dialogs.ConfirmDialog;
+import org.vaadin.extension.gridscroll.GridScrollExtension;
 
 import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.client.restlib.service.model.DebugItem;
@@ -126,6 +127,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 	private ContextMenuWindow paramContextWindow ;
 	private boolean addEntity, updateEntity, accessEntity, removeEntity, add, update, delete, access;
 	private OnOffSwitch  s;
+	private GridScrollExtension extension;
 	
 	@Autowired
 	public AssetcontrolView() {
@@ -176,7 +178,7 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		treeNodeSearch.addStyleNames("v-textfield-font", "searchBar-Textfield");
 		treeNodeSearch.setPlaceholder("Search");	
 		treeNodeSearch.setMaxLength(50);
-		treeNodeSearch.setCursorPosition(0);
+		treeNodeSearch.focus();
 		clearSearch = new Button(VaadinIcons.CLOSE);
 		clearSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		configureTreeNodeSearch();
@@ -227,6 +229,11 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 		nodeTree.setHierarchyColumn("entity");
 		
 		nodeTree.setColumns("entity","serialNum");
+		
+		extension = new GridScrollExtension(nodeTree);
+		extension.addGridScrolledListener(event -> {
+		    UI.getCurrent().getWindows().forEach(Window::close);
+		});
 		
 		Permission EntityPermission = roleService.getLoggedInUserRolePermissions().stream()
 				.filter(per -> per.getPageName().equals("ENTITY")).findFirst().get();
@@ -716,6 +723,11 @@ public class AssetcontrolView extends VerticalLayout implements Serializable, Vi
 			default:
 				return "";
 			}
+		});
+		
+		extension = new GridScrollExtension(debugGrid);
+		extension.addGridScrolledListener(event -> {
+		    UI.getCurrent().getWindows().forEach(Window::close);
 		});
 		
 		debugGrid.addSelectionListener(listener->{

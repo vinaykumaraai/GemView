@@ -41,6 +41,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.dialogs.ConfirmDialog;
+import org.vaadin.extension.gridscroll.GridScrollExtension;
 
 import com.luretechnologies.tms.backend.data.entity.Permission;
 import com.luretechnologies.tms.backend.data.entity.TreeNode;
@@ -115,6 +116,7 @@ public class UserView extends VerticalLayout implements Serializable, View {
 	private User selectedUser;
 	private boolean  addEntity, updateEntity, accessEntity, removeEntity;
 	private Permission userPermission ;
+	private GridScrollExtension extension;
 
 	private Button createEntity, editEntity, deleteEntity, copyEntity, pasteEntity, createUser, editUser, deleteUser;
 	private Button[] buttons= {createEntity, editEntity, deleteEntity, copyEntity, pasteEntity, createUser, editUser, deleteUser};
@@ -268,6 +270,7 @@ public class UserView extends VerticalLayout implements Serializable, View {
 			treeNodeSearch.addStyleName("v-textfield-font");
 			treeNodeSearch.setPlaceholder("Search");
 			treeNodeSearch.setMaxLength(50);
+			treeNodeSearch.focus();
 			clearSearch = new Button(VaadinIcons.CLOSE);
 			clearSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 			configureTreeNodeSearch();
@@ -322,6 +325,11 @@ public class UserView extends VerticalLayout implements Serializable, View {
 			nodeTreeGrid.setColumns("entity","serialNum");
 			nodeTreeGrid.getColumn("serialNum").setCaption("Serial");
 			nodeTreeGrid.setHierarchyColumn("entity");
+		
+			extension = new GridScrollExtension(nodeTreeGrid);
+			extension.addGridScrolledListener(event -> {
+			    UI.getCurrent().getWindows().forEach(Window::close);
+			});
 			
 			createEntity = new Button("Add Entity");
 			createEntity.addStyleNames(ValoTheme.BUTTON_BORDERLESS);
@@ -641,7 +649,6 @@ public class UserView extends VerticalLayout implements Serializable, View {
 		userGirdAndSearchLayout.addStyleName("role-gridLayout");
 		
 		userSearch = new TextField();
-		userSearch.setCursorPosition(0);
 		userSearch.setWidth("100%");
 		userSearch.setIcon(VaadinIcons.SEARCH);
 		userSearch.setStyleName("small inline-icon search");
@@ -663,6 +670,11 @@ public class UserView extends VerticalLayout implements Serializable, View {
 		userGrid.getColumn("firstname").setCaption("First Name");
 		userGrid.getColumn("username").setCaption("User Name");
 		userGrid.setSelectionMode(SelectionMode.MULTI);
+		
+		extension = new GridScrollExtension(userGrid);
+		extension.addGridScrolledListener(event -> {
+		    UI.getCurrent().getWindows().forEach(Window::close);
+		});
 		
 		userGrid.addSelectionListener(listener->{
 			UI.getCurrent().getWindows().forEach(Window::close);

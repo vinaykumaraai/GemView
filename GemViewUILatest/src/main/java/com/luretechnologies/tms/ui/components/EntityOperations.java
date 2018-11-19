@@ -344,10 +344,12 @@ public class EntityOperations {
 		serialNumber.setEnabled(false);
 		
 		entityTypeTree.addSelectionListener(selected -> {
-			if(entityTypeTree.getValue().toString().equals("TERMINAL") || entityTypeTree.getValue().toString().equals("DEVICE")) {
-				serialNumber.setEnabled(true);
-			}else {
-				serialNumber.setId("ignore");
+			if(selected!=null && selected.getValue()!=null && !selected.getValue().toString().isEmpty()) {
+				if(entityTypeTree.getValue().toString().equals("TERMINAL") || entityTypeTree.getValue().toString().equals("DEVICE")) {
+					serialNumber.setEnabled(true);
+				}else {
+					serialNumber.setId("ignore");
+				}
 			}
 		});
 		
@@ -499,8 +501,15 @@ public class EntityOperations {
 
 		save.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		cancel = new Button("Cancel", click -> {
-			entityName.clear();
-			entityDescription.clear();
+			if (update) {
+				entityName.clear();
+				entityDescription.clear();
+			}else {
+				entityTypeTree.clear();
+				entityName.clear();
+				entityDescription.clear();
+				serialNumber.clear();
+			}
 		});
 		cancel.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 		HorizontalLayout buttonLayout = new HorizontalLayout(save, cancel);

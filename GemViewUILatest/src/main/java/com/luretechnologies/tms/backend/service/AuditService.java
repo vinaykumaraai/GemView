@@ -290,12 +290,19 @@ public class AuditService extends CommonService {
 			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
 				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
 				ComponentUtil.sessionExpired(notification);
+				auditLogger.error("API Error has occured while creating an Entity in the Personlization Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			}else if(e.getMessage().contains("Already exists the device with this serial number")) {
+				Notification.show("Already exists the device with given serial number",Type.ERROR_MESSAGE);
+			}else if(e.getMessage().contains("Already exists the terminal with this serial number")) {
+				Notification.show("Already exists the terminal with given serial number",Type.ERROR_MESSAGE);
 			}else {
 				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" creating an Entity in the Personlization Screen",Type.ERROR_MESSAGE);
 				ComponentUtil.sessionExpired(notification);
+				auditLogger.error("API Error has occured while creating an Entity in the Personlization Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 			}
-			auditLogger.error("API Error has occured while creating an Entity in the Personlization Screen",e);
-			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			
 		}
 			catch (Exception e) {
 				auditLogger.error("Error occured while creating an Entity in the Personlization Screen",e);
@@ -316,7 +323,12 @@ public class AuditService extends CommonService {
 					organization.setName(node.getLabel());
 					organization.setType(node.getType());
 					organization.setEntityId(node.getEntityId());
-					RestServiceUtil.getInstance().getClient().getOrganizationApi().updateOrganization(organization.getEntityId(), organization);
+					List<Organization> organizationsList = RestServiceUtil.getInstance().getClient().getOrganizationApi().searchOrganizations("", null, null);
+					if(organizationsList.contains(organization)) {
+						Notification.show("Organization with given name already exsist", Type.ERROR_MESSAGE);
+					}else {
+						RestServiceUtil.getInstance().getClient().getOrganizationApi().updateOrganization(organization.getEntityId(), organization);
+					}
 					break;
 				case REGION:
 					Region region = new Region();
@@ -367,12 +379,18 @@ public class AuditService extends CommonService {
 			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
 				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
 				ComponentUtil.sessionExpired(notification);
+				auditLogger.error("API Error has occured while updating an Entity in the Personlization Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			}else if(e.getMessage().contains("Already exists the terminal with this serial number")) {
+				Notification.show("Already exists the terminal with given serial number",Type.ERROR_MESSAGE);
+			}else if(e.getMessage().contains("Already exists the device with this serial number")) {
+				Notification.show("Already exists the device with given serial number",Type.ERROR_MESSAGE);
 			}else {
 				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" updating an Entity in the Personlization Screen",Type.ERROR_MESSAGE);
 				ComponentUtil.sessionExpired(notification);
+				auditLogger.error("API Error has occured while updating an Entity in the Personlization Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 			}
-			auditLogger.error("API Error has occured while updating an Entity in the Personlization Screen",e);
-			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
 			catch (Exception e) {
 				auditLogger.error("Error occured while updating an Entity in the Personlization Screen",e);

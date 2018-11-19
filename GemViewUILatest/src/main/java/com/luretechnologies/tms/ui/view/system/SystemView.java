@@ -42,6 +42,7 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.dialogs.ConfirmDialog;
+import org.vaadin.extension.gridscroll.GridScrollExtension;
 
 import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.tms.backend.data.entity.Permission;
@@ -111,6 +112,7 @@ public class SystemView extends VerticalLayout implements Serializable, View {
 	private ContextMenuWindow editWindow;
 	private Button createSystemGridMenu, editSystemGridMenu, deleteSystemGridMenu;
 	private boolean add, edit , delete;
+	private GridScrollExtension extension;
 
 	@Autowired
 	public ConfirmDialogFactory confirmDialogFactory;
@@ -697,6 +699,11 @@ public class SystemView extends VerticalLayout implements Serializable, View {
 		systemGrid.addColumn(Systems::getDescription).setCaption("Description");
 		systemGrid.addColumn(Systems::getType).setCaption("Type");
 		systemGrid.addColumn(Systems::getSystemValue).setCaption("Value");
+		
+		extension = new GridScrollExtension(systemGrid);
+		extension.addGridScrolledListener(event -> {
+		    UI.getCurrent().getWindows().forEach(Window::close);
+		});
 
 		DataProvider data = new ListDataProvider(systemService.getAllSystemParam());
 		systemGrid.setDataProvider(data);

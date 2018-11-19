@@ -297,12 +297,18 @@ public class OdometerService extends CommonService{
 			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
 				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
 				ComponentUtil.sessionExpired(notification);
+				odometerLogger.error("API Error has occured while creating an Entity in the Personlization Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			}else if(e.getMessage().contains("Already exists the device with this serial number")) {
+				Notification.show("Already exists the device with given serial number",Type.ERROR_MESSAGE);
+			}else if(e.getMessage().contains("Already exists the terminal with this serial number")) {
+				Notification.show("Already exists the terminal with given serial number",Type.ERROR_MESSAGE);
 			}else {
 				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" creating an Entity in the Personlization Screen",Type.ERROR_MESSAGE);
 				ComponentUtil.sessionExpired(notification);
+				odometerLogger.error("API Error has occured while creating an Entity in the Personlization Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 			}
-			odometerLogger.error("API Error has occured while creating an Entity in the Personlization Screen",e);
-			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
 			catch (Exception e) {
 				odometerLogger.error("Error occured while creating an Entity in the Personlization Screen",e);
@@ -374,12 +380,18 @@ public class OdometerService extends CommonService{
 			if(e.getMessage().contains("EXPIRED HEADER TOKEN RECEIVED")) {
 				Notification notification = Notification.show(NotificationUtil.SESSION_EXPIRED,Type.ERROR_MESSAGE);
 				ComponentUtil.sessionExpired(notification);
+				odometerLogger.error("API Error has occured while updating an Entity in the Personlization Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
+			}else if(e.getMessage().contains("Already exists the device with this serial number")) {
+				Notification.show("Already exists the device with given serial number",Type.ERROR_MESSAGE);
+			}else if(e.getMessage().contains("Already exists the terminal with this serial number")) {
+				Notification.show("Already exists the terminal with given serial number",Type.ERROR_MESSAGE);
 			}else {
 				Notification notification = Notification.show(NotificationUtil.SERVER_EXCEPTION+" updating an Entity in the Personlization Screen",Type.ERROR_MESSAGE);
 				ComponentUtil.sessionExpired(notification);
+				odometerLogger.error("API Error has occured while updating an Entity in the Personlization Screen",e);
+				RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 			}
-			odometerLogger.error("API Error has occured while updating an Entity in the Personlization Screen",e);
-			RestClient.sendMessage(e.getMessage(), ExceptionUtils.getStackTrace(e));
 		}
 			catch (Exception e) {
 				odometerLogger.error("Error occured while updating an Entity in the Personlization Screen",e);

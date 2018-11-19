@@ -43,7 +43,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -53,6 +52,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.dialogs.ConfirmDialog;
+import org.vaadin.extension.gridscroll.GridScrollExtension;
 
 import com.luretechnologies.client.restlib.common.ApiException;
 import com.luretechnologies.client.restlib.service.model.AppParamFormat;
@@ -78,13 +78,9 @@ import com.luretechnologies.tms.ui.navigation.NavigationManager;
 import com.luretechnologies.tms.ui.view.ContextMenuWindow;
 import com.luretechnologies.tms.ui.view.Header;
 import com.luretechnologies.tms.ui.view.applicationstore.ApplicationStoreView;
-import com.vaadin.addon.charts.shared.MouseEventDetails;
-import com.vaadin.addon.charts.shared.MouseEventDetails.MouseButton;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.data.provider.Query;
-import com.vaadin.event.Action;
-import com.vaadin.event.MouseEvents;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.external.org.slf4j.Logger;
 import com.vaadin.external.org.slf4j.LoggerFactory;
@@ -183,6 +179,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 	private Button saveAppWithProfile, cancelAppWithProfile, saveFileWithProfile, cancelFileWithProfile;
 	private Long frequency;
 	private boolean add , delete, edit, access, addEntity, updateEntity, accessEntity, removeEntity;
+	private GridScrollExtension extension;
 	Logger logger = LoggerFactory.getLogger(PersonalizationView.class);
 	
 	private static final String FILE_CHOOSE_LIST = "fileChooseList";
@@ -391,6 +388,11 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		nodeTree.setHierarchyColumn("entity");
 		
 		nodeTree.setColumns("entity","serialNum");
+		
+		extension = new GridScrollExtension(nodeTree);
+		extension.addGridScrolledListener(event -> {
+		    UI.getCurrent().getWindows().forEach(Window::close);
+		});
 		
 		nodeTree.addSelectionListener(selection -> {
 			UI.getCurrent().getWindows().forEach(Window::close);
@@ -1258,6 +1260,11 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		appGrid.setHeight("100%");
 		appGrid.setSelectionMode(SelectionMode.MULTI);
 		
+		extension = new GridScrollExtension(appGrid);
+		extension.addGridScrolledListener(event -> {
+		    UI.getCurrent().getWindows().forEach(Window::close);
+		});
+		
 		appGrid.addContextClickListener(click->{
 			UI.getCurrent().getWindows().forEach(Window::close);
 			if(appGrid.getSelectedItems().size()>0 && delete) {
@@ -1319,6 +1326,11 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		appFileGrid.getColumn("parameter").setCaption("File Name");
 		appFileGrid.setSizeFull();
 		appFileGrid.setSelectionMode(SelectionMode.MULTI);
+		
+		extension = new GridScrollExtension(appFileGrid);
+		extension.addGridScrolledListener(event -> {
+		    UI.getCurrent().getWindows().forEach(Window::close);
+		});
 		
 		appDropDownFile = new ComboBox<AppClient>();
 		if(appDropDownFile!=null) {
@@ -1672,6 +1684,11 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 				personalizationService.updateParamOfEntity(selectedProfile.getId(), selectedNode.getId(), param, selectedApp.getId());
 				overRideParamGrid.setDataProvider(new ListDataProvider<AppDefaultParam>(personalizationService.getAppDefaultParamListWithEntity(selectedProfile.getId(),selectedNode.getId())));
 			}
+		});
+		
+		extension = new GridScrollExtension(overRideParamGrid);
+		extension.addGridScrolledListener(event -> {
+		    UI.getCurrent().getWindows().forEach(Window::close);
 		});
 		
 		addParam = new Button("Add Parameters");
