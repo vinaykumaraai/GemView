@@ -160,7 +160,7 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 	
 	@SuppressWarnings("serial")
 	@PostConstruct
-	private void inti(){
+	private void init(){
 	  try {
 		selectedTerminal = new TerminalClient();
 		terminalList = heartBeatService.getTerminalList();
@@ -171,6 +171,13 @@ public class HeartbeatView extends VerticalLayout implements Serializable, View 
 		deviceStatusBox.setSelectedItem("View All Devices");
 		deviceStatusBox.setWidth("50%");
 		
+		 this.addShortcutListener(new ShortcutListener("Enter", KeyCode.ENTER, null) {
+				@Override
+				public void handleAction(Object sender, Object target) {
+					deviceSearch.focus();
+					deviceSearch.setCursorPosition(0);
+				}
+			});
 		header = new Header(userService, roleService, navigationManager, "Heartbeat", new Label(), deviceStatusBox);
 		setSpacing(false);
 		setMargin(false);

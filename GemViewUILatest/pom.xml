@@ -214,7 +214,8 @@
 			<groupId>com.luretechnologies.tms.client.rest</groupId>
 			<artifactId>admin</artifactId>
 			<version>1.0.0-SNAPSHOT</version>
-			<!-- <scope>system</scope> -->
+			<scope>system</scope>
+			<systemPath>${basedir}/src/main/resources/admin-1.0.0-SNAPSHOT.jar</systemPath>
 		</dependency>
 		<!-- <dependency> <groupId>org.vaadin.addons</groupId> <artifactId>attributes</artifactId> 
 			<version>0.0.1-SNAPSHOT</version> <scope>system</scope> <systemPath>${basedir}/src/main/resources/attributes.jar</systemPath> 

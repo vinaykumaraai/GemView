@@ -189,6 +189,14 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		setSpacing(false);
 		setMargin(false);
 		setResponsive(true);
+		this.addShortcutListener(new ShortcutListener("Enter", KeyCode.ENTER, null) {
+			@Override
+			public void handleAction(Object sender, Object target) {
+				applicationSearch.focus();
+				applicationSearch.setCursorPosition(0);
+				
+			}
+		});
 		header = new Header(userService, roleService, navigationManager, "Application Store", new Label());
 		
 		Permission appStorePermission = roleService.getLoggedInUserRolePermissions().stream().filter(per -> per.getPageName().equals("APPSTORE")).findFirst().get();
@@ -530,7 +538,7 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 		applicationSearch.setHeight("37px");
 		applicationSearch.setPlaceholder("Search");
 		applicationSearch.setResponsive(true);
-		applicationSearch.focus();
+//		applicationSearch.focus();
 		applicationSearch.addShortcutListener(new ShortcutListener("Clear", KeyCode.ESCAPE, null) {
 
 			@Override

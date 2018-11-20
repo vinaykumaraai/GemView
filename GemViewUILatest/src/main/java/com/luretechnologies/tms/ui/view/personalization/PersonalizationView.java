@@ -220,9 +220,16 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 	}
 
 	@PostConstruct
-	private void inti() {
+	private void init() {
 	  try {
 		  header = new Header(userService, roleService, navigationManager, "Personlization", new Label());
+		  this.addShortcutListener(new ShortcutListener("Enter", KeyCode.ENTER, null) {
+				@Override
+				public void handleAction(Object sender, Object target) {
+					treeNodeSearch.focus();
+					treeNodeSearch.setCursorPosition(0);
+				}
+			});
 		  Permission personalizationPermission = roleService.getLoggedInUserRolePermissions().stream().filter(check -> check.getPageName().equals("PERSONALIZATION")).findFirst().get();
 
 			add = personalizationPermission.getAdd();
@@ -340,7 +347,7 @@ public class PersonalizationView extends VerticalLayout implements Serializable,
 		treeNodeSearch.setHeight(37, Unit.PIXELS);
 		treeNodeSearch.setWidth("100%");
 		treeNodeSearch.setMaxLength(50);
-		treeNodeSearch.setCursorPosition(0);
+//		treeNodeSearch.setCursorPosition(0);
 		clearSearch = new Button(VaadinIcons.CLOSE);
 		clearSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY,"v-button-customstyle");
 	
