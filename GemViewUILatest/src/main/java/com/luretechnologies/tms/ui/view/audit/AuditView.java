@@ -32,7 +32,6 @@
 package com.luretechnologies.tms.ui.view.audit;
 
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -81,13 +80,13 @@ import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
-import com.vaadin.ui.renderers.HtmlRenderer;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.TreeGrid;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
+import com.vaadin.ui.renderers.HtmlRenderer;
 import com.vaadin.ui.themes.ValoTheme;
 
 @SpringView(name = AuditView.VIEW_NAME)
@@ -150,6 +149,13 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 	private void init() {
 		try {
 			header = new Header(userService, roleService, navigationManager, "Audit", new Label());
+			 this.addShortcutListener(new ShortcutListener("Enter", KeyCode.ENTER, null) {
+					@Override
+					public void handleAction(Object sender, Object target) {
+						treeNodeSearch.focus();
+						treeNodeSearch.setCursorPosition(0);
+					}
+				});
 			Page.getCurrent().addBrowserWindowResizeListener(r -> {
 				System.out.println("Height " + r.getHeight() + "Width:  " + r.getWidth() + " in pixel");
 				if (r.getWidth() <= 1400 && r.getWidth() >= 700) {
@@ -210,7 +216,7 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 			treeNodeSearch.addStyleName("v-textfield-font");
 			treeNodeSearch.setPlaceholder("Search");
 			treeNodeSearch.setMaxLength(50);
-			treeNodeSearch.focus();
+//			treeNodeSearch.focus();
 			clearSearch = new Button(VaadinIcons.CLOSE);
 			clearSearch.addStyleNames(ValoTheme.BUTTON_FRIENDLY, "v-button-customstyle");
 			configureTreeNodeSearch();
@@ -368,14 +374,14 @@ public class AuditView extends VerticalLayout implements Serializable, View {
 			allowAccessBasedOnPermission(appStorePermission.getAdd(), appStorePermission.getEdit(),
 					deleteRow);
 			
-			this.getUI().getCurrent().addShortcutListener(new ShortcutListener("", KeyCode.ENTER, null) {
-				
-				@Override
-				public void handleAction(Object sender, Object target) {
-					treeNodeSearch.focus();
-					
-				}
-			});
+//			this.getUI().getCurrent().addShortcutListener(new ShortcutListener("", KeyCode.ENTER, null) {
+//				
+//				@Override
+//				public void handleAction(Object sender, Object target) {
+//					treeNodeSearch.focus();
+//					
+//				}
+//			});
 			
 		} catch (Exception ex) {
 			auditService.logAuditScreenErrors(ex);

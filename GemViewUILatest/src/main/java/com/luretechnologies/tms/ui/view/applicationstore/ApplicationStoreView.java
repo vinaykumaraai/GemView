@@ -185,10 +185,6 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 
 	@PostConstruct
 	private void init() {
-		try {
-		setSpacing(false);
-		setMargin(false);
-		setResponsive(true);
 		this.addShortcutListener(new ShortcutListener("Enter", KeyCode.ENTER, null) {
 			@Override
 			public void handleAction(Object sender, Object target) {
@@ -197,6 +193,10 @@ public class ApplicationStoreView extends VerticalLayout implements Serializable
 				
 			}
 		});
+		try {
+		setSpacing(false);
+		setMargin(false);
+		setResponsive(true);
 		header = new Header(userService, roleService, navigationManager, "Application Store", new Label());
 		
 		Permission appStorePermission = roleService.getLoggedInUserRolePermissions().stream().filter(per -> per.getPageName().equals("APPSTORE")).findFirst().get();
